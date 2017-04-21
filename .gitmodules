@@ -1,3 +1,12 @@
 [submodule "sol2"]
 	path = sol2
 	url = https://github.com/ThePhD/sol2.git
+[submodule "plog"]
+	path = plog
+	url = https://github.com/SergiusTheBest/plog.git
+[submodule "telnetpp"]
+	path = telnetpp
+	url = https://github.com/KazDragon/telnetpp.git
+[submodule "terminalpp"]
+	path = terminalpp
+	url = https://github.com/KazDragon/terminalpp.git
