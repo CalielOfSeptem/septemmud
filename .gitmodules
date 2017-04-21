@@ -10,3 +10,9 @@
 [submodule "terminalpp"]
 	path = terminalpp
 	url = https://github.com/KazDragon/terminalpp.git
+[submodule "json"]
+	path = json
+	url = https://github.com/nlohmann/json.git
+[submodule "Simple-Web-Server"]
+	path = Simple-Web-Server
+	url = https://github.com/eidheim/Simple-Web-Server.git
