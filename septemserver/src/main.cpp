@@ -7,6 +7,9 @@
 #include <boost/format.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
+#include <plog/Log.h>
+#include <plog/Appenders/ConsoleAppender.h>
+#include "include/entity_manager.h"
 
 namespace ba = boost::asio;
 namespace po = boost::program_options;
@@ -17,6 +20,11 @@ int main(int argc, char **argv)
     boost::property_tree::ptree pt;
     boost::property_tree::ini_parser::read_ini("config.ini", pt);
     std::cout << pt.get<std::string>("options.port") << std::endl;
+    
+    //std::string log_path = std::string(DEFAULT_LOG_PATH) + "septem";
+   // static plog::RollingFileAppender<plog::TxtFormatter> fileAppender(log_path.c_str(), 8000, 3); // Create the 1st appender.
+    static plog::ConsoleAppender<plog::TxtFormatter> consoleAppender; // Create the 2nd appender.
+    plog::init(plog::verbose, &consoleAppender);//.addAppender(&consoleAppender); // Initialize the logger with the both appenders.
 
     
     unsigned int port        = 4000;
@@ -106,6 +114,13 @@ int main(int argc, char **argv)
         
         return EXIT_FAILURE;
     }
-	
+	std::string test_room = "/home/ken/git-repos/septemmud/game_data/realms/void";
+    entity_manager::Instance().compile_script(test_room);
+    
+    std::string blah;
+    std::cout<<"";
+    std::getline(std::cin, blah);
+    std::cin.ignore();
+    
 	return 0;
 }

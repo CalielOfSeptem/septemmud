@@ -7,8 +7,15 @@
   </Plugins>
   <Description/>
   <Dependencies/>
+  <VirtualDirectory Name="include">
+    <File Name="include/entity_manager.h"/>
+    <File Name="include/script_entity.h"/>
+    <File Name="include/entity_wrapper.h"/>
+    <File Name="include/roomobj.h"/>
+  </VirtualDirectory>
   <VirtualDirectory Name="src">
-    <File Name="main.cpp"/>
+    <File Name="src/main.cpp"/>
+    <File Name="src/entity_manager.cpp"/>
   </VirtualDirectory>
   <Settings Type="Executable">
     <GlobalSettings>
@@ -23,13 +30,18 @@
     <Configuration Name="Debug" CompilerType="GCC" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
       <Compiler Options="-g;-O0;-std=c++14;-Wall" C_Options="-g;-O0;-Wall" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
         <IncludePath Value="."/>
+        <IncludePath Value="../../sol2"/>
+        <IncludePath Value="../plog/include"/>
+        <IncludePath Value="/home/ken/git-repos/lua-5.3.4/src"/>
       </Compiler>
-      <Linker Options="" Required="yes">
+      <Linker Options="-lz;-ldl" Required="yes">
+        <LibraryPath Value="/home/ken/git-repos/lua-5.3.4/src"/>
         <Library Value="boost_system"/>
         <Library Value="boost_program_options"/>
+        <Library Value="lua"/>
       </Linker>
       <ResourceCompiler Options="" Required="no"/>
-      <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./Debug" Command="./$(ProjectName)" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./Debug" Command="./$(ProjectName)" CommandArguments="-p 6666" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
       <BuildSystem Name="Default"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
         <![CDATA[]]>

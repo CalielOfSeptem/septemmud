@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=ken
-Date                   :=21/04/17
+Date                   :=22/04/17
 CodeLitePath           :=/home/ken/.codelite
 LinkerName             :=/usr/bin/g++
 SharedObjectLinkerName :=/usr/bin/g++ -shared -fPIC
@@ -35,13 +35,13 @@ PreprocessOnlySwitch   :=-E
 ObjectsFileList        :="septemserver.txt"
 PCHCompileFlags        :=
 MakeDirCommand         :=mkdir -p
-LinkOptions            :=  
-IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch). 
+LinkOptions            :=  -lz -ldl
+IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch). $(IncludeSwitch)../../sol2 $(IncludeSwitch)../plog/include $(IncludeSwitch)/home/ken/git-repos/lua-5.3.4/src 
 IncludePCH             := 
 RcIncludePath          := 
-Libs                   := $(LibrarySwitch)boost_system $(LibrarySwitch)boost_program_options 
-ArLibs                 :=  "boost_system" "boost_program_options" 
-LibPath                := $(LibraryPathSwitch). 
+Libs                   := $(LibrarySwitch)boost_system $(LibrarySwitch)boost_program_options $(LibrarySwitch)lua 
+ArLibs                 :=  "boost_system" "boost_program_options" "lua" 
+LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)/home/ken/git-repos/lua-5.3.4/src 
 
 ##
 ## Common variables
@@ -60,7 +60,7 @@ AS       := /usr/bin/as
 ## User defined environment variables
 ##
 CodeLiteDir:=/usr/share/codelite
-Objects0=$(IntermediateDirectory)/main.cpp$(ObjectSuffix) 
+Objects0=$(IntermediateDirectory)/src_main.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_entity_manager.cpp$(ObjectSuffix) 
 
 
 
@@ -96,13 +96,21 @@ PreBuild:
 ##
 ## Objects
 ##
-$(IntermediateDirectory)/main.cpp$(ObjectSuffix): main.cpp $(IntermediateDirectory)/main.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/main.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/main.cpp$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/main.cpp$(DependSuffix): main.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/main.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/main.cpp$(DependSuffix) -MM main.cpp
+$(IntermediateDirectory)/src_main.cpp$(ObjectSuffix): src/main.cpp $(IntermediateDirectory)/src_main.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/main.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_main.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/src_main.cpp$(DependSuffix): src/main.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/src_main.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/src_main.cpp$(DependSuffix) -MM src/main.cpp
 
-$(IntermediateDirectory)/main.cpp$(PreprocessSuffix): main.cpp
-	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/main.cpp$(PreprocessSuffix) main.cpp
+$(IntermediateDirectory)/src_main.cpp$(PreprocessSuffix): src/main.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_main.cpp$(PreprocessSuffix) src/main.cpp
+
+$(IntermediateDirectory)/src_entity_manager.cpp$(ObjectSuffix): src/entity_manager.cpp $(IntermediateDirectory)/src_entity_manager.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/entity_manager.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_entity_manager.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/src_entity_manager.cpp$(DependSuffix): src/entity_manager.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/src_entity_manager.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/src_entity_manager.cpp$(DependSuffix) -MM src/entity_manager.cpp
+
+$(IntermediateDirectory)/src_entity_manager.cpp$(PreprocessSuffix): src/entity_manager.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_entity_manager.cpp$(PreprocessSuffix) src/entity_manager.cpp
 
 
 -include $(IntermediateDirectory)/*$(DependSuffix)
