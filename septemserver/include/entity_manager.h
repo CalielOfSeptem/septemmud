@@ -1,8 +1,15 @@
 #ifndef ENTITY_MANANGER_H_
 #define ENTITY_MANAGER_H_
 
-#include <unordered_map>
+//#include <unordered_map>
+#include <map>
+//#include <unordered_set>
+#include <set>
 #include "entity_wrapper.h"
+#include "heartbeat_manager.h"
+#include <memory.h> //for shared_ptr
+
+//typedef std::pair<std::string, std::string> env_id_t;
 
 class entity_manager
 {
@@ -26,8 +33,24 @@ public:
     entity_manager& operator=(entity_manager const&) = delete;  // Copy assign
     entity_manager& operator=(entity_manager &&) = delete;      // Move assign
     
-    bool compile_script(std::string& path);
-
+    bool compile_script(std::string& file_path, std::string& reason);
+    
+    void invoke_heartbeat();
+    
+    void register_entity(script_entity &entityobj, EntityType etype);
+    
+    
+    /**
+     * @brief A bloody work around to link scripts with their instantiated objects
+     * @return 
+     */
+    std::string GetCurrentlyCompiledScript() { return _currently_loading_script; }
+    
+    /**
+     * @brief A bloody work around to link scripts with their instantiated objects
+     * @return 
+     */
+    sol::environment GetCurrentLoadingEnv() { return _current_loading_env; }
 protected:
     entity_manager()
     {
@@ -42,8 +65,11 @@ protected:
     
     
 private:
-    std::unordered_map< std::string, entity_wrapper > m_room_objs;
+    std::map< std::string, std::set<std::shared_ptr<entity_wrapper>> > m_room_objs;
     std::shared_ptr < sol::state > m_state;
+    heartbeat_manager _heartbeat;
+    std::string _currently_loading_script;
+    sol::environment _current_loading_env;
     
     /*
      *  Initiliaze lua state and user types 
@@ -53,7 +79,69 @@ private:
     bool _init_lua_env_( sol::state& lua, sol::environment parent, sol::environment inherit, std::string new_child_env_name, 
         sol::environment& new_child_env );
         
-    bool lua_safe_script(std::string& script_path, sol::state& lua);
+    bool lua_safe_script(std::string& script_text, sol::state& lua, sol::environment env);
+
+    bool load_script_text(std::string& script_path,
+                                      std::string& script_text,
+                                      EntityType& obj_type,
+                                      std::string& reason);
+                                      
+    /*
+     *  Room Helper Functions
+     * 
+    */
+
+    /**
+     * @brief Gets all rooms based on their associated script
+     * @param script_path Path to the room script
+     * @return Returns false if no rooms are found
+     */
+    //bool get_room_by_script(std::string& script_path, std::unordered_set<entity_wrapper>& room_ents);
+    
+    /**
+     * @brief Destroys all rooms associated with a script
+     * @param script_path Path to the room script
+     * @return Returns false if the room does not exist
+     */
+    bool destroy_room(std::string& script_path, sol::state& lua);
+    
+    
+    /**
+     * @brief Inits environments based on script_path
+     * @param script_path
+     * @param envstr
+     */
+    bool _init_entity_env( std::string& script_path, EntityType etype, sol::state& lua, sol::environment& env );
+    
+    /**
+     * @brief Returns an environment based on entity type and envstr
+     * @param envstr String value of environment
+     * @param type  EntityType
+     * @param env  Set to environment if found
+     * @return Returns false if the environment cannot be found
+     */
+    bool get_evn_from_string(std::string& envstr, EntityType& type, sol::environment& env);
+    
+    /**
+     * @brief Gets an environment based on a two-part vector
+     * @param envstr
+     * @param env_id ID of environment in the form of a pair of strings.
+     * @param env
+     * @return 
+     */
+    //bool get_evn_from_vec(std::string& envstr, env_id_t& env_id, sol::environment& env);
+    
+    void get_rooms_from_path(std::string& script_path, std::set< std::shared_ptr<entity_wrapper> >& rooms);
+    
+    /**
+     * @brief Gets the parent env for a given entity and also the name of the entity's env within the parent
+     * @param script_path
+     * @param env
+     * @param env_name
+     * @return 
+     */
+    bool get_parent_env_of_entity( std::string& script_path, sol::environment& env, std::string& env_name, sol::state& lua );
+    
 };
 
 

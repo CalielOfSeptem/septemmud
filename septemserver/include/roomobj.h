@@ -1,7 +1,8 @@
 #ifndef ROOM_OBJ_H_
 #define ROOM_OBJ_H_
-#include "include/script_entity.h"
+#include "script_entity.h"
 #include <sol.hpp>
+#include <plog/Log.h>
 
 struct exitobj
 {
@@ -75,7 +76,7 @@ public:
     
     ~roomobj()
     {
-        
+        LOG_DEBUG << "Destroyed room object.";
     }
     
     bool AddExit(sol::as_table_t<std::vector<std::string>> exit, const std::string& exit_path, bool obvious)

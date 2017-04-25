@@ -12,10 +12,15 @@
     <File Name="include/script_entity.h"/>
     <File Name="include/entity_wrapper.h"/>
     <File Name="include/roomobj.h"/>
+    <File Name="include/string_utils.h"/>
+    <File Name="include/global_settings.h"/>
+    <File Name="include/config.h"/>
+    <File Name="include/heartbeat_manager.h"/>
   </VirtualDirectory>
   <VirtualDirectory Name="src">
     <File Name="src/main.cpp"/>
     <File Name="src/entity_manager.cpp"/>
+    <File Name="src/script_entity.cpp"/>
   </VirtualDirectory>
   <Settings Type="Executable">
     <GlobalSettings>
@@ -30,14 +35,17 @@
     <Configuration Name="Debug" CompilerType="GCC" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
       <Compiler Options="-g;-O0;-std=c++14;-Wall" C_Options="-g;-O0;-Wall" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
         <IncludePath Value="."/>
+        <IncludePath Value="include/"/>
         <IncludePath Value="../../sol2"/>
         <IncludePath Value="../plog/include"/>
         <IncludePath Value="/home/ken/git-repos/lua-5.3.4/src"/>
+        <IncludePath Value="../../json/src"/>
       </Compiler>
       <Linker Options="-lz;-ldl" Required="yes">
         <LibraryPath Value="/home/ken/git-repos/lua-5.3.4/src"/>
         <Library Value="boost_system"/>
         <Library Value="boost_program_options"/>
+        <Library Value="boost_filesystem"/>
         <Library Value="lua"/>
       </Linker>
       <ResourceCompiler Options="" Required="no"/>

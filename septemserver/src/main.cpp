@@ -9,7 +9,8 @@
 #include <boost/property_tree/ini_parser.hpp>
 #include <plog/Log.h>
 #include <plog/Appenders/ConsoleAppender.h>
-#include "include/entity_manager.h"
+#include "entity_manager.h"
+#include "global_settings.h"
 
 namespace ba = boost::asio;
 namespace po = boost::program_options;
@@ -114,13 +115,31 @@ int main(int argc, char **argv)
         
         return EXIT_FAILURE;
     }
+    global_settings::Instance().SetSetting( "DEFAULT_GAME_DATA_PATH", "/home/ken/git-repos/septemmud/game_data/");
 	std::string test_room = "/home/ken/git-repos/septemmud/game_data/realms/void";
-    entity_manager::Instance().compile_script(test_room);
+    std::string reason;
+    entity_manager::Instance().compile_script(test_room, reason);
+    
+    for ( int x = 0; x< 100000; x++)
+    {
+        test_room = "/home/ken/git-repos/septemmud/game_data/realms/void";
+        entity_manager::Instance().compile_script(test_room, reason);
+    
+    }
+    
+    test_room = "/home/ken/git-repos/septemmud/game_data/realms/test/room2";
+    entity_manager::Instance().compile_script(test_room, reason);
     
     std::string blah;
-    std::cout<<"";
-    std::getline(std::cin, blah);
-    std::cin.ignore();
+    while( true )
+    {
+        std::cout<<"";
+        std::getline(std::cin, blah);
+        std::cin.ignore();
+        std::cout << "Invoking heartbeats.." << std::endl;
+        entity_manager::Instance().invoke_heartbeat();
+    }
+
     
 	return 0;
 }
