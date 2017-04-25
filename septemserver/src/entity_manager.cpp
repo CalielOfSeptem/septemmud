@@ -13,6 +13,8 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/algorithm/string.hpp>
 
+
+
 namespace fs = boost::filesystem;
 
 void get_entity_str(EntityType etype, std::string& str)
@@ -66,11 +68,27 @@ bool entity_manager::compile_script(std::string& file_path, std::string& reason)
     std::string script_text;
     EntityType etype;
     std::string error_str;
+    
 
     if(!load_script_text(file_path, script_text, etype, error_str)) {
         reason = error_str;
         return false;
     }
+    
+    for( int x = 2; x < 10; x++ )
+    {
+        
+        script_text += "p"+std::to_string(x) + " = room.new()\r\n";
+        script_text += "p"+std::to_string(x) + ":SetTitle('" + "ROOM" + std::to_string(x) + "')\r\n";
+        script_text += "function p" + std::to_string(x) +":test() print(p"+ std::to_string(x) +":GetTitle()) end\r\n";
+        script_text += "y = register_heartbeat(p"+std::to_string(x)+".test)\r\n";
+        
+            
+        script_text += "\r\n";
+    }
+
+    //std::cout << script_text;
+    
     
     // First step get the correct collcetion..
   //  std::unordered_map< std::string, entity_wrapper > & ent_ = m_room_objs; // just to initialize it
@@ -98,7 +116,6 @@ bool entity_manager::compile_script(std::string& file_path, std::string& reason)
             
           
             assert( to_load["_INTERNAL_SCRIPT_PATH_"] == script_ );
-            
             lua_safe_script(script_text, *m_state, to_load);
         }
         break;
@@ -161,6 +178,8 @@ void entity_manager::init_lua(sol::state& lua)
     lua.set_function("register_heartbeat", &heartbeat_manager::register_heartbeat_func_on, &_heartbeat);
     lua.set_function("deregister_heartbeat", &heartbeat_manager::deregister_heartbeat_func, &_heartbeat);
     lua.set_function("deregister_all_heartbeat", &heartbeat_manager::deregister_all_heartbeat_funcs, &_heartbeat);
+    
+   
 /*
     sol::environment global_env = lua.globals();
     sol::environment base_env;
@@ -400,27 +419,28 @@ void entity_manager::register_entity(script_entity& entityobj, EntityType etype)
     {
         case EntityType::ROOM:
         {
+            std::shared_ptr<entity_wrapper> ew( new entity_wrapper );
+            ew->entity_type = etype;
+         //   ew->script_env = GetCurrentLoadingEnv();
+            ew->script_path = GetCurrentlyCompiledScript();
+           // ew->script_state = this->m_state;
+            ew->script_ent = &entityobj;//sol::optional<script_entity&>(entityobj);
+           
+
+                
             //m_room_objs
             auto search = m_room_objs.find(GetCurrentlyCompiledScript());
             if(search != m_room_objs.end()) {
 
-                
+                search->second.insert(ew);
                 // Script exists, but no object matching selfobj exists in association with it
 
-                LOG_DEBUG << "Located script..";
+               // LOG_DEBUG << "Located script..";
             }
             else
             {
                 // does not exist
-                std::shared_ptr<entity_wrapper> ew( new entity_wrapper );
-                ew->entity_type = etype;
-             //   ew->script_env = GetCurrentLoadingEnv();
-                ew->script_path = GetCurrentlyCompiledScript();
-               // ew->script_state = this->m_state;
-                ew->script_ent = &entityobj;//sol::optional<script_entity&>(entityobj);
-               
                 std::set<std::shared_ptr<entity_wrapper>> new_set;
-                
                 new_set.insert( ew );
                 m_room_objs.insert( {ew->script_path, new_set} );// new_set ); //new_set );get_entity_str() 
                 std::string e_str;

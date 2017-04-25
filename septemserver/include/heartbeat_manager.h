@@ -31,7 +31,7 @@ struct heartbeat_manager
         {
             if( script_path.value().empty() )
                 return -1; // yeah.. don't go trying to use an empty value
-            std::cout << script_path.value();
+           // std::cout << script_path.value();
             bindings.insert( {++bindingId, state_wrapper (lua_state, pf, script_path.value())});
         }
         else

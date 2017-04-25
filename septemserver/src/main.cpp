@@ -120,15 +120,19 @@ int main(int argc, char **argv)
     std::string reason;
     entity_manager::Instance().compile_script(test_room, reason);
     
-    for ( int x = 0; x< 100000; x++)
+    for ( int x = 0; x< 2; x++)
     {
         test_room = "/home/ken/git-repos/septemmud/game_data/realms/void";
         entity_manager::Instance().compile_script(test_room, reason);
+        
+        test_room = "/home/ken/git-repos/septemmud/game_data/realms/test/room1";
+        entity_manager::Instance().compile_script(test_room, reason);
+        
+        test_room = "/home/ken/git-repos/septemmud/game_data/realms/test/room2";
+        entity_manager::Instance().compile_script(test_room, reason);
     
     }
-    
-    test_room = "/home/ken/git-repos/septemmud/game_data/realms/test/room2";
-    entity_manager::Instance().compile_script(test_room, reason);
+
     
     std::string blah;
     while( true )
