@@ -1,9 +1,8 @@
 #include "script_entities/script_entity.h"
 #include "entity_manager.h"
 
-script_entity::script_entity(sol::this_state ts, EntityType myType) : entity_type(myType)
+script_entity::script_entity(sol::this_state ts, EntityType myType) : m_type(myType)
 {
-    m_type = myType;
     lua_State* L = ts;
     // references the object that called this function
     // in constructors:
@@ -17,4 +16,10 @@ script_entity::script_entity(sol::this_state ts, EntityType myType) : entity_typ
     script_entity& self = selfobj.as<script_entity>();
     assert(&self == this);
     entity_manager::Instance().register_entity(*this, myType);
+}
+
+script_entity::~script_entity()
+{
+    LOG_DEBUG  << "Destroyed object, script path= " << script_path;
+    entity_manager::Instance().deregister_entity(*this, m_type);
 }

@@ -1,1 +1,1 @@
-./Debug/src_entity_manager.cpp.o ./Debug/src_main.cpp.o ./Debug/src_script_entity.cpp.o
+./Debug/src_entity_manager.cpp.o ./Debug/src_main.cpp.o ./Debug/src_script_entity.cpp.o ./Debug/src_game_manager.cpp.o

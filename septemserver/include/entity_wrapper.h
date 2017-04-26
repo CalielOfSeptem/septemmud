@@ -40,6 +40,12 @@
          return script_path + ":id=" + std::to_string(instance_id);
      }
      
+     void clear()
+     {
+         script_ent->clear_props();
+         script_ent = NULL;
+     }
+     
      std::string script_path;
      script_entity* script_ent;
      //sol::optional<sol::userdata&> script_ent;

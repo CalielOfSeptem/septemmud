@@ -1,6 +1,7 @@
 #ifndef GAME_MANAGER_H_
 #define GAME_MANAGER_H_
 #include <plog/Log.h>
+#include "entity_manager.h"
 
 enum class gameState { STOPPED, INITIALIZING, RUNNING, STOPPING, ERROR };
 
@@ -98,16 +99,16 @@ private:
             return true;
             
         }
+        assert(false);
+        return false;
     }
     
     void init()
-    {
-        LOG_DEBUG << "Begin Init";
-        SetState( gameState::RUNNING );
-    }
+    ;
     
     void do_stop()
     {
+        entity_manager::Instance().reset();
         SetState( gameState::STOPPED );
     }
     

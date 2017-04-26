@@ -1,4 +1,4 @@
-#ifndef ENTITY_MANANGER_H_
+#ifndef ENTITY_MANAGER_H_
 #define ENTITY_MANAGER_H_
 
 //#include <unordered_map>
@@ -38,7 +38,7 @@ public:
     void invoke_heartbeat();
     
     void register_entity(script_entity &entityobj, EntityType etype);
-    
+    void deregister_entity(script_entity &entityobj, EntityType etype);
     
     /**
      * @brief A bloody work around to link scripts with their instantiated objects
@@ -56,6 +56,13 @@ public:
      * @brief Loads a player into the game world
      */
     bool load_player(/* TODO: FIX SIGNATURE WHEN NETWORK CODE IS BACK IN */);
+    
+    
+    /**
+     * @brief Destroys lua state and resets everything!
+     */
+    void reset();
+    
 protected:
     entity_manager()
     {

@@ -130,5 +130,6 @@
     <File Name="src/entity_manager.cpp"/>
     <File Name="src/main.cpp"/>
     <File Name="src/script_entity.cpp"/>
+    <File Name="src/game_manager.cpp"/>
   </VirtualDirectory>
 </CodeLite_Project>

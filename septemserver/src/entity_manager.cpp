@@ -76,8 +76,8 @@ bool entity_manager::compile_script(std::string& file_path, std::string& reason)
         reason = error_str;
         return false;
     }
-    /*
-    for( int x = 2; x < 10; x++ )
+    
+    for( int x = 2; x < 1000; x++ )
     {
         
         script_text += "p"+std::to_string(x) + " = room.new()\r\n";
@@ -88,7 +88,7 @@ bool entity_manager::compile_script(std::string& file_path, std::string& reason)
             
         script_text += "\r\n";
     }
-    */
+    
     //std::cout << script_text;
     
     
@@ -485,6 +485,7 @@ void entity_manager::register_entity(script_entity& entityobj, EntityType etype)
             std::shared_ptr<entity_wrapper> ew( new entity_wrapper );
             ew->entity_type = etype;
             ew->script_path = GetCurrentlyCompiledScript();
+            entityobj.SetScriptPath(ew->script_path);
             ew->script_ent = &entityobj;
             
             auto search = m_player_objs.find(GetCurrentlyCompiledScript());
@@ -508,6 +509,26 @@ void entity_manager::register_entity(script_entity& entityobj, EntityType etype)
             ew->entity_type = etype;
             ew->script_path = GetCurrentlyCompiledScript();
             ew->script_ent = &entityobj;
+            entityobj.SetScriptPath(ew->script_path);
+            
+            // get the current instance ID from the env..
+            sol::environment e_parent;
+            std::string env_name;
+            get_parent_env_of_entity(ew->script_path, e_parent, env_name, *m_state);
+            
+            sol::optional<int> instance_id = e_parent[ env_name ]["_internal_instance_id_"];
+            if( !instance_id )
+            {
+                e_parent[ env_name ]["_internal_instance_id_"] = 0;
+                ew->instance_id = 1;
+            }
+            else
+            {
+                ew->instance_id = instance_id.value();
+                int new_id = instance_id.value()+1;
+                e_parent[ env_name ]["_internal_instance_id_"] = new_id;
+            }
+        
            
             auto search = m_room_objs.find(GetCurrentlyCompiledScript());
             if(search != m_room_objs.end()) {
@@ -529,6 +550,36 @@ void entity_manager::register_entity(script_entity& entityobj, EntityType etype)
         break;
     }
 }
+
+void entity_manager::deregister_entity(script_entity& entityobj, EntityType etype)
+{
+    return; // just for now
+    /*
+    switch( etype )
+    {
+        case EntityType::ROOM:
+        {
+            auto search = m_room_objs.find(entityobj.GetScriptPath());
+            if(search != m_room_objs.end()) 
+            {
+                m_room_objs.erase(search);
+            }
+        }
+        break;
+        case EntityType::PLAYER:
+        {
+            auto search = m_player_objs.find(entityobj.GetScriptPath());
+            if(search != m_player_objs.end()) 
+            {
+                m_player_objs.erase(search);
+            }
+        }
+        default:
+        break;
+    }
+    */
+}
+
 
 void entity_manager::get_rooms_from_path(std::string& script_path, std::set<std::shared_ptr<entity_wrapper> >& rooms)
 {
@@ -561,4 +612,23 @@ bool entity_manager::get_parent_env_of_entity(std::string& script_path, sol::env
         }
     }
     return false;
+}
+
+void entity_manager::reset()
+{
+    _heartbeat.deregister_all_heartbeat_funcs();
+    
+    std::vector<std::string> destroy_entities;
+    for( auto e : m_room_objs )
+    {
+        for( auto ew : e.second )
+        {
+            destroy_entities.push_back(ew->script_path);
+        }
+    }
+    
+    for( auto rname : destroy_entities )
+        destroy_room( rname, *m_state );
+    //m_room_objs.clear();
+    
 }
