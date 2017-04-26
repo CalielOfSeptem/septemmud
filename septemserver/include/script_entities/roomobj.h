@@ -1,6 +1,7 @@
 #ifndef ROOM_OBJ_H_
 #define ROOM_OBJ_H_
 #include "script_entity.h"
+#include "script_entities/container_base.h"
 #include <sol.hpp>
 #include <plog/Log.h>
 
@@ -59,6 +60,8 @@ struct exitobj
             this->exit.push_back(ex);
         }
     }
+    
+
 
 private:
     std::string exit_path; // path the script the exit is linked to
@@ -66,10 +69,11 @@ private:
     std::vector<std::string> exit;
 };
 
-class roomobj : public script_entity
+class roomobj : public script_entity, container_base
 {
 public:
-    roomobj(sol::this_state ts) : script_entity(ts, EntityType::ROOM)
+    roomobj(sol::this_state ts) 
+        : script_entity(ts, EntityType::ROOM)
     {
         
     }

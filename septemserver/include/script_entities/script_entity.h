@@ -12,7 +12,7 @@
 enum class EntityType { UNKNOWN, ROOM, ITEM, NPC, PLAYER, COMMAND, DAEMON };
 
 struct script_entity {
-  
+    
         script_entity(sol::this_state ts, EntityType myType);
         
         ~script_entity()
@@ -32,10 +32,30 @@ struct script_entity {
         }
         
         void clear_props() { props.clear(); }
+        
+        
+        script_entity* GetEnvironment()
+        {
+            return environment_; //.value();
+        }
 
+        void SetEnvironment(script_entity* be)
+        {
+            environment_ = be;
+        }
+        
+        
+        virtual EntityType& GetType()
+        {
+            return entity_type;
+        }
+        
+private:
         std::unordered_map<std::string, sol::object> props;
        // sol::userdata selfobj;
         EntityType m_type;
+        script_entity* environment_; 
+        EntityType entity_type = EntityType::UNKNOWN;
 };
 
 

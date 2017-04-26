@@ -1,6 +1,8 @@
 #include "entity_manager.h"
-#include "script_entity.h"
-#include "roomobj.h"
+#include "script_entities/script_entity.h"
+#include "script_entities/roomobj.h"
+#include "script_entities/livingentity.h"
+#include "script_entities/playerobj.h"
 #include "string_utils.h"
 #include "global_settings.h"
 #include "config.h"
@@ -74,7 +76,7 @@ bool entity_manager::compile_script(std::string& file_path, std::string& reason)
         reason = error_str;
         return false;
     }
-    
+    /*
     for( int x = 2; x < 10; x++ )
     {
         
@@ -86,7 +88,7 @@ bool entity_manager::compile_script(std::string& file_path, std::string& reason)
             
         script_text += "\r\n";
     }
-
+    */
     //std::cout << script_text;
     
     
@@ -111,19 +113,75 @@ bool entity_manager::compile_script(std::string& file_path, std::string& reason)
             if( rooms.size() > 0 )
                 destroy_room(script_, *m_state);
             
-            sol::environment to_load;
-            _init_entity_env(script_, etype, *m_state, to_load);
-            
-          
-            assert( to_load["_INTERNAL_SCRIPT_PATH_"] == script_ );
-            lua_safe_script(script_text, *m_state, to_load);
+
+        }
+        break;
+        case EntityType::PLAYER:
+        {
+            // logic that finds the player and reconnects them with their client object, if they have an object in the world
         }
         break;
         default:
         break;
     }
+    sol::environment to_load;
+    _init_entity_env(script_, etype, *m_state, to_load);
     
+    std::string test_ = to_load["_INTERNAL_SCRIPT_PATH_"];
+    assert(  test_ == script_ );
+   
+    lua_safe_script(script_text, *m_state, to_load);
     _currently_loading_script = "";
+    return true;
+}
+
+bool entity_manager::load_player()
+{
+    
+    std::string player_script_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
+        
+    player_script_path += global_settings::Instance().GetSetting(BASE_PLAYER_ENTITY_PATH);
+    std::string reason;
+    
+    if(compile_script(player_script_path, reason)) 
+    {
+        
+    }
+    /*
+    std::string ret;
+    if(compile_script(fpath, entities, reason)) {
+
+        for(auto ent : entities) {
+
+            switch(ent->entity_type) {
+            case EntityType::PLAYER: {
+                if(ent->script_obj) {
+                    base_entity* be = &ent->script_obj.value();
+                    player_entity* pe = dynamic_cast<player_entity*>(be);
+                    pe->client_obj = c;
+                    pe->player_name = c->get_account()->username;
+                    LOG_INFO << "Successfully loaded player: " << pe->player_name;
+                } else {
+                    LOG_ERROR << "Unable to cast player object into player_entity.";
+                }
+
+                player_objs.insert({ ent->get_object_uid(), ent });
+
+                entity_wrapper& ew = *void_room;
+                move_entity(ent, ew);
+                ret = ent->get_object_uid();
+            } break;
+            default:
+                break;
+            }
+        }
+
+        
+    } else {
+        LOG_DEBUG << "Error. Unable to load player: " << reason;
+       // return "";
+    }
+     */
     return true;
 }
 
@@ -146,34 +204,36 @@ bool entity_manager::lua_safe_script(std::string& script_text, sol::state& lua, 
 
 void entity_manager::init_lua(sol::state& lua)
 {
-    lua.open_libraries(sol::lib::base);
-
-    lua.new_usertype<roomobj>("room",
-                              sol::constructors<roomobj(sol::this_state)>(),
-                              sol::meta_function::new_index,
-                              &roomobj::set_property_lua,
-                              sol::meta_function::index,
-                              &roomobj::get_property_lua,
-                              "GetTitle",
-                              &roomobj::GetTitle,
-                              "SetTitle",
-                              &roomobj::SetTitle,
-                              "GetDescription",
-                              &roomobj::GetDescription,
-                              "SetDescription",
-                              &roomobj::SetDescription,
-                              "GetShortDescription",
-                              &roomobj::GetShortDescription,
-                              "SetShortDescription",
-                              &roomobj::SetShortDescription,
-                              "GetExits",
-                              &roomobj::GetExits,
-                              "AddExit",
-                              &roomobj::AddExit,
-                              sol::base_classes,
-                              sol::bases<script_entity>());
-
     lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::package, sol::lib::math, sol::lib::table);
+    lua.new_usertype<roomobj>("room",
+      sol::constructors<roomobj(sol::this_state)>(),
+      sol::meta_function::new_index, &roomobj::set_property_lua,
+      sol::meta_function::index, &roomobj::get_property_lua,
+      "GetTitle", &roomobj::GetTitle,
+      "SetTitle", &roomobj::SetTitle,
+      "GetDescription", &roomobj::GetDescription,
+      "SetDescription", &roomobj::SetDescription,
+      "GetShortDescription", &roomobj::GetShortDescription,
+      "SetShortDescription", &roomobj::SetShortDescription,
+      "GetExits", &roomobj::GetExits,
+      "AddExit", &roomobj::AddExit,
+      sol::base_classes,
+      sol::bases<script_entity>());
+      
+    lua.new_usertype<playerobj>("player",
+      sol::constructors<playerobj(sol::this_state)>(),
+      sol::meta_function::new_index, &playerobj::set_property_lua,
+      sol::meta_function::index, &playerobj::get_property_lua,
+        "player_name", &playerobj::player_name,
+        "SendToEntity", &playerobj::SendToEntity,
+        "GetEnvironment", &playerobj::GetEnvironment,
+        "SetEnvironment", &playerobj::SetEnvironment,
+        "GetRoom", &playerobj::GetRoom,
+        "GetType", &script_entity::GetType,
+        sol::base_classes,
+        sol::bases<living_entity, script_entity>());
+
+    
     
     lua.set_function("register_heartbeat", &heartbeat_manager::register_heartbeat_func_on, &_heartbeat);
     lua.set_function("deregister_heartbeat", &heartbeat_manager::deregister_heartbeat_func, &_heartbeat);
@@ -364,21 +424,23 @@ bool entity_manager::_init_entity_env( std::string& script_path, EntityType etyp
     
     for( auto en : strs )
     {
-        sol::optional<sol::environment> maybe_env = current_env[en];
+        sol::optional<sol::environment> maybe_env = current_env[en+"_env_"];
+        LOG_DEBUG << "Looking for environment: " << en << "_env_";
         if( maybe_env )
         {
             // it has already been initialized
             current_env = maybe_env.value(); // set it so we can go deeper..
+            LOG_DEBUG << "Environment already exists: " << en << "_env_";
             //LOG_VERBOSE << "Environment [" << en << "] already exists.";
         }
         else
         {
             // be careful with the next call, if the environment exists then
             // this function will destroy it.
-            LOG_DEBUG << "Initializing environment: " << en;
-            _init_lua_env_(lua, current_env, current_env, en, current_env);
+            LOG_DEBUG << "Initializing environment: " << en << "_env_";
+            _init_lua_env_(lua, current_env, current_env, en+"_env_", current_env);
            // just for now, so we can sanity check where we are..
-           current_env["_FS_PATH_"] = en;
+           current_env["_FS_PATH_"] = en+"_env_";
         }
     }
     
@@ -405,6 +467,7 @@ bool entity_manager::_init_lua_env_(sol::state& lua,
     sol::environment tmp = sol::environment(lua, sol::create, inherit);
     parent[new_child_env_name] = tmp;
     new_child_env = tmp;
+    LOG_DEBUG << "Creating environment: " << new_child_env_name;
     return true;
 }
 
@@ -417,36 +480,48 @@ void entity_manager::register_entity(script_entity& entityobj, EntityType etype)
 {
     switch( etype )
     {
+        case EntityType::PLAYER:
+        {
+            std::shared_ptr<entity_wrapper> ew( new entity_wrapper );
+            ew->entity_type = etype;
+            ew->script_path = GetCurrentlyCompiledScript();
+            ew->script_ent = &entityobj;
+            
+            auto search = m_player_objs.find(GetCurrentlyCompiledScript());
+            if(search != m_player_objs.end()) 
+            {
+
+                //search->second.insert(ew);
+            }
+            else
+            {
+                m_player_objs.insert( {ew->script_path, ew} );// new_set ); //new_set );get_entity_str() 
+                std::string e_str;
+                get_entity_str(ew->entity_type, e_str); 
+                LOG_DEBUG << "Registered new entity, type = " << e_str << ", Path =" << ew->script_path;
+            }
+        }
+        break;
         case EntityType::ROOM:
         {
             std::shared_ptr<entity_wrapper> ew( new entity_wrapper );
             ew->entity_type = etype;
-         //   ew->script_env = GetCurrentLoadingEnv();
             ew->script_path = GetCurrentlyCompiledScript();
-           // ew->script_state = this->m_state;
-            ew->script_ent = &entityobj;//sol::optional<script_entity&>(entityobj);
+            ew->script_ent = &entityobj;
            
-
-                
-            //m_room_objs
             auto search = m_room_objs.find(GetCurrentlyCompiledScript());
             if(search != m_room_objs.end()) {
 
                 search->second.insert(ew);
-                // Script exists, but no object matching selfobj exists in association with it
-
-               // LOG_DEBUG << "Located script..";
             }
             else
             {
-                // does not exist
                 std::set<std::shared_ptr<entity_wrapper>> new_set;
                 new_set.insert( ew );
                 m_room_objs.insert( {ew->script_path, new_set} );// new_set ); //new_set );get_entity_str() 
                 std::string e_str;
                 get_entity_str(ew->entity_type, e_str); 
                 LOG_DEBUG << "Registered new entity, type = " << e_str << ", Path =" << ew->script_path;
-               // m_room_objs[ew.script_path] = new_set;
             }
         }
         break;
@@ -477,11 +552,11 @@ bool entity_manager::get_parent_env_of_entity(std::string& script_path, sol::env
     sol::environment curr_env = lua.globals();
     for( unsigned int x = 0; x < strs.size(); x++ )
     {
-        curr_env = curr_env[strs[x]];
+        curr_env = curr_env[strs[x]+"_env_"];
         if( x == strs.size() - 2 )
         {
             env = curr_env;
-            env_name = strs[x+1];
+            env_name = strs[x+1]+"_env_";
             return true;
         }
     }

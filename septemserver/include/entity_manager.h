@@ -51,6 +51,11 @@ public:
      * @return 
      */
     sol::environment GetCurrentLoadingEnv() { return _current_loading_env; }
+    
+    /**
+     * @brief Loads a player into the game world
+     */
+    bool load_player(/* TODO: FIX SIGNATURE WHEN NETWORK CODE IS BACK IN */);
 protected:
     entity_manager()
     {
@@ -66,6 +71,7 @@ protected:
     
 private:
     std::map< std::string, std::set<std::shared_ptr<entity_wrapper>> > m_room_objs;
+    std::map< std::string, std::shared_ptr<entity_wrapper> > m_player_objs;
     std::shared_ptr < sol::state > m_state;
     heartbeat_manager _heartbeat;
     std::string _currently_loading_script;

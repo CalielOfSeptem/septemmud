@@ -1,7 +1,7 @@
-#include "script_entity.h"
+#include "script_entities/script_entity.h"
 #include "entity_manager.h"
 
-script_entity::script_entity(sol::this_state ts, EntityType myType)
+script_entity::script_entity(sol::this_state ts, EntityType myType) : entity_type(myType)
 {
     m_type = myType;
     lua_State* L = ts;

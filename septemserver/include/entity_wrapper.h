@@ -4,7 +4,7 @@
  #include <string>
  #include <vector>
  #include <boost/shared_ptr.hpp>
- #include "script_entity.h"
+ #include "script_entities/script_entity.h"
  #include <plog/Log.h>
 
  struct entity_wrapper

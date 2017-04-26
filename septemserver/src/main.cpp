@@ -11,6 +11,8 @@
 #include <plog/Appenders/ConsoleAppender.h>
 #include "entity_manager.h"
 #include "global_settings.h"
+#include "config.h"
+#include "game_manager.h"
 
 namespace ba = boost::asio;
 namespace po = boost::program_options;
@@ -115,11 +117,15 @@ int main(int argc, char **argv)
         
         return EXIT_FAILURE;
     }
-    global_settings::Instance().SetSetting( "DEFAULT_GAME_DATA_PATH", "/home/ken/git-repos/septemmud/game_data/");
+    global_settings::Instance().SetSetting( DEFAULT_GAME_DATA_PATH, "/home/ken/git-repos/septemmud/game_data/");
+    global_settings::Instance().SetSetting( BASE_PLAYER_ENTITY_PATH, "entities/playerbase");
+    global_settings::Instance().SetSetting( DEFAULT_VOID_ROOM, "realms/void");
+    
 	std::string test_room = "/home/ken/git-repos/septemmud/game_data/realms/void";
     std::string reason;
     entity_manager::Instance().compile_script(test_room, reason);
-    
+    entity_manager::Instance().compile_script(test_room, reason);
+    /*
     for ( int x = 0; x< 2; x++)
     {
         test_room = "/home/ken/git-repos/septemmud/game_data/realms/void";
@@ -132,15 +138,22 @@ int main(int argc, char **argv)
         entity_manager::Instance().compile_script(test_room, reason);
     
     }
-
+    */
+    // our pho-player for expirementation purposes
+    entity_manager::Instance().load_player();
     
+    game_manager gm;
+    
+    gm.start();
     std::string blah;
     while( true )
     {
+        gm.start();
         std::cout<<"";
         std::getline(std::cin, blah);
         std::cin.ignore();
         std::cout << "Invoking heartbeats.." << std::endl;
+        gm.stop();
         entity_manager::Instance().invoke_heartbeat();
     }
 
