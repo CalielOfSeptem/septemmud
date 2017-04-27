@@ -119,8 +119,9 @@ int main(int argc, char **argv)
     }
     
     global_settings::Instance().SetSetting( DEFAULT_GAME_DATA_PATH, "/home/ken/git-repos/septemmud/game_data/");
-    global_settings::Instance().SetSetting( BASE_PLAYER_ENTITY_PATH, "entities/playerbase");
+    global_settings::Instance().SetSetting( BASE_PLAYER_ENTITY_PATH, "entities/player");
     global_settings::Instance().SetSetting( DEFAULT_VOID_ROOM, "realms/void");
+    global_settings::Instance().SetSetting( DEFAULT_DAEMON_PATH, "daemon");
     /*
 	std::string test_room = "/home/ken/git-repos/septemmud/game_data/realms/void";
     std::string reason;
@@ -142,23 +143,39 @@ int main(int argc, char **argv)
     }
     */
     std::string blah;
+        // our pho-player for expirementation purposes
+    
+        
+    game_manager gm;
+    gm.start();
+    entity_manager::Instance().load_player();
     while( true )
     {
-    // our pho-player for expirementation purposes
-        entity_manager::Instance().load_player();
-        
-        game_manager gm;
-        
-        gm.start();
-
-        //gm.start();
-        std::cout<<"";
+        std::cout<<">";
         std::getline(std::cin, blah);
-        std::cin.ignore();
-        std::cout << "Invoking heartbeats.." << std::endl;
-       // gm.stop();
-        entity_manager::Instance().invoke_heartbeat();
-        gm.stop();
+        if( blah == "stop" )
+        {
+            gm.stop();
+        }
+        else if ( blah == "test void" )
+        {
+            if( gm.get_void_room() != NULL )
+            {
+                std::cout << "VOID TEST: OK." << std::endl;
+            }
+        }
+        else if( blah == "start" )
+        {
+            gm.start();
+            entity_manager::Instance().load_player();
+        }
+        else
+        {
+             std::cout << "Invoking heartbeats.." << std::endl;
+             gm.do_heartbeats();
+             //entity_manager::Instance().invoke_heartbeat();
+        }
+        
     }
 
     

@@ -6,6 +6,7 @@
 //#include <unordered_set>
 #include <set>
 #include "entity_wrapper.h"
+#include "script_entities/roomobj.h"
 #include "heartbeat_manager.h"
 #include <memory.h> //for shared_ptr
 
@@ -58,10 +59,18 @@ public:
     bool load_player(/* TODO: FIX SIGNATURE WHEN NETWORK CODE IS BACK IN */);
     
     
+    
     /**
      * @brief Destroys lua state and resets everything!
      */
     void reset();
+    
+    /**
+     * @brief Get room by script path, note the path is relative not full
+     * @param script_path
+     * @return 
+     */
+    roomobj * GetRoomByScriptPath(std::string & script_path, unsigned int & instance_id);
     
 protected:
     entity_manager()
@@ -78,6 +87,7 @@ protected:
     
 private:
     std::map< std::string, std::set<std::shared_ptr<entity_wrapper>> > m_room_objs;
+    std::map< std::string, std::set<std::shared_ptr<entity_wrapper>> > m_daemon_objs;
     std::map< std::string, std::shared_ptr<entity_wrapper> > m_player_objs;
     std::shared_ptr < sol::state > m_state;
     heartbeat_manager _heartbeat;
@@ -118,6 +128,22 @@ private:
      */
     bool destroy_room(std::string& script_path, sol::state& lua);
     
+    /**
+     * @brief Destroys player associated with a script
+     * @param script_path
+     * @param lua
+     * @return 
+     */
+    bool destroy_player(std::string& script_path, sol::state& lua);
+    
+    /**
+     * @brief Destroys all daemons associated with a script
+     * @param script_path
+     * @param lua
+     * @return 
+     */
+    bool destroy_daemon(std::string& script_path, sol::state& lua);
+    
     
     /**
      * @brief Inits environments based on script_path
@@ -155,6 +181,8 @@ private:
      */
     bool get_parent_env_of_entity( std::string& script_path, sol::environment& env, std::string& env_name, sol::state& lua );
     
+    
+    void brute_force_kill_env(sol::state& lua, sol::environment& env);
 };
 
 

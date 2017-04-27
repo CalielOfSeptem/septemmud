@@ -22,6 +22,12 @@ struct game_manager
         return SetState( gameState::STOPPING );
     }
     
+    void do_heartbeats()
+    {
+        entity_manager::Instance().invoke_heartbeat();
+    }
+    
+    roomobj* get_void_room();
 
     
 private:
