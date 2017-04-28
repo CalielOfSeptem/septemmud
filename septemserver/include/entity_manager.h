@@ -93,6 +93,7 @@ private:
     heartbeat_manager _heartbeat;
     std::string _currently_loading_script;
     sol::environment _current_loading_env;
+    sol::protected_function _current_script_f_;
     
     /*
      *  Initiliaze lua state and user types 
@@ -102,7 +103,7 @@ private:
     bool _init_lua_env_( sol::state& lua, sol::environment parent, sol::environment inherit, std::string new_child_env_name, 
         sol::environment& new_child_env );
         
-    bool lua_safe_script(std::string& script_text, sol::state& lua, sol::environment env);
+    bool lua_safe_script(std::string& script_text, sol::state& lua, sol::environment env, std::string &reason);
 
     bool load_script_text(std::string& script_path,
                                       std::string& script_text,
@@ -144,6 +145,8 @@ private:
      */
     bool destroy_daemon(std::string& script_path, sol::state& lua);
     
+    bool destroy_entity(std::shared_ptr<entity_wrapper>& ew);
+    
     
     /**
      * @brief Inits environments based on script_path
@@ -180,9 +183,7 @@ private:
      * @return 
      */
     bool get_parent_env_of_entity( std::string& script_path, sol::environment& env, std::string& env_name, sol::state& lua );
-    
-    
-    void brute_force_kill_env(sol::state& lua, sol::environment& env);
+
 };
 
 

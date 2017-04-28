@@ -48,6 +48,7 @@
      
      std::string script_path;
      script_entity* script_ent;
+     sol::protected_function _script_f_; // holds script function to kill environment when necessary.
      //sol::optional<sol::userdata&> script_ent;
     // sol::optional<sol::environment> script_env;
     // sol::optional<sol::environment> parent_env;

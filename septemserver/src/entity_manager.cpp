@@ -137,7 +137,7 @@ bool entity_manager::compile_script(std::string& file_path, std::string& reason)
     std::string test_ = to_load["_INTERNAL_SCRIPT_PATH_"];
     assert(  test_ == script_ );
    
-    lua_safe_script(script_text, *m_state, to_load);
+    lua_safe_script(script_text, *m_state, to_load, reason);
     _currently_loading_script = "";
     return true;
 }
@@ -216,8 +216,9 @@ bool entity_manager::load_player()
     return true;
 }
 
-bool entity_manager::lua_safe_script(std::string& script_text, sol::state& lua, sol::environment env)
+bool entity_manager::lua_safe_script(std::string& script_text, sol::state& lua, sol::environment env, std::string& reason)
 {
+    /*
     auto simple_handler = [](lua_State*, sol::protected_function_result result) {
         // You can just pass it through to let the call-site handle it
         return result;
@@ -230,7 +231,30 @@ bool entity_manager::lua_safe_script(std::string& script_text, sol::state& lua, 
         sol::error err = result;
         LOG_ERROR << err.what();
     }
-    return false;
+    */
+    sol::load_result lr = lua.load(script_text);
+    if(!lr.valid()) {
+        sol::error err = lr;
+        reason = err.what();
+        return false;
+    }
+    
+    _current_script_f_ = lr;//lua.load(script_text);
+    
+    env.set_on(_current_script_f_);
+    
+    sol::protected_function_result result = _current_script_f_(); 
+    if(!result.valid()) {
+        sol::error err = result;
+        reason = err.what();
+        // std::cout << "call failed, sol::error::what() is " << what << std::endl;
+        return false;
+    } 
+  //  _current_script_f_ = pf;
+   // sol::environment genv = lua.globals();
+   // genv.set_on(pf);
+
+    return true;
 }
 
 void entity_manager::init_lua(sol::state& lua)
@@ -425,9 +449,7 @@ bool entity_manager::destroy_player(std::string& script_path, sol::state& lua)
         std::string name;
         get_parent_env_of_entity(script_path, env, name, lua);
         
-        entity_wrapper & ew = *search->second;
-        ew.script_ent->clear_props();// = NULL;
-        search->second.reset();
+        destroy_entity(search->second);
         
         env[name] = sol::nil;
         m_player_objs.erase(search);
@@ -456,9 +478,7 @@ bool entity_manager::destroy_room(std::string& script_path, sol::state& lua)
         
         for( auto e : search->second )
         {
-            entity_wrapper & ew = *e;
-            ew.script_ent->clear_props();// = NULL;
-            e.reset();
+            destroy_entity(e);
         }
         
         env[name] = sol::nil;
@@ -486,12 +506,9 @@ bool entity_manager::destroy_daemon(std::string& script_path, sol::state& lua)
         
         for( auto e : search->second )
         {
-            entity_wrapper & ew = *e;
-            ew.script_ent->clear_props();// = NULL;
-            e.reset();
+            destroy_entity(e);
         }
-        sol::environment en_ = env[name];
-        brute_force_kill_env(*m_state, en_);
+        sol::environment en_ = (*m_state).globals();//env[name];
         env[name] = sol::nil;
         m_daemon_objs.erase(search);
 
@@ -502,129 +519,14 @@ bool entity_manager::destroy_daemon(std::string& script_path, sol::state& lua)
     return true;
 }
 
-void entity_manager::brute_force_kill_env(sol::state& lua, sol::environment& env)
+
+bool entity_manager::destroy_entity(std::shared_ptr<entity_wrapper>& ew)
 {
-   
-    std::unordered_set<std::string> base_library_names({ "_G", // global table
-                                                         "base",
-                                                         "io",
-                                                         "os",
-                                                         "utf8",
-                                                         "jit",
-                                                         "package",
-                                                         "loaded",
-                                                         "preload",
-                                                         "coroutine",
-                                                         "string",
-                                                         "math",
-                                                         "table",
-                                                         "debug",
-                                                         "bit32" });
-    // Our recursive function
-    // We use some lambda techniques and pass the function itself itself so we can recurse,
-    // but a regular function would work too!
-
-    auto fx = [&lua, &env, &base_library_names](auto& f, auto& tbl) -> void {
-        // You can iterate through a table: it has
-        // begin() and end()
-        // like standard containers
-        for(auto key_value_pair : tbl) {
-            // Note that iterators are extremely frail
-            // and should not be used outside of
-            // well-constructed for loops
-            // that use pre-increment ++,
-            // or C++ ranged-for loops
-            const sol::object& key = key_value_pair.first;
-            const sol::object& value = key_value_pair.second;
-            sol::type t = value.get_type();
-           // std::cerr << t << std::endl;
-           
-            if (key.is<std::string>())
-            {
-               std::cout << "key " << key.as<std::string>() << " is a unknown -- " << std::endl;
-            }
-            switch(t) {
-            case sol::type::function: {
-                if (key.is<std::string>())
-                {
-                   std::cout << "key " << key.as<std::string>() << " is a function -- " << std::endl;
-                // use this later to find interface functions we need
-                // std::cout << "value " << value.as<std::string>() << " is a sig -- " << std::endl;
-                // sol::optional<room&> maybe_function = value.as<sol::optional<sol::function&>>();
-                // sol::function& v = value;
-                // if (v) {
-                //     cout << "OK";
-                // }
-                }
-                break;
-            }
-            case sol::type::table: {
-                sol::optional<std::string> maybe_strkey = key.as<sol::optional<std::string> >();
-                if(maybe_strkey) {
-                    std::string& strkey = maybe_strkey.value();
-                    std::cout << "key " << strkey << " is a table..." << std::endl;
-                    if(base_library_names.find(strkey) != base_library_names.end()) {
-                        //  std::cout << " built-in detected: skipping!" << std::endl;
-                        continue;
-                    }
-                    //   std::cout << std::endl;
-                }
-                sol::table inner = value.as<sol::table>();
-                f(f, inner);
-            } break;
-            case sol::type::userdata: {
-                // This allows us to check if a userdata is
-                // a specific class type
-                /*
-                sol::optional<room&> maybe_room = value.as<sol::optional<room&> >();
-                if(maybe_room) {
-                    entity_type = EntityType::ROOM;
-                    bFindObject = true;
-                    obj_names.push_back(key.as<std::string>());
-                    break;
-                }
-                sol::optional<command&> maybe_command = value.as<sol::optional<command&> >();
-                if(maybe_command) {
-                    entity_type = EntityType::COMMAND;
-                    bFindObject = true;
-                    obj_names.push_back(key.as<std::string>());
-                    break;
-                }
-                sol::optional<player_entity&> maybe_player = value.as<sol::optional<player_entity&> >();
-                if(maybe_player) {
-                    entity_type = EntityType::PLAYER;
-                    bFindObject = true;
-                    obj_names.push_back(key.as<std::string>());
-                    break;
-                }
-                sol::optional<daemonobj&> maybe_daemon = value.as<sol::optional<daemonobj&> >();
-                if(maybe_daemon) {
-                    entity_type = EntityType::DAEMON;
-                    bFindObject = true;
-                    obj_names.push_back(key.as<std::string>());
-                    break;
-                }
-                 */ 
-
-            } break;
-            
-            default:
-                if (key.is<std::string>())
-                {
-                   std::cout << "key " << key.as<std::string>() << " is a unknown -- " << std::endl;
-                }
-                // std::cout << "";
-                break;
-            }
-        }
-    };
-
-    sol::table globals = env;//lua[env_path[0]][env_path[1]];//"_room_env"]["realms_void"];////env_path];//lua.globals();
-
-    fx(fx, globals);
-
-    return;
-
+    ew->script_ent->clear_props();// = NULL;
+    sol::environment genv = (*m_state).globals();
+    genv.set_on(ew->_script_f_);
+    ew.reset();
+    return true;
 }
 
 
@@ -685,7 +587,8 @@ bool entity_manager::_init_lua_env_(sol::state& lua,
     parent[new_child_env_name] = tmp;
     //std::string force_weak = "setmetatable(" + new_child_env_name + ", {__mode = 'k'})"; 
     //lua.script( force_weak , parent);
-    tmp["__mode"] = "'v'"; 
+   // __index = _G
+    //tmp["__index"] = "_G"; 
     new_child_env = tmp;
     LOG_DEBUG << "Creating environment: " << new_child_env_name;
     return true;
@@ -698,16 +601,44 @@ void entity_manager::invoke_heartbeat()
 
 void entity_manager::register_entity(script_entity& entityobj, EntityType etype)
 {
+    std::shared_ptr<entity_wrapper> ew( new entity_wrapper );
+    ew->entity_type = etype;
+    ew->script_path = GetCurrentlyCompiledScript();
+    entityobj.SetScriptPath(ew->script_path);
+    ew->script_ent = &entityobj;
+    ew->_script_f_ = _current_script_f_; // <-- work around to ensure all objects in env get destroyed
+            
+            
+            
+    sol::environment e_parent;
+    std::string env_name;
+    get_parent_env_of_entity(ew->script_path, e_parent, env_name, *m_state);
+    
+    //  The idea behind the next few calls is to make sure that each entity gets it's own
+    //  instance ID.  Each time a entity loads we look to the parent env to grab 
+    //  the intance ID, then we increment for the next entity.  Most of the time
+    //  only 1 entity will be instantiated per script, so this will only be used
+    //  when people get clever.  Primarily, this allows the entity manager
+    //  to figure out which object is being referenced, e.g., during a destroy, so
+    //  the other entities declared in the script remain untouched
+    sol::optional<int> instance_id = e_parent[ env_name ]["_internal_instance_id_"];
+    if( !instance_id )
+    {
+        e_parent[ env_name ]["_internal_instance_id_"] = 1;
+        ew->instance_id = 0;
+    }
+    else
+    {
+        ew->instance_id = instance_id.value();
+        int new_id = instance_id.value()+1;
+        e_parent[ env_name ]["_internal_instance_id_"] = new_id;
+    }
+    
     switch( etype )
     {
         case EntityType::PLAYER:
         {
-            std::shared_ptr<entity_wrapper> ew( new entity_wrapper );
-            ew->entity_type = etype;
-            ew->script_path = GetCurrentlyCompiledScript();
-            entityobj.SetScriptPath(ew->script_path);
-            ew->script_ent = &entityobj;
-            
+
             auto search = m_player_objs.find(GetCurrentlyCompiledScript());
             if(search != m_player_objs.end()) 
             {
@@ -724,39 +655,8 @@ void entity_manager::register_entity(script_entity& entityobj, EntityType etype)
         }
         break;
         case EntityType::ROOM:
-        {
-            std::shared_ptr<entity_wrapper> ew( new entity_wrapper );
-            ew->entity_type = etype;
-            ew->script_path = GetCurrentlyCompiledScript();
-            ew->script_ent = &entityobj;
-            entityobj.SetScriptPath(ew->script_path);
-            
+        {           
             // get the current instance ID from the env..
-            sol::environment e_parent;
-            std::string env_name;
-            get_parent_env_of_entity(ew->script_path, e_parent, env_name, *m_state);
-            
-            //  The idea behind the next few calls is to make sure that each room gets it's own
-            //  instance ID.  Each time a room loads we look to the parent env to grab 
-            //  the intance ID, then we increment for the next room.  Most of the time
-            //  only 1 room will be instantiated per script, so this will only be used
-            //  when people get clever.  Primarily, this allows the entity manager
-            //  to figure out which object is being referenced, e.g., during a destroy, so
-            //  the other rooms declared in the script remain untouched
-            sol::optional<int> instance_id = e_parent[ env_name ]["_internal_instance_id_"];
-            if( !instance_id )
-            {
-                e_parent[ env_name ]["_internal_instance_id_"] = 1;
-                ew->instance_id = 0;
-            }
-            else
-            {
-                ew->instance_id = instance_id.value();
-                int new_id = instance_id.value()+1;
-                e_parent[ env_name ]["_internal_instance_id_"] = new_id;
-            }
-        
-           
             auto search = m_room_objs.find(GetCurrentlyCompiledScript());
             if(search != m_room_objs.end()) {
 
@@ -775,38 +675,6 @@ void entity_manager::register_entity(script_entity& entityobj, EntityType etype)
         break;
         case EntityType::DAEMON:
         {
-            std::shared_ptr<entity_wrapper> ew( new entity_wrapper );
-            ew->entity_type = etype;
-            ew->script_path = GetCurrentlyCompiledScript();
-            ew->script_ent = &entityobj;
-            entityobj.SetScriptPath(ew->script_path);
-            
-            // get the current instance ID from the env..
-            sol::environment e_parent;
-            std::string env_name;
-            get_parent_env_of_entity(ew->script_path, e_parent, env_name, *m_state);
-            
-            //  The idea behind the next few calls is to make sure that each deamon gets it's own
-            //  instance ID.  Each time a deamon loads we look to the parent env to grab 
-            //  the intance ID, then we increment for the next deamon.  Most of the time
-            //  only 1 deamon will be instantiated per script, so this will only be used
-            //  when people get clever.  Primarily, this allows the entity manager
-            //  to figure out which object is being referenced, e.g., during a destroy, so
-            //  the other deamons declared in the script remain untouched
-            sol::optional<int> instance_id = e_parent[ env_name ]["_internal_instance_id_"];
-            if( !instance_id )
-            {
-                e_parent[ env_name ]["_internal_instance_id_"] = 1;
-                ew->instance_id = 0;
-            }
-            else
-            {
-                ew->instance_id = instance_id.value();
-                int new_id = instance_id.value()+1;
-                e_parent[ env_name ]["_internal_instance_id_"] = new_id;
-            }
-        
-           
             auto search = m_daemon_objs.find(GetCurrentlyCompiledScript());
             if(search != m_daemon_objs.end()) {
 
@@ -946,3 +814,4 @@ roomobj* entity_manager::GetRoomByScriptPath(std::string& script_path, unsigned 
     }
     return NULL;
 }
+
