@@ -11,7 +11,13 @@ struct daemonobj : script_entity
     daemonobj(sol::this_state ts)
         : script_entity(ts, EntityType::DAEMON)
     {
-        
+        name = "unknown";
+    }
+    
+    daemonobj(sol::this_state ts, std::string s)
+        : script_entity(ts, EntityType::DAEMON)
+    {
+        name = s;
     }
     
     ~daemonobj()

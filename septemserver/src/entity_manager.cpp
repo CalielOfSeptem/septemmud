@@ -287,7 +287,7 @@ void entity_manager::init_lua()
       
     
     lua.new_usertype<daemonobj>("daemon",
-      sol::constructors<daemonobj(sol::this_state)>(),
+      sol::constructors<daemonobj(sol::this_state ts, std::string)>(),
       sol::meta_function::new_index, &daemonobj::set_property_lua,
       sol::meta_function::index, &daemonobj::get_property_lua,
       "GetName", &daemonobj::GetName,

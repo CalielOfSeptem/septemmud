@@ -13,6 +13,10 @@ enum class EntityType { UNKNOWN, ROOM, ITEM, NPC, PLAYER, COMMAND, DAEMON };
 
 struct script_entity {
     
+        script_entity(EntityType myType) : m_type(myType)
+        {
+            
+        }
         script_entity(sol::this_state ts, EntityType myType);
         
         ~script_entity();

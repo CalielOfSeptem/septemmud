@@ -13,6 +13,20 @@ struct commandobj : script_entity
     {
         this->priority = 10;
     }
+    
+    commandobj(sol::this_state ts, std::string& name)
+        : script_entity(ts, EntityType::COMMAND)
+    {
+        this->priority = 10;
+    }
+    
+    commandobj(sol::this_state ts, std::string& name, int& priority)
+        : script_entity(ts, EntityType::COMMAND)
+    {
+        this->priority = priority;
+        this->cmd_name = name;
+    }
+    
 
     void SetName(const std::string& name)
     {
