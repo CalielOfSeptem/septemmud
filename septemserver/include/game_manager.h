@@ -2,6 +2,8 @@
 #define GAME_MANAGER_H_
 #include <plog/Log.h>
 #include "entity_manager.h"
+#include "script_entities/script_entity.h"
+#include "script_entities/daemonobj.h"
 
 enum class gameState { STOPPED, INITIALIZING, RUNNING, STOPPING, ERROR };
 
@@ -28,6 +30,10 @@ struct game_manager
     }
     
     roomobj* get_void_room();
+    
+    daemonobj* get_command_proc();
+    
+    bool process_player_cmd(script_entity* p, std::string& cmd);
 
     
 private:
@@ -122,6 +128,8 @@ private:
     {
         SetState( gameState::ERROR );
     }
+    
+    
 };
 
 #endif

@@ -48,6 +48,27 @@ void game_manager::init()
         }
         //std::cout << dir->path().filename() << "\n"; // just last bit
     }
+    
+    std::string command_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
+    command_path += global_settings::Instance().GetSetting(DEFAULT_COMMANDS_PATH);
+    LOG_DEBUG << "Loading commands..: " << command_path;
+    
+    for ( fs::recursive_directory_iterator end, dir(command_path);
+        dir != end; ++dir ) {
+        // std::cout << *dir << "\n";  // full path
+        if( fs::is_regular(dir->path()) )
+        {
+            std::string pathstr = dir->path().string();
+            if(!entity_manager::Instance().compile_script(pathstr, reason)) {
+                std::stringstream ss;
+                ss << "Unable to load command [" << dir->path().string() << "], reason = " << reason;
+                LOG_ERROR << ss.str();
+                on_error(ss.str());
+                return;
+            } 
+        }
+        //std::cout << dir->path().filename() << "\n"; // just last bit
+    }
 
     SetState(gameState::RUNNING);
 }
@@ -68,4 +89,29 @@ roomobj* game_manager::get_void_room()
         on_error(err);
     }
     return NULL;
+}
+
+daemonobj* game_manager::get_command_proc()
+{
+    std::string command_proc_path = global_settings::Instance().GetSetting(DEFAULT_COMMAND_PROC);
+    unsigned int id = 0;
+    daemonobj * r = entity_manager::Instance().GetDaemonByScriptPath(command_proc_path, id);
+    if( r != NULL )
+    {
+        return r;
+    }
+    else
+    {
+        std::string err = "Error attempting to retrieve command proc.";
+        LOG_ERROR << err;
+        on_error(err);
+    }
+    return NULL;
+}
+
+bool game_manager::process_player_cmd(script_entity* p, std::string& cmd)
+{
+    daemonobj * dobj = get_command_proc();
+    
+    return true;
 }

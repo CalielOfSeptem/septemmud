@@ -8,6 +8,7 @@
       <File Name="include/script_entities/container_base.h"/>
       <File Name="include/script_entities/livingentity.h"/>
       <File Name="include/script_entities/daemonobj.h"/>
+      <File Name="include/script_entities/commandobj.h"/>
     </VirtualDirectory>
     <File Name="include/global_settings.h"/>
     <File Name="include/string_utils.h"/>

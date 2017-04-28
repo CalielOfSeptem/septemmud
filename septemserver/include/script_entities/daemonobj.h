@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "script_entities/script_entity.h"
+#include "entity_manager.h"
 
 struct daemonobj : script_entity
 {

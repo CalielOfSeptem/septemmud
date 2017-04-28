@@ -4,6 +4,7 @@
 #include "script_entities/livingentity.h"
 #include "script_entities/playerobj.h"
 #include "script_entities/daemonobj.h"
+#include "script_entities/commandobj.h"
 #include "string_utils.h"
 #include "global_settings.h"
 #include "config.h"
@@ -65,7 +66,7 @@ bool entity_manager::compile_script(std::string& file_path, std::string& reason)
     
     if(!m_state) {
         m_state = std::shared_ptr<sol::state>(new sol::state);
-        init_lua(*m_state);
+        init_lua();
     }
     //lua_safe_script(path, *m_state);
     std::string script_text;
@@ -103,7 +104,7 @@ bool entity_manager::compile_script(std::string& file_path, std::string& reason)
             std::set<std::shared_ptr<entity_wrapper>> rooms;
             get_rooms_from_path(script_, rooms);
             
-            for( auto r : rooms )
+            for( auto& r : rooms )
             {
                // script_entity& self = r->script_ent.value().selfobj.as<script_entity>();
                 //*self = NULL;
@@ -112,7 +113,7 @@ bool entity_manager::compile_script(std::string& file_path, std::string& reason)
                 //(*r->script_state).collect_garbage();
             }
             if( rooms.size() > 0 )
-                destroy_room(script_, *m_state);
+                destroy_room(script_);
             
 
         }
@@ -132,12 +133,12 @@ bool entity_manager::compile_script(std::string& file_path, std::string& reason)
         break;
     }
     sol::environment to_load;
-    _init_entity_env(script_, etype, *m_state, to_load);
+    _init_entity_env(script_, etype, to_load);
     
     std::string test_ = to_load["_INTERNAL_SCRIPT_PATH_"];
     assert(  test_ == script_ );
    
-    lua_safe_script(script_text, *m_state, to_load, reason);
+    lua_safe_script(script_text, to_load, reason);
     _currently_loading_script = "";
     return true;
 }
@@ -216,8 +217,9 @@ bool entity_manager::load_player()
     return true;
 }
 
-bool entity_manager::lua_safe_script(std::string& script_text, sol::state& lua, sol::environment env, std::string& reason)
+bool entity_manager::lua_safe_script(std::string& script_text, sol::environment env, std::string& reason)
 {
+    sol::state & lua = (*m_state);
     /*
     auto simple_handler = [](lua_State*, sol::protected_function_result result) {
         // You can just pass it through to let the call-site handle it
@@ -257,8 +259,15 @@ bool entity_manager::lua_safe_script(std::string& script_text, sol::state& lua, 
     return true;
 }
 
-void entity_manager::init_lua(sol::state& lua)
+template <typename T> T* downcast(script_entity* b)
 {
+    return dynamic_cast<T*>(b);
+}
+
+
+void entity_manager::init_lua()
+{
+    sol::state & lua = (*m_state);
     lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::package, sol::lib::math, sol::lib::table);
     lua.new_usertype<roomobj>("room",
       sol::constructors<roomobj(sol::this_state)>(),
@@ -299,12 +308,32 @@ void entity_manager::init_lua(sol::state& lua)
         "GetType", &script_entity::GetType,
         sol::base_classes,
         sol::bases<living_entity, script_entity>());
+        
+        
+    lua.new_usertype<commandobj>("command",
+        sol::constructors<commandobj(sol::this_state)>(),
+        "GetName", &commandobj::GetName,
+        "SetName", &commandobj::SetName,
+        "GetSynonyms", &commandobj::GetSynonyms,
+        "SetSynonyms", &commandobj::SetSynonyms,
+        "SetPriority", &commandobj::SetPriority,
+        "GetPriority", &commandobj::GetPriority,
+        sol::base_classes,
+        sol::bases<script_entity>());
 
     
     
     lua.set_function("register_heartbeat", &heartbeat_manager::register_heartbeat_func_on, &_heartbeat);
     lua.set_function("deregister_heartbeat", &heartbeat_manager::deregister_heartbeat_func, &_heartbeat);
     lua.set_function("deregister_all_heartbeat", &heartbeat_manager::deregister_all_heartbeat_funcs, &_heartbeat);
+    
+    lua.set_function("command_cast", &downcast<commandobj>);
+    lua.set_function("room_cast", &downcast<roomobj>);
+    lua.set_function("player_cast", &downcast<playerobj>);
+    
+    lua.set_function("get_base_commands", [&]() -> std::map<std::string, commandobj*>& {
+		return m_base_cmds;
+	});
     
    
 /*
@@ -436,8 +465,9 @@ bool entity_manager::get_room_by_script(std::string& script_path, std::unordered
 }
 */
 
-bool entity_manager::destroy_player(std::string& script_path, sol::state& lua)
+bool entity_manager::destroy_player(std::string& script_path)
 {
+    sol::state & lua = (*m_state);
 
     {
         auto search = m_player_objs.find(script_path);
@@ -447,7 +477,7 @@ bool entity_manager::destroy_player(std::string& script_path, sol::state& lua)
     
         sol::environment env;
         std::string name;
-        get_parent_env_of_entity(script_path, env, name, lua);
+        get_parent_env_of_entity(script_path, env, name);
         
         destroy_entity(search->second);
         
@@ -461,9 +491,10 @@ bool entity_manager::destroy_player(std::string& script_path, sol::state& lua)
     return true;
 }
 
-bool entity_manager::destroy_room(std::string& script_path, sol::state& lua)
+bool entity_manager::destroy_room(std::string& script_path)
 {
 
+    sol::state & lua = (*m_state);
     {
         auto search = m_room_objs.find(script_path);
         if(search == m_room_objs.end()) {
@@ -472,7 +503,7 @@ bool entity_manager::destroy_room(std::string& script_path, sol::state& lua)
     
         sol::environment env;
         std::string name;
-        get_parent_env_of_entity(script_path, env, name, lua);
+        get_parent_env_of_entity(script_path, env, name);
         
         _heartbeat.clear_heartbeat_funcs(script_path);
         
@@ -491,9 +522,40 @@ bool entity_manager::destroy_room(std::string& script_path, sol::state& lua)
     return true;
 }
 
-bool entity_manager::destroy_daemon(std::string& script_path, sol::state& lua)
+bool entity_manager::destroy_command(std::string& script_path)
 {
 
+    sol::state & lua = (*m_state);
+    {
+        auto search = m_cmd_objs.find(script_path);
+        if(search == m_cmd_objs.end()) {
+            return false;
+        }
+    
+        sol::environment env;
+        std::string name;
+        get_parent_env_of_entity(script_path, env, name);
+        
+       
+        for( auto e : search->second )
+        {
+            destroy_entity(e);
+        }
+        
+        env[name] = sol::nil;
+        m_cmd_objs.erase(search);
+
+    }
+
+    lua.collect_garbage();
+    
+    return true;
+}
+
+bool entity_manager::destroy_daemon(std::string& script_path)
+{
+
+    sol::state & lua = (*m_state);
     {
         auto search = m_daemon_objs.find(script_path);
         if(search == m_daemon_objs.end()) {
@@ -502,7 +564,7 @@ bool entity_manager::destroy_daemon(std::string& script_path, sol::state& lua)
     
         sol::environment env;
         std::string name;
-        get_parent_env_of_entity(script_path, env, name, lua);
+        get_parent_env_of_entity(script_path, env, name);
         
         for( auto e : search->second )
         {
@@ -530,18 +592,19 @@ bool entity_manager::destroy_entity(std::shared_ptr<entity_wrapper>& ew)
 }
 
 
-bool entity_manager::_init_entity_env( std::string& script_path, EntityType etype, sol::state& lua, sol::environment& env )
+bool entity_manager::_init_entity_env( std::string& script_path, EntityType etype, sol::environment& env )
 {
     //std::string envstr = std::regex_replace(script_path, std::regex("\\" + 
     //global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH)), "");  // remove the extra pathing stuff we don't need
         
+    sol::state & lua = (*m_state);
     
     std::vector<std::string> strs;
     boost::split(strs, script_path, boost::is_any_of("/"));
     
     sol::environment current_env = lua.globals();
     
-    for( auto en : strs )
+    for( auto& en : strs )
     {
         sol::optional<sol::environment> maybe_env = current_env[en+"_env_"];
         LOG_DEBUG << "Looking for environment: " << en << "_env_";
@@ -557,7 +620,7 @@ bool entity_manager::_init_entity_env( std::string& script_path, EntityType etyp
             // be careful with the next call, if the environment exists then
             // this function will destroy it.
             LOG_DEBUG << "Initializing environment: " << en << "_env_";
-            _init_lua_env_(lua, current_env, current_env, en+"_env_", current_env);
+            _init_lua_env_(current_env, current_env, en+"_env_", current_env);
            // just for now, so we can sanity check where we are..
            current_env["_FS_PATH_"] = en+"_env_";
         }
@@ -571,12 +634,12 @@ bool entity_manager::_init_entity_env( std::string& script_path, EntityType etyp
     return true;
 }
 
-bool entity_manager::_init_lua_env_(sol::state& lua,
-                                    sol::environment parent,
+bool entity_manager::_init_lua_env_(sol::environment parent,
                                     sol::environment inherit,
                                     std::string new_child_env_name,
                                     sol::environment& new_child_env)
 {
+    sol::state & lua = (*m_state);
     sol::optional<sol::environment> test_env = parent[new_child_env_name]; // parent.get<sol::environment>( new_child_env_name );
     if(test_env) {
         LOG_DEBUG << "Destroying environment: " << new_child_env_name;
@@ -612,7 +675,7 @@ void entity_manager::register_entity(script_entity& entityobj, EntityType etype)
             
     sol::environment e_parent;
     std::string env_name;
-    get_parent_env_of_entity(ew->script_path, e_parent, env_name, *m_state);
+    get_parent_env_of_entity(ew->script_path, e_parent, env_name);
     
     //  The idea behind the next few calls is to make sure that each entity gets it's own
     //  instance ID.  Each time a entity loads we look to the parent env to grab 
@@ -670,6 +733,38 @@ void entity_manager::register_entity(script_entity& entityobj, EntityType etype)
                 std::string e_str;
                 get_entity_str(ew->entity_type, e_str); 
                 LOG_DEBUG << "Registered new entity, type = " << e_str << ", Path =" << ew->script_path;
+            }
+        }
+        break;
+        case EntityType::COMMAND:
+        {           
+            // get the current instance ID from the env..
+            commandobj * cmdobj = dynamic_cast<commandobj*>(&entityobj);
+            std::string cmd_noun = cmdobj->GetName();
+            auto cmd_search = m_base_cmds.find(cmd_noun);
+            /*
+            if( cmd_search != m_base_cmds.end() )
+            {
+                m_base_cmds.erase(cmd_search); // may need to move this destruct code elsewhere
+            }
+            */
+            m_base_cmds[cmd_noun] = cmdobj;
+            
+            auto search = m_cmd_objs.find(GetCurrentlyCompiledScript());
+            if(search != m_cmd_objs.end()) {
+
+                search->second.insert(ew);
+            }
+            else
+            {
+                std::set<std::shared_ptr<entity_wrapper>> new_set;
+                new_set.insert( ew );
+                m_cmd_objs.insert( {ew->script_path, new_set} );// new_set ); //new_set );get_entity_str() 
+                std::string e_str;
+                get_entity_str(ew->entity_type, e_str); 
+                LOG_DEBUG << "Registered new entity, type = " << e_str << ", Path =" << ew->script_path;
+                
+                
             }
         }
         break;
@@ -731,15 +826,28 @@ void entity_manager::get_rooms_from_path(std::string& script_path, std::set<std:
     auto search = m_room_objs.find(script_path);
     if(search != m_room_objs.end()) 
     {
-        for( auto e : search->second )
+        for( auto& e : search->second )
         {
             rooms.insert(e);
         }
     }
 }
 
-bool entity_manager::get_parent_env_of_entity(std::string& script_path, sol::environment& env, std::string& env_name, sol::state& lua)
+void entity_manager::get_daemons_from_path(std::string& script_path, std::set<std::shared_ptr<entity_wrapper> >& deamons)
 {
+    auto search = m_daemon_objs.find(script_path);
+    if(search != m_daemon_objs.end()) 
+    {
+        for( auto& e : search->second )
+        {
+            deamons.insert(e);
+        }
+    }
+}
+
+bool entity_manager::get_parent_env_of_entity(std::string& script_path, sol::environment& env, std::string& env_name)
+{
+    sol::state & lua = (*m_state);
     std::vector<std::string> strs;
     boost::split(strs, script_path, boost::is_any_of("/"));
     
@@ -764,38 +872,38 @@ void entity_manager::reset()
     _heartbeat.deregister_all_heartbeat_funcs();
     
     std::vector<std::string> destroy_entities;
-    for( auto e : m_room_objs )
+    for( auto & e : m_room_objs )
     {
-        for( auto ew : e.second )
+        for( auto & ew : e.second )
         {
             destroy_entities.push_back(ew->script_path);
         }
     }
     
-    for( auto rname : destroy_entities )
-        destroy_room( rname, *m_state );
+    for( auto & rname : destroy_entities )
+        destroy_room( rname );
         
     destroy_entities.clear();
         
-    for( auto e : m_player_objs )
+    for( auto & e : m_player_objs )
     {
         destroy_entities.push_back(e.second->script_path);
     }
     
-    for( auto pname : destroy_entities )
-        destroy_player( pname, *m_state );
+    for( auto & pname : destroy_entities )
+        destroy_player( pname );
         
     destroy_entities.clear();    
-    for( auto d : m_daemon_objs )
+    for( auto & d : m_daemon_objs )
     {
-        for( auto ew : d.second )
+        for( auto & ew : d.second )
         {
             destroy_entities.push_back(ew->script_path);
         }
     }
     
-    for( auto dname : destroy_entities )
-        destroy_daemon( dname, *m_state );
+    for( auto & dname : destroy_entities )
+        destroy_daemon( dname );
     //m_room_objs.clear();
     
 }
@@ -805,7 +913,7 @@ roomobj* entity_manager::GetRoomByScriptPath(std::string& script_path, unsigned 
     std::set<std::shared_ptr<entity_wrapper> > rooms;
     get_rooms_from_path(script_path, rooms);
     
-    for( auto ew : rooms )
+    for( auto & ew : rooms )
     {
         if( ew->instance_id == instance_id )
         {
@@ -814,4 +922,49 @@ roomobj* entity_manager::GetRoomByScriptPath(std::string& script_path, unsigned 
     }
     return NULL;
 }
+
+daemonobj* entity_manager::GetDaemonByScriptPath(std::string& script_path, unsigned int& instance_id)
+{
+    std::set<std::shared_ptr<entity_wrapper> > dms;
+    get_daemons_from_path(script_path, dms);
+    
+    for( auto & ew : dms )
+    {
+        if( ew->instance_id == instance_id )
+        {
+            return dynamic_cast<daemonobj*>(ew->script_ent);
+        }
+    }
+    return NULL;
+}
+
+std::vector<commandobj*> entity_manager::GetCommands()
+{
+    std::vector<commandobj*> ret;
+    ret.reserve(m_cmd_objs.size());
+    for( auto& kvp : this->m_cmd_objs )
+    {
+        for( auto& kvp2 : kvp.second)
+        {
+            commandobj * be = static_cast<commandobj*>(kvp2->script_ent);
+            ret.push_back(be);
+        }
+
+    }
+    return ret;
+}
+
+/*
+bool entity_manager::get_command(std::string& verb, shared_ptr<entity_wrapper>& cmd)
+{
+    auto search = command_objs.find(boost::to_lower_copy(verb));
+    if(search != command_objs.end()) {
+        cmd = search->second;
+        return true;
+    } else {
+        return false;
+    }
+}
+ */
+
 

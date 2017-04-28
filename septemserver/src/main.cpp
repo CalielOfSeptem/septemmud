@@ -122,6 +122,8 @@ int main(int argc, char **argv)
     global_settings::Instance().SetSetting( BASE_PLAYER_ENTITY_PATH, "entities/player");
     global_settings::Instance().SetSetting( DEFAULT_VOID_ROOM, "realms/void");
     global_settings::Instance().SetSetting( DEFAULT_DAEMON_PATH, "daemon");
+    global_settings::Instance().SetSetting( DEFAULT_COMMANDS_PATH, "cmds");
+    global_settings::Instance().SetSetting( DEFAULT_COMMAND_PROC, "daemon/command_proc");
     /*
 	std::string test_room = "/home/ken/git-repos/septemmud/game_data/realms/void";
     std::string reason;
@@ -171,8 +173,9 @@ int main(int argc, char **argv)
         }
         else
         {
-             std::cout << "Invoking heartbeats.." << std::endl;
-             gm.do_heartbeats();
+            gm.process_player_cmd(NULL, blah);
+            // std::cout << "Invoking heartbeats.." << std::endl;
+             //gm.do_heartbeats();
              //entity_manager::Instance().invoke_heartbeat();
         }
         

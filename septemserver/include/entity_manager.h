@@ -7,11 +7,15 @@
 #include <set>
 #include "entity_wrapper.h"
 #include "script_entities/roomobj.h"
+#include "script_entities/daemonobj.h"
+#include "script_entities/commandobj.h"
 #include "heartbeat_manager.h"
 #include <memory.h> //for shared_ptr
 
 //typedef std::pair<std::string, std::string> env_id_t;
 
+    
+    
 class entity_manager
 {
     
@@ -72,6 +76,10 @@ public:
      */
     roomobj * GetRoomByScriptPath(std::string & script_path, unsigned int & instance_id);
     
+    daemonobj * GetDaemonByScriptPath(std::string & script_path, unsigned int & instance_id);
+    
+    std::vector<commandobj*> GetCommands();
+    
 protected:
     entity_manager()
     {
@@ -88,7 +96,11 @@ protected:
 private:
     std::map< std::string, std::set<std::shared_ptr<entity_wrapper>> > m_room_objs;
     std::map< std::string, std::set<std::shared_ptr<entity_wrapper>> > m_daemon_objs;
+    std::map< std::string, std::set<std::shared_ptr<entity_wrapper>> > m_cmd_objs;
     std::map< std::string, std::shared_ptr<entity_wrapper> > m_player_objs;
+    
+    std::map< std::string, commandobj * > m_base_cmds; // commands everyone has access to
+    
     std::shared_ptr < sol::state > m_state;
     heartbeat_manager _heartbeat;
     std::string _currently_loading_script;
@@ -98,12 +110,12 @@ private:
     /*
      *  Initiliaze lua state and user types 
      */
-    void init_lua(sol::state& lua);
+    void init_lua();
     
-    bool _init_lua_env_( sol::state& lua, sol::environment parent, sol::environment inherit, std::string new_child_env_name, 
+    bool _init_lua_env_( sol::environment parent, sol::environment inherit, std::string new_child_env_name, 
         sol::environment& new_child_env );
         
-    bool lua_safe_script(std::string& script_text, sol::state& lua, sol::environment env, std::string &reason);
+    bool lua_safe_script(std::string& script_text, sol::environment env, std::string &reason);
 
     bool load_script_text(std::string& script_path,
                                       std::string& script_text,
@@ -127,7 +139,7 @@ private:
      * @param script_path Path to the room script
      * @return Returns false if the room does not exist
      */
-    bool destroy_room(std::string& script_path, sol::state& lua);
+    bool destroy_room(std::string& script_path);
     
     /**
      * @brief Destroys player associated with a script
@@ -135,7 +147,7 @@ private:
      * @param lua
      * @return 
      */
-    bool destroy_player(std::string& script_path, sol::state& lua);
+    bool destroy_player(std::string& script_path);
     
     /**
      * @brief Destroys all daemons associated with a script
@@ -143,7 +155,9 @@ private:
      * @param lua
      * @return 
      */
-    bool destroy_daemon(std::string& script_path, sol::state& lua);
+    bool destroy_daemon(std::string& script_path);
+    
+    bool destroy_command(std::string& script_path);
     
     bool destroy_entity(std::shared_ptr<entity_wrapper>& ew);
     
@@ -153,7 +167,7 @@ private:
      * @param script_path
      * @param envstr
      */
-    bool _init_entity_env( std::string& script_path, EntityType etype, sol::state& lua, sol::environment& env );
+    bool _init_entity_env( std::string& script_path, EntityType etype, sol::environment& env );
     
     /**
      * @brief Returns an environment based on entity type and envstr
@@ -164,16 +178,10 @@ private:
      */
     bool get_evn_from_string(std::string& envstr, EntityType& type, sol::environment& env);
     
-    /**
-     * @brief Gets an environment based on a two-part vector
-     * @param envstr
-     * @param env_id ID of environment in the form of a pair of strings.
-     * @param env
-     * @return 
-     */
-    //bool get_evn_from_vec(std::string& envstr, env_id_t& env_id, sol::environment& env);
     
     void get_rooms_from_path(std::string& script_path, std::set< std::shared_ptr<entity_wrapper> >& rooms);
+    
+    void get_daemons_from_path(std::string& script_path, std::set< std::shared_ptr<entity_wrapper> >& daemons);
     
     /**
      * @brief Gets the parent env for a given entity and also the name of the entity's env within the parent
@@ -182,9 +190,8 @@ private:
      * @param env_name
      * @return 
      */
-    bool get_parent_env_of_entity( std::string& script_path, sol::environment& env, std::string& env_name, sol::state& lua );
+    bool get_parent_env_of_entity( std::string& script_path, sol::environment& env, std::string& env_name );
 
 };
-
 
 #endif
