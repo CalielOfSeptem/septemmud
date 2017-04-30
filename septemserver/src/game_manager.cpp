@@ -118,6 +118,7 @@ bool game_manager::process_player_cmd(script_entity* p, std::string& cmd)
     }
     // for testing purposes, just pull up my test player..
     // TODO: implement the actual logic..
+    
     playerobj * pcaliel = entity_manager::Instance().get_player("caliel");
     if( pcaliel == NULL )
     {
