@@ -69,20 +69,13 @@ private:
     std::vector<std::string> exit;
 };
 
-class roomobj : public script_entity, container_base
+class roomobj : public script_entity, public container_base
 {
 public:
-    roomobj(sol::this_state ts) 
-        : script_entity(ts, EntityType::ROOM)
-    {
-        
-    }
+    roomobj(sol::this_state ts);
     
-    ~roomobj()
-    {
-        LOG_DEBUG << "Destroyed room object.";
-    }
-    
+    ~roomobj();
+
     bool AddExit(sol::as_table_t<std::vector<std::string>> exit, const std::string& exit_path, bool obvious)
     {
         // TODO: add in validation code
@@ -123,6 +116,25 @@ public:
         return short_description;
     }
     
+    virtual void AddEntityToInventory(script_entity * se)
+    {
+         se->SetEnvironment(static_cast<script_entity*>(this));
+         container_base::AddEntityToInventory(se);
+    }
+     
+    virtual bool RemoveEntityFromInventoryByID( const std::string& id  )
+    {
+        return container_base::RemoveEntityFromInventoryByID(id);
+         // TODO: implement this and be sure to nuke a removed items environment_ pointer..
+         
+    }
+    
+    virtual bool RemoveEntityFromInventory( script_entity * se )
+    {
+        se->SetEnvironment(NULL);
+        return container_base::RemoveEntityFromInventory(se);
+    }
+     
 
     
 private:

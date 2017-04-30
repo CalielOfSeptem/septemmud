@@ -27,7 +27,7 @@ void game_manager::init()
         on_error(ss.str());
         return;
     } 
-
+/*
     std::string daemon_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
     daemon_path += global_settings::Instance().GetSetting(DEFAULT_DAEMON_PATH);
     LOG_DEBUG << "Loading daemons..: " << daemon_path;
@@ -69,7 +69,7 @@ void game_manager::init()
         }
         //std::cout << dir->path().filename() << "\n"; // just last bit
     }
-
+*/
     SetState(gameState::RUNNING);
 }
 
@@ -111,7 +111,47 @@ daemonobj* game_manager::get_command_proc()
 
 bool game_manager::process_player_cmd(script_entity* p, std::string& cmd)
 {
+    if( m_state != gameState::RUNNING )
+    {
+        LOG_DEBUG << "State != RUNNING, unable to process command";
+        return false;
+    }
+    // for testing purposes, just pull up my test player..
+    // TODO: implement the actual logic..
+    playerobj * pcaliel = entity_manager::Instance().get_player("caliel");
+    roomobj * roomt = get_void_room();
     daemonobj * dobj = get_command_proc();
+
+    assert( pcaliel != NULL );
+    assert( roomt != NULL );
+    assert( dobj != NULL );
+    
+        
+    // move caliel into the room...
+    roomt->AddEntityToInventory(pcaliel);
+    
+    sol::optional<sol::table> self = dobj->m_userdata->selfobj; //ew_daemon->env_obj.value()[ew_daemon->script_obj_name];//(*lua_primary)[entity_env[0]][entity_env[1]][ew_daemon->script_obj_name]; //(*ew_daemon->script_state)[ew_daemon->script_obj_name];
+    
+    //sol::optional<base_entity&> bep = ew_daemon->script_obj;
+    if( self )
+    {
+        sol::protected_function exec = self.value()["process_command"];
+        auto result = exec(self, pcaliel, cmd );
+        if ( !result.valid() ) {
+            sol::error err = result;
+            LOG_ERROR << err.what();
+        }
+    }
+    else
+    {
+        LOG_ERROR << "Unable to load command processor.";
+    }
     
     return true;
 }
+
+bool game_manager::move_entity_into_room(script_entity* en, std::string room_path)
+{
+    
+}
+

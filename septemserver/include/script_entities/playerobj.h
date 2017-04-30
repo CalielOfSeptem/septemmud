@@ -4,7 +4,7 @@
 #include <memory>
 #include "script_entities/livingentity.h"
 #include "script_entities/container_base.h"
-
+#include <stdio.h>
 
 struct playerobj : living_entity, container_base
 {
@@ -18,6 +18,7 @@ struct playerobj : living_entity, container_base
      {
         //if( client_obj )
         //    (*client_obj).send(msg);
+        std::cout << msg << std::endl;
         living_entity::SendToEntity(msg);
      }
      

@@ -9,6 +9,7 @@
 #include "script_entities/roomobj.h"
 #include "script_entities/daemonobj.h"
 #include "script_entities/commandobj.h"
+#include "script_entities/playerobj.h"
 #include "heartbeat_manager.h"
 #include <memory.h> //for shared_ptr
 
@@ -42,8 +43,17 @@ public:
     
     void invoke_heartbeat();
     
-    void register_entity(script_entity &entityobj, EntityType etype);
-    void deregister_entity(script_entity &entityobj, EntityType etype);
+    void register_command( commandobj * cmd );
+    void deregister_command( commandobj * cmd );
+    
+    void register_room( roomobj * room );
+    void deregister_room( roomobj * room );
+    
+    void register_daemon( daemonobj * daemon );
+    void deregister_daemon( daemonobj * daemon );
+    
+    void register_entity(script_entity *entityobj, EntityType etype);
+    void deregister_entity(script_entity *entityobj, EntityType etype);
     
     /**
      * @brief A bloody work around to link scripts with their instantiated objects
@@ -78,7 +88,12 @@ public:
     
     daemonobj * GetDaemonByScriptPath(std::string & script_path, unsigned int & instance_id);
     
+    playerobj* get_player( const std::string& player_name );
+
+    
     std::vector<commandobj*> GetCommands();
+    
+   
     
 protected:
     entity_manager()
@@ -94,18 +109,27 @@ protected:
     
     
 private:
+    // the following maps make sure we keep a solid connection between script paths and
+    // the objects that get loaded from the paths.  In short, they keep objects alive and findable
     std::map< std::string, std::set<std::shared_ptr<entity_wrapper>> > m_room_objs;
     std::map< std::string, std::set<std::shared_ptr<entity_wrapper>> > m_daemon_objs;
     std::map< std::string, std::set<std::shared_ptr<entity_wrapper>> > m_cmd_objs;
     std::map< std::string, std::shared_ptr<entity_wrapper> > m_player_objs;
     
-    std::map< std::string, commandobj * > m_base_cmds; // commands everyone has access to
+    
+    // default commands is a lookup map, register/deregister updates it based on
+    // objects being added/removed
+    std::map< std::string, commandobj * > m_default_cmds; // commands everyone has access to
+    std::map< std::string, roomobj * > m_room_lookup;
+    std::map< std::string, daemonobj * > m_daemon_lookup;
     
     std::shared_ptr < sol::state > m_state;
     heartbeat_manager _heartbeat;
     std::string _currently_loading_script;
     sol::environment _current_loading_env;
     sol::protected_function _current_script_f_;
+    
+    script_entity * _last_registered_object_;
     
     /*
      *  Initiliaze lua state and user types 
@@ -160,6 +184,8 @@ private:
     bool destroy_command(std::string& script_path);
     
     bool destroy_entity(std::shared_ptr<entity_wrapper>& ew);
+    
+   
     
     
     /**

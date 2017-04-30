@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CodeLite_Project Name="septemserver" Version="10.0.0" InternalType="Console">
+  <VirtualDirectory Name="src">
+    <VirtualDirectory Name="script_entities">
+      <File Name="src/script_entities/script_entity.cpp"/>
+      <File Name="src/script_entities/commandobj.cpp"/>
+      <File Name="src/script_entities/roomobj.cpp"/>
+      <File Name="src/script_entities/daemonobj.cpp"/>
+    </VirtualDirectory>
+    <File Name="src/game_manager.cpp"/>
+    <File Name="src/entity_manager.cpp"/>
+    <File Name="src/main.cpp"/>
+  </VirtualDirectory>
   <VirtualDirectory Name="include">
     <VirtualDirectory Name="script_entities">
       <File Name="include/script_entities/script_entity.h"/>
@@ -128,10 +139,4 @@
       </Completion>
     </Configuration>
   </Settings>
-  <VirtualDirectory Name="src">
-    <File Name="src/entity_manager.cpp"/>
-    <File Name="src/main.cpp"/>
-    <File Name="src/script_entity.cpp"/>
-    <File Name="src/game_manager.cpp"/>
-  </VirtualDirectory>
 </CodeLite_Project>

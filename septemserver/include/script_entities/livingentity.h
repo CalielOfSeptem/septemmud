@@ -27,6 +27,7 @@ struct living_entity : public script_entity
     
     roomobj* GetRoom()
     {
+        assert( GetEnvironment() != NULL );
         return dynamic_cast<roomobj*>(GetEnvironment());
     }
 

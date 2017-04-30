@@ -150,7 +150,7 @@ int main(int argc, char **argv)
         
     game_manager gm;
     gm.start();
-    entity_manager::Instance().load_player();
+   // entity_manager::Instance().load_player();
     while( true )
     {
         std::cout<<">";
@@ -169,6 +169,10 @@ int main(int argc, char **argv)
         else if( blah == "start" )
         {
             gm.start();
+            
+        }
+        else if( blah == "login" )
+        {
             entity_manager::Instance().load_player();
         }
         else

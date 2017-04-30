@@ -4,26 +4,14 @@
 #include <string>
 #include <vector>
 #include "script_entities/script_entity.h"
-#include "entity_manager.h"
+//#include "entity_manager.h"
 
 struct daemonobj : script_entity
 {
-    daemonobj(sol::this_state ts)
-        : script_entity(ts, EntityType::DAEMON)
-    {
-        name = "unknown";
-    }
+    daemonobj(sol::this_state ts);
+    daemonobj(sol::this_state ts, std::string s);
     
-    daemonobj(sol::this_state ts, std::string s)
-        : script_entity(ts, EntityType::DAEMON)
-    {
-        name = s;
-    }
-    
-    ~daemonobj()
-    {
-        
-    }
+    ~daemonobj();
     
     const std::string& GetName()
     {

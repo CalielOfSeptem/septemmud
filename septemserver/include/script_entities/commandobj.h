@@ -5,37 +5,25 @@
 #include <vector>
 #include "script_entities/script_entity.h"
 
-
 struct commandobj : script_entity
 {
-    commandobj(sol::this_state ts)
-        : script_entity(ts, EntityType::COMMAND)
-    {
-        this->priority = 10;
-    }
+    commandobj(sol::this_state ts, std::string name);
     
-    commandobj(sol::this_state ts, std::string& name)
-        : script_entity(ts, EntityType::COMMAND)
-    {
-        this->priority = 10;
-    }
+    commandobj(sol::this_state ts, std::string name, int priority);
     
-    commandobj(sol::this_state ts, std::string& name, int& priority)
-        : script_entity(ts, EntityType::COMMAND)
-    {
-        this->priority = priority;
-        this->cmd_name = name;
-    }
+    ~commandobj();
     
 
-    void SetName(const std::string& name)
+    void SetVerb(const std::string& name)
     {
-        this->cmd_name = name;
+        this->cmd_verb = name;
+        
     }
-    const std::string& GetName()
+    const std::string& GetVerb()
     {
-        return cmd_name;
+        return cmd_verb;
     }
+    
     void SetSynonyms(const sol::as_table_t<std::vector<std::string> >& cmd_syn)
     {
         // this->cmd_syn = cmd_syn;
@@ -59,7 +47,7 @@ struct commandobj : script_entity
     }
 
 private:
-    std::string cmd_name;
+    std::string cmd_verb;
     std::vector<std::string> cmd_syn;
     int priority;
 

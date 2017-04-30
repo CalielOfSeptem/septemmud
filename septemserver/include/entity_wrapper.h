@@ -29,7 +29,7 @@
      
      
      entity_wrapper( EntityType& entity_type, unsigned int instance_id )
-        : entity_type(entity_type), instance_id(instance_id)
+        : entity_type(entity_type)
      {
          
      }
@@ -37,7 +37,7 @@
      std::string get_object_uid()
      {
          // example: /home/ken/git-repos/septem/game_data/realms/void:obj=room1:id=0
-         return script_path + ":id=" + std::to_string(instance_id);
+         return script_ent->GetInstancePath(); //script_path + ":id=" + std::to_string(instance_id);
      }
      
      void clear()
@@ -54,7 +54,7 @@
     // sol::optional<sol::environment> parent_env;
      //std::shared_ptr<sol::state> script_state;
      EntityType entity_type;
-     unsigned int instance_id; // zero based.
+     //unsigned int instance_id; // zero based.
  };
 namespace std
 {
