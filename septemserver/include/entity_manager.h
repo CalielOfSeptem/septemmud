@@ -21,6 +21,13 @@ class entity_manager
 {
     
 public:
+
+struct _internal_lua_
+{
+    sol::environment _current_loading_env;
+    sol::protected_function _current_script_f_;
+    script_entity * _last_registered_object_;
+};
     static entity_manager & Instance()
     {
         // Since it's a static variable, if the class has already been created,
@@ -65,7 +72,7 @@ public:
      * @brief A bloody work around to link scripts with their instantiated objects
      * @return 
      */
-    sol::environment GetCurrentLoadingEnv() { return _current_loading_env; }
+    sol::environment GetCurrentLoadingEnv() { return m_state_internal->_current_loading_env; }
     
     /**
      * @brief Loads a player into the game world
@@ -124,12 +131,12 @@ private:
     std::map< std::string, daemonobj * > m_daemon_lookup;
     
     std::shared_ptr < sol::state > m_state;
+    std::shared_ptr<_internal_lua_> m_state_internal;
     heartbeat_manager _heartbeat;
     std::string _currently_loading_script;
-    sol::environment _current_loading_env;
-    sol::protected_function _current_script_f_;
     
-    script_entity * _last_registered_object_;
+    
+
     
     /*
      *  Initiliaze lua state and user types 

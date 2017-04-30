@@ -27,7 +27,7 @@ void game_manager::init()
         on_error(ss.str());
         return;
     } 
-/*
+
     std::string daemon_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
     daemon_path += global_settings::Instance().GetSetting(DEFAULT_DAEMON_PATH);
     LOG_DEBUG << "Loading daemons..: " << daemon_path;
@@ -69,7 +69,7 @@ void game_manager::init()
         }
         //std::cout << dir->path().filename() << "\n"; // just last bit
     }
-*/
+
     SetState(gameState::RUNNING);
 }
 
@@ -119,6 +119,11 @@ bool game_manager::process_player_cmd(script_entity* p, std::string& cmd)
     // for testing purposes, just pull up my test player..
     // TODO: implement the actual logic..
     playerobj * pcaliel = entity_manager::Instance().get_player("caliel");
+    if( pcaliel == NULL )
+    {
+        entity_manager::Instance().load_player();
+        pcaliel = entity_manager::Instance().get_player("caliel");
+    }
     roomobj * roomt = get_void_room();
     daemonobj * dobj = get_command_proc();
 

@@ -127,7 +127,7 @@ bool entity_manager::compile_script(std::string& file_path, std::string& reason)
         }
         if(daemons.size() > 0)
             destroy_daemon(script_);
-    }
+    } break;
     case EntityType::COMMAND: {
 
     } break;
@@ -239,11 +239,11 @@ bool entity_manager::lua_safe_script(std::string& script_text, sol::environment 
         return false;
     }
 
-    _current_script_f_ = lr; // lua.load(script_text);
+    m_state_internal->_current_script_f_ = lr; // lua.load(script_text);
 
-    env.set_on(_current_script_f_);
+    env.set_on(m_state_internal->_current_script_f_);
 
-    sol::protected_function_result result = _current_script_f_();
+    sol::protected_function_result result = m_state_internal->_current_script_f_();
     if(!result.valid()) {
         sol::error err = result;
         reason = err.what();
@@ -265,11 +265,12 @@ template <typename T> T* downcast(script_entity* b)
 void entity_manager::init_lua()
 {
     sol::state& lua = (*m_state);
+    m_state_internal.reset( new _internal_lua_ );
     lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::package, sol::lib::math, sol::lib::table);
     
-    //lua.new_usertype<script_entity>("script_entity",
-    //                      "GetType",
-    //                      &script_entity::GetEntityTypeString);
+    lua.new_usertype<script_entity>("script_entity",
+                          "GetType",
+                         &script_entity::GetEntityTypeString);
                           
     lua.new_usertype<exitobj>("exitobj",
                           "GetExitPath", &exitobj::GetExitPath,
@@ -301,8 +302,8 @@ void entity_manager::init_lua()
                               &roomobj::GetExits,
                               "AddExit",
                               &roomobj::AddExit,
-                             /* "GetType",
-                              &script_entity::GetEntityTypeString, */
+                              "GetType",
+                              &script_entity::GetEntityTypeString,
                               sol::base_classes,
                               sol::bases<script_entity>());
                               
@@ -545,11 +546,7 @@ bool entity_manager::destroy_room(std::string& script_path)
         _heartbeat.clear_heartbeat_funcs(script_path);
 
         for(auto e : search->second) {
-            //destroy_entity(e);
-                e->script_ent->clear_props(); // = NULL;
-                sol::environment genv = (*m_state).globals();
-                genv.set_on(e->_script_f_);
-                e.reset();
+            destroy_entity(e);
         }
 
         env[name] = sol::nil;
@@ -682,7 +679,7 @@ bool entity_manager::_init_lua_env_(sol::environment parent,
     // lua.script( force_weak , parent);
     // __index = _G
     // tmp["__index"] = "_G";
-    //new_child_env = tmp;
+    new_child_env = tmp;
    // LOG_DEBUG << "Creating environment: " << new_child_env_name;
     return true;
 }
@@ -756,9 +753,9 @@ void entity_manager::register_entity(script_entity* entityobj, EntityType etype)
     ew->script_path = GetCurrentlyCompiledScript();
     entityobj->SetScriptPath(ew->script_path);
     ew->script_ent = entityobj;
-    ew->_script_f_ = _current_script_f_; // <-- work around to ensure all objects in env get destroyed
+    ew->_script_f_ = m_state_internal->_current_script_f_; // <-- work around to ensure all objects in env get destroyed
 
-    _last_registered_object_ = entityobj;
+    m_state_internal->_last_registered_object_ = entityobj;
 
     sol::environment e_parent;
     std::string env_name;
@@ -974,7 +971,8 @@ void entity_manager::reset()
 
     for(auto& cmdname : destroy_entities)
         destroy_command(cmdname);
-        
+    this->m_state_internal.reset();
+    m_state.reset();
     // m_room_objs.clear();
 }
 
