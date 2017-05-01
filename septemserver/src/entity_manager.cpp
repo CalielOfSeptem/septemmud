@@ -244,7 +244,8 @@ bool entity_manager::lua_safe_script(std::string& script_text, sol::environment 
     env.set_on(m_state_internal->_current_script_f_);
 
     sol::protected_function_result result = m_state_internal->_current_script_f_();
-    if(!result.valid()) {
+    if(!result.valid()) 
+    {
         sol::error err = result;
         reason = err.what();
         // std::cout << "call failed, sol::error::what() is " << what << std::endl;
@@ -285,7 +286,7 @@ void entity_manager::init_lua()
                               sol::meta_function::new_index,
                               &roomobj::set_property_lua,
                               sol::meta_function::index,
-                              &roomobj::get_property_lua,
+                              &roomobj::get_property_lua, 
                               "GetTitle",
                               &roomobj::GetTitle,
                               "SetTitle",
@@ -768,7 +769,7 @@ void entity_manager::register_entity(script_entity* entityobj, EntityType etype)
     //  when people get clever.  Primarily, this allows the entity manager
     //  to figure out which object is being referenced, e.g., during a destroy, so
     //  the other entities declared in the script remain untouched
-    /*
+    
     sol::optional<unsigned int> instance_id = e_parent[env_name]["_internal_instance_id_"];
     if(!instance_id) {
         e_parent[env_name]["_internal_instance_id_"] = 0;
@@ -780,7 +781,7 @@ void entity_manager::register_entity(script_entity* entityobj, EntityType etype)
         e_parent[env_name]["_internal_instance_id_"] = new_id;
         entityobj->instanceID = new_id;
     }
-     */
+     
     switch(etype) {
     case EntityType::PLAYER: {
 
@@ -1036,17 +1037,51 @@ playerobj* entity_manager::get_player(const std::string& player_name)
     }
 }
 
-std::vector<commandobj*> entity_manager::GetCommands()
+bool entity_manager::move_entity(script_entity* target, script_entity* dest)
 {
-    std::vector<commandobj*> ret;
-    ret.reserve(m_cmd_objs.size());
-    for(auto& kvp : this->m_cmd_objs) {
-        for(auto& kvp2 : kvp.second) {
-            commandobj* be = static_cast<commandobj*>(kvp2->script_ent);
-            ret.push_back(be);
+    assert( target != NULL );
+    assert( dest != NULL );
+    // bunch of sanity checks.. which should be done on the lua side but will
+    // be enforced here too.
+    switch(target->GetType())
+    {
+        case EntityType::ROOM:
+        case EntityType::DAEMON:
+        case EntityType::UNKNOWN:
+        {
+            return false; // can't move these..
+            break;
         }
+        case EntityType::ITEM:
+        {
+            // TODO: Implement item movement
+            break;
+        }
+        case EntityType::PLAYER:
+        case EntityType::NPC:
+        {
+            if( dest->GetType() != EntityType::ROOM )
+            {
+                return false;
+            }
+            if( roomobj* r = dynamic_cast< roomobj* >( dest ) )
+            {
+                r->AddEntityToInventory(target);
+                return true;
+            }
+            else
+            {
+                // cannot move into a non-container..
+                return false;
+            }
+            break;
+        }
+        default:
+        return false;
+        break;
     }
-    return ret;
+    
+
 }
 
 

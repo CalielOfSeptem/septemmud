@@ -62,6 +62,9 @@ struct _internal_lua_
     void register_entity(script_entity *entityobj, EntityType etype);
     void deregister_entity(script_entity *entityobj, EntityType etype);
     
+    
+    bool move_entity(script_entity* target, script_entity* dest);
+    
     /**
      * @brief A bloody work around to link scripts with their instantiated objects
      * @return 
@@ -97,10 +100,7 @@ struct _internal_lua_
     
     playerobj* get_player( const std::string& player_name );
 
-    
-    std::vector<commandobj*> GetCommands();
-    
-   
+        
     
 protected:
     entity_manager()

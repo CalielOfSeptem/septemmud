@@ -32,9 +32,9 @@ struct script_entity {
 
         sol::object get_property_lua(const char* name, sol::this_state s)
         {
-                auto& var = props[name];
-                return sol::make_object(s, var);
-               // return props[name];
+               // auto& var = props[name];
+                //return sol::make_object(s, var);
+                return props[name];
         }
 
         void set_property_lua(const char* name, sol::stack_object object)

@@ -93,9 +93,9 @@ private:
         }
         else if( new_state == gameState::STOPPED )
         {
-            if( m_state != gameState::STOPPING || m_state == gameState::STOPPED )
+            if( m_state == gameState::STOPPED )
             {
-                // do nothing if we aren't running, and
+                // do nothing if we are already stopped, and
                 // also do nothing if the state is already stopping
                 return false;
             }
@@ -108,9 +108,11 @@ private:
         }
         else if( new_state == gameState::ERROR )
         {
-            do_stop();
-            m_state = new_state;
+
             LOG_DEBUG << "Game state changed to ERROR";
+            m_state = new_state;
+            do_stop();
+            
             return true;
             
         }

@@ -134,7 +134,12 @@ bool game_manager::process_player_cmd(script_entity* p, std::string& cmd)
     
         
     // move caliel into the room...
-    roomt->AddEntityToInventory(pcaliel);
+    //roomt->AddEntityToInventory(pcaliel);
+    if( !entity_manager::Instance().move_entity(pcaliel, roomt) )
+    {
+        LOG_ERROR << "Unable to move Caliel..";
+        return false;
+    }
     
     sol::optional<sol::table> self = dobj->m_userdata->selfobj; //ew_daemon->env_obj.value()[ew_daemon->script_obj_name];//(*lua_primary)[entity_env[0]][entity_env[1]][ew_daemon->script_obj_name]; //(*ew_daemon->script_state)[ew_daemon->script_obj_name];
     

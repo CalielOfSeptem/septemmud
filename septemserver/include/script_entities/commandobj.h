@@ -41,6 +41,7 @@ struct commandobj : script_entity
     {
         this->priority = priority;
     }
+    
     int GetPriority() const
     {
         return priority;
@@ -50,6 +51,7 @@ private:
     std::string cmd_verb;
     std::vector<std::string> cmd_syn;
     int priority;
+    
 
 };
 
