@@ -1,0 +1,49 @@
+inherit room
+p1 = room.new()
+p1:SetTitle('The Void')
+p1:SetDescription('An endless void of nothingness..')
+
+p1:AddExit( {'north', 'n'}, 'void/id=1', true)
+
+p2 = room.new()
+p2:SetTitle('The Void, pt2')
+p2:SetDescription('An endless void of nothingness.. pt2')
+
+p2:AddExit( {'south', 's'}, 'void/id=0', true)
+
+
+
+
+
+--p1:AddExit( {'south'}, 'test/path', true)
+--p1:AddExit( {'east'}, 'test/path', true)
+--p1:AddExit( {'west'}, 'test/path', true)
+
+--p1:AddExits({ 
+--	{'northwest', 'nw'}, {'test/path', true},
+--	{'southeast', 'se'}, {'test/path', true}
+--})
+
+
+--function p1:test()
+--	print('ROOM LOADED! Title = ' .. p1:GetTitle())
+--end
+--function room:heartbeat ()
+--	print('p1:Room heartbeat')
+
+--end
+
+--function heartbeat()
+--	print('Void Heartbeat_OK2')
+--end
+
+--register_heartbeat(p1.heartbeat)
+
+--function f() print('getting function..') return p1.heartbeat end
+
+--y = register_heartbeat(p1.test)
+
+
+--p1:test()
+
+

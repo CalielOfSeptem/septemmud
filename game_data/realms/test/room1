@@ -1,0 +1,23 @@
+inherit room
+p1 = room.new()
+p1:SetTitle('The Test')
+p1:SetDescription('An endless void of testness..')
+
+p1:AddExit( {'north', 'n'}, 'test/path', true)
+--p1:AddExit( {'south'}, 'test/path', true)
+--p1:AddExit( {'east'}, 'test/path', true)
+--p1:AddExit( {'west'}, 'test/path', true)
+
+--p1:AddExits({ 
+--	{'northwest', 'nw'}, {'test/path', true},
+--	{'southeast', 'se'}, {'test/path', true}
+--})
+
+
+function p1:heartbeat()
+	print('room1 Heartbeat1')
+end
+
+--register_heartbeat(heartbeat)
+
+y = register_heartbeat(p1.heartbeat)

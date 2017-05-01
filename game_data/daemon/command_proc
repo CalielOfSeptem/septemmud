@@ -1,0 +1,55 @@
+inherit daemon
+	
+d = daemon.new('command_proc')
+
+--t = {}
+
+--function string.starts(String,Start)
+--   return string.sub(String,1,string.len(Start))==Start
+--end
+
+function f (x)
+	print('--- Calling f ---')
+	for k, v in pairs(x) do
+			print(k, v)
+	end
+end
+
+function d:process_command (o_orig, cmd )
+	--p = player_cast(o_orig)
+	print('Calling entity is of type: ' .. o_orig:GetType() )
+	--print('Command = ' .. cmd )
+	s_type = o_orig:GetType()
+	--print(cmd:len())
+	if s_type:lower() == "player" then
+		--p = player_cast(o_orig) -- cast it. its not pretty, but a necessity for now.
+		-- first we search all known global commands like "look" and movement commands
+	cmds = get_default_commands()--GetCommands()
+	
+	f(cmds);
+	print('--- Checking default commands.. ---')
+	for k, v in pairs(cmds) do
+		if v:GetVerb():lower():starts(cmd) then -- == cmd then
+			print('Identified verb, verb=' .. v:GetVerb() )
+			v:ExecuteCommand( o_orig, cmd )
+			
+		end
+		--verb = v:GetVerb()
+		--print(verb)
+	end
+		
+	
+		--for i = 1, #cmds do
+		--	print('Command Name = ' .. cmds[i]:GetName() )
+			--if cmds[i]:GetName():starts(cmd) then
+			--	print( 'Command matched with ' .. cmds[i]:GetName() )
+			--	cmds[i]:ExecuteCommand( o_orig, cmd )
+			--end
+			
+		--end
+		
+	end
+
+end
+
+

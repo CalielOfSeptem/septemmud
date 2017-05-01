@@ -1,0 +1,117 @@
+function string.starts(String,Start)
+   return string.sub(String,1,string.len(Start))==Start
+end
+
+function string.ends(String,End)
+   return End=='' or string.sub(String,-string.len(End))==End
+end
+
+local function tchelper(first, rest)
+  return first:upper()..rest:lower()
+end
+
+function wrap(str, limit, indent, indent1)
+  indent = indent or ""
+  indent1 = indent1 or indent
+  limit = limit or 72
+  local here = 1-#indent1
+  return indent1..str:gsub("(%s+)()(%S+)()",
+                          function(sp, st, word, fi)
+                            if fi-here > limit then
+                              here = st - #indent
+                              return "\n"..indent..word
+                            end
+                          end)
+end
+
+
+function trim(s)
+  return (s:gsub("^%s*(.-)%s*$", "%1"))
+end
+
+function split(str, pat)
+   local t = {}  -- NOTE: use {n = 0} in Lua-5.0
+   local fpat = "(.-)" .. pat
+   local last_end = 1
+   local s, e, cap = str:find(fpat, 1)
+   while s do
+      if s ~= 1 or cap ~= "" then
+         table.insert(t,cap)
+      end
+      last_end = e+1
+      s, e, cap = str:find(fpat, last_end)
+   end
+   if last_end <= #str then
+      cap = str:sub(last_end)
+      table.insert(t, cap)
+   end
+   return t
+end
+
+function split_path(str)
+   return split(str,'[\\/]+')
+end
+
+-- explode(seperator, string)
+function explode(d,p)
+   local t, ll
+   t={}
+   ll=0
+   if(#p == 1) then
+      return {p}
+   end
+   while true do
+      l = string.find(p, d, ll, true) -- find the next d in the string
+      if l ~= nil then -- if "not not" found then..
+         table.insert(t, string.sub(p,ll,l-1)) -- Save it in our array.
+         ll = l + 1 -- save just after where we found it for searching next time.
+      else
+         table.insert(t, string.sub(p,ll)) -- Save what's left in our array.
+         break -- Break at end, as it should be, according to the lua manual.
+      end
+   end
+   return t
+end
+
+function explode(sep, str, limit)
+   if not sep or sep == "" then
+      return false
+   end
+   if not str then
+      return false
+   end
+   limit = limit or mhuge
+   if limit == 0 or limit == 1 then
+      return {str}, 1
+   end
+
+   local r = {}
+   local n, init = 0, 1
+
+   while true do
+      local s,e = strfind(str, sep, init, true)
+      if not s then
+         break
+      end
+      r[#r+1] = strsub(str, init, s - 1)
+      init = e + 1
+      n = n + 1
+      if n == limit - 1 then
+         break
+      end
+   end
+
+   if init <= strlen(str) then
+      r[#r+1] = strsub(str, init)
+   else
+      r[#r+1] = ""
+   end
+   n = n + 1
+
+   if limit < 0 then
+      for i=n, n + limit + 1, -1 do r[i] = nil end
+      n = n + limit
+   end
+
+   return r, n
+end
