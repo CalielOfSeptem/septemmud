@@ -124,6 +124,7 @@ int main(int argc, char **argv)
     global_settings::Instance().SetSetting( DEFAULT_DAEMON_PATH, "daemon");
     global_settings::Instance().SetSetting( DEFAULT_COMMANDS_PATH, "cmds");
     global_settings::Instance().SetSetting( DEFAULT_COMMAND_PROC, "daemon/command_proc");
+    global_settings::Instance().SetSetting( DEFAULT_LIBS_PATH, "lib");
     /*
 	std::string test_room = "/home/ken/git-repos/septemmud/game_data/realms/void";
     std::string reason;

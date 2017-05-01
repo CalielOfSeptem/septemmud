@@ -46,7 +46,7 @@ struct _internal_lua_
     entity_manager& operator=(entity_manager const&) = delete;  // Copy assign
     entity_manager& operator=(entity_manager &&) = delete;      // Move assign
     
-    bool compile_script(std::string& file_path, std::string& reason);
+    bool compile_entity(std::string& file_path, std::string& reason);
     
     void invoke_heartbeat();
     
@@ -99,8 +99,8 @@ struct _internal_lua_
     daemonobj * GetDaemonByScriptPath(std::string & script_path, unsigned int & instance_id);
     
     playerobj* get_player( const std::string& player_name );
-
-        
+    
+    bool compile_lib( std::string& script_or_path, std::string& reason );
     
 protected:
     entity_manager()

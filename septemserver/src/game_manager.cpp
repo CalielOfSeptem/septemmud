@@ -13,14 +13,36 @@ namespace fs = boost::filesystem;
 void game_manager::init()
 {
     LOG_DEBUG << "Begin Init";
+    std::string reason;
+    // load libs
+    std::string libs_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
+    libs_path += global_settings::Instance().GetSetting(DEFAULT_LIBS_PATH);
 
+    LOG_DEBUG << "Loading libs: " << libs_path;
+   
+    for ( fs::recursive_directory_iterator end, dir(libs_path);
+        dir != end; ++dir ) {
+        // std::cout << *dir << "\n";  // full path
+        if( fs::is_regular(dir->path()) )
+        {
+            std::string pathstr = dir->path().string();
+            if(!entity_manager::Instance().compile_lib(pathstr, reason)) {
+                std::stringstream ss;
+                ss << "Unable to load lib [" << dir->path().string() << "], reason = " << reason;
+                LOG_ERROR << ss.str();
+                on_error(ss.str());
+                return;
+            } 
+        }
+        //std::cout << dir->path().filename() << "\n"; // just last bit
+    }
+    
     // Load void room
     std::string void_script_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
     void_script_path += global_settings::Instance().GetSetting(DEFAULT_VOID_ROOM);
 
     LOG_DEBUG << "Loading void room: " << void_script_path;
-    std::string reason;
-    if(!entity_manager::Instance().compile_script(void_script_path, reason)) {
+    if(!entity_manager::Instance().compile_entity(void_script_path, reason)) {
         std::stringstream ss;
         ss << "Unable to load void room, reason = " << reason;
         LOG_ERROR << ss.str();
@@ -38,7 +60,7 @@ void game_manager::init()
         if( fs::is_regular(dir->path()) )
         {
             std::string pathstr = dir->path().string();
-            if(!entity_manager::Instance().compile_script(pathstr, reason)) {
+            if(!entity_manager::Instance().compile_entity(pathstr, reason)) {
                 std::stringstream ss;
                 ss << "Unable to load daemon [" << dir->path().string() << "], reason = " << reason;
                 LOG_ERROR << ss.str();
@@ -59,7 +81,7 @@ void game_manager::init()
         if( fs::is_regular(dir->path()) )
         {
             std::string pathstr = dir->path().string();
-            if(!entity_manager::Instance().compile_script(pathstr, reason)) {
+            if(!entity_manager::Instance().compile_entity(pathstr, reason)) {
                 std::stringstream ss;
                 ss << "Unable to load command [" << dir->path().string() << "], reason = " << reason;
                 LOG_ERROR << ss.str();

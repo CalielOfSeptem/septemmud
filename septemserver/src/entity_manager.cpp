@@ -48,7 +48,7 @@ void get_entity_str(EntityType etype, std::string& str)
     }
 }
 
-bool entity_manager::compile_script(std::string& file_path, std::string& reason)
+bool entity_manager::compile_entity(std::string& file_path, std::string& reason)
 {
     LOG_DEBUG << "Compiling script: " << file_path;
 
@@ -164,7 +164,7 @@ bool entity_manager::load_player()
         }
         fs::copy(player_script_path, tmp_p);
 
-        if(!compile_script(tmp_p, reason)) {
+        if(!compile_entity(tmp_p, reason)) {
             fs::remove(tmp_p);
             return false;
         }
@@ -1081,6 +1081,48 @@ bool entity_manager::move_entity(script_entity* target, script_entity* dest)
         break;
     }
     
+
+}
+
+bool entity_manager::compile_lib(std::string& script_or_path, std::string& reason)
+{
+   
+    auto simple_handler = [](lua_State*, sol::protected_function_result result) {
+        // You can just pass it through to let the call-site handle it
+        return result;
+    };
+    
+    if(!m_state) {
+        m_state = std::shared_ptr<sol::state>(new sol::state);
+        init_lua();
+    }
+    
+     sol::state& lua = (*m_state);
+    
+    if( fs::exists(script_or_path) )
+    {
+        auto result = lua.script_file(script_or_path, simple_handler);
+        if(result.valid()) {
+            LOG_DEBUG << "Successfully executed script.";
+            return true;
+        } else {
+            sol::error err = result;
+            LOG_ERROR << err.what();
+            return false;
+        }
+    }
+    else
+    {
+        auto result = lua.script(script_or_path, simple_handler);
+        if(result.valid()) {
+            LOG_DEBUG << "Successfully executed script.";
+            return true;
+        } else {
+            sol::error err = result;
+            LOG_ERROR << err.what();
+            return false;
+        }
+    }
 
 }
 
