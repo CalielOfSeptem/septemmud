@@ -45,5 +45,5 @@ Thumbs.db
 .codelite/
 .build-debug/
 .build-release/
-.game_data/
-game_data/
+.game_data/accounts
+game_data/accounts
