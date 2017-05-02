@@ -148,6 +148,9 @@ bool game_manager::process_player_cmd(script_entity* p, std::string& cmd)
         pcaliel = entity_manager::Instance().get_player("caliel");
     }
     roomobj * roomt = get_void_room();
+    if( pcaliel->GetEnvironment() != NULL )
+        roomt = pcaliel->GetRoom();
+        
     daemonobj * dobj = get_command_proc();
 
     assert( pcaliel != NULL );

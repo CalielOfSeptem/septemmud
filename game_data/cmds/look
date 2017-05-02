@@ -8,7 +8,7 @@ c = command.new('look', 0) -- priority zero means that this command will win out
 
 
 
-function command:ExecuteCommand ( o, cmd )
+function c:ExecuteCommand ( o, cmd )
 	print('Look command called..')
 	--p = player_cast(o)
 	if o ~= nil then

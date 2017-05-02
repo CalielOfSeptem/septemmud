@@ -3,13 +3,17 @@ p1 = room.new()
 p1:SetTitle('The Void')
 p1:SetDescription('An endless void of nothingness..')
 
-p1:AddExit( {'north', 'n'}, 'void/id=1', true)
+p1:AddExit( {'north', 'n'}, 'realms/void:id=1', true)
+
+function p1:test()
+	print('HI ROOM! Title = ' .. p1:GetTitle())
+end
 
 p2 = room.new()
 p2:SetTitle('The Void, pt2')
 p2:SetDescription('An endless void of nothingness.. pt2')
 
-p2:AddExit( {'south', 's'}, 'void/id=0', true)
+p2:AddExit( {'south', 's'}, 'realms/void:id=0', true)
 
 
 

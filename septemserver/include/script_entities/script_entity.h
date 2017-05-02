@@ -22,7 +22,7 @@ struct _sol_userdata_
 
 struct script_entity {
     
-        script_entity(EntityType myType) : m_type(myType)
+        script_entity(EntityType myType) : m_type(myType), environment_(NULL)
         {
             
         }

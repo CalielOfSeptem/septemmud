@@ -63,8 +63,8 @@ struct _internal_lua_
     void deregister_entity(script_entity *entityobj, EntityType etype);
     
     
+    bool move_living(script_entity* target, const std::string& roomid);
     bool move_entity(script_entity* target, script_entity* dest);
-    
     /**
      * @brief A bloody work around to link scripts with their instantiated objects
      * @return 

@@ -351,6 +351,10 @@ void entity_manager::init_lua()
     lua.new_usertype<commandobj>(
         "command",
         sol::constructors<commandobj(sol::this_state, std::string), commandobj(sol::this_state, std::string, int)>(),
+        sol::meta_function::new_index,
+        &playerobj::set_property_lua,
+        sol::meta_function::index,
+        &playerobj::get_property_lua,
         "GetVerb",
         &commandobj::GetVerb,
         "SetVerb",
@@ -368,12 +372,17 @@ void entity_manager::init_lua()
         sol::bases<script_entity>());
 
     lua.set_function("deregister_all_heartbeat", &heartbeat_manager::deregister_all_heartbeat_funcs, &_heartbeat);
+    
+    
+    lua.set_function("move_living", &entity_manager::move_living, this);
 
     lua.set_function("command_cast", &downcast<commandobj>);
     lua.set_function("room_cast", &downcast<roomobj>);
     lua.set_function("player_cast", &downcast<playerobj>);
 
     lua.set_function("get_default_commands", [&]() -> std::map<std::string, commandobj*> & { return m_default_cmds; });
+    
+    lua.set_function("get_move_command", [&]() -> commandobj* & { return m_default_cmds.find("move")->second; });
 
     lua.set_function("get_room_list", [&]() -> std::map<std::string, roomobj*> & { return m_room_lookup; });
 
@@ -1037,6 +1046,44 @@ playerobj* entity_manager::get_player(const std::string& player_name)
     }
 }
 
+bool get_entity_path_from_id_string( const std::string& entity_id, std::string& entity_script_path, unsigned int& instanceid)
+{
+    unsigned int tmp = 0;
+    entity_script_path = boost::to_lower_copy(entity_id);
+    std::size_t found = entity_script_path.find("id=");
+    
+    if (found!=std::string::npos)
+    {
+        // the id has a id= in it..
+        
+        sscanf(entity_script_path.c_str(), "%*[^=]=%u", &tmp);
+        entity_script_path.erase (entity_script_path.begin()+found, entity_script_path.end()); // remove it from the string
+    }
+    if( entity_script_path[entity_script_path.size()-1] == '/' ||
+        entity_script_path[entity_script_path.size()-1] == ':' )  // no need to have this.
+    {
+        entity_script_path.erase(entity_script_path.size()-1);
+    }
+    
+    LOG_DEBUG << entity_script_path;
+    return true;
+}
+
+bool entity_manager::move_living(script_entity* target, const std::string& roomid )
+{
+    unsigned int instance = 0;
+    std::string roompath;
+    auto search = m_room_lookup.find(boost::to_lower_copy(roomid));
+    roomobj * r = search->second;
+    if( r != NULL )
+    {
+        move_entity(target, static_cast<script_entity*>(r));
+    }
+    LOG_DEBUG << r->GetTitle();
+   // get_entity_path_from_id_string(roomid, roompath, instance);
+    
+}
+
 bool entity_manager::move_entity(script_entity* target, script_entity* dest)
 {
     assert( target != NULL );
@@ -1066,6 +1113,9 @@ bool entity_manager::move_entity(script_entity* target, script_entity* dest)
             }
             if( roomobj* r = dynamic_cast< roomobj* >( dest ) )
             {
+                playerobj * p = dynamic_cast< playerobj* >( target );
+                if( p->GetEnvironment() != NULL )
+                    p->GetRoom()->RemoveEntityFromInventory(target);
                 r->AddEntityToInventory(target);
                 return true;
             }
@@ -1083,6 +1133,7 @@ bool entity_manager::move_entity(script_entity* target, script_entity* dest)
     
 
 }
+
 
 bool entity_manager::compile_lib(std::string& script_or_path, std::string& reason)
 {

@@ -2,22 +2,29 @@ inherit command
 c = command.new('move')
 --c:SetVerb("move")
 
-function command:execute_command ( o, cmd )
-	p = player_cast(o)
-	if p ~= nil then
-		-- lets see what room the player/npc is in..
-		-- there are two ways, through GetEnvironment, or through GetRoom
-		-- GetEnvironment requires a cast as its generic to all game items/players.
-		-- GetRoom does not as its already a room object ptr
-		-- example: env = room_cast(p:GetEnvironment())
-		env = p:GetRoom()
+function c:ExecuteCommand ( o_orig, cmd )
+		print('--- Move command ---')
+		s_type = o_orig:GetType()
+		if (s_type:lower() ~= "player" and s_type:lower() ~= "npc") then
+			print('Cannot call move on a non-living entity..')
+			return false;
+		end
+		exits = o_orig:GetRoom():GetExits()
+		--f(exits);
+							
+		for k, v in pairs(exits) do
+			--exitobj = v:GetExit()
+			
+			for k1, v1 in pairs (v:GetExit()) do
+				if v1 == cmd then
+					print('Identified exit, exit = ' .. v1 .. ', path = ' .. v:GetExitPath() )
+					o_orig:SendToEntity('You go ' .. v:GetExit()[1] .. '. \r\n')
+					move_living( o_orig, v:GetExitPath() )
+					
 
-		if env ~= nil then
-			s = FormatRoom(env)
-			--p:SendToEntity('[' .. env:GetTitle() .. ']')
-			--p:SendToEntity('\r\n')
-			p:SendToEntity(s .. '\r\n')
-		end	
-	end
+					return true;
+				end
+			end
+		end
 end
 
