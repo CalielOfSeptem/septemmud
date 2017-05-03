@@ -9,7 +9,7 @@
 #include <iostream>
 #include <plog/Log.h>
 
-enum class EntityType { UNKNOWN, ROOM, ITEM, NPC, PLAYER, COMMAND, DAEMON };
+enum class EntityType { UNKNOWN, ROOM, ITEM, NPC, PLAYER, COMMAND, DAEMON, LIB };
 
 struct _sol_userdata_
 {

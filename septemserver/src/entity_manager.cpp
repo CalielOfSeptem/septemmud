@@ -42,6 +42,9 @@ void get_entity_str(EntityType etype, std::string& str)
     case EntityType::ROOM: {
         str = "ROOM";
     } break;
+    case EntityType::LIB: {
+        str = "LIB";
+    } break;
     default:
         str = "UNKNOWN";
         break;
@@ -130,6 +133,9 @@ bool entity_manager::compile_entity(std::string& file_path, std::string& reason)
     } break;
     case EntityType::COMMAND: {
 
+    } break;
+    case EntityType::LIB: {
+         return lua_safe_script(script_text, (*m_state).globals(), reason);
     } break;
     default:
         break;
@@ -427,7 +433,20 @@ bool entity_manager::load_script_text(std::string& script_path,
     bool bFoundType = false;
     while(std::getline(buffer, token, '\n')) {
         trim(token);
-        if(token.compare("inherit daemon") == 0) {
+        
+        if(token.compare("inherit lib") == 0) {
+            if(bFoundType) // bad. only one type per script
+            {
+                reason = "Multiple inherit directives detected. Only one entity type is allowed per script.";
+                return false;
+            }
+            obj_type = EntityType::LIB;
+            token = "";
+            file_tokens.push_back(token);
+
+            bFoundType = true;
+        }
+        else if(token.compare("inherit daemon") == 0) {
             if(bFoundType) // bad. only one type per script
             {
                 reason = "Multiple inherit directives detected. Only one entity type is allowed per script.";
@@ -1134,7 +1153,7 @@ bool entity_manager::move_entity(script_entity* target, script_entity* dest)
 
 }
 
-
+/*
 bool entity_manager::compile_lib(std::string& script_or_path, std::string& reason)
 {
    
@@ -1177,7 +1196,7 @@ bool entity_manager::compile_lib(std::string& script_or_path, std::string& reaso
 
 }
 
-
+*/
 /*
 bool entity_manager::get_command(std::string& verb, shared_ptr<entity_wrapper>& cmd)
 {

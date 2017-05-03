@@ -5,6 +5,7 @@
 #include <sol.hpp>
 #include <plog/Log.h>
 
+
 struct exitobj
 {
     exitobj()

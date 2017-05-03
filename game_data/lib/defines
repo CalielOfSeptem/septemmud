@@ -1,0 +1,11 @@
+inherit lib
+direction = {}
+direction.north = { 'north', 'n' }
+direction.south = { 'south', 's' }
+direction.east = { 'east', 'e' }
+direction.west = { 'west', 'w' }
+
+direction.northeast = { 'northeast', 'ne' }
+direction.northwest = { 'northwest', 'nw' }
+direction.southeast = { 'southeast', 'se' }
+direction.southwest = { 'southwest', 'sw' }

@@ -100,7 +100,7 @@ struct _internal_lua_
     
     playerobj* get_player( const std::string& player_name );
     
-    bool compile_lib( std::string& script_or_path, std::string& reason );
+    
     
 protected:
     entity_manager()

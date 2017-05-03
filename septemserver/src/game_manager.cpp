@@ -26,7 +26,7 @@ void game_manager::init()
         if( fs::is_regular(dir->path()) )
         {
             std::string pathstr = dir->path().string();
-            if(!entity_manager::Instance().compile_lib(pathstr, reason)) {
+            if(!entity_manager::Instance().compile_entity(pathstr, reason)) {
                 std::stringstream ss;
                 ss << "Unable to load lib [" << dir->path().string() << "], reason = " << reason;
                 LOG_ERROR << ss.str();
