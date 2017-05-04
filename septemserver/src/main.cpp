@@ -176,6 +176,10 @@ int main(int argc, char **argv)
         {
             entity_manager::Instance().load_player();
         }
+        else if( blah == "hb" )
+        {
+            entity_manager::Instance().invoke_heartbeat();
+        }
         else
         {
             gm.process_player_cmd(NULL, blah);

@@ -46,7 +46,13 @@ struct _internal_lua_
     entity_manager& operator=(entity_manager const&) = delete;  // Copy assign
     entity_manager& operator=(entity_manager &&) = delete;      // Move assign
     
-    bool compile_entity(std::string& file_path, std::string& reason);
+    bool compile_entity( std::string& relative_script_path, EntityType etype, std::string& script_text, std::string& reason );
+    
+    bool compile_virtual_file( std::string& relative_script_path, EntityType etype, std::string& script_text, std::string& reason );
+    
+    bool compile_script_file( std::string& file_path, std::string& reason );
+    
+    bool compile_and_clone(std::string& relative_script_path, std::string& script_path_virtual, std::string& reason );
     
     void invoke_heartbeat();
     
@@ -69,7 +75,7 @@ struct _internal_lua_
      * @brief A bloody work around to link scripts with their instantiated objects
      * @return 
      */
-    std::string GetCurrentlyCompiledScript() { return _currently_loading_script; }
+    //std::string GetCurrentlyCompiledScript() { return _currently_loading_script; }
     
     /**
      * @brief A bloody work around to link scripts with their instantiated objects
@@ -101,6 +107,7 @@ struct _internal_lua_
     playerobj* get_player( const std::string& player_name );
     
     
+    void debug(std::string& msg);
     
 protected:
     entity_manager()

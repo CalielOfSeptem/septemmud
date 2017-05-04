@@ -9,13 +9,14 @@ function f (x)
 end
 
 function d:process_command (o_orig, cmd )
-	print('Calling entity is of type: ' .. o_orig:GetType() )
+	print('Procsesing command.  EntityType = ' .. o_orig:GetType() .. ', cmd = [' .. cmd .. ']' )
+	
 	s_type = o_orig:GetType()
 	if s_type:lower() == "player" then
 		-- first we search all known global/default commands like "look" and movement commands
 		cmds = get_default_commands()
-		print('--- Checking default commands.. ---')
-		f(cmds);
+		--print('--- Checking default commands.. ---')
+		--f(cmds);
 		for k, v in pairs(cmds) do
 			if v:GetVerb():lower():starts(cmd) then -- == cmd then
 				print('Identified verb, verb=' .. v:GetVerb() )
@@ -23,17 +24,12 @@ function d:process_command (o_orig, cmd )
 				return true
 			end
 		end
-		print('--- Checking move command.. ---')
-		exits = o_orig:GetRoom():GetExits()
-
 							
 		move = get_move_command()
-		--print(move:GetVerb():lower())
 		if move:ExecuteCommand(o_orig, cmd) then
 			return true
 		end
-		
-		
+				
 	end
 end
 

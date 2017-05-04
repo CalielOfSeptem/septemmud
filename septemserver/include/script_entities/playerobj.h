@@ -11,7 +11,7 @@ struct playerobj : living_entity, container_base
      playerobj(sol::this_state ts) :
         living_entity(ts, EntityType::PLAYER)
      {
-
+         bIsCreator = true; // just for now, and for debug purposes
      }
      
      void SendToEntity(const std::string& msg)  override
@@ -28,10 +28,15 @@ struct playerobj : living_entity, container_base
          living_entity::SendToEnvironment(msg);
      }
      
+     bool isCreator()
+     {
+         return bIsCreator;
+     }
+     
 public:
     //shared_ptr< client > client_obj;
     std::string player_name; //for now. TODO: implement full player details and support
-    
+    bool bIsCreator;
     
 };
  

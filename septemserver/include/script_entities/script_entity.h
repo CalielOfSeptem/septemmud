@@ -7,6 +7,7 @@
 #include <sol.hpp>
 #include <cassert>
 #include <iostream>
+
 #include <plog/Log.h>
 
 enum class EntityType { UNKNOWN, ROOM, ITEM, NPC, PLAYER, COMMAND, DAEMON, LIB };
@@ -95,16 +96,13 @@ struct script_entity {
         unsigned int instanceID = 0;
         
         std::shared_ptr< _sol_userdata_ > m_userdata;
+        
+        void debug( const std::string& msg );
 private:
         std::unordered_map<std::string, sol::object> props;
-       // sol::userdata selfobj;
         EntityType m_type = EntityType::UNKNOWN;
         script_entity* environment_;
         std::string script_path;
-        
-        //sol::userdata selfobj;
-        
-        
 };
 
 

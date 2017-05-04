@@ -26,7 +26,7 @@ void game_manager::init()
         if( fs::is_regular(dir->path()) )
         {
             std::string pathstr = dir->path().string();
-            if(!entity_manager::Instance().compile_entity(pathstr, reason)) {
+            if(!entity_manager::Instance().compile_script_file(pathstr, reason)) {
                 std::stringstream ss;
                 ss << "Unable to load lib [" << dir->path().string() << "], reason = " << reason;
                 LOG_ERROR << ss.str();
@@ -42,7 +42,7 @@ void game_manager::init()
     void_script_path += global_settings::Instance().GetSetting(DEFAULT_VOID_ROOM);
 
     LOG_DEBUG << "Loading void room: " << void_script_path;
-    if(!entity_manager::Instance().compile_entity(void_script_path, reason)) {
+    if(!entity_manager::Instance().compile_script_file(void_script_path, reason)) {
         std::stringstream ss;
         ss << "Unable to load void room, reason = " << reason;
         LOG_ERROR << ss.str();
@@ -60,7 +60,7 @@ void game_manager::init()
         if( fs::is_regular(dir->path()) )
         {
             std::string pathstr = dir->path().string();
-            if(!entity_manager::Instance().compile_entity(pathstr, reason)) {
+            if(!entity_manager::Instance().compile_script_file(pathstr, reason)) {
                 std::stringstream ss;
                 ss << "Unable to load daemon [" << dir->path().string() << "], reason = " << reason;
                 LOG_ERROR << ss.str();
@@ -81,7 +81,7 @@ void game_manager::init()
         if( fs::is_regular(dir->path()) )
         {
             std::string pathstr = dir->path().string();
-            if(!entity_manager::Instance().compile_entity(pathstr, reason)) {
+            if(!entity_manager::Instance().compile_script_file(pathstr, reason)) {
                 std::stringstream ss;
                 ss << "Unable to load command [" << dir->path().string() << "], reason = " << reason;
                 LOG_ERROR << ss.str();

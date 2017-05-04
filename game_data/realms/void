@@ -15,9 +15,10 @@ p1:AddExit( direction.southwest, 'realms/void:id=1', true)
 
 
 
-function p1:test()
-	print('HI ROOM! Title = ' .. p1:GetTitle())
+function p1:hb()
+	p1:Debug('test')
 end
+register_heartbeat(p1.hb)
 
 p2 = room.new()
 p2:SetTitle('The Void, pt2')
@@ -33,7 +34,11 @@ p2:AddExit( direction.northwest, 'realms/void:id=0', true)
 p2:AddExit( direction.southeast, 'realms/void:id=0', true)
 p2:AddExit( direction.southwest, 'realms/void:id=0', true)
 
+function p2:heartbeat()
+	print('HEARTBEAT = ' .. p2:GetTitle())
+end
 
+register_heartbeat(p2.heartbeat)
 
 
 
@@ -55,11 +60,7 @@ p2:AddExit( direction.southwest, 'realms/void:id=0', true)
 
 --end
 
---function heartbeat()
---	print('Void Heartbeat_OK2')
---end
 
---register_heartbeat(p1.heartbeat)
 
 --function f() print('getting function..') return p1.heartbeat end
 

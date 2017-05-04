@@ -34,7 +34,6 @@ function FormatRoom(r)
 	s = s .. "Obvious paths: "
 	exits = r:GetExits()
 	for i = 1, #exits do
-		print('iterating exits..')
 		local myTable = exits[i]:GetExit()
 		str = myTable[1]
 		str = str:lower()
