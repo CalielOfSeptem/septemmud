@@ -142,29 +142,48 @@ bool game_manager::process_player_cmd(script_entity* p, std::string& cmd)
     // TODO: implement the actual logic..
     
     playerobj * pcaliel = entity_manager::Instance().get_player("caliel");
+    playerobj * precluse = entity_manager::Instance().get_player("recluse");
+    roomobj * roomt = get_void_room();
+    
+    
     if( pcaliel == NULL )
     {
-        entity_manager::Instance().load_player();
+        entity_manager::Instance().load_player("caliel");
         pcaliel = entity_manager::Instance().get_player("caliel");
+        assert( pcaliel != NULL );
+        if( !entity_manager::Instance().move_entity(pcaliel, roomt) )
+        {
+            LOG_ERROR << "Unable to move Caliel..";
+            return false;
+        }
     }
-    roomobj * roomt = get_void_room();
+    if( precluse == NULL )
+    {
+        entity_manager::Instance().load_player("recluse");
+        precluse = entity_manager::Instance().get_player("recluse");
+        assert( precluse != NULL );
+        if( !entity_manager::Instance().move_entity(precluse, roomt) )
+        {
+            LOG_ERROR << "Unable to move Recluse..";
+            return false;
+        }
+        
+    }
+    
+    //roomobj * roomt = get_void_room();
     if( pcaliel->GetEnvironment() != NULL )
         roomt = pcaliel->GetRoom();
-        
+
     daemonobj * dobj = get_command_proc();
 
-    assert( pcaliel != NULL );
+    
     assert( roomt != NULL );
     assert( dobj != NULL );
     
         
     // move caliel into the room...
     //roomt->AddEntityToInventory(pcaliel);
-    if( !entity_manager::Instance().move_entity(pcaliel, roomt) )
-    {
-        LOG_ERROR << "Unable to move Caliel..";
-        return false;
-    }
+
     
     sol::optional<sol::table> self = dobj->m_userdata->selfobj; //ew_daemon->env_obj.value()[ew_daemon->script_obj_name];//(*lua_primary)[entity_env[0]][entity_env[1]][ew_daemon->script_obj_name]; //(*ew_daemon->script_state)[ew_daemon->script_obj_name];
     

@@ -6,6 +6,7 @@
 #include "script_entities/script_entity.h"
 #include "script_entities/roomobj.h"
 
+class roomobj;
 
 struct living_entity : public script_entity
 {
@@ -25,11 +26,7 @@ struct living_entity : public script_entity
     {
     }
     
-    roomobj* GetRoom()
-    {
-        assert( GetEnvironment() != NULL );
-        return dynamic_cast<roomobj*>(GetEnvironment());
-    }
+    roomobj* GetRoom();
 
 };
 #endif

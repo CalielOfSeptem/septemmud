@@ -60,7 +60,7 @@ AS       := /usr/bin/as
 ## User defined environment variables
 ##
 CodeLiteDir:=/usr/share/codelite
-Objects0=$(IntermediateDirectory)/src_game_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_entity_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_main.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_script_entity.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_commandobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_roomobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_daemonobj.cpp$(ObjectSuffix) 
+Objects0=$(IntermediateDirectory)/src_game_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_entity_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_main.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_script_entity.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_commandobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_roomobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_daemonobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_livingentity.cpp$(ObjectSuffix) 
 
 
 
@@ -151,6 +151,14 @@ $(IntermediateDirectory)/src_script_entities_daemonobj.cpp$(DependSuffix): src/s
 
 $(IntermediateDirectory)/src_script_entities_daemonobj.cpp$(PreprocessSuffix): src/script_entities/daemonobj.cpp
 	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_script_entities_daemonobj.cpp$(PreprocessSuffix) src/script_entities/daemonobj.cpp
+
+$(IntermediateDirectory)/src_script_entities_livingentity.cpp$(ObjectSuffix): src/script_entities/livingentity.cpp $(IntermediateDirectory)/src_script_entities_livingentity.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/script_entities/livingentity.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_script_entities_livingentity.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/src_script_entities_livingentity.cpp$(DependSuffix): src/script_entities/livingentity.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/src_script_entities_livingentity.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/src_script_entities_livingentity.cpp$(DependSuffix) -MM src/script_entities/livingentity.cpp
+
+$(IntermediateDirectory)/src_script_entities_livingentity.cpp$(PreprocessSuffix): src/script_entities/livingentity.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_script_entities_livingentity.cpp$(PreprocessSuffix) src/script_entities/livingentity.cpp
 
 
 -include $(IntermediateDirectory)/*$(DependSuffix)

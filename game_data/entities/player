@@ -1,2 +1,2 @@
 inherit player
-p1 = player.new()
+p1 = player.new('player_name')

@@ -18,8 +18,8 @@ function d:process_command (o_orig, cmd )
 		--print('--- Checking default commands.. ---')
 		--f(cmds);
 		for k, v in pairs(cmds) do
-			if v:GetVerb():lower():starts(cmd) then -- == cmd then
-				print('Identified verb, verb=' .. v:GetVerb() )
+			if v:GetCommand():lower():starts(cmd) then -- == cmd then
+				print('Identified verb, verb=' .. v:GetCommand() )
 				v:ExecuteCommand( o_orig, cmd )
 				return true
 			end

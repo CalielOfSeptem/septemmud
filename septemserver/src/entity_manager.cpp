@@ -56,7 +56,9 @@ bool entity_manager::compile_virtual_file(std::string& relative_script_path, Ent
     return compile_entity(relative_script_path, etype, script_text, reason);
 }
 
-bool entity_manager::compile_and_clone(std::string& relative_script_path, std::string& script_path_virtual, std::string& reason )
+bool entity_manager::compile_and_clone(std::string& relative_script_path, std::string& script_path_virtual,
+                            std::string& tag_text,
+                            std::string& tag_replace, std::string& reason )
 {
    // return compile_entity(relative_script_path, etype, script_text, reason);
    
@@ -76,6 +78,10 @@ bool entity_manager::compile_and_clone(std::string& relative_script_path, std::s
         if( !load_script_text(_fullpath, _scriptext, et, reason ) )
         {
             return false;
+        }
+        if( tag_text.size() != 0 )
+        {
+            boost::replace_all(_scriptext, tag_text, tag_replace);
         }
         _currently_loading_script = script_path_virtual;
         if( !compile_entity(script_path_virtual, et, _scriptext, reason) )
@@ -196,14 +202,18 @@ bool entity_manager::compile_script_file(std::string& file_path, std::string& re
 
 }
 
-bool entity_manager::load_player()
+bool entity_manager::load_player(std::string playerName)
 {
     //std::string player_script_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
     std::string player_script_path = global_settings::Instance().GetSetting(BASE_PLAYER_ENTITY_PATH);
     std::string reason;
     
-    std::string tpath = "entities/player_caliel";
-    return compile_and_clone( player_script_path, tpath, reason );
+    std::stringstream ss;
+    ss << "entities/player_" << playerName;
+    
+    std::string tpath = ss.str();
+    std::string tagtext = "player_name"; // a hack to get our player name into the lua object constructor
+    return compile_and_clone( player_script_path, tpath, tagtext, playerName, reason );
 }
 
 bool entity_manager::lua_safe_script(std::string& script_text, sol::environment env, std::string& reason)
@@ -285,8 +295,10 @@ void entity_manager::init_lua()
                               "AddExit", &roomobj::AddExit,
                               "GetType", &script_entity::GetEntityTypeString,
                               "Debug", &script_entity::debug,
+                              "GetInventory", &container_base::GetInventory,
+                              "GetPlayers", &roomobj::GetPlayers,
                               sol::base_classes,
-                              sol::bases<script_entity>());
+                              sol::bases<script_entity, container_base>());
 
     lua.set_function("register_heartbeat", &heartbeat_manager::register_heartbeat_func_on, &_heartbeat);
     lua.set_function("deregister_heartbeat", &heartbeat_manager::deregister_heartbeat_func, &_heartbeat);
@@ -305,15 +317,17 @@ void entity_manager::init_lua()
                                 sol::bases<script_entity>());
 
     lua.new_usertype<playerobj>("player",
-                                sol::constructors<playerobj(sol::this_state)>(),
+                                sol::constructors<playerobj(sol::this_state, std::string)>(),
                                 sol::meta_function::new_index,
                                 &playerobj::set_property_lua,
                                 sol::meta_function::index,
                                 &playerobj::get_property_lua,
-                                "player_name", &playerobj::player_name,
+                                "GetPlayerName", &playerobj::GetPlayerName,
                                 "SendToEntity", &playerobj::SendToEntity,
+                                "SendToPlayer", &playerobj::SendToEntity,
                                 "GetEnvironment", &playerobj::GetEnvironment,
                                 "SetEnvironment", &playerobj::SetEnvironment,
+                                "SendToRoom", &playerobj::SendToEnvironment,
                                 "GetRoom", &playerobj::GetRoom,
                                 "GetType", &script_entity::GetEntityTypeString,
                                 "Debug", &script_entity::debug,
@@ -327,10 +341,10 @@ void entity_manager::init_lua()
         &playerobj::set_property_lua,
         sol::meta_function::index,
         &playerobj::get_property_lua,
-        "GetVerb", &commandobj::GetVerb,
-        "SetVerb", &commandobj::SetVerb,
-        "GetSynonyms", &commandobj::GetSynonyms,
-        "SetSynonyms", &commandobj::SetSynonyms,
+        "GetCommand", &commandobj::GetCommand,
+        "SetCommand", &commandobj::SetCommand,
+        "GetAliases", &commandobj::GetAliases,
+        "SetAliases", &commandobj::SetAliases,
         "SetPriority", &commandobj::SetPriority,
         "GetPriority", &commandobj::GetPriority,
         "GetType", &script_entity::GetEntityTypeString,
@@ -679,7 +693,7 @@ void entity_manager::invoke_heartbeat()
 
 void entity_manager::register_command(commandobj* cmd)
 {
-    std::string verb = cmd->GetVerb();
+    std::string verb = cmd->GetCommand();
     std::transform(verb.begin(), verb.end(), verb.begin(), ::tolower);
     m_default_cmds[verb] = cmd;
     LOG_DEBUG << "Registered command, command = " << verb << ", script=" << cmd->GetScriptPath();
@@ -687,7 +701,7 @@ void entity_manager::register_command(commandobj* cmd)
 
 void entity_manager::deregister_command(commandobj* cmd)
 {
-    std::string verb = cmd->GetVerb();
+    std::string verb = cmd->GetCommand();
     std::transform(verb.begin(), verb.end(), verb.begin(), ::tolower);
     auto search = m_default_cmds.find(verb);
     if(search != m_default_cmds.end()) {

@@ -52,7 +52,10 @@ struct _internal_lua_
     
     bool compile_script_file( std::string& file_path, std::string& reason );
     
-    bool compile_and_clone(std::string& relative_script_path, std::string& script_path_virtual, std::string& reason );
+    bool compile_and_clone(std::string& relative_script_path, std::string& script_path_virtual,
+                            std::string& tag_text,
+                            std::string& tag_replace,
+                            std::string& reason );
     
     void invoke_heartbeat();
     
@@ -86,7 +89,7 @@ struct _internal_lua_
     /**
      * @brief Loads a player into the game world
      */
-    bool load_player(/* TODO: FIX SIGNATURE WHEN NETWORK CODE IS BACK IN */);
+    bool load_player(std::string playerName);
     
     
     

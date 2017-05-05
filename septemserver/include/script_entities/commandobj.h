@@ -14,27 +14,27 @@ struct commandobj : script_entity
     ~commandobj();
     
 
-    void SetVerb(const std::string& name)
+    void SetCommand(const std::string& name)
     {
-        this->cmd_verb = name;
+        this->command = name;
         
     }
-    const std::string& GetVerb()
+    const std::string& GetCommand()
     {
-        return cmd_verb;
+        return command;
     }
     
-    void SetSynonyms(const sol::as_table_t<std::vector<std::string> >& cmd_syn)
+    void SetAliases(const sol::as_table_t<std::vector<std::string> >& aliases)
     {
         // this->cmd_syn = cmd_syn;
-        const auto& vex = cmd_syn.source;
+        const auto& vex = aliases.source;
         for(auto& s : vex) {
-            this->cmd_syn.push_back(s);
+            this->command_aliases.push_back(s);
         }
     }
-    const std::vector<std::string>& GetSynonyms()
+    const std::vector<std::string>& GetAliases()
     {
-        return cmd_syn;
+        return command_aliases;
     }
     
     void SetPriority(int priority)
@@ -48,8 +48,8 @@ struct commandobj : script_entity
     }
 
 private:
-    std::string cmd_verb;
-    std::vector<std::string> cmd_syn;
+    std::string command;
+    std::vector<std::string> command_aliases;
     int priority;
     
 

@@ -8,8 +8,8 @@
 
 struct playerobj : living_entity, container_base
 {
-     playerobj(sol::this_state ts) :
-        living_entity(ts, EntityType::PLAYER)
+     playerobj(sol::this_state ts, std::string name) :
+        living_entity(ts, EntityType::PLAYER), playerName(name)
      {
          bIsCreator = true; // just for now, and for debug purposes
      }
@@ -32,10 +32,13 @@ struct playerobj : living_entity, container_base
      {
          return bIsCreator;
      }
-     
+     std::string& GetPlayerName()
+     {
+         return playerName;
+     }
 public:
     //shared_ptr< client > client_obj;
-    std::string player_name; //for now. TODO: implement full player details and support
+    std::string playerName; //for now. TODO: implement full player details and support
     bool bIsCreator;
     
 };

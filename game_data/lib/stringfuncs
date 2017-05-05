@@ -11,7 +11,9 @@ end
 local function tchelper(first, rest)
   return first:upper()..rest:lower()
 end
-
+function titleCase( first, rest )
+   return first:upper()..rest:lower()
+end
 function wrap(str, limit, indent, indent1)
   indent = indent or ""
   indent1 = indent1 or indent

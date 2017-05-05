@@ -29,15 +29,33 @@ function c:ExecuteCommand ( o, cmd )
 end
 
 function FormatRoom(r)
-	s = "[" .. r:GetTitle() .. "]\r\n"
+	local s = "[" .. r:GetTitle() .. "]\r\n"
 	s = s .. r:GetDescription() .. "\r\n"
 	s = s .. "Obvious paths: "
-	exits = r:GetExits()
+	local exits = r:GetExits()
 	for i = 1, #exits do
 		local myTable = exits[i]:GetExit()
 		str = myTable[1]
 		str = str:lower()
 		if i ~= #exits then
+			str = str .. ', '
+
+		else
+			str = str .. '.' 
+		end
+		s = s .. str
+	end
+	s = s .. "\r\n"
+	s = s .. "Also here: "
+	local players = r:GetPlayers()
+	for i = 1, #players do
+		local po = player_cast(players[i])
+		--print(po)
+		local pname = po:GetPlayerName()
+		string.gsub(pname, "(%a)([%w_']*)", titleCase)
+		--str = myTable[1]
+		str = pname--str:lower()
+		if i ~= #players then
 			str = str .. ', '
 
 		else

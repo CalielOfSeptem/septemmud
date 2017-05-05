@@ -174,7 +174,8 @@ int main(int argc, char **argv)
         }
         else if( blah == "login" )
         {
-            entity_manager::Instance().load_player();
+            entity_manager::Instance().load_player("caliel");
+           // entity_manager::Instance().load_player("recluse");
         }
         else if( blah == "hb" )
         {

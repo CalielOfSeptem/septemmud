@@ -2,6 +2,7 @@
 #define ROOM_OBJ_H_
 #include "script_entity.h"
 #include "script_entities/container_base.h"
+//#include "script_entities/playerobj.h"
 #include <sol.hpp>
 #include <plog/Log.h>
 
@@ -135,6 +136,8 @@ public:
         se->SetEnvironment(NULL);
         return container_base::RemoveEntityFromInventory(se);
     }
+    
+    std::vector<script_entity*> GetPlayers();
      
 
     
