@@ -9,7 +9,8 @@ c = command.new('look', 0) -- priority zero means that this command will win out
 
 
 function c:ExecuteCommand ( o, cmd )
-	print('Look command called..')
+	--print(inspect(_ENV))
+	--print('Look command called..')
 	--p = player_cast(o)
 	if o ~= nil then
 		-- lets see what room the player/npc is in..
@@ -20,15 +21,16 @@ function c:ExecuteCommand ( o, cmd )
 		env = o:GetRoom()
 
 		if env ~= nil then
-			s = FormatRoom(env)
+			s = FormatRoom(env, o)
 			--p:SendToEntity('[' .. env:GetTitle() .. ']')
 			--p:SendToEntity('\r\n')
 			o:SendToEntity(s .. '\r\n')
+			
 		end	
 	end
 end
 
-function FormatRoom(r)
+function FormatRoom(r, o)
 	local s = "[" .. r:GetTitle() .. "]\r\n"
 	s = s .. r:GetDescription() .. "\r\n"
 	s = s .. "Obvious paths: "
@@ -46,23 +48,29 @@ function FormatRoom(r)
 		s = s .. str
 	end
 	s = s .. "\r\n"
-	s = s .. "Also here: "
-	local players = r:GetPlayers()
-	for i = 1, #players do
-		local po = player_cast(players[i])
-		--print(po)
-		local pname = po:GetPlayerName()
-		string.gsub(pname, "(%a)([%w_']*)", titleCase)
-		--str = myTable[1]
-		str = pname--str:lower()
-		if i ~= #players then
-			str = str .. ', '
+	local players = r:GetPlayers(o:GetName())
+	if( #players > 0 ) then
+		s = s .. "Also here: "
+	
+		for i = 1, #players do
+			local po = player_cast(players[i])
+			--print(po)
+			local pname = po:GetPlayerName()
+			--firstToUpper(pname)
+			pname = string.gsub(pname, "(%a)([%w_']*)", titleCase)
+			--str = myTable[1]
+			str = pname--str:lower()
+			if i ~= #players then
+				str = str .. ', '
 
-		else
-			str = str .. '.' 
+			else
+				str = str .. '.' 
+			end
+			s = s .. str
 		end
-		s = s .. str
 	end
+
+
 	
 	return s
 

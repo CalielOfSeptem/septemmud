@@ -12,8 +12,8 @@ struct living_entity : public script_entity
 {
   //  living_entity() = default;
     
-    living_entity(sol::this_state ts, EntityType et)
-        : script_entity(ts, et)
+    living_entity(sol::this_state ts, EntityType et, std::string name)
+        : script_entity(ts, et, name)
     {
 
     }
@@ -25,6 +25,8 @@ struct living_entity : public script_entity
     virtual void SendToEnvironment(const std::string& msg)
     {
     }
+    
+    virtual bool DoCommand(sol::this_state ts, const std::string& cmd );
     
     roomobj* GetRoom();
 

@@ -8,23 +8,14 @@
 
 struct daemonobj : script_entity
 {
-    daemonobj(sol::this_state ts);
-    daemonobj(sol::this_state ts, std::string s);
+    daemonobj(sol::this_state ts, std::string name);
+    daemonobj(sol::this_state ts );
     
     ~daemonobj();
     
-    const std::string& GetName()
-    {
-        return name;
-    }
-    
-    void SetName(const std::string& name)
-    {
-        this->name = name;
-    }
-    
+
 private:
-    std::string name;
+    
 };
 
 #endif

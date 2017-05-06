@@ -23,11 +23,11 @@ struct _sol_userdata_
 
 struct script_entity {
     
-        script_entity(EntityType myType) : m_type(myType), environment_(NULL)
+        script_entity(EntityType myType, std::string name) : m_type(myType), environment_(NULL), name(name)
         {
             
         }
-        script_entity(sol::this_state ts, EntityType myType);
+        script_entity(sol::this_state ts, EntityType myType, std::string name);
         
         ~script_entity();
 
@@ -97,12 +97,26 @@ struct script_entity {
         
         std::shared_ptr< _sol_userdata_ > m_userdata;
         
-        void debug( const std::string& msg );
+        virtual void debug( const std::string& msg );
+        
+
+        const std::string& GetName()
+        {
+            return name;
+        }
+        
+        void SetName(const std::string& name)
+        {
+            this->name = name;
+        }
+        
 private:
         std::unordered_map<std::string, sol::object> props;
         EntityType m_type = EntityType::UNKNOWN;
         script_entity* environment_;
         std::string script_path;
+protected:
+        std::string name;
 };
 
 

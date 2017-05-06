@@ -32,8 +32,7 @@ struct game_manager
     bool move_entity_into_room( script_entity* en, std::string room_path );
     
     roomobj* get_void_room();
-    
-    daemonobj* get_command_proc();
+
     
     bool process_player_cmd(script_entity* p, std::string& cmd);
 

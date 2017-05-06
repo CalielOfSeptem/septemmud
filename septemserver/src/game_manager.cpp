@@ -37,6 +37,8 @@ void game_manager::init()
         //std::cout << dir->path().filename() << "\n"; // just last bit
     }
     
+    
+    
     // Load void room
     std::string void_script_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
     void_script_path += global_settings::Instance().GetSetting(DEFAULT_VOID_ROOM);
@@ -113,23 +115,6 @@ roomobj* game_manager::get_void_room()
     return NULL;
 }
 
-daemonobj* game_manager::get_command_proc()
-{
-    std::string command_proc_path = global_settings::Instance().GetSetting(DEFAULT_COMMAND_PROC);
-    unsigned int id = 0;
-    daemonobj * r = entity_manager::Instance().GetDaemonByScriptPath(command_proc_path, id);
-    if( r != NULL )
-    {
-        return r;
-    }
-    else
-    {
-        std::string err = "Error attempting to retrieve command proc.";
-        LOG_ERROR << err;
-        on_error(err);
-    }
-    return NULL;
-}
 
 bool game_manager::process_player_cmd(script_entity* p, std::string& cmd)
 {
@@ -174,32 +159,20 @@ bool game_manager::process_player_cmd(script_entity* p, std::string& cmd)
     if( pcaliel->GetEnvironment() != NULL )
         roomt = pcaliel->GetRoom();
 
-    daemonobj * dobj = get_command_proc();
-
+    
     
     assert( roomt != NULL );
-    assert( dobj != NULL );
-    
+
         
     // move caliel into the room...
     //roomt->AddEntityToInventory(pcaliel);
-
-    
-    sol::optional<sol::table> self = dobj->m_userdata->selfobj; //ew_daemon->env_obj.value()[ew_daemon->script_obj_name];//(*lua_primary)[entity_env[0]][entity_env[1]][ew_daemon->script_obj_name]; //(*ew_daemon->script_state)[ew_daemon->script_obj_name];
-    
-    //sol::optional<base_entity&> bep = ew_daemon->script_obj;
-    if( self )
+    if( entity_manager::Instance().do_command(pcaliel, cmd) )
     {
-        sol::protected_function exec = self.value()["process_command"];
-        auto result = exec(self, pcaliel, cmd );
-        if ( !result.valid() ) {
-            sol::error err = result;
-            LOG_ERROR << err.what();
-        }
+        
     }
     else
     {
-        LOG_ERROR << "Unable to load command processor.";
+        LOG_ERROR << "Unable to execute command.";
     }
     
     return true;

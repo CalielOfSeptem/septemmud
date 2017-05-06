@@ -136,10 +136,9 @@ public:
         se->SetEnvironment(NULL);
         return container_base::RemoveEntityFromInventory(se);
     }
-    
-    std::vector<script_entity*> GetPlayers();
-     
 
+     
+    std::vector<script_entity*> GetPlayers(const std::string& name);
     
 private:
     std::string title;

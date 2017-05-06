@@ -263,11 +263,12 @@ template <typename T> T* downcast(script_entity* b)
     return dynamic_cast<T*>(b);
 }
 
+
 void entity_manager::init_lua()
 {
     sol::state& lua = (*m_state);
     m_state_internal.reset(new _internal_lua_);
-    lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::package, sol::lib::math, sol::lib::table);
+    lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::package, sol::lib::math, sol::lib::table, sol::lib::debug);
 
     lua.new_usertype<script_entity>("script_entity", "GetType", &script_entity::GetEntityTypeString);
 
@@ -331,8 +332,11 @@ void entity_manager::init_lua()
                                 "GetRoom", &playerobj::GetRoom,
                                 "GetType", &script_entity::GetEntityTypeString,
                                 "Debug", &script_entity::debug,
+                                "GetName", &script_entity::GetName,
+                                "DoCommand", &living_entity::DoCommand,
                                 sol::base_classes,
                                 sol::bases<living_entity, script_entity>());
+                                
 
     lua.new_usertype<commandobj>(
         "command",
@@ -365,6 +369,9 @@ void entity_manager::init_lua()
     lua.set_function("get_move_command", [&]() -> commandobj * & { return m_default_cmds.find("move")->second; });
 
     lua.set_function("get_room_list", [&]() -> std::map<std::string, roomobj*> & { return m_room_lookup; });
+    
+    sol::environment tmp = sol::environment(lua, sol::create);//inherit);
+    lua["_g_mirror_"] = tmp;
 
     /*
         sol::environment global_env = lua.globals();
@@ -636,6 +643,7 @@ bool entity_manager::_init_entity_env(std::string& script_path, EntityType etype
 
     sol::environment current_env = lua.globals();
 
+
     for(auto& en : strs) {
         sol::optional<sol::environment> maybe_env = current_env[en + "_env_"];
         // LOG_DEBUG << "Looking for environment: " << en << "_env_";
@@ -648,7 +656,7 @@ bool entity_manager::_init_entity_env(std::string& script_path, EntityType etype
             // be careful with the next call, if the environment exists then
             // this function will destroy it.
             // LOG_DEBUG << "Initializing environment: " << en << "_env_";
-            _init_lua_env_(current_env, current_env, en + "_env_", current_env);
+            _init_lua_env_(current_env, lua.globals(), en + "_env_", current_env);
             // just for now, so we can sanity check where we are..
             current_env["_FS_PATH_"] = en + "_env_";
         }
@@ -670,12 +678,13 @@ bool entity_manager::_init_lua_env_(sol::environment parent,
     sol::state& lua = (*m_state);
     sol::optional<sol::environment> test_env =
         parent[new_child_env_name]; // parent.get<sol::environment>( new_child_env_name );
+    assert(!test_env);
     if(test_env) {
         // LOG_DEBUG << "Destroying environment: " << new_child_env_name;
         parent[new_child_env_name] = sol::nil;
         lua.collect_garbage();
     }
-    sol::environment tmp = sol::environment(lua, sol::create, inherit);
+    sol::environment tmp = sol::environment(lua, sol::create, lua.globals());
     parent[new_child_env_name] = tmp;
     // std::string force_weak = "setmetatable(" + new_child_env_name + ", {__mode = 'k'})";
     // lua.script( force_weak , parent);
@@ -1118,6 +1127,49 @@ bool entity_manager::move_entity(script_entity* target, script_entity* dest)
 void entity_manager::debug(std::string& msg)
 {
     LOG_DEBUG << msg;
+}
+
+bool entity_manager::do_command(living_entity* e, const std::string cmd)
+{
+    std::string command_proc_path = global_settings::Instance().GetSetting(DEFAULT_COMMAND_PROC);
+    unsigned int id = 0;
+    daemonobj * dobj = entity_manager::Instance().GetDaemonByScriptPath(command_proc_path, id);
+    if( dobj == NULL )
+    {
+        std::string err = "Error attempting to retrieve command proc.";
+        LOG_ERROR << err;
+        return false;
+    }
+   
+    sol::optional<sol::table> self = dobj->m_userdata->selfobj; //ew_daemon->env_obj.value()[ew_daemon->script_obj_name];//(*lua_primary)[entity_env[0]][entity_env[1]][ew_daemon->script_obj_name]; //(*ew_daemon->script_state)[ew_daemon->script_obj_name];
+    
+    if( e->GetType() == EntityType::PLAYER )
+    {
+            //sol::optional<base_entity&> bep = ew_daemon->script_obj;
+        if( self )
+        {
+            sol::protected_function exec = self.value()["process_command"];
+            auto result = exec(self, dynamic_cast< playerobj *> (e), cmd );
+            if ( !result.valid() ) {
+                sol::error err = result;
+                LOG_ERROR << err.what();
+            }
+            return true;
+        }
+        else
+        {
+            LOG_ERROR << "Unable to load command processor.";
+            return false;
+        }
+    
+    }
+    else if( e->GetType() == EntityType::NPC )
+    {
+
+        // TODO: implement this later
+    
+    }
+    return false;
 }
 
 /*

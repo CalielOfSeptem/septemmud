@@ -9,7 +9,10 @@ function f (x)
 end
 
 function d:process_command (o_orig, cmd )
-	print('Procsesing command.  EntityType = ' .. o_orig:GetType() .. ', cmd = [' .. cmd .. ']' )
+	if( cmd:len() == 0 ) then
+		return false;
+	end
+	--print('Procsesing command.  EntityType = ' .. o_orig:GetType() .. ', cmd = [' .. cmd .. ']' )
 	
 	s_type = o_orig:GetType()
 	if s_type:lower() == "player" then
@@ -19,7 +22,7 @@ function d:process_command (o_orig, cmd )
 		--f(cmds);
 		for k, v in pairs(cmds) do
 			if v:GetCommand():lower():starts(cmd) then -- == cmd then
-				print('Identified verb, verb=' .. v:GetCommand() )
+				--print('Identified command, cmd=' .. v:GetCommand() )
 				v:ExecuteCommand( o_orig, cmd )
 				return true
 			end
@@ -31,6 +34,8 @@ function d:process_command (o_orig, cmd )
 		end
 				
 	end
+	
+	print('I don\'t understand. Type \"help commands\" for more information.') 
 end
 
 

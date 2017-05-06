@@ -1,9 +1,9 @@
 #include "script_entities/script_entity.h"
 #include "entity_manager.h"
 
-script_entity::script_entity(sol::this_state ts, EntityType myType)
+script_entity::script_entity(sol::this_state ts, EntityType myType, std::string name)
     : m_type(myType)
-    , environment_(NULL)
+    , environment_(NULL), name(name)
 {
     lua_State* L = ts;
     // references the object that called this function

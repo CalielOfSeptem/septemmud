@@ -16,12 +16,12 @@ struct commandobj : script_entity
 
     void SetCommand(const std::string& name)
     {
-        this->command = name;
+        this->name = name;
         
     }
     const std::string& GetCommand()
     {
-        return command;
+        return name;
     }
     
     void SetAliases(const sol::as_table_t<std::vector<std::string> >& aliases)
@@ -48,7 +48,6 @@ struct commandobj : script_entity
     }
 
 private:
-    std::string command;
     std::vector<std::string> command_aliases;
     int priority;
     

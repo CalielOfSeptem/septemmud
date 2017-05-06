@@ -26,13 +26,13 @@
       <File Name="include/script_entities/livingentity.h"/>
       <File Name="include/script_entities/daemonobj.h"/>
       <File Name="include/script_entities/commandobj.h"/>
+      <File Name="include/entity_manager.h"/>
     </VirtualDirectory>
     <File Name="include/global_settings.h"/>
     <File Name="include/string_utils.h"/>
     <File Name="include/entity_wrapper.h"/>
     <File Name="include/heartbeat_manager.h"/>
     <File Name="include/config.h"/>
-    <File Name="include/entity_manager.h"/>
     <File Name="include/game_manager.h"/>
   </VirtualDirectory>
   <Description/>

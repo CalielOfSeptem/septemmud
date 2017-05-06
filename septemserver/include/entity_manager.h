@@ -74,6 +74,9 @@ struct _internal_lua_
     
     bool move_living(script_entity* target, const std::string& roomid);
     bool move_entity(script_entity* target, script_entity* dest);
+    
+    bool do_command(living_entity * e, const std::string cmd);
+    
     /**
      * @brief A bloody work around to link scripts with their instantiated objects
      * @return 
@@ -111,6 +114,7 @@ struct _internal_lua_
     
     
     void debug(std::string& msg);
+    
     
 protected:
     entity_manager()
