@@ -13,6 +13,9 @@ function c:ExecuteCommand ( o, cmd )
 	--print('Look command called..')
 	--p = player_cast(o)
 	if o ~= nil then
+		--if( o:GetType():lower() == "player" ) then
+		--	o = player_cast(o)
+		--end
 		-- lets see what room the player/npc is in..
 		-- there are two ways, through GetEnvironment, or through GetRoom
 		-- GetEnvironment requires a cast as its generic to all game items/players.

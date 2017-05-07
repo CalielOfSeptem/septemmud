@@ -219,20 +219,7 @@ bool entity_manager::load_player(std::string playerName)
 bool entity_manager::lua_safe_script(std::string& script_text, sol::environment env, std::string& reason)
 {
     sol::state& lua = (*m_state);
-    /*
-    auto simple_handler = [](lua_State*, sol::protected_function_result result) {
-        // You can just pass it through to let the call-site handle it
-        return result;
-    };
-    auto result = lua.script(script_text, env, simple_handler);
-    if(result.valid()) {
-        LOG_DEBUG << "Successfully executed script.";
-        return true;
-    } else {
-        sol::error err = result;
-        LOG_ERROR << err.what();
-    }
-    */
+
     sol::load_result lr = lua.load(script_text);
     if(!lr.valid()) {
         sol::error err = lr;
@@ -251,9 +238,6 @@ bool entity_manager::lua_safe_script(std::string& script_text, sol::environment 
         // std::cout << "call failed, sol::error::what() is " << what << std::endl;
         return false;
     }
-    //  _current_script_f_ = pf;
-    // sol::environment genv = lua.globals();
-    // genv.set_on(pf);
 
     return true;
 }
@@ -295,7 +279,7 @@ void entity_manager::init_lua()
                               "GetExits", &roomobj::GetExits,
                               "AddExit", &roomobj::AddExit,
                               "GetType", &script_entity::GetEntityTypeString,
-                              "Debug", &script_entity::debug,
+                              //"Debug", &script_entity::debug,
                               "GetInventory", &container_base::GetInventory,
                               "GetPlayers", &roomobj::GetPlayers,
                               sol::base_classes,
@@ -313,7 +297,7 @@ void entity_manager::init_lua()
                                 "GetName", &daemonobj::GetName,
                                 "SetName", &daemonobj::SetName,
                                 "GetType", &script_entity::GetEntityTypeString,
-                                "Debug", &script_entity::debug,
+                              //  "Debug", &script_entity::debug,
                                 sol::base_classes,
                                 sol::bases<script_entity>());
 
@@ -331,12 +315,23 @@ void entity_manager::init_lua()
                                 "SendToRoom", &playerobj::SendToEnvironment,
                                 "GetRoom", &playerobj::GetRoom,
                                 "GetType", &script_entity::GetEntityTypeString,
-                                "Debug", &script_entity::debug,
+                               // "Debug", &script_entity::debug,
                                 "GetName", &script_entity::GetName,
                                 "DoCommand", &living_entity::DoCommand,
                                 sol::base_classes,
                                 sol::bases<living_entity, script_entity>());
                                 
+    lua.new_usertype<living_entity>("living_entity",
+                                "GetType", &script_entity::GetEntityTypeString,
+                               // "Debug", &script_entity::debug,
+                                "DoCommand", &living_entity::DoCommand,
+                                "SendToEntity", &living_entity::SendToEntity,
+                                "SendToPlayer", &living_entity::SendToEntity,
+                                "SendToRoom", &living_entity::SendToEnvironment,
+                                "GetRoom", &living_entity::GetRoom,
+                                "GetName", &script_entity::GetName,
+                                sol::base_classes,
+                                sol::bases<script_entity>());
 
     lua.new_usertype<commandobj>(
         "command",
@@ -352,7 +347,7 @@ void entity_manager::init_lua()
         "SetPriority", &commandobj::SetPriority,
         "GetPriority", &commandobj::GetPriority,
         "GetType", &script_entity::GetEntityTypeString,
-        "Debug", &script_entity::debug,
+       // "Debug", &script_entity::debug,
         sol::base_classes,
         sol::bases<script_entity>());
 
@@ -369,6 +364,11 @@ void entity_manager::init_lua()
     lua.set_function("get_move_command", [&]() -> commandobj * & { return m_default_cmds.find("move")->second; });
 
     lua.set_function("get_room_list", [&]() -> std::map<std::string, roomobj*> & { return m_room_lookup; });
+    
+    lua.set_function("get_entity_by_name", [&](std::string ename) -> playerobj *
+    { 
+        return this->get_player(ename);
+    });
     
     sol::environment tmp = sol::environment(lua, sol::create);//inherit);
     lua["_g_mirror_"] = tmp;
@@ -1080,7 +1080,7 @@ bool entity_manager::move_living(script_entity* target, const std::string& roomi
     if(r != NULL) {
         move_entity(target, static_cast<script_entity*>(r));
     }
-    LOG_DEBUG << r->GetTitle();
+    //LOG_DEBUG << r->GetTitle();
     // get_entity_path_from_id_string(roomid, roompath, instance);
 }
 
@@ -1143,32 +1143,24 @@ bool entity_manager::do_command(living_entity* e, const std::string cmd)
    
     sol::optional<sol::table> self = dobj->m_userdata->selfobj; //ew_daemon->env_obj.value()[ew_daemon->script_obj_name];//(*lua_primary)[entity_env[0]][entity_env[1]][ew_daemon->script_obj_name]; //(*ew_daemon->script_state)[ew_daemon->script_obj_name];
     
-    if( e->GetType() == EntityType::PLAYER )
+ 
+    if( self )
     {
-            //sol::optional<base_entity&> bep = ew_daemon->script_obj;
-        if( self )
-        {
-            sol::protected_function exec = self.value()["process_command"];
-            auto result = exec(self, dynamic_cast< playerobj *> (e), cmd );
-            if ( !result.valid() ) {
-                sol::error err = result;
-                LOG_ERROR << err.what();
-            }
-            return true;
+        sol::protected_function exec = self.value()["process_command"];
+        auto result = exec(self, e, cmd );
+        if ( !result.valid() ) {
+            sol::error err = result;
+            LOG_ERROR << err.what();
         }
-        else
-        {
-            LOG_ERROR << "Unable to load command processor.";
-            return false;
-        }
-    
+        return true;
     }
-    else if( e->GetType() == EntityType::NPC )
+    else
     {
+        LOG_ERROR << "Unable to load command processor.";
+        return false;
+    }
 
-        // TODO: implement this later
-    
-    }
+
     return false;
 }
 

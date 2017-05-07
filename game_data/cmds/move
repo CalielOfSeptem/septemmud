@@ -23,12 +23,19 @@ function c:ExecuteCommand ( o_orig, cmd )
 	--print('--- Move command ---')
 	--print(inspect(_ENV))
 	s_type = o_orig:GetType()
-	print(s_type)
+	--print(s_type)
 	if (s_type:lower() ~= "player" and s_type:lower() ~= "npc") then
-		print('Cannot call move on a non-living entity..')
+		--print('Cannot call move on a non-living entity..')
 		return false;
 	end
-	exits = o_orig:GetRoom():GetExits()
+	ob = o_orig
+	--if( s_type:lower() == "player" ) then
+	--	ob = player_cast(o_orig)
+	--end
+	
+	-- ADD IN NPC CAST
+	
+	exits = ob:GetRoom():GetExits()
 	--f(exits);
 						
 	for k, v in pairs(exits) do
@@ -37,9 +44,12 @@ function c:ExecuteCommand ( o_orig, cmd )
 		for k1, v1 in pairs (v:GetExit()) do
 			if v1 == cmd then
 				--print('Identified exit, exit = ' .. v1 .. ', path = ' .. v:GetExitPath() )
-				o_orig:SendToEntity('You go ' .. v:GetExit()[1] .. '. \r\n')
-				move_living( o_orig, v:GetExitPath() )
-				o_orig:DoCommand("look")
+				ob:SendToEntity('You go ' .. v:GetExit()[1] .. '. \r\n')
+				pname = string.gsub(ob:GetName(), "(%a)([%w_']*)", titleCase)
+				ob:SendToRoom(pname .. ' goes ' .. v:GetExit()[1] .. '. \r\n')
+				move_living( ob, v:GetExitPath() )
+				ob:SendToRoom(pname .. ' just arrived.\r\n')
+				ob:DoCommand("look")
 
 				return true;
 			end

@@ -23,8 +23,7 @@ struct living_entity : public script_entity
     }
 
     virtual void SendToEnvironment(const std::string& msg)
-    {
-    }
+    ;
     
     virtual bool DoCommand(sol::this_state ts, const std::string& cmd );
     

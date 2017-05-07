@@ -18,7 +18,8 @@ struct playerobj : living_entity, container_base
      {
         //if( client_obj )
         //    (*client_obj).send(msg);
-        std::cout << msg << std::endl;
+        if( GetName() == "caliel" )
+            std::cout << msg << std::endl;
         living_entity::SendToEntity(msg);
      }
      

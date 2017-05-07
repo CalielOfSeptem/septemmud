@@ -15,13 +15,14 @@ function d:process_command (o_orig, cmd )
 	--print('Procsesing command.  EntityType = ' .. o_orig:GetType() .. ', cmd = [' .. cmd .. ']' )
 	
 	s_type = o_orig:GetType()
-	if s_type:lower() == "player" then
+	
+	if (s_type:lower() == "player" or s_type:lower() == "npc") then
 		-- first we search all known global/default commands like "look" and movement commands
 		cmds = get_default_commands()
 		--print('--- Checking default commands.. ---')
 		--f(cmds);
 		for k, v in pairs(cmds) do
-			if v:GetCommand():lower():starts(cmd) then -- == cmd then
+			if cmd:starts(v:GetCommand():lower()) then -- == cmd then
 				--print('Identified command, cmd=' .. v:GetCommand() )
 				v:ExecuteCommand( o_orig, cmd )
 				return true
