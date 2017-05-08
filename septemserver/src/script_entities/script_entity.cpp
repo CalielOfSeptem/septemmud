@@ -4,6 +4,10 @@
 #include "global_settings.h"
 #include "config.h"
 #include "string_utils.h"
+#include <spdlog/sinks/stdout_sinks.h>
+//#include "spdlog/sinks/stdout_sinks.h"
+//#include "sinks/stdout_sinks.h"
+#include <memory>
 namespace spd = spdlog;
 script_entity::script_entity(sol::this_state ts, EntityType myType, std::string name)
     : m_type(myType)
@@ -35,10 +39,10 @@ script_entity::~script_entity()
 
 void script_entity::debug(sol::this_state ts, const std::string& msg)
 {
-    lua_State* L = ts;
-    sol::userdata selfobj = sol::userdata(L, 1);
-    script_entity& self = selfobj.as<script_entity>();
-    entity_manager::Instance().debug_script(&self, msg);
+    //lua_State* L = ts;
+    //sol::userdata selfobj = sol::userdata(L, 1);
+    //script_entity& self = selfobj.as<script_entity>();
+   // entity_manager::Instance().debug_script(&self, msg);
 
     // if( !m_log )
     //{
@@ -61,10 +65,22 @@ void script_entity::debug(sol::this_state ts, const std::string& msg)
         entityLog += s;
         try
         {
-            auto rotating_logger = spd::rotating_logger_mt(s, entityLog, 1048576 * 5, 3);
-            //rotating_logger->flush_on(spd::level::debug);
-            rotating_logger->info(msg);
-            rotating_logger->flush();
+            std::vector<spdlog::sink_ptr> sinks;
+            //auto rotating_logger = spd::rotating_logger_mt(s, entityLog, 1048576 * 5, 3);
+            auto rotating = std::make_shared<spdlog::sinks::rotating_file_sink_mt> (entityLog, "log", 1024*1024, 5, true);
+            auto stdout_sink = spdlog::sinks::stdout_sink_mt::instance();
+            //auto color_sink = std::make_shared<spdlog::sinks::ansicolor_sink>(stdout_sink);
+            
+           // auto stdout_sink = spdlog::sinks::stdout_sink_mt::instance();
+           // auto color_sink = std::make_shared<spdlog::sinks::ansicolor_sink>(stdout_sink);
+            sinks.push_back(stdout_sink);
+            sinks.push_back(rotating);
+            
+            auto combined_logger = std::make_shared<spdlog::logger>(s, begin(sinks), end(sinks));
+            spdlog::register_logger(combined_logger);
+
+            combined_logger->info(msg);
+            combined_logger->flush();
             
         }
         catch( std::exception& )

@@ -13,7 +13,7 @@
 #include "heartbeat_manager.h"
 #include <memory.h> //for shared_ptr
 #include <plog/Log.h>
-#include "loghelper.h"
+
 #include <plog/Appenders/ConsoleAppender.h>
 
     
