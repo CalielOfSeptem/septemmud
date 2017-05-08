@@ -8,7 +8,6 @@
 #include <cassert>
 #include <iostream>
 
-#include <plog/Log.h>
 
 enum class EntityType { UNKNOWN, ROOM, ITEM, NPC, PLAYER, COMMAND, DAEMON, LIB };
 
@@ -20,6 +19,39 @@ struct _sol_userdata_
     }
     sol::userdata selfobj;
 };
+
+/*
+struct entity_log
+{
+    static unsigned long hash(std::string& str)
+    {
+        unsigned long hash = 5381;
+        for (size_t i = 0; i < str.size(); ++i)
+            hash = 33 * hash + (unsigned char)str[i];
+        return hash;
+    }
+    
+    entity_log(std::string& logpath, EntityType& et)
+    {
+       // std::string roomLog = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH) +
+       //                   global_settings::Instance().GetSetting(DEFAULT_LOGS_PATH) +
+       //                   global_settings::Instance().GetSetting(DEFAULT_ROOM_LOG_PATH);
+                          
+        entityLogFileAppender.reset( new plog::RollingFileAppender<plog::MyFormatter>(logpath.c_str(), 8000, 3));
+        entityConsoleAppender.reset( new plog::ConsoleAppender<plog::MyFormatter>());
+        virtualEntityAppender.reset( new plog::MyAppender<plog::MyFormatter>());
+        int logid = hash(logpath);
+        if( et == EntityType::ROOM )
+            plog::init<logid> (plog::debug, entityLogFileAppender.get()).addAppender(entityConsoleAppender.get()).addAppender(virtualEntityAppender.get()); 
+            // TODO:  Add in other log types
+    }
+    
+private:
+    std::shared_ptr<plog::RollingFileAppender<plog::MyFormatter>> entityLogFileAppender;//(roomLog.c_str(), 8000, 3);
+    std::shared_ptr<plog::ConsoleAppender<plog::MyFormatter>> entityConsoleAppender; // Create the 2nd appender.
+    std::shared_ptr<plog::MyAppender<plog::MyFormatter>> virtualEntityAppender;   // Create our custom appender.
+};
+*/
 
 struct script_entity {
     
@@ -86,7 +118,7 @@ struct script_entity {
         }
         
         std::string GetScriptPath() { return script_path; }
-        void SetScriptPath(std::string& path) { script_path = path; }
+        void SetScriptPath(std::string& path) ;
         
         std::string GetInstancePath()
         {
@@ -97,7 +129,7 @@ struct script_entity {
         
         std::shared_ptr< _sol_userdata_ > m_userdata;
         
-        virtual void debug( const std::string& msg );
+        virtual void debug( sol::this_state ts, const std::string& msg );
         
 
         const std::string& GetName()
@@ -115,6 +147,7 @@ private:
         EntityType m_type = EntityType::UNKNOWN;
         script_entity* environment_;
         std::string script_path;
+  
 protected:
         std::string name;
 };

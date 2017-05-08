@@ -12,10 +12,10 @@
 #include "script_entities/playerobj.h"
 #include "heartbeat_manager.h"
 #include <memory.h> //for shared_ptr
+#include <plog/Log.h>
+#include "loghelper.h"
+#include <plog/Appenders/ConsoleAppender.h>
 
-//typedef std::pair<std::string, std::string> env_id_t;
-
-    
     
 class entity_manager
 {
@@ -115,12 +115,14 @@ struct _internal_lua_
     
     void debug(std::string& msg);
     
+    void debug_script( script_entity * se, const std::string & msg );
+    
+    std::vector<std::string> tail_entity_log( script_entity * se );
+    
     
 protected:
     entity_manager()
-    {
-      
-    }
+    ;
 
     ~entity_manager()
     {
@@ -238,6 +240,9 @@ private:
      * @return 
      */
     bool get_parent_env_of_entity( std::string& script_path, sol::environment& env, std::string& env_name );
+    
+
+
 
 };
 

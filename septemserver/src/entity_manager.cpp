@@ -8,7 +8,7 @@
 #include "string_utils.h"
 #include "global_settings.h"
 #include "config.h"
-#include <plog/Log.h>
+
 #include <iostream>
 #include <fstream>
 #include <regex>
@@ -51,40 +51,47 @@ void get_entity_str(EntityType etype, std::string& str)
     }
 }
 
-bool entity_manager::compile_virtual_file(std::string& relative_script_path, EntityType etype, std::string& script_text, std::string& reason )
+entity_manager::entity_manager()
+{
+
+
+}
+
+bool entity_manager::compile_virtual_file(std::string& relative_script_path,
+                                          EntityType etype,
+                                          std::string& script_text,
+                                          std::string& reason)
 {
     return compile_entity(relative_script_path, etype, script_text, reason);
 }
 
-bool entity_manager::compile_and_clone(std::string& relative_script_path, std::string& script_path_virtual,
-                            std::string& tag_text,
-                            std::string& tag_replace, std::string& reason )
+bool entity_manager::compile_and_clone(std::string& relative_script_path,
+                                       std::string& script_path_virtual,
+                                       std::string& tag_text,
+                                       std::string& tag_replace,
+                                       std::string& reason)
 {
-   // return compile_entity(relative_script_path, etype, script_text, reason);
-   
+    // return compile_entity(relative_script_path, etype, script_text, reason);
+
     std::string _fullpath = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
     _fullpath += relative_script_path;
-    
 
     try {
-        if(!fs::exists(_fullpath)) 
-        {
+        if(!fs::exists(_fullpath)) {
             reason = "Unable to locate file: " + _fullpath;
             return false;
         }
-        
+
         EntityType et;
         std::string _scriptext;
-        if( !load_script_text(_fullpath, _scriptext, et, reason ) )
-        {
+        if(!load_script_text(_fullpath, _scriptext, et, reason)) {
             return false;
         }
-        if( tag_text.size() != 0 )
-        {
+        if(tag_text.size() != 0) {
             boost::replace_all(_scriptext, tag_text, tag_replace);
         }
         _currently_loading_script = script_path_virtual;
-        if( !compile_entity(script_path_virtual, et, _scriptext, reason) )
+        if(!compile_entity(script_path_virtual, et, _scriptext, reason))
             return false;
 
     } catch(std::exception& ex) {
@@ -94,21 +101,24 @@ bool entity_manager::compile_and_clone(std::string& relative_script_path, std::s
     return true;
 }
 
-bool entity_manager::compile_entity(std::string& relative_script_path, EntityType etype, std::string& script_text, std::string& reason)
+bool entity_manager::compile_entity(std::string& relative_script_path,
+                                    EntityType etype,
+                                    std::string& script_text,
+                                    std::string& reason)
 {
-        /*
-    for( int x = 2; x < 1000; x++ )
-    {
+    /*
+for( int x = 2; x < 1000; x++ )
+{
 
-        script_text += "p"+std::to_string(x) + " = room.new()\r\n";
-        script_text += "p"+std::to_string(x) + ":SetTitle('" + "ROOM" + std::to_string(x) + "')\r\n";
-        script_text += "function p" + std::to_string(x) +":test() print(p"+ std::to_string(x) +":GetTitle()) end\r\n";
-        script_text += "y = register_heartbeat(p"+std::to_string(x)+".test)\r\n";
+    script_text += "p"+std::to_string(x) + " = room.new()\r\n";
+    script_text += "p"+std::to_string(x) + ":SetTitle('" + "ROOM" + std::to_string(x) + "')\r\n";
+    script_text += "function p" + std::to_string(x) +":test() print(p"+ std::to_string(x) +":GetTitle()) end\r\n";
+    script_text += "y = register_heartbeat(p"+std::to_string(x)+".test)\r\n";
 
 
-        script_text += "\r\n";
-    }
-    */
+    script_text += "\r\n";
+}
+*/
     // std::cout << script_text;
 
     // First step get the correct collcetion..
@@ -197,23 +207,22 @@ bool entity_manager::compile_script_file(std::string& file_path, std::string& re
         reason = error_str;
         return false;
     }
-    
-    return compile_entity(script_, etype, script_text, reason);
 
+    return compile_entity(script_, etype, script_text, reason);
 }
 
 bool entity_manager::load_player(std::string playerName)
 {
-    //std::string player_script_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
+    // std::string player_script_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
     std::string player_script_path = global_settings::Instance().GetSetting(BASE_PLAYER_ENTITY_PATH);
     std::string reason;
-    
+
     std::stringstream ss;
     ss << "entities/player_" << playerName;
-    
+
     std::string tpath = ss.str();
     std::string tagtext = "player_name"; // a hack to get our player name into the lua object constructor
-    return compile_and_clone( player_script_path, tpath, tagtext, playerName, reason );
+    return compile_and_clone(player_script_path, tpath, tagtext, playerName, reason);
 }
 
 bool entity_manager::lua_safe_script(std::string& script_text, sol::environment env, std::string& reason)
@@ -247,22 +256,33 @@ template <typename T> T* downcast(script_entity* b)
     return dynamic_cast<T*>(b);
 }
 
-
 void entity_manager::init_lua()
 {
     sol::state& lua = (*m_state);
     m_state_internal.reset(new _internal_lua_);
-    lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::package, sol::lib::math, sol::lib::table, sol::lib::debug);
+    lua.open_libraries(sol::lib::base,
+                       sol::lib::string,
+                       sol::lib::package,
+                       sol::lib::math,
+                       sol::lib::table,
+                       sol::lib::debug,
+                       sol::lib::io);
 
     lua.new_usertype<script_entity>("script_entity", "GetType", &script_entity::GetEntityTypeString);
 
     lua.new_usertype<exitobj>("exitobj",
-                              "GetExitPath", &exitobj::GetExitPath,
-                              "SetExit", &exitobj::SetExit,
-                              "SetExitDesc", &exitobj::SetExitDesc,
-                              "SetExitPath", &exitobj::SetExitPath,
-                              "SetObvious", &exitobj::SetObvious,
-                              "GetExit", &exitobj::GetExit);
+                              "GetExitPath",
+                              &exitobj::GetExitPath,
+                              "SetExit",
+                              &exitobj::SetExit,
+                              "SetExitDesc",
+                              &exitobj::SetExitDesc,
+                              "SetExitPath",
+                              &exitobj::SetExitPath,
+                              "SetObvious",
+                              &exitobj::SetObvious,
+                              "GetExit",
+                              &exitobj::GetExit);
 
     lua.new_usertype<roomobj>("room",
                               sol::constructors<roomobj(sol::this_state)>(),
@@ -270,18 +290,30 @@ void entity_manager::init_lua()
                               &roomobj::set_property_lua,
                               sol::meta_function::index,
                               &roomobj::get_property_lua,
-                              "GetTitle", &roomobj::GetTitle,
-                              "SetTitle", &roomobj::SetTitle,
-                              "GetDescription", &roomobj::GetDescription,
-                              "SetDescription", &roomobj::SetDescription,
-                              "GetShortDescription", &roomobj::GetShortDescription,
-                              "SetShortDescription", &roomobj::SetShortDescription,
-                              "GetExits", &roomobj::GetExits,
-                              "AddExit", &roomobj::AddExit,
-                              "GetType", &script_entity::GetEntityTypeString,
-                              //"Debug", &script_entity::debug,
-                              "GetInventory", &container_base::GetInventory,
-                              "GetPlayers", &roomobj::GetPlayers,
+                              "GetTitle",
+                              &roomobj::GetTitle,
+                              "SetTitle",
+                              &roomobj::SetTitle,
+                              "GetDescription",
+                              &roomobj::GetDescription,
+                              "SetDescription",
+                              &roomobj::SetDescription,
+                              "GetShortDescription",
+                              &roomobj::GetShortDescription,
+                              "SetShortDescription",
+                              &roomobj::SetShortDescription,
+                              "GetExits",
+                              &roomobj::GetExits,
+                              "AddExit",
+                              &roomobj::AddExit,
+                              "GetType",
+                              &script_entity::GetEntityTypeString,
+                              "Debug",
+                              &script_entity::debug,
+                              "GetInventory",
+                              &container_base::GetInventory,
+                              "GetPlayers",
+                              &roomobj::GetPlayers,
                               sol::base_classes,
                               sol::bases<script_entity, container_base>());
 
@@ -294,10 +326,13 @@ void entity_manager::init_lua()
                                 &daemonobj::set_property_lua,
                                 sol::meta_function::index,
                                 &daemonobj::get_property_lua,
-                                "GetName", &daemonobj::GetName,
-                                "SetName", &daemonobj::SetName,
-                                "GetType", &script_entity::GetEntityTypeString,
-                              //  "Debug", &script_entity::debug,
+                                "GetName",
+                                &daemonobj::GetName,
+                                "SetName",
+                                &daemonobj::SetName,
+                                "GetType",
+                                &script_entity::GetEntityTypeString,
+                                //  "Debug", &script_entity::debug,
                                 sol::base_classes,
                                 sol::bases<script_entity>());
 
@@ -307,31 +342,48 @@ void entity_manager::init_lua()
                                 &playerobj::set_property_lua,
                                 sol::meta_function::index,
                                 &playerobj::get_property_lua,
-                                "GetPlayerName", &playerobj::GetPlayerName,
-                                "SendToEntity", &playerobj::SendToEntity,
-                                "SendToPlayer", &playerobj::SendToEntity,
-                                "GetEnvironment", &playerobj::GetEnvironment,
-                                "SetEnvironment", &playerobj::SetEnvironment,
-                                "SendToRoom", &playerobj::SendToEnvironment,
-                                "GetRoom", &playerobj::GetRoom,
-                                "GetType", &script_entity::GetEntityTypeString,
-                               // "Debug", &script_entity::debug,
-                                "GetName", &script_entity::GetName,
-                                "DoCommand", &living_entity::DoCommand,
+                                "GetPlayerName",
+                                &playerobj::GetPlayerName,
+                                "SendToEntity",
+                                &playerobj::SendToEntity,
+                                "SendToPlayer",
+                                &playerobj::SendToEntity,
+                                "GetEnvironment",
+                                &playerobj::GetEnvironment,
+                                "SetEnvironment",
+                                &playerobj::SetEnvironment,
+                                "SendToRoom",
+                                &playerobj::SendToEnvironment,
+                                "GetRoom",
+                                &playerobj::GetRoom,
+                                "GetType",
+                                &script_entity::GetEntityTypeString,
+                                // "Debug", &script_entity::debug,
+                                "GetName",
+                                &script_entity::GetName,
+                                "DoCommand",
+                                &living_entity::DoCommand,
                                 sol::base_classes,
                                 sol::bases<living_entity, script_entity>());
-                                
+
     lua.new_usertype<living_entity>("living_entity",
-                                "GetType", &script_entity::GetEntityTypeString,
-                               // "Debug", &script_entity::debug,
-                                "DoCommand", &living_entity::DoCommand,
-                                "SendToEntity", &living_entity::SendToEntity,
-                                "SendToPlayer", &living_entity::SendToEntity,
-                                "SendToRoom", &living_entity::SendToEnvironment,
-                                "GetRoom", &living_entity::GetRoom,
-                                "GetName", &script_entity::GetName,
-                                sol::base_classes,
-                                sol::bases<script_entity>());
+                                    "GetType",
+                                    &script_entity::GetEntityTypeString,
+                                    // "Debug", &script_entity::debug,
+                                    "DoCommand",
+                                    &living_entity::DoCommand,
+                                    "SendToEntity",
+                                    &living_entity::SendToEntity,
+                                    "SendToPlayer",
+                                    &living_entity::SendToEntity,
+                                    "SendToRoom",
+                                    &living_entity::SendToEnvironment,
+                                    "GetRoom",
+                                    &living_entity::GetRoom,
+                                    "GetName",
+                                    &script_entity::GetName,
+                                    sol::base_classes,
+                                    sol::bases<script_entity>());
 
     lua.new_usertype<commandobj>(
         "command",
@@ -340,21 +392,28 @@ void entity_manager::init_lua()
         &playerobj::set_property_lua,
         sol::meta_function::index,
         &playerobj::get_property_lua,
-        "GetCommand", &commandobj::GetCommand,
-        "SetCommand", &commandobj::SetCommand,
-        "GetAliases", &commandobj::GetAliases,
-        "SetAliases", &commandobj::SetAliases,
-        "SetPriority", &commandobj::SetPriority,
-        "GetPriority", &commandobj::GetPriority,
-        "GetType", &script_entity::GetEntityTypeString,
-       // "Debug", &script_entity::debug,
+        "GetCommand",
+        &commandobj::GetCommand,
+        "SetCommand",
+        &commandobj::SetCommand,
+        "GetAliases",
+        &commandobj::GetAliases,
+        "SetAliases",
+        &commandobj::SetAliases,
+        "SetPriority",
+        &commandobj::SetPriority,
+        "GetPriority",
+        &commandobj::GetPriority,
+        "GetType",
+        &script_entity::GetEntityTypeString,
+        // "Debug", &script_entity::debug,
         sol::base_classes,
         sol::bases<script_entity>());
 
     lua.set_function("deregister_all_heartbeat", &heartbeat_manager::deregister_all_heartbeat_funcs, &_heartbeat);
 
     lua.set_function("move_living", &entity_manager::move_living, this);
-    
+
     lua.set_function("command_cast", &downcast<commandobj>);
     lua.set_function("room_cast", &downcast<roomobj>);
     lua.set_function("player_cast", &downcast<playerobj>);
@@ -364,13 +423,13 @@ void entity_manager::init_lua()
     lua.set_function("get_move_command", [&]() -> commandobj * & { return m_default_cmds.find("move")->second; });
 
     lua.set_function("get_room_list", [&]() -> std::map<std::string, roomobj*> & { return m_room_lookup; });
-    
-    lua.set_function("get_entity_by_name", [&](std::string ename) -> playerobj *
-    { 
-        return this->get_player(ename);
-    });
-    
-    sol::environment tmp = sol::environment(lua, sol::create);//inherit);
+
+    lua.set_function("get_entity_by_name", [&](std::string ename) -> playerobj * { return this->get_player(ename); });
+
+    //lua.set_function("tail_entity_log",
+    //                 [&](script_entity * se) -> std::vector<std::string> & { return this->get_player(ename); });
+
+    sol::environment tmp = sol::environment(lua, sol::create); // inherit);
     lua["_g_mirror_"] = tmp;
 
     /*
@@ -643,15 +702,14 @@ bool entity_manager::_init_entity_env(std::string& script_path, EntityType etype
 
     sol::environment current_env = lua.globals();
 
-
     for(auto& en : strs) {
         sol::optional<sol::environment> maybe_env = current_env[en + "_env_"];
         // LOG_DEBUG << "Looking for environment: " << en << "_env_";
         if(maybe_env) {
             // it has already been initialized
             current_env = maybe_env.value(); // set it so we can go deeper..
-            // LOG_DEBUG << "Environment already exists: " << en << "_env_";
-            // LOG_VERBOSE << "Environment [" << en << "] already exists.";
+                                             // LOG_DEBUG << "Environment already exists: " << en << "_env_";
+                                             // LOG_VERBOSE << "Environment [" << en << "] already exists.";
         } else {
             // be careful with the next call, if the environment exists then
             // this function will destroy it.
@@ -761,7 +819,7 @@ void entity_manager::register_entity(script_entity* entityobj, EntityType etype)
 
     std::shared_ptr<entity_wrapper> ew(new entity_wrapper);
     ew->entity_type = etype;
-    assert( _currently_loading_script.size() != 0 );
+    assert(_currently_loading_script.size() != 0);
     ew->script_path = _currently_loading_script;
     entityobj->SetScriptPath(ew->script_path);
     ew->script_ent = entityobj;
@@ -809,7 +867,7 @@ void entity_manager::register_entity(script_entity* entityobj, EntityType etype)
     } break;
     case EntityType::ROOM: {
         // get the current instance ID from the env..
-        assert( _currently_loading_script.size() !=  0 );
+        assert(_currently_loading_script.size() != 0);
         auto search = m_room_objs.find(_currently_loading_script);
         if(search != m_room_objs.end()) {
 
@@ -835,7 +893,7 @@ void entity_manager::register_entity(script_entity* entityobj, EntityType etype)
         }
         */
         // m_base_cmds[cmd_noun] = cmdobj;
-        assert (_currently_loading_script.size() != 0 );
+        assert(_currently_loading_script.size() != 0);
         auto search = m_cmd_objs.find(_currently_loading_script);
         if(search != m_cmd_objs.end()) {
 
@@ -850,7 +908,7 @@ void entity_manager::register_entity(script_entity* entityobj, EntityType etype)
         }
     } break;
     case EntityType::DAEMON: {
-        assert ( _currently_loading_script.size() != 0 );
+        assert(_currently_loading_script.size() != 0);
         auto search = m_daemon_objs.find(_currently_loading_script);
         if(search != m_daemon_objs.end()) {
 
@@ -1080,7 +1138,7 @@ bool entity_manager::move_living(script_entity* target, const std::string& roomi
     if(r != NULL) {
         move_entity(target, static_cast<script_entity*>(r));
     }
-    //LOG_DEBUG << r->GetTitle();
+    // LOG_DEBUG << r->GetTitle();
     // get_entity_path_from_id_string(roomid, roompath, instance);
 }
 
@@ -1133,36 +1191,55 @@ bool entity_manager::do_command(living_entity* e, const std::string cmd)
 {
     std::string command_proc_path = global_settings::Instance().GetSetting(DEFAULT_COMMAND_PROC);
     unsigned int id = 0;
-    daemonobj * dobj = entity_manager::Instance().GetDaemonByScriptPath(command_proc_path, id);
-    if( dobj == NULL )
-    {
+    daemonobj* dobj = entity_manager::Instance().GetDaemonByScriptPath(command_proc_path, id);
+    if(dobj == NULL) {
         std::string err = "Error attempting to retrieve command proc.";
         LOG_ERROR << err;
         return false;
     }
-   
-    sol::optional<sol::table> self = dobj->m_userdata->selfobj; //ew_daemon->env_obj.value()[ew_daemon->script_obj_name];//(*lua_primary)[entity_env[0]][entity_env[1]][ew_daemon->script_obj_name]; //(*ew_daemon->script_state)[ew_daemon->script_obj_name];
-    
- 
-    if( self )
-    {
+
+    sol::optional<sol::table> self =
+        dobj->m_userdata
+            ->selfobj; // ew_daemon->env_obj.value()[ew_daemon->script_obj_name];//(*lua_primary)[entity_env[0]][entity_env[1]][ew_daemon->script_obj_name];
+                       // //(*ew_daemon->script_state)[ew_daemon->script_obj_name];
+
+    if(self) {
         sol::protected_function exec = self.value()["process_command"];
-        auto result = exec(self, e, cmd );
-        if ( !result.valid() ) {
+        auto result = exec(self, e, cmd);
+        if(!result.valid()) {
             sol::error err = result;
             LOG_ERROR << err.what();
         }
         return true;
-    }
-    else
-    {
+    } else {
         LOG_ERROR << "Unable to load command processor.";
         return false;
     }
 
-
     return false;
 }
+
+void entity_manager::debug_script(script_entity* se, const std::string& msg)
+{
+    switch(se->GetType()) {
+    case EntityType::ROOM: {
+        LOG_DEBUG_(RoomLog) << "[" << se->GetInstancePath() << "] " << msg;
+    } break;
+    default:
+        break;
+    }
+}
+
+std::vector<std::string> entity_manager::tail_entity_log(script_entity* se)
+{
+    // for(;;) {
+    // std::ifstream infile("filename");
+    // int current_position = find_new_text(infile);
+    // sleep(1);
+    // }
+}
+
+
 
 /*
 bool entity_manager::compile_lib(std::string& script_or_path, std::string& reason)

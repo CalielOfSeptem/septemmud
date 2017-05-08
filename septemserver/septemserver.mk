@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=ken
-Date                   :=06/05/17
+Date                   :=07/05/17
 CodeLitePath           :=/home/ken/.codelite
 LinkerName             :=/usr/bin/g++
 SharedObjectLinkerName :=/usr/bin/g++ -shared -fPIC
@@ -39,8 +39,8 @@ LinkOptions            :=  -lz -ldl
 IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch). $(IncludeSwitch)include/ $(IncludeSwitch)../../sol2 $(IncludeSwitch)../plog/include $(IncludeSwitch)/home/ken/git-repos/lua-5.3.4/src $(IncludeSwitch)../../json/src 
 IncludePCH             := 
 RcIncludePath          := 
-Libs                   := $(LibrarySwitch)boost_system $(LibrarySwitch)boost_program_options $(LibrarySwitch)boost_filesystem $(LibrarySwitch)lua 
-ArLibs                 :=  "boost_system" "boost_program_options" "boost_filesystem" "lua" 
+Libs                   := $(LibrarySwitch)boost_system $(LibrarySwitch)boost_program_options $(LibrarySwitch)boost_filesystem $(LibrarySwitch)lua $(LibrarySwitch)pthread 
+ArLibs                 :=  "boost_system" "boost_program_options" "boost_filesystem" "lua" "pthread" 
 LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)/home/ken/git-repos/lua-5.3.4/src 
 
 ##

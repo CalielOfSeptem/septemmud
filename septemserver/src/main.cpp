@@ -17,6 +17,7 @@
 namespace ba = boost::asio;
 namespace po = boost::program_options;
 
+
 int main(int argc, char **argv)
 {
     
@@ -28,6 +29,8 @@ int main(int argc, char **argv)
    // static plog::RollingFileAppender<plog::TxtFormatter> fileAppender(log_path.c_str(), 8000, 3); // Create the 1st appender.
     static plog::ConsoleAppender<plog::TxtFormatter> consoleAppender; // Create the 2nd appender.
     plog::init(plog::verbose, &consoleAppender);//.addAppender(&consoleAppender); // Initialize the logger with the both appenders.
+    
+    
 
     
     unsigned int port        = 4000;
@@ -125,6 +128,20 @@ int main(int argc, char **argv)
     global_settings::Instance().SetSetting( DEFAULT_COMMANDS_PATH, "cmds");
     global_settings::Instance().SetSetting( DEFAULT_COMMAND_PROC, "daemon/command_proc");
     global_settings::Instance().SetSetting( DEFAULT_LIBS_PATH, "lib");
+    global_settings::Instance().SetSetting( DEFAULT_LOGS_PATH, "logs/");
+    global_settings::Instance().SetSetting( DEFAULT_ROOM_LOG_PATH, "roomlog");
+    
+   // std::string roomLog = global_settings::Instance().GetSetting( DEFAULT_GAME_DATA_PATH ) + global_settings::Instance().GetSetting( DEFAULT_LOGS_PATH ) + global_settings::Instance().GetSetting( DEFAULT_ROOM_LOG_PATH );
+    
+    
+   // static plog::RollingFileAppender<plog::MyFormatter> fileAppender(roomLog.c_str(), 8000, 3);
+    
+   // static plog::ConsoleAppender<plog::MyFormatter> consoleAppenderA; // Create the 2nd appender.
+    //static plog::RollingFileAppender<plog::MyFormatter> fileAppender;
+    //fileAppend = plog::RollingFileAppender(const util::nchar* fileName, size_t maxFileSize = 0, int maxFiles = 0);
+    //plog::init(plog::debug, &fileAppender).addAppender(&consoleAppender); // Initialize the logger with the both appenders.
+   // plog::init<RoomLog>(plog::debug, &fileAppender).addAppender(&consoleAppenderA);
+    
     /*
 	std::string test_room = "/home/ken/git-repos/septemmud/game_data/realms/void";
     std::string reason;

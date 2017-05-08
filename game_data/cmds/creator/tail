@@ -1,0 +1,32 @@
+inherit command
+
+c = command.new('tail', 0) -- priority zero means that this command will win out over other similar commands, e.g., lo will resolve to look rather than locate.
+
+function c:ExecuteCommand ( o, cmd )
+	if o ~= nil then
+		local myTable = cmd:split( ' ' )
+		if #myTable <= 2 then
+			usage(o)
+			return true;
+		end
+		
+		targ = myTable[2]
+		-- remove force and name of char to force
+		table.remove(myTable, 1)
+		table.remove(myTable, 1)
+		cmd = table.concat(myTable, " ")
+		-- TODO: Add in protections to stop low-level creators from harming upper-levels via force
+		e = get_entity_by_name(targ)
+		if e ~= nil then
+			e:DoCommand(cmd)
+		end
+		
+	end
+end
+
+function usage(o_orig)
+	o_orig:SendToEntity('USAGE: Tail <Implement me later>')
+end
+
+
+

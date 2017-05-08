@@ -5,12 +5,23 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <fstream>
+
 
 static inline void strip_path(std::string& path)
 {
     std::replace_if(path.begin() , path.end() ,  
             [] (const char& c) { return !isalpha(c); ;},'_');
 }
+
+
+static inline std::string strip_path_copy(std::string path)
+{
+    std::replace_if(path.begin() , path.end() ,  
+            [] (const char& c) { return !isalpha(c); ;},'_');
+    return path;
+}
+
 
 static inline std::vector<std::string> split(const std::string &s, char delim) {
   std::stringstream ss(s);
@@ -101,4 +112,49 @@ static void sanitizepassword(std::string& phrase)
       {phrase[x] = '*';}
 }
 */
+/*
+static int last_position=0;
+
+int find_new_text(std::ifstream &infile) {
+
+   infile.seekg(0, std::ios::end);
+   int filesize = infile.tellg();
+
+   // check if the new file started
+   if(filesize < last_position){
+      last_position=0;
+   }  
+   // read file from last position  untill new line is found 
+
+   for(int n=last_position;n<filesize;n++) {
+
+      infile.seekg( last_position, std::ios::beg);
+      char  test[256]; 
+      infile.getline(test, 256);
+      last_position = infile.tellg();
+      std::cout << "Char: "  << test <<"Last position " << last_position<<  std::endl;
+      // end of file 
+      if(filesize == last_position){
+        return filesize;
+      } 
+
+
+  }
+
+  return 0;
+}
+
+*/
+/*
+int main() {
+
+  for(;;) {
+    std::ifstream infile("filename");
+    int current_position = find_new_text(infile);
+    sleep(1);
+  } 
+
+} 
+*/
+
 #endif
