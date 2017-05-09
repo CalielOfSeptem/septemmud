@@ -4,7 +4,7 @@
 #include "script_entities/container_base.h"
 //#include "script_entities/playerobj.h"
 #include <sol.hpp>
-#include <plog/Log.h>
+
 
 
 struct exitobj
@@ -139,6 +139,8 @@ public:
 
      
     std::vector<script_entity*> GetPlayers(const std::string& name);
+    
+    virtual void debug( sol::this_state ts, const std::string& msg ) override;
     
 private:
     std::string title;

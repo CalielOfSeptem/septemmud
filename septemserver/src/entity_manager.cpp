@@ -18,6 +18,10 @@
 #include <boost/algorithm/string.hpp>
 #include <unordered_set>
 
+#include "spdlog/spdlog.h"
+
+namespace spd = spdlog;
+
 namespace fs = boost::filesystem;
 
 void get_entity_str(EntityType etype, std::string& str)
@@ -182,7 +186,10 @@ for( int x = 2; x < 1000; x++ )
 
 bool entity_manager::compile_script_file(std::string& file_path, std::string& reason)
 {
-    LOG_DEBUG << "Compiling script: " << file_path;
+    auto log = spd::get("main");
+    std::stringstream ss;
+    ss << "Compiling script: " << file_path;
+    log->debug( ss.str() );
 
     fs::path p(file_path);
     if(!fs::exists(p)) {
@@ -704,16 +711,15 @@ bool entity_manager::_init_entity_env(std::string& script_path, EntityType etype
 
     for(auto& en : strs) {
         sol::optional<sol::environment> maybe_env = current_env[en + "_env_"];
-        // LOG_DEBUG << "Looking for environment: " << en << "_env_";
+
         if(maybe_env) {
             // it has already been initialized
             current_env = maybe_env.value(); // set it so we can go deeper..
-                                             // LOG_DEBUG << "Environment already exists: " << en << "_env_";
-                                             // LOG_VERBOSE << "Environment [" << en << "] already exists.";
+
         } else {
             // be careful with the next call, if the environment exists then
             // this function will destroy it.
-            // LOG_DEBUG << "Initializing environment: " << en << "_env_";
+
             _init_lua_env_(current_env, lua.globals(), en + "_env_", current_env);
             // just for now, so we can sanity check where we are..
             current_env["_FS_PATH_"] = en + "_env_";
@@ -738,7 +744,7 @@ bool entity_manager::_init_lua_env_(sol::environment parent,
         parent[new_child_env_name]; // parent.get<sol::environment>( new_child_env_name );
     assert(!test_env);
     if(test_env) {
-        // LOG_DEBUG << "Destroying environment: " << new_child_env_name;
+       
         parent[new_child_env_name] = sol::nil;
         lua.collect_garbage();
     }
@@ -749,7 +755,7 @@ bool entity_manager::_init_lua_env_(sol::environment parent,
     // __index = _G
     // tmp["__index"] = "_G";
     new_child_env = tmp;
-    // LOG_DEBUG << "Creating environment: " << new_child_env_name;
+    
     return true;
 }
 
@@ -763,7 +769,12 @@ void entity_manager::register_command(commandobj* cmd)
     std::string verb = cmd->GetCommand();
     std::transform(verb.begin(), verb.end(), verb.begin(), ::tolower);
     m_default_cmds[verb] = cmd;
-    LOG_DEBUG << "Registered command, command = " << verb << ", script=" << cmd->GetScriptPath();
+    auto log = spd::get("main");
+  
+    std::stringstream ss;
+    ss << "Registered command, command = " << verb << ", script=" << cmd->GetScriptPath();
+    log->debug( ss.str() );
+    
 }
 
 void entity_manager::deregister_command(commandobj* cmd)
@@ -773,7 +784,14 @@ void entity_manager::deregister_command(commandobj* cmd)
     auto search = m_default_cmds.find(verb);
     if(search != m_default_cmds.end()) {
         m_default_cmds.erase(search);
-        LOG_DEBUG << "De-Registered command, command = " << verb << ", script=" << cmd->GetScriptPath();
+        
+        auto log = spd::get("main");
+  
+        std::stringstream ss;
+        ss << "De-Registered command, command = " << verb << ", script=" << cmd->GetScriptPath();
+        log->debug( ss.str() );
+        
+      
         // search->second.insert(ew);
     }
 }
@@ -782,7 +800,12 @@ void entity_manager::register_room(roomobj* room)
 {
     std::string room_path = room->GetInstancePath();
     m_room_lookup[room_path] = room;
-    LOG_DEBUG << "Registered room into lookup table, room = " << room_path;
+    auto log = spd::get("main");
+
+    std::stringstream ss;
+    ss << "Registered room into lookup table, room = " << room_path;
+    log->debug( ss.str() );
+
 }
 
 void entity_manager::deregister_room(roomobj* room)
@@ -791,7 +814,12 @@ void entity_manager::deregister_room(roomobj* room)
     auto search = m_room_lookup.find(room_path);
     if(search != m_room_lookup.end()) {
         m_room_lookup.erase(search);
-        LOG_DEBUG << "De-Registered room from lookup table, room = " << room_path;
+  
+        auto log = spd::get("main");
+
+        std::stringstream ss;
+        ss << "De-Registered room from lookup table, room = " << room_path;
+        log->debug( ss.str() );
         // search->second.insert(ew);
     }
 }
@@ -800,7 +828,11 @@ void entity_manager::register_daemon(daemonobj* daemon)
 {
     std::string daemon_path = daemon->GetInstancePath();
     m_daemon_lookup[daemon_path] = daemon;
-    LOG_DEBUG << "Registered daemon into lookup table, daemon = " << daemon_path;
+    auto log = spd::get("main");
+
+    std::stringstream ss;
+    ss << "Registered daemon into lookup table, daemon = " << daemon_path;
+    log->debug( ss.str() );
 }
 
 void entity_manager::deregister_daemon(daemonobj* daemon)
@@ -809,7 +841,11 @@ void entity_manager::deregister_daemon(daemonobj* daemon)
     auto search = m_daemon_lookup.find(daemon_path);
     if(search != m_daemon_lookup.end()) {
         m_daemon_lookup.erase(search);
-        LOG_DEBUG << "De-Registered daemon from lookup table, daemon = " << daemon_path;
+        auto log = spd::get("main");
+        std::stringstream ss;
+        ss  << "De-Registered daemon from lookup table, daemon = " << daemon_path;
+        log->debug( ss.str() );
+        
         // search->second.insert(ew);
     }
 }
@@ -830,6 +866,8 @@ void entity_manager::register_entity(script_entity* entityobj, EntityType etype)
     sol::environment e_parent;
     std::string env_name;
     get_parent_env_of_entity(ew->script_path, e_parent, env_name);
+    
+
 
     //  The idea behind the next few calls is to make sure that each entity gets it's own
     //  instance ID.  Each time a entity loads we look to the parent env to grab
@@ -850,6 +888,9 @@ void entity_manager::register_entity(script_entity* entityobj, EntityType etype)
         e_parent[env_name]["_internal_instance_id_"] = new_id;
         entityobj->instanceID = new_id;
     }
+    
+    auto log = spd::get("main");
+    std::stringstream ss;
 
     switch(etype) {
     case EntityType::PLAYER: {
@@ -862,7 +903,9 @@ void entity_manager::register_entity(script_entity* entityobj, EntityType etype)
             m_player_objs.insert({ ew->script_path, ew }); // new_set ); //new_set );get_entity_str()
             std::string e_str;
             get_entity_str(ew->entity_type, e_str);
-            LOG_DEBUG << "Registered new entity, type = " << e_str << ", Path =" << ew->script_path;
+            
+            ss << "Registered new entity, type = " << e_str << ", Path =" << ew->script_path;
+            log->debug( ss.str() );
         }
     } break;
     case EntityType::ROOM: {
@@ -878,7 +921,10 @@ void entity_manager::register_entity(script_entity* entityobj, EntityType etype)
             m_room_objs.insert({ ew->script_path, new_set }); // new_set ); //new_set );get_entity_str()
             std::string e_str;
             get_entity_str(ew->entity_type, e_str);
-            LOG_DEBUG << "Registered new entity, type = " << e_str << ", Path =" << ew->script_path;
+            
+            ss << "Registered new entity, type = " << e_str << ", Path =" << ew->script_path;
+            log->debug( ss.str() );
+            
         }
     } break;
     case EntityType::COMMAND: {
@@ -904,7 +950,8 @@ void entity_manager::register_entity(script_entity* entityobj, EntityType etype)
             m_cmd_objs.insert({ ew->script_path, new_set }); // new_set ); //new_set );get_entity_str()
             std::string e_str;
             get_entity_str(ew->entity_type, e_str);
-            LOG_DEBUG << "Registered new entity, type = " << e_str << ", Path =" << ew->script_path;
+            ss << "Registered new entity, type = " << e_str << ", Path =" << ew->script_path;
+            log->debug( ss.str() );
         }
     } break;
     case EntityType::DAEMON: {
@@ -919,7 +966,8 @@ void entity_manager::register_entity(script_entity* entityobj, EntityType etype)
             m_daemon_objs.insert({ ew->script_path, new_set }); // new_set ); //new_set );get_entity_str()
             std::string e_str;
             get_entity_str(ew->entity_type, e_str);
-            LOG_DEBUG << "Registered new entity, type = " << e_str << ", Path =" << ew->script_path;
+            ss << "Registered new entity, type = " << e_str << ", Path =" << ew->script_path;
+            log->debug( ss.str() );
         }
     } break;
     default:
@@ -1125,7 +1173,6 @@ get_entity_path_from_id_string(const std::string& entity_id, std::string& entity
         entity_script_path.erase(entity_script_path.size() - 1);
     }
 
-    LOG_DEBUG << entity_script_path;
     return true;
 }
 
@@ -1184,7 +1231,7 @@ bool entity_manager::move_entity(script_entity* target, script_entity* dest)
 
 void entity_manager::debug(std::string& msg)
 {
-    LOG_DEBUG << msg;
+    //LOG_DEBUG << msg;
 }
 
 bool entity_manager::do_command(living_entity* e, const std::string cmd)
@@ -1193,8 +1240,11 @@ bool entity_manager::do_command(living_entity* e, const std::string cmd)
     unsigned int id = 0;
     daemonobj* dobj = entity_manager::Instance().GetDaemonByScriptPath(command_proc_path, id);
     if(dobj == NULL) {
-        std::string err = "Error attempting to retrieve command proc.";
-        LOG_ERROR << err;
+        auto log = spd::get("main");
+        std::stringstream ss;
+        ss << "Error attempting to retrieve command proc.";
+        log->debug( ss.str() );
+        
         return false;
     }
 
@@ -1208,11 +1258,17 @@ bool entity_manager::do_command(living_entity* e, const std::string cmd)
         auto result = exec(self, e, cmd);
         if(!result.valid()) {
             sol::error err = result;
-            LOG_ERROR << err.what();
+            auto log = spd::get("main");
+            std::stringstream ss;
+            ss << err.what();
+            log->debug( ss.str() );
         }
         return true;
     } else {
-        LOG_ERROR << "Unable to load command processor.";
+        auto log = spd::get("main");
+        std::stringstream ss;
+        ss << "Error attempting to retrieve command proc.";
+        log->debug( ss.str() );
         return false;
     }
 
@@ -1223,7 +1279,7 @@ void entity_manager::debug_script(script_entity* se, const std::string& msg)
 {
     switch(se->GetType()) {
     case EntityType::ROOM: {
-        LOG_DEBUG_(RoomLog) << "[" << se->GetInstancePath() << "] " << msg;
+        //LOG_DEBUG_(RoomLog) << "[" << se->GetInstancePath() << "] " << msg;
     } break;
     default:
         break;

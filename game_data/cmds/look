@@ -13,7 +13,7 @@ function c:ExecuteCommand ( o, cmd )
 	--print('Look command called..')
 	--p = player_cast(o)
 	if o ~= nil then
-		tail( '/home/ken/git-repos/septemmud/game_data/logs/L-2017-03-17.log', 10000, true)
+		--tail( '/home/ken/git-repos/septemmud/game_data/logs/L-2017-03-17.log', 10000, true)
 		--if( o:GetType():lower() == "player" ) then
 		--	o = player_cast(o)
 		--end
@@ -23,7 +23,7 @@ function c:ExecuteCommand ( o, cmd )
 		-- GetRoom does not as its already a room object ptr
 		-- example: env = room_cast(p:GetEnvironment())
 		env = o:GetRoom()
-
+		
 		if env ~= nil then
 			s = FormatRoom(env, o)
 			--p:SendToEntity('[' .. env:GetTitle() .. ']')

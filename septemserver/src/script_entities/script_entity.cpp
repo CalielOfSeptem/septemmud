@@ -1,14 +1,15 @@
 #include "script_entities/script_entity.h"
 #include "entity_manager.h"
-#include "spdlog/spdlog.h"
+#include <memory>
 #include "global_settings.h"
 #include "config.h"
 #include "string_utils.h"
+
+#include "spdlog/spdlog.h"
 #include <spdlog/sinks/stdout_sinks.h>
-//#include "spdlog/sinks/stdout_sinks.h"
-//#include "sinks/stdout_sinks.h"
-#include <memory>
+
 namespace spd = spdlog;
+
 script_entity::script_entity(sol::this_state ts, EntityType myType, std::string name)
     : m_type(myType)
     , environment_(NULL)
@@ -33,7 +34,15 @@ script_entity::script_entity(sol::this_state ts, EntityType myType, std::string 
 
 script_entity::~script_entity()
 {
-    //  LOG_DEBUG << "Destroyed object, script path= " << script_path;
+
+    if ( script_path.size() > 0 )
+    {
+        auto log = spd::get("main");
+        std::stringstream ss;
+        ss << "Destroyed object, script path= " << script_path;
+        log->debug(ss.str());
+    }
+    
     entity_manager::Instance().deregister_entity(this, m_type);
 }
 
@@ -56,7 +65,7 @@ void script_entity::debug(sol::this_state ts, const std::string& msg)
    
     if( !log )
     {
-        spd::set_pattern("[%x %H:%M:%S:%e] %v");
+        
         std::string entityLog = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH) +
                             global_settings::Instance().GetSetting(DEFAULT_LOGS_PATH);
 
@@ -69,6 +78,7 @@ void script_entity::debug(sol::this_state ts, const std::string& msg)
             //auto rotating_logger = spd::rotating_logger_mt(s, entityLog, 1048576 * 5, 3);
             auto rotating = std::make_shared<spdlog::sinks::rotating_file_sink_mt> (entityLog, "log", 1024*1024, 5, true);
             auto stdout_sink = spdlog::sinks::stdout_sink_mt::instance();
+            
             //auto color_sink = std::make_shared<spdlog::sinks::ansicolor_sink>(stdout_sink);
             
            // auto stdout_sink = spdlog::sinks::stdout_sink_mt::instance();
@@ -77,9 +87,11 @@ void script_entity::debug(sol::this_state ts, const std::string& msg)
             sinks.push_back(rotating);
             
             auto combined_logger = std::make_shared<spdlog::logger>(s, begin(sinks), end(sinks));
+            combined_logger->set_pattern("[%x %H:%M:%S:%e] %v");
+            combined_logger->set_level( spdlog::level::debug );
             spdlog::register_logger(combined_logger);
 
-            combined_logger->info(msg);
+            combined_logger->debug( "[" + this->GetInstancePath() + "] "+ msg);
             combined_logger->flush();
             
         }
@@ -91,7 +103,7 @@ void script_entity::debug(sol::this_state ts, const std::string& msg)
    }
    else
    {
-       log->info(msg);
+       log->debug( "[" + this->GetInstancePath() + "] "+ msg);
        log->flush();
        // spd::drop( strip_path_copy(script_path) );
    }

@@ -12,13 +12,19 @@ namespace fs = boost::filesystem;
 
 void game_manager::init()
 {
-    LOG_DEBUG << "Begin Init";
+    auto log = spd::get("main");
+    log->debug( "Begin Init");
+    
     std::string reason;
     // load libs
     std::string libs_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
     libs_path += global_settings::Instance().GetSetting(DEFAULT_LIBS_PATH);
-
-    LOG_DEBUG << "Loading libs: " << libs_path;
+    
+    std::stringstream ss;
+    ss << "Loading libs: " << libs_path;
+    log->debug(ss.str());
+    ss.str("");
+    
    
     for ( fs::recursive_directory_iterator end, dir(libs_path);
         dir != end; ++dir ) {
@@ -29,7 +35,8 @@ void game_manager::init()
             if(!entity_manager::Instance().compile_script_file(pathstr, reason)) {
                 std::stringstream ss;
                 ss << "Unable to load lib [" << dir->path().string() << "], reason = " << reason;
-                LOG_ERROR << ss.str();
+                log->debug(ss.str());
+                //LOG_ERROR << ss.str();
                 on_error(ss.str());
                 return;
             } 
@@ -43,18 +50,29 @@ void game_manager::init()
     std::string void_script_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
     void_script_path += global_settings::Instance().GetSetting(DEFAULT_VOID_ROOM);
 
-    LOG_DEBUG << "Loading void room: " << void_script_path;
+    //std::stringstream ss;
+    ss.str("");
+    ss << "Loading void room: " << void_script_path;
+    log->debug(ss.str());
+                
     if(!entity_manager::Instance().compile_script_file(void_script_path, reason)) {
         std::stringstream ss;
         ss << "Unable to load void room, reason = " << reason;
-        LOG_ERROR << ss.str();
+        //LOG_ERROR << ss.str();
+        log->debug(ss.str());
         on_error(ss.str());
         return;
     } 
 
     std::string daemon_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
     daemon_path += global_settings::Instance().GetSetting(DEFAULT_DAEMON_PATH);
-    LOG_DEBUG << "Loading daemons..: " << daemon_path;
+    
+    //std::stringstream ss;
+    ss.str("");
+    ss << "Loading daemons..: " << daemon_path;
+    log->debug(ss.str());
+    
+   // LOG_DEBUG << 
     
     for ( fs::recursive_directory_iterator end, dir(daemon_path);
         dir != end; ++dir ) {
@@ -65,7 +83,8 @@ void game_manager::init()
             if(!entity_manager::Instance().compile_script_file(pathstr, reason)) {
                 std::stringstream ss;
                 ss << "Unable to load daemon [" << dir->path().string() << "], reason = " << reason;
-                LOG_ERROR << ss.str();
+                //LOG_ERROR << ss.str();
+                log->debug(ss.str());
                 on_error(ss.str());
                 return;
             } 
@@ -75,7 +94,9 @@ void game_manager::init()
     
     std::string command_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
     command_path += global_settings::Instance().GetSetting(DEFAULT_COMMANDS_PATH);
-    LOG_DEBUG << "Loading commands..: " << command_path;
+    ss.str("");
+    ss << "Loading commands..: " << command_path;
+    log->debug(ss.str());
     
     for ( fs::recursive_directory_iterator end, dir(command_path);
         dir != end; ++dir ) {
@@ -86,7 +107,8 @@ void game_manager::init()
             if(!entity_manager::Instance().compile_script_file(pathstr, reason)) {
                 std::stringstream ss;
                 ss << "Unable to load command [" << dir->path().string() << "], reason = " << reason;
-                LOG_ERROR << ss.str();
+                //LOG_ERROR << ss.str();
+                log->debug(ss.str());
                 on_error(ss.str());
                 return;
             } 
@@ -99,6 +121,9 @@ void game_manager::init()
 
 roomobj* game_manager::get_void_room()
 {
+    auto log = spd::get("main");
+    std::stringstream ss;
+    
     std::string void_script_path = global_settings::Instance().GetSetting(DEFAULT_VOID_ROOM);
     unsigned int id = 0;
     roomobj * r = entity_manager::Instance().GetRoomByScriptPath(void_script_path, id);
@@ -109,7 +134,8 @@ roomobj* game_manager::get_void_room()
     else
     {
         std::string err = "Error attempting to retrieve void path.";
-        LOG_ERROR << err;
+        ss << err;
+        log->info(ss.str());
         on_error(err);
     }
     return NULL;
@@ -118,11 +144,16 @@ roomobj* game_manager::get_void_room()
 
 bool game_manager::process_player_cmd(script_entity* p, std::string& cmd)
 {
+    
     if( m_state != gameState::RUNNING )
     {
-        LOG_DEBUG << "State != RUNNING, unable to process command";
+        auto log = spd::get("main");
+        log->debug("State != RUNNING, unable to process command");
         return false;
     }
+    
+    
+    //std::stringstream ss;
     // for testing purposes, just pull up my test player..
     // TODO: implement the actual logic..
     
@@ -138,7 +169,9 @@ bool game_manager::process_player_cmd(script_entity* p, std::string& cmd)
         assert( pcaliel != NULL );
         if( !entity_manager::Instance().move_entity(pcaliel, roomt) )
         {
-            LOG_ERROR << "Unable to move Caliel..";
+            auto log = spd::get("main");
+            //LOG_ERROR << "Unable to move Caliel..";
+            log->debug("Unable to move Caliel..");
             return false;
         }
     }
@@ -149,7 +182,8 @@ bool game_manager::process_player_cmd(script_entity* p, std::string& cmd)
         assert( precluse != NULL );
         if( !entity_manager::Instance().move_entity(precluse, roomt) )
         {
-            LOG_ERROR << "Unable to move Recluse..";
+            auto log = spd::get("main");
+            log->debug("Unable to move Recluse..");
             return false;
         }
         
@@ -172,7 +206,8 @@ bool game_manager::process_player_cmd(script_entity* p, std::string& cmd)
     }
     else
     {
-        LOG_ERROR << "Unable to execute command.";
+        auto log = spd::get("main");
+        log->debug("Unable to execute command.");
     }
     
     return true;

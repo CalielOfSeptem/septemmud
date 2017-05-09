@@ -7,8 +7,7 @@
 #include <boost/format.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
-#include <plog/Log.h>
-#include <plog/Appenders/ConsoleAppender.h>
+
 #include "entity_manager.h"
 #include "global_settings.h"
 #include "config.h"
@@ -24,12 +23,6 @@ int main(int argc, char **argv)
     boost::property_tree::ptree pt;
     boost::property_tree::ini_parser::read_ini("config.ini", pt);
     std::cout << pt.get<std::string>("options.port") << std::endl;
-    
-    //std::string log_path = std::string(DEFAULT_LOG_PATH) + "septem";
-   // static plog::RollingFileAppender<plog::TxtFormatter> fileAppender(log_path.c_str(), 8000, 3); // Create the 1st appender.
-    static plog::ConsoleAppender<plog::TxtFormatter> consoleAppender; // Create the 2nd appender.
-    plog::init(plog::verbose, &consoleAppender);//.addAppender(&consoleAppender); // Initialize the logger with the both appenders.
-    
     
 
     
@@ -161,7 +154,43 @@ int main(int argc, char **argv)
         entity_manager::Instance().compile_script(test_room, reason);
     
     }
+     * 
+     * 
     */
+    
+    auto log = spd::get("main");//>info("loggers can be retrieved from a global registry using the spdlog::get(logger_name) function");
+  
+    if( !log )
+    {
+        spd::set_pattern("[%x %H:%M:%S:%e] %v");
+        std::string entityLog = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH) +
+                            global_settings::Instance().GetSetting(DEFAULT_LOGS_PATH);
+        entityLog += "septem";
+        
+        try
+        {
+            std::vector<spdlog::sink_ptr> sinks;
+            auto rotating = std::make_shared<spdlog::sinks::rotating_file_sink_mt> (entityLog, "log", 1024*1024, 5, true);
+            auto stdout_sink = spdlog::sinks::stdout_sink_mt::instance();
+
+            sinks.push_back(stdout_sink);
+            sinks.push_back(rotating);
+            
+            auto combined_logger = std::make_shared<spdlog::logger>("main", begin(sinks), end(sinks));
+            spdlog::register_logger(combined_logger);
+            combined_logger->set_level( spdlog::level::debug );
+            log = spd::get("main");
+            //combined_logger->info(msg);
+            //combined_logger->flush();
+            
+        }
+        catch( std::exception& )
+        {
+            
+        }
+       
+   }
+
     std::string blah;
         // our pho-player for expirementation purposes
     

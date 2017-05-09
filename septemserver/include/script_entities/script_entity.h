@@ -7,7 +7,7 @@
 #include <sol.hpp>
 #include <cassert>
 #include <iostream>
-
+#include "loghelper.h"
 
 enum class EntityType { UNKNOWN, ROOM, ITEM, NPC, PLAYER, COMMAND, DAEMON, LIB };
 
@@ -143,6 +143,7 @@ struct script_entity {
         }
         
 private:
+        my_sink m_entityLog;
         std::unordered_map<std::string, sol::object> props;
         EntityType m_type = EntityType::UNKNOWN;
         script_entity* environment_;

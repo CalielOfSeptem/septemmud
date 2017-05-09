@@ -11,21 +11,30 @@ roomobj::roomobj(sol::this_state ts)
 roomobj::~roomobj()
 {
     entity_manager::Instance().deregister_room(this);
-    LOG_DEBUG << "Destroyed room object.";
 }
 
 std::vector<script_entity*> roomobj::GetPlayers(const std::string& name)
 {
     std::vector<script_entity*> players;
     for(auto obj : GetInventory()) {
-       if( obj->GetType() == EntityType::PLAYER )
-       {
-           //playerobj * p = dynamic_cast<playerobj*>(obj);
-           if( boost::to_lower_copy(obj->GetName()) != boost::to_lower_copy(name) )
-           {
-               players.push_back(obj);
-           }
-       }
+        if(obj->GetType() == EntityType::PLAYER) {
+            // playerobj * p = dynamic_cast<playerobj*>(obj);
+            if(boost::to_lower_copy(obj->GetName()) != boost::to_lower_copy(name)) {
+                players.push_back(obj);
+            }
+        }
     }
     return players;
+}
+
+void roomobj::debug(sol::this_state ts, const std::string& msg)
+{
+    for(auto obj : GetInventory()) {
+        if(obj->GetType() == EntityType::PLAYER) {
+            playerobj * p = dynamic_cast<playerobj*>(obj);
+            if( p->isCreator() )
+                p->SendToEntity("DEBUG: " + msg);
+        }
+    }
+    script_entity::debug(ts, msg);
 }

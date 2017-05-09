@@ -12,11 +12,7 @@
 #include "script_entities/playerobj.h"
 #include "heartbeat_manager.h"
 #include <memory.h> //for shared_ptr
-#include <plog/Log.h>
 
-#include <plog/Appenders/ConsoleAppender.h>
-
-    
 class entity_manager
 {
     

@@ -1,9 +1,14 @@
 #ifndef GAME_MANAGER_H_
 #define GAME_MANAGER_H_
-#include <plog/Log.h>
+
+#include "spdlog/spdlog.h"
+#include <spdlog/sinks/stdout_sinks.h>
+
 #include "entity_manager.h"
 #include "script_entities/script_entity.h"
 #include "script_entities/daemonobj.h"
+
+namespace spd = spdlog;
 
 enum class gameState { STOPPED, INITIALIZING, RUNNING, STOPPING, ERROR };
 
@@ -43,6 +48,8 @@ private:
     
     bool SetState( gameState new_state )
     {
+        auto log = spd::get("main");//>info("loggers can be retrieved from a global registry using the spdlog::get(logger_name) function");
+
         if( new_state == gameState::INITIALIZING )
         {
             if( m_state != gameState::STOPPED || m_state == gameState::INITIALIZING )
@@ -54,7 +61,7 @@ private:
             else
             {
                 m_state = new_state;
-                LOG_DEBUG << "Game state changed to INITIALIZING";
+                log->debug("Game state changed to INITIALIZING");
                 init();
                 return true;
             }
@@ -70,7 +77,7 @@ private:
             else
             {
                 m_state = new_state;
-                LOG_DEBUG << "Game state changed to STOPPING";
+                log->debug("Game state changed to STOPPING");
                 do_stop();
                 return true;
             }
@@ -85,7 +92,7 @@ private:
             }
             else
             {
-                LOG_DEBUG << "Game state changed to RUNNING";
+                log->debug("Game state changed to RUNNING");
                 m_state = new_state;
                 return true;
             }
@@ -101,14 +108,14 @@ private:
             else
             {
                 m_state = new_state;
-                LOG_DEBUG << "Game state changed to STOPPED";
+                log->debug("Game state changed to STOPPED");
                 return true;
             }
         }
         else if( new_state == gameState::ERROR )
         {
 
-            LOG_DEBUG << "Game state changed to ERROR";
+            log->debug("Game state changed to ERROR");
             m_state = new_state;
             do_stop();
             

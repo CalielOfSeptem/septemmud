@@ -2,7 +2,7 @@
 #define HEARTBEAT_MANAGER_H_
 
 #include <sol.hpp>
-#include <plog/Log.h>
+
 struct heartbeat_manager
 {
     heartbeat_manager()
@@ -62,7 +62,7 @@ struct heartbeat_manager
         {
           if (it->second.script_path.compare(script_path) == 0)
           {
-              LOG_DEBUG << "Heartbeat deregister: " << script_path;
+            
             it = bindings.erase(it); // previously this was something like bindings.erase(it++);
           }
           else

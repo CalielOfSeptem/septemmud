@@ -5,7 +5,7 @@
  #include <vector>
  #include <boost/shared_ptr.hpp>
  #include "script_entities/script_entity.h"
- #include <plog/Log.h>
+
 
  struct entity_wrapper
  {
@@ -24,7 +24,7 @@
      }
      ~entity_wrapper()
      {
-         LOG_DEBUG << "Object destroyed.";
+             
      }
      
      
@@ -49,10 +49,6 @@
      std::string script_path;
      script_entity* script_ent;
      sol::protected_function _script_f_; // holds script function to kill environment when necessary.
-     //sol::optional<sol::userdata&> script_ent;
-    // sol::optional<sol::environment> script_env;
-    // sol::optional<sol::environment> parent_env;
-     //std::shared_ptr<sol::state> script_state;
      EntityType entity_type;
      //unsigned int instance_id; // zero based.
  };
