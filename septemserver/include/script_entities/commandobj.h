@@ -7,9 +7,9 @@
 
 struct commandobj : script_entity
 {
-    commandobj(sol::this_state ts, std::string name);
+    commandobj(sol::this_state ts, sol::this_environment te, std::string name);
     
-    commandobj(sol::this_state ts, std::string name, int priority);
+    commandobj(sol::this_state ts, sol::this_environment te, std::string name, int priority);
     
     ~commandobj();
     

@@ -26,7 +26,6 @@
       <File Name="include/script_entities/livingentity.h"/>
       <File Name="include/script_entities/daemonobj.h"/>
       <File Name="include/script_entities/commandobj.h"/>
-      <File Name="include/entity_manager.h"/>
     </VirtualDirectory>
     <File Name="include/global_settings.h"/>
     <File Name="include/string_utils.h"/>
@@ -35,6 +34,7 @@
     <File Name="include/config.h"/>
     <File Name="include/game_manager.h"/>
     <File Name="include/loghelper.h"/>
+    <File Name="include/entity_manager.h"/>
   </VirtualDirectory>
   <Description/>
   <Dependencies/>
@@ -52,7 +52,7 @@
       <Compiler Options="-g;-O0;-std=c++14;-Wall" C_Options="-g;-O0;-Wall" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
         <IncludePath Value="."/>
         <IncludePath Value="include/"/>
-        <IncludePath Value="../../sol2"/>
+        <IncludePath Value="../sol2"/>
         <IncludePath Value="../plog/include"/>
         <IncludePath Value="/home/ken/git-repos/lua-5.3.4/src"/>
         <IncludePath Value="../../json/src"/>

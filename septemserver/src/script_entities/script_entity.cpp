@@ -4,23 +4,30 @@
 #include "global_settings.h"
 #include "config.h"
 #include "string_utils.h"
-
+#include "config.h"
 #include "spdlog/spdlog.h"
 #include <spdlog/sinks/stdout_sinks.h>
 
 namespace spd = spdlog;
 
-script_entity::script_entity(sol::this_state ts, EntityType myType, std::string name)
+script_entity::script_entity(sol::this_state ts, sol::this_environment te, EntityType myType, std::string name)
     : m_type(myType)
     , environment_(NULL)
     , name(name)
 {
     lua_State* L = ts;
+    
+        if (!te) {
+                std::cout << "function does not have an environment: exiting function early" << std::endl;
+                return;
+        }
+    sol::environment& env = te;      
+    std::string s = env["_INTERNAL_SCRIPT_PATH_"];
     // references the object that called this function
     // in constructors:
 
     m_userdata = std::shared_ptr<_sol_userdata_>(new _sol_userdata_);
-    m_userdata->selfobj = sol::userdata(L, -1);
+    m_userdata->selfobj = sol::userdata(L, -2);
 
     // the -1 (NEGATIVE one) above
     // means "off the top fo the stack"

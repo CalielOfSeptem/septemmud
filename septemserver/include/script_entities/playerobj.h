@@ -8,8 +8,8 @@
 
 struct playerobj : living_entity, container_base
 {
-     playerobj(sol::this_state ts, std::string name) :
-        living_entity(ts, EntityType::PLAYER, name)
+     playerobj(sol::this_state ts, sol::this_environment te, std::string name) :
+        living_entity(ts, te, EntityType::PLAYER, name)
      {
          bIsCreator = true; // just for now, and for debug purposes
      }

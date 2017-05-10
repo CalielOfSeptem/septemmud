@@ -74,7 +74,7 @@ private:
 class roomobj : public script_entity, public container_base
 {
 public:
-    roomobj(sol::this_state ts);
+    roomobj(sol::this_state ts, sol::this_environment te);
     
     ~roomobj();
 

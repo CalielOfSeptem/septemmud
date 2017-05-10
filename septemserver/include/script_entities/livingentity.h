@@ -12,8 +12,8 @@ struct living_entity : public script_entity
 {
   //  living_entity() = default;
     
-    living_entity(sol::this_state ts, EntityType et, std::string name)
-        : script_entity(ts, et, name)
+    living_entity(sol::this_state ts, sol::this_environment te, EntityType et, std::string name)
+        : script_entity(ts, te, et, name)
     {
 
     }

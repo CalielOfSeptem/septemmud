@@ -2,8 +2,8 @@
 #include "entity_manager.h"
 #include <boost/algorithm/string/case_conv.hpp>
 
-roomobj::roomobj(sol::this_state ts)
-    : script_entity(ts, EntityType::ROOM, "")
+roomobj::roomobj(sol::this_state ts, sol::this_environment te)
+    : script_entity(ts, te, EntityType::ROOM, "")
 {
     entity_manager::Instance().register_room(this);
 }

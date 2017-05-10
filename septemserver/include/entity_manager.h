@@ -145,7 +145,7 @@ private:
     std::shared_ptr < sol::state > m_state;
     std::shared_ptr<_internal_lua_> m_state_internal;
     heartbeat_manager _heartbeat;
-    std::string _currently_loading_script;
+    //std::string _currently_loading_script;
     
     
 

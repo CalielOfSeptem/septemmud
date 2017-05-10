@@ -273,7 +273,8 @@ void entity_manager::init_lua()
                        sol::lib::math,
                        sol::lib::table,
                        sol::lib::debug,
-                       sol::lib::io);
+                       sol::lib::io,
+                       sol::lib::coroutine);
 
     lua.new_usertype<script_entity>("script_entity", "GetType", &script_entity::GetEntityTypeString);
 
@@ -292,7 +293,7 @@ void entity_manager::init_lua()
                               &exitobj::GetExit);
 
     lua.new_usertype<roomobj>("room",
-                              sol::constructors<roomobj(sol::this_state)>(),
+                              sol::constructors<roomobj(sol::this_state, sol::this_environment)>(),
                               sol::meta_function::new_index,
                               &roomobj::set_property_lua,
                               sol::meta_function::index,
@@ -328,7 +329,7 @@ void entity_manager::init_lua()
     lua.set_function("deregister_heartbeat", &heartbeat_manager::deregister_heartbeat_func, &_heartbeat);
 
     lua.new_usertype<daemonobj>("daemon",
-                                sol::constructors<daemonobj(sol::this_state ts, std::string)>(),
+                                sol::constructors<daemonobj(sol::this_state ts, sol::this_environment, std::string)>(),
                                 sol::meta_function::new_index,
                                 &daemonobj::set_property_lua,
                                 sol::meta_function::index,
@@ -344,7 +345,7 @@ void entity_manager::init_lua()
                                 sol::bases<script_entity>());
 
     lua.new_usertype<playerobj>("player",
-                                sol::constructors<playerobj(sol::this_state, std::string)>(),
+                                sol::constructors<playerobj(sol::this_state, sol::this_environment, std::string)>(),
                                 sol::meta_function::new_index,
                                 &playerobj::set_property_lua,
                                 sol::meta_function::index,
@@ -394,7 +395,7 @@ void entity_manager::init_lua()
 
     lua.new_usertype<commandobj>(
         "command",
-        sol::constructors<commandobj(sol::this_state, std::string), commandobj(sol::this_state, std::string, int)>(),
+        sol::constructors<commandobj(sol::this_state, sol::this_environment, std::string), commandobj(sol::this_state, sol::this_environment, std::string, int)>(),
         sol::meta_function::new_index,
         &playerobj::set_property_lua,
         sol::meta_function::index,

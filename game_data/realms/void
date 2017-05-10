@@ -16,6 +16,10 @@ p1:AddExit( direction.southwest, 'realms/void:id=1', true)
 p1:Debug("room loaded!")
 p1:Debug("room loaded!2")
 
+    co = coroutine.create(function ()
+           print("hi")
+         end)
+
 function p1:hb()
 	p1:Debug('test')
 end

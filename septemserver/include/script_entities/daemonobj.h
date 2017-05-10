@@ -8,8 +8,8 @@
 
 struct daemonobj : script_entity
 {
-    daemonobj(sol::this_state ts, std::string name);
-    daemonobj(sol::this_state ts );
+    daemonobj(sol::this_state ts, sol::this_environment te,  std::string name);
+    daemonobj(sol::this_state ts, sol::this_environment te );
     
     ~daemonobj();
     
