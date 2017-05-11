@@ -22,7 +22,8 @@ script_entity::script_entity(sol::this_state ts, sol::this_environment te, Entit
                 return;
         }
     sol::environment& env = te;      
-    std::string s = env["_INTERNAL_SCRIPT_PATH_"];
+    sol::optional<std::string> sp = env["_INTERNAL_SCRIPT_PATH_"];
+    assert( sp );
     // references the object that called this function
     // in constructors:
 
@@ -36,7 +37,7 @@ script_entity::script_entity(sol::this_state ts, sol::this_environment te, Entit
     // definitely the same
     //    script_entity& self = selfobj.as<script_entity>();
     // assert(&self == this);
-    entity_manager::Instance().register_entity(this, myType);
+    entity_manager::Instance().register_entity(this, sp.value(), myType);
 }
 
 script_entity::~script_entity()

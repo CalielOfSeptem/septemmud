@@ -94,7 +94,7 @@ bool entity_manager::compile_and_clone(std::string& relative_script_path,
         if(tag_text.size() != 0) {
             boost::replace_all(_scriptext, tag_text, tag_replace);
         }
-        _currently_loading_script = script_path_virtual;
+        
         if(!compile_entity(script_path_virtual, et, _scriptext, reason))
             return false;
 
@@ -176,11 +176,11 @@ for( int x = 2; x < 1000; x++ )
     _init_entity_env(relative_script_path, etype, to_load);
 
     std::string test_ = to_load["_INTERNAL_SCRIPT_PATH_"];
-    assert(test_ == relative_script_path);
+    //assert(test_ == relative_script_path);
 
     bool b = lua_safe_script(script_text, to_load, reason);
 
-    _currently_loading_script = "";
+    //_currently_loading_script = "";
     return b;
 }
 
@@ -199,7 +199,7 @@ bool entity_manager::compile_script_file(std::string& file_path, std::string& re
 
     std::string script_ = std::regex_replace(
         file_path, std::regex("\\" + global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH)), "");
-    _currently_loading_script = script_;
+    //_currently_loading_script = script_;
 
     if(!m_state) {
         m_state = std::shared_ptr<sol::state>(new sol::state);
@@ -851,13 +851,13 @@ void entity_manager::deregister_daemon(daemonobj* daemon)
     }
 }
 
-void entity_manager::register_entity(script_entity* entityobj, EntityType etype)
+void entity_manager::register_entity(script_entity* entityobj, std::string &sp, EntityType etype)
 {
 
     std::shared_ptr<entity_wrapper> ew(new entity_wrapper);
     ew->entity_type = etype;
-    assert(_currently_loading_script.size() != 0);
-    ew->script_path = _currently_loading_script;
+    //assert(_currently_loading_script.size() != 0);
+    ew->script_path = sp;
     entityobj->SetScriptPath(ew->script_path);
     ew->script_ent = entityobj;
     ew->_script_f_ = m_state_internal->_current_script_f_; // <-- work around to ensure all objects in env get destroyed
@@ -895,8 +895,8 @@ void entity_manager::register_entity(script_entity* entityobj, EntityType etype)
 
     switch(etype) {
     case EntityType::PLAYER: {
-        assert(_currently_loading_script.size() != 0);
-        auto search = m_player_objs.find(_currently_loading_script);
+        //assert(_currently_loading_script.size() != 0);
+        auto search = m_player_objs.find(sp);
         if(search != m_player_objs.end()) {
 
             // search->second.insert(ew);
@@ -911,8 +911,8 @@ void entity_manager::register_entity(script_entity* entityobj, EntityType etype)
     } break;
     case EntityType::ROOM: {
         // get the current instance ID from the env..
-        assert(_currently_loading_script.size() != 0);
-        auto search = m_room_objs.find(_currently_loading_script);
+        //assert(_currently_loading_script.size() != 0);
+        auto search = m_room_objs.find(sp);
         if(search != m_room_objs.end()) {
 
             search->second.insert(ew);
@@ -940,8 +940,8 @@ void entity_manager::register_entity(script_entity* entityobj, EntityType etype)
         }
         */
         // m_base_cmds[cmd_noun] = cmdobj;
-        assert(_currently_loading_script.size() != 0);
-        auto search = m_cmd_objs.find(_currently_loading_script);
+        //assert(_currently_loading_script.size() != 0);
+        auto search = m_cmd_objs.find(sp);
         if(search != m_cmd_objs.end()) {
 
             search->second.insert(ew);
@@ -956,8 +956,8 @@ void entity_manager::register_entity(script_entity* entityobj, EntityType etype)
         }
     } break;
     case EntityType::DAEMON: {
-        assert(_currently_loading_script.size() != 0);
-        auto search = m_daemon_objs.find(_currently_loading_script);
+        //assert(_currently_loading_script.size() != 0);
+        auto search = m_daemon_objs.find(sp);
         if(search != m_daemon_objs.end()) {
 
             search->second.insert(ew);

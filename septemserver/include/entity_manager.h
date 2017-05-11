@@ -64,7 +64,7 @@ struct _internal_lua_
     void register_daemon( daemonobj * daemon );
     void deregister_daemon( daemonobj * daemon );
     
-    void register_entity(script_entity *entityobj, EntityType etype);
+    void register_entity(script_entity *entityobj, std::string& sp, EntityType etype);
     void deregister_entity(script_entity *entityobj, EntityType etype);
     
     
@@ -72,12 +72,6 @@ struct _internal_lua_
     bool move_entity(script_entity* target, script_entity* dest);
     
     bool do_command(living_entity * e, const std::string cmd);
-    
-    /**
-     * @brief A bloody work around to link scripts with their instantiated objects
-     * @return 
-     */
-    //std::string GetCurrentlyCompiledScript() { return _currently_loading_script; }
     
     /**
      * @brief A bloody work around to link scripts with their instantiated objects
@@ -145,7 +139,6 @@ private:
     std::shared_ptr < sol::state > m_state;
     std::shared_ptr<_internal_lua_> m_state_internal;
     heartbeat_manager _heartbeat;
-    //std::string _currently_loading_script;
     
     
 
