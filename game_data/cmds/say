@@ -1,6 +1,7 @@
 inherit command
 
 c = command.new('say', 0) -- priority zero means that this command will win out over other similar commands, e.g., lo will resolve to look rather than locate.
+c:SetAliases({'\''})
 --c:SetSynonyms({'peer'})
 -- o is the base_entity from which the command originated.  Cmd is the command text.  Note that the verb
 -- which initiated the command will be the first element in cmd.  Ex/ > look, cmd="look", >look chest, cmd = "look chest"
@@ -20,12 +21,16 @@ function c:ExecuteCommand ( o, cmd )
 		env = o:GetRoom()
 
 		if env ~= nil then
-			--spoken = strsplit( " ", cmd)
-
-			for i in string.gmatch(cmd, "%S+") do
-			   --print(i)
-			   cmd = trim(string.gsub(cmd, i, '', 1))
-			   break
+		--print(cmd)
+		local c = cmd:sub(1,1)
+			if c == '\'' or c == '\"' then
+				cmd = string.sub(cmd, 2)
+			else
+				for i in string.gmatch(cmd, "%S+") do
+				   --print(i)
+				   cmd = trim(string.gsub(cmd, i, '', 1))
+				   break
+				end
 			end
 			--print(cmd)
 			--print( inspect( words ) )

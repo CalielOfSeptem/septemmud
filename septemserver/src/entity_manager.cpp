@@ -1179,9 +1179,14 @@ get_entity_path_from_id_string(const std::string& entity_id, std::string& entity
 
 bool entity_manager::move_living(script_entity* target, const std::string& roomid)
 {
+    std::string roompath = roomid;
+    std::size_t found = roompath.find(":id=");
+    if(found == std::string::npos) {
+        roompath += ":id=0";
+    }
     unsigned int instance = 0;
-    std::string roompath;
-    auto search = m_room_lookup.find(boost::to_lower_copy(roomid));
+    //
+    auto search = m_room_lookup.find(boost::to_lower_copy(roompath));
     roomobj* r = search->second;
     if(r != NULL) {
         move_entity(target, static_cast<script_entity*>(r));

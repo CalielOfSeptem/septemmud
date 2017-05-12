@@ -1,0 +1,8 @@
+inherit room
+p1 = room.new()
+p1:SetTitle('Caliel\'s Workroom')
+p1:SetDescription('A workroom.')
+p1:AddExit( direction.north, 'realms/void', true)
+p1:Debug('Loaded room!')
+
+

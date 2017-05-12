@@ -2,7 +2,7 @@ inherit command
 
 	
 c = command.new('look', 0) -- priority zero means that this command will win out over other similar commands, e.g., lo will resolve to look rather than locate.
---c:SetSynonyms({'peer'})
+c:SetAliases( { 'l' } )
 -- o is the base_entity from which the command originated.  Cmd is the command text.  Note that the verb
 -- which initiated the command will be the first element in cmd.  Ex/ > look, cmd="look", >look chest, cmd = "look chest"
 
@@ -54,9 +54,10 @@ function FormatRoom(r, o)
 		end
 		s = s .. str
 	end
-	s = s .. "\r\n"
+	
 	local players = r:GetPlayers(o:GetName())
 	if( #players > 0 ) then
+		s = s .. "\r\n"
 		s = s .. "Also here: "
 	
 		for i = 1, #players do

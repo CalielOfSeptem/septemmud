@@ -2,5 +2,6 @@ inherit room
 p1 = room.new()
 p1:SetTitle('The Void')
 p1:SetDescription('An endless void of nothingness..')
-
+p1:AddExit( direction.north, 'realms/void', true)
+p1:AddExit( direction.south, 'workspaces/caliel/workroom:id=0', true)
 

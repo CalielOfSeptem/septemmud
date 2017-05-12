@@ -27,6 +27,12 @@ function d:process_command (o_orig, cmd )
 				v:ExecuteCommand( o_orig, cmd )
 				return true
 			end
+			for k1, v1 in pairs(v:GetAliases()) do
+				if cmd:starts( v1:lower() ) then
+					v:ExecuteCommand( o_orig, cmd )
+					return true;
+				end
+			end
 		end
 							
 		move = get_move_command()

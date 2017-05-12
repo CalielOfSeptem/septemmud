@@ -63,6 +63,23 @@ void game_manager::init()
         on_error(ss.str());
         return;
     } 
+    
+    std::string caliel_wr_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
+    caliel_wr_path += "workspaces/caliel/workroom";
+
+    //std::stringstream ss;
+    ss.str("");
+    ss << "Loading Caliel's room: " << caliel_wr_path;
+    log->debug(ss.str());
+                
+    if(!entity_manager::Instance().compile_script_file(caliel_wr_path, reason)) {
+        std::stringstream ss;
+        ss << "Unable to load Caliel's workroom, reason = " << reason;
+        //LOG_ERROR << ss.str();
+        log->debug(ss.str());
+        on_error(ss.str());
+        return;
+    } 
 
     std::string daemon_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
     daemon_path += global_settings::Instance().GetSetting(DEFAULT_DAEMON_PATH);
@@ -159,7 +176,9 @@ bool game_manager::process_player_cmd(script_entity* p, std::string& cmd)
     
     playerobj * pcaliel = entity_manager::Instance().get_player("caliel");
     playerobj * precluse = entity_manager::Instance().get_player("recluse");
-    roomobj * roomt = get_void_room();
+    std::string wm_path = "workspaces/caliel/workroom";
+    roomobj * roomt = entity_manager::Instance().GetRoomByScriptPath(wm_path, 0);
+    
     
     
     if( pcaliel == NULL )
