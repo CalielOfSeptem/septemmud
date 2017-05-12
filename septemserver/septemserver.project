@@ -16,6 +16,7 @@
     <File Name="src/game_manager.cpp"/>
     <File Name="src/entity_manager.cpp"/>
     <File Name="src/main.cpp"/>
+    <File Name="src/heartbeat_manager.cpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="include">
     <VirtualDirectory Name="script_entities">

@@ -96,7 +96,7 @@ struct _internal_lua_
      * @param script_path
      * @return 
      */
-    roomobj * GetRoomByScriptPath(std::string & script_path, unsigned int & instance_id);
+    roomobj * GetRoomByScriptPath(std::string & script_path, unsigned int instance_id);
     
     daemonobj * GetDaemonByScriptPath(std::string & script_path, unsigned int & instance_id);
     

@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=ken
-Date                   :=10/05/17
+Date                   :=11/05/17
 CodeLitePath           :=/home/ken/.codelite
 LinkerName             :=/usr/bin/g++
 SharedObjectLinkerName :=/usr/bin/g++ -shared -fPIC
@@ -60,7 +60,7 @@ AS       := /usr/bin/as
 ## User defined environment variables
 ##
 CodeLiteDir:=/usr/share/codelite
-Objects0=$(IntermediateDirectory)/src_game_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_entity_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_main.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_script_entity.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_commandobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_roomobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_daemonobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_livingentity.cpp$(ObjectSuffix) 
+Objects0=$(IntermediateDirectory)/src_game_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_entity_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_main.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_heartbeat_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_script_entity.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_commandobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_roomobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_daemonobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_livingentity.cpp$(ObjectSuffix) 
 
 
 
@@ -119,6 +119,14 @@ $(IntermediateDirectory)/src_main.cpp$(DependSuffix): src/main.cpp
 
 $(IntermediateDirectory)/src_main.cpp$(PreprocessSuffix): src/main.cpp
 	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_main.cpp$(PreprocessSuffix) src/main.cpp
+
+$(IntermediateDirectory)/src_heartbeat_manager.cpp$(ObjectSuffix): src/heartbeat_manager.cpp $(IntermediateDirectory)/src_heartbeat_manager.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/heartbeat_manager.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_heartbeat_manager.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/src_heartbeat_manager.cpp$(DependSuffix): src/heartbeat_manager.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/src_heartbeat_manager.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/src_heartbeat_manager.cpp$(DependSuffix) -MM src/heartbeat_manager.cpp
+
+$(IntermediateDirectory)/src_heartbeat_manager.cpp$(PreprocessSuffix): src/heartbeat_manager.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_heartbeat_manager.cpp$(PreprocessSuffix) src/heartbeat_manager.cpp
 
 $(IntermediateDirectory)/src_script_entities_script_entity.cpp$(ObjectSuffix): src/script_entities/script_entity.cpp $(IntermediateDirectory)/src_script_entities_script_entity.cpp$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/script_entities/script_entity.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_script_entities_script_entity.cpp$(ObjectSuffix) $(IncludePath)

@@ -3,6 +3,14 @@
 
 #include <sol.hpp>
 
+#include <iostream>
+//#include <thread>
+//#include <future>
+//#include <signal.h>
+//#include <boost/thread.hpp>
+//#include <boost/thread/future.hpp>
+//#include <boost/chrono/chrono.hpp>
+
 struct heartbeat_manager
 {
     heartbeat_manager()
@@ -12,27 +20,28 @@ struct heartbeat_manager
     
     struct state_wrapper
     {
-        state_wrapper(sol::state_view lua_state, sol::protected_function pf, std::string script_path) :
-             lua_state(lua_state), pf(pf), script_path(script_path)
+        state_wrapper(sol::state_view lua_state, sol::protected_function pf, std::string script_path, std::string etype) :
+             lua_state(lua_state), pf(pf), script_path(script_path), etype(etype)
             {
                 
             }
         sol::state_view lua_state;
         sol::protected_function pf;
         std::string script_path;
+        std::string etype;
     };
     
     unsigned int register_heartbeat_func(sol::state_view lua_state, sol::protected_function pf)
     {
         sol::environment target_env(sol::env_key, pf);
         sol::optional<std::string> script_path = target_env["_INTERNAL_SCRIPT_PATH_"];
-
+        sol::optional<std::string> e_type = target_env["_INTERNAL_ENTITY_TYPE_"];
         if( script_path )
         {
             if( script_path.value().empty() )
                 return -1; // yeah.. don't go trying to use an empty value
            // std::cout << script_path.value();
-            bindings.insert( {++bindingId, state_wrapper (lua_state, pf, script_path.value())});
+            bindings.insert( {++bindingId, state_wrapper (lua_state, pf, script_path.value(), e_type.value())});
         }
         else
         {
@@ -71,19 +80,7 @@ struct heartbeat_manager
         return true;
     }
     
-    void do_heartbeats()
-    {
-
-        for (auto& kv : bindings) 
-        {
-            auto result = kv.second.pf();
-            if ( !result.valid() ) {
-                sol::error err = result;
-               std::cout << err.what() << std::endl;
-            }
-        }
-        
-    }
+    void do_heartbeats();
  
 
     unsigned int register_heartbeat_func_on(sol::this_state ts, sol::object f)

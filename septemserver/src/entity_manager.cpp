@@ -269,14 +269,14 @@ void entity_manager::init_lua()
     m_state_internal.reset(new _internal_lua_);
     lua.open_libraries(sol::lib::base,
                        sol::lib::string,
-                       sol::lib::package,
                        sol::lib::math,
                        sol::lib::table,
-                       sol::lib::debug,
-                       sol::lib::io,
-                       sol::lib::coroutine);
+                       sol::lib::debug);
 
-    lua.new_usertype<script_entity>("script_entity", "GetType", &script_entity::GetEntityTypeString);
+    lua.new_usertype<script_entity>("script_entity", 
+            "Reset",  &script_entity::clear_props,
+            "GetType", 
+            &script_entity::GetEntityTypeString);
 
     lua.new_usertype<exitobj>("exitobj",
                               "GetExitPath",
@@ -1097,7 +1097,7 @@ void entity_manager::reset()
     // m_room_objs.clear();
 }
 
-roomobj* entity_manager::GetRoomByScriptPath(std::string& script_path, unsigned int& instance_id)
+roomobj* entity_manager::GetRoomByScriptPath(std::string& script_path, unsigned int instance_id)
 {
     std::string room_path = script_path + ":id=" + std::to_string(instance_id);
     auto search = m_room_lookup.find(room_path);

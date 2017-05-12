@@ -39,6 +39,9 @@ function FormatRoom(r, o)
 	s = s .. r:GetDescription() .. "\r\n"
 	s = s .. "Obvious paths: "
 	local exits = r:GetExits()
+	if( #exits == 0 ) then
+		s = s .. 'none.'
+	end
 	for i = 1, #exits do
 		local myTable = exits[i]:GetExit()
 		str = myTable[1]
