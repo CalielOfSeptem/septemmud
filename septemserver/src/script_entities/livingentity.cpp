@@ -79,7 +79,7 @@ bool living_entity::DoCommand(sol::this_state ts, const std::string& cmd)
     //lua_stacktrace(ts);
 
     // return NULL;
-    entity_manager::Instance().do_command(this, cmd);
+    return entity_manager::Instance().do_command(this, cmd);
 }
 
 void living_entity::SendToEnvironment(const std::string& msg)

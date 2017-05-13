@@ -133,13 +133,13 @@ for( int x = 2; x < 1000; x++ )
         std::set<std::shared_ptr<entity_wrapper> > rooms;
         get_rooms_from_path(relative_script_path, rooms);
 
-        for(auto& r : rooms) {
+       // for(auto& r : rooms) {
             // script_entity& self = r->script_ent.value().selfobj.as<script_entity>();
             //*self = NULL;
             // r->script_ent.value().selfobj = NULL;
             // r->script_env.value() = sol::nil;
             //(*r->script_state).collect_garbage();
-        }
+       // }
         if(rooms.size() > 0)
             destroy_room(relative_script_path);
 
@@ -153,13 +153,13 @@ for( int x = 2; x < 1000; x++ )
         std::set<std::shared_ptr<entity_wrapper> > daemons;
         get_daemons_from_path(relative_script_path, daemons);
 
-        for(auto& r : daemons) {
+        //for(auto& r : daemons) {
             // script_entity& self = r->script_ent.value().selfobj.as<script_entity>();
             //*self = NULL;
             // r->script_ent.value().selfobj = NULL;
             // r->script_env.value() = sol::nil;
             //(*r->script_state).collect_garbage();
-        }
+        //}
         if(daemons.size() > 0)
             destroy_daemon(relative_script_path);
     } break;
@@ -271,6 +271,7 @@ void entity_manager::init_lua()
                        sol::lib::string,
                        sol::lib::math,
                        sol::lib::table,
+                       sol::lib::package,
                        sol::lib::debug);
 
     lua.new_usertype<script_entity>("script_entity", 
@@ -366,6 +367,7 @@ void entity_manager::init_lua()
                                 &playerobj::GetRoom,
                                 "GetType",
                                 &script_entity::GetEntityTypeString,
+                                "cwd", sol::readonly(&playerobj::cwd),
                                 // "Debug", &script_entity::debug,
                                 "GetName",
                                 &script_entity::GetName,
@@ -426,13 +428,18 @@ void entity_manager::init_lua()
     lua.set_function("room_cast", &downcast<roomobj>);
     lua.set_function("player_cast", &downcast<playerobj>);
 
-    lua.set_function("get_default_commands", [&]() -> std::map<std::string, commandobj*> & { return m_default_cmds; });
+    lua.set_function("get_default_commands", [&]() -> std::map<std::string, commandobj*> & 
+    { 
+        return m_default_cmds; 
+    });
 
     lua.set_function("get_move_command", [&]() -> commandobj * & { return m_default_cmds.find("move")->second; });
 
     lua.set_function("get_room_list", [&]() -> std::map<std::string, roomobj*> & { return m_room_lookup; });
 
     lua.set_function("get_entity_by_name", [&](std::string ename) -> playerobj * { return this->get_player(ename); });
+    
+    lua.set_function("get_setting", [&](std::string sname) -> std::string { return global_settings::Instance().GetSetting(sname); });
 
     //lua.set_function("tail_entity_log",
     //                 [&](script_entity * se) -> std::vector<std::string> & { return this->get_player(ename); });
@@ -1184,7 +1191,7 @@ bool entity_manager::move_living(script_entity* target, const std::string& roomi
     if(found == std::string::npos) {
         roompath += ":id=0";
     }
-    unsigned int instance = 0;
+    //unsigned int instance = 0;
     //
     auto search = m_room_lookup.find(boost::to_lower_copy(roompath));
     roomobj* r = search->second;
@@ -1193,6 +1200,7 @@ bool entity_manager::move_living(script_entity* target, const std::string& roomi
     }
     // LOG_DEBUG << r->GetTitle();
     // get_entity_path_from_id_string(roomid, roompath, instance);
+    return true;
 }
 
 bool entity_manager::move_entity(script_entity* target, script_entity* dest)
@@ -1233,6 +1241,7 @@ bool entity_manager::move_entity(script_entity* target, script_entity* dest)
         return false;
         break;
     }
+    return true;
 }
 
 void entity_manager::debug(std::string& msg)
@@ -1299,6 +1308,8 @@ std::vector<std::string> entity_manager::tail_entity_log(script_entity* se)
     // int current_position = find_new_text(infile);
     // sleep(1);
     // }
+    std::vector<std::string> s;
+    return s;
 }
 
 

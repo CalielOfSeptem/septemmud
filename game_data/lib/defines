@@ -9,3 +9,5 @@ direction.northeast = { 'northeast', 'ne' }
 direction.northwest = { 'northwest', 'nw' }
 direction.southeast = { 'southeast', 'se' }
 direction.southwest = { 'southwest', 'sw' }
+settings = {}
+settings.DEFAULT_GAME_DATA_PATH = "DEFAULT_GAME_DATA_PATH"

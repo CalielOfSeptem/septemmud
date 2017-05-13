@@ -1,0 +1,46 @@
+inherit command
+c = command.new('ls', 0)
+local lfs = require 'lfs'
+
+c:SetAliases( { 'dir' } )
+
+function attrdir (path, o)
+	
+    for file in lfs.dir(path) do
+        if file ~= "." and file ~= ".." then
+            local f = file
+            --print ("\t "..f)
+			
+            local attr = lfs.attributes (f)
+            assert (type(attr) == "table")
+            if attr.mode == "directory" then
+				o:SendToEntity( f .. '/' )
+            end
+			
+        end
+    end
+				
+	for file in lfs.dir(path) do
+        if file ~= "." and file ~= ".." then
+            local f = file
+            local attr = lfs.attributes (f)
+            assert (type(attr) == "table")
+            if attr.mode ~= "directory" then
+				o:SendToEntity( f )
+            end
+			
+        end
+    end
+end
+
+
+function c:ExecuteCommand ( o, cmd )
+	o = player_cast(o)
+	cwd = o.cwd
+	cwd = get_setting(settings.DEFAULT_GAME_DATA_PATH) .. cwd
+	print(cwd)
+	
+	attrdir (cwd, o)
+end
+
+

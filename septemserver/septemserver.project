@@ -58,7 +58,7 @@
         <IncludePath Value="/home/ken/git-repos/lua-5.3.4/src"/>
         <IncludePath Value="../../json/src"/>
       </Compiler>
-      <Linker Options="-lz;-ldl" Required="yes">
+      <Linker Options="-lz;-ldl;-Wl,-export-dynamic" Required="yes">
         <LibraryPath Value="/home/ken/git-repos/lua-5.3.4/src"/>
         <Library Value="boost_system"/>
         <Library Value="boost_program_options"/>

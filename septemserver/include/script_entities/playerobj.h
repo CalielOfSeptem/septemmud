@@ -16,8 +16,6 @@ struct playerobj : living_entity, container_base
      
      void SendToEntity(const std::string& msg)  override
      {
-        //if( client_obj )
-        //    (*client_obj).send(msg);
         if( GetName() == "caliel" )
             std::cout << msg << std::endl;
         living_entity::SendToEntity(msg);
@@ -37,6 +35,9 @@ struct playerobj : living_entity, container_base
      {
          return name;
      }
+     
+     std::string cwd;
+     
 public:
 
     bool bIsCreator;

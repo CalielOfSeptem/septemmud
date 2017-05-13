@@ -14,10 +14,7 @@
      
      virtual void AddEntityToInventory(script_entity * se)
      {
-         //se->SetEnvironment(static_cast<script_entity*>(this);
          inventory.insert(se);
-         //weak_ptr< entity_wrapper> ewp = ew;
-     //    inventory.insert(ew);
      }
      
      virtual bool RemoveEntityFromInventoryByID( const std::string& id  )

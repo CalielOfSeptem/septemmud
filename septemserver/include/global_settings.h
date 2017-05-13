@@ -26,7 +26,7 @@ public:
     global_settings& operator=(global_settings &&) = delete;      // Move assign
     
     
-    std::string GetSetting( const std::string& setting )
+    std::string GetSetting( const std::string setting )
     {
         return _json[setting];
     }

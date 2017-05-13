@@ -20,39 +20,6 @@ struct _sol_userdata_
     sol::userdata selfobj;
 };
 
-/*
-struct entity_log
-{
-    static unsigned long hash(std::string& str)
-    {
-        unsigned long hash = 5381;
-        for (size_t i = 0; i < str.size(); ++i)
-            hash = 33 * hash + (unsigned char)str[i];
-        return hash;
-    }
-    
-    entity_log(std::string& logpath, EntityType& et)
-    {
-       // std::string roomLog = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH) +
-       //                   global_settings::Instance().GetSetting(DEFAULT_LOGS_PATH) +
-       //                   global_settings::Instance().GetSetting(DEFAULT_ROOM_LOG_PATH);
-                          
-        entityLogFileAppender.reset( new plog::RollingFileAppender<plog::MyFormatter>(logpath.c_str(), 8000, 3));
-        entityConsoleAppender.reset( new plog::ConsoleAppender<plog::MyFormatter>());
-        virtualEntityAppender.reset( new plog::MyAppender<plog::MyFormatter>());
-        int logid = hash(logpath);
-        if( et == EntityType::ROOM )
-            plog::init<logid> (plog::debug, entityLogFileAppender.get()).addAppender(entityConsoleAppender.get()).addAppender(virtualEntityAppender.get()); 
-            // TODO:  Add in other log types
-    }
-    
-private:
-    std::shared_ptr<plog::RollingFileAppender<plog::MyFormatter>> entityLogFileAppender;//(roomLog.c_str(), 8000, 3);
-    std::shared_ptr<plog::ConsoleAppender<plog::MyFormatter>> entityConsoleAppender; // Create the 2nd appender.
-    std::shared_ptr<plog::MyAppender<plog::MyFormatter>> virtualEntityAppender;   // Create our custom appender.
-};
-*/
-
 struct script_entity {
     
         script_entity(EntityType myType, std::string name) : m_type(myType), environment_(NULL), name(name)
@@ -65,8 +32,6 @@ struct script_entity {
 
         sol::object get_property_lua(const char* name, sol::this_state s)
         {
-               // auto& var = props[name];
-                //return sol::make_object(s, var);
                 return props[name];
         }
 

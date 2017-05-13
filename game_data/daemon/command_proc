@@ -19,22 +19,27 @@ function d:process_command (o_orig, cmd )
 	if (s_type:lower() == "player" or s_type:lower() == "npc") then
 		-- first we search all known global/default commands like "look" and movement commands
 		cmds = get_default_commands()
-		--print('--- Checking default commands.. ---')
-		--f(cmds);
+
 		for k, v in pairs(cmds) do
-			if cmd:starts(v:GetCommand():lower()) then -- == cmd then
+			--local b = cmd:starts(v:GetCommand():lower())
+			--print (  b)
+			--print( v:GetCommand():lower() )
+			if cmd:lower():starts(k) or cmd:lower() == k then -- == cmd then
 				--print('Identified command, cmd=' .. v:GetCommand() )
 				v:ExecuteCommand( o_orig, cmd )
 				return true
 			end
+		end
+		
+		for k, v in pairs(cmds) do
 			for k1, v1 in pairs(v:GetAliases()) do
-				if cmd:starts( v1:lower() ) then
+				--print('Identified command, cmd=' .. v:GetCommand() )
+				if (cmd:lower():starts( v1:lower() ) or cmd:lower() == v1:lower()) then
 					v:ExecuteCommand( o_orig, cmd )
 					return true;
 				end
 			end
-		end
-							
+		end					
 		move = get_move_command()
 		if move:ExecuteCommand(o_orig, cmd) then
 			return true

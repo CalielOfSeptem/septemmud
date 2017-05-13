@@ -193,6 +193,7 @@ bool game_manager::process_player_cmd(script_entity* p, std::string& cmd)
             log->debug("Unable to move Caliel..");
             return false;
         }
+        pcaliel->cwd = "workspaces/caliel";
     }
     if( precluse == NULL )
     {
@@ -234,6 +235,6 @@ bool game_manager::process_player_cmd(script_entity* p, std::string& cmd)
 
 bool game_manager::move_entity_into_room(script_entity* en, std::string room_path)
 {
-    
+    return true;
 }
 

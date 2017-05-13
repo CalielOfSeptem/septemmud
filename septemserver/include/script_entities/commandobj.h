@@ -26,7 +26,6 @@ struct commandobj : script_entity
     
     void SetAliases(const sol::as_table_t<std::vector<std::string> >& aliases)
     {
-        // this->cmd_syn = cmd_syn;
         const auto& vex = aliases.source;
         for(auto& s : vex) {
             this->command_aliases.push_back(s);
