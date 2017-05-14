@@ -128,27 +128,71 @@ for( int x = 2; x < 1000; x++ )
 
     // First step get the correct collcetion..
     //  std::unordered_map< std::string, entity_wrapper > & ent_ = m_room_objs; // just to initialize it
+    bool b = false;
     switch(etype) {
     case EntityType::ROOM: {
         // Check for existing rooms
         std::set<std::shared_ptr<entity_wrapper> > rooms;
         get_rooms_from_path(relative_script_path, rooms);
-
+        std::map < std::string, std::vector<playerobj*> > _pents;
+        
+        //std::vector< playerobj * > ps;
+        
         for(auto& r : rooms) {
-            
-            // script_entity& self = r->script_ent.value().selfobj.as<script_entity>();
-            //*self = NULL;
-            // r->script_ent.value().selfobj = NULL;
-            // r->script_env.value() = sol::nil;
-            //(*r->script_state).collect_garbage();
+            roomobj * rp = dynamic_cast<roomobj*>(r->script_ent);
+            for( auto pe : rp->GetInventory() )
+            {
+                if( auto t = dynamic_cast<playerobj*>(pe) )
+                {
+                    //ps.push_back(t);
+                    //rp->RemoveEntityFromInventory(pe);
+                    t->SetEnvironment(NULL); // need to do this, but maybe not here.  TODO: rethink this
+                    _pents[rp->GetInstancePath()].push_back(t);
+                }
+                // TODO: destroy npcs and items in the room
+            }
         }
+        
         if(rooms.size() > 0)
             destroy_room(relative_script_path);
+        sol::environment to_load;
+        _init_entity_env(relative_script_path, etype, to_load);
+        b = lua_safe_script(script_text, to_load, reason);
+        if( !b )
+        {
+            // we have a problem, move players to void.. or shutdown server is void is borked too
+        }
+        else
+        {
+            rooms.clear();
+            get_rooms_from_path(relative_script_path, rooms);
+            
+            for( auto & k : _pents )
+            {
+                for( auto v : k.second )
+                {
+                    // for each player ..
+                    // try to move them..
+                    if( !move_living(dynamic_cast<script_entity*>(v), k.first) )
+                    {
+                        // move them to void, or fail.
+                    }
+                    else
+                    {
+                        v->SendToEntity("A paralyzing sense of vertigo overtakes you.. and then quickly passes.");
+                    }
+                }
+            }
+            
+        }
 
     } break;
     case EntityType::PLAYER: {
         // TODO: logic that finds the player and reconnects them with their client object, if they have an object in the
         // world
+        sol::environment to_load;
+        _init_entity_env(relative_script_path, etype, to_load);
+        b = lua_safe_script(script_text, to_load, reason);
     } break;
     case EntityType::DAEMON: {
 
@@ -164,9 +208,14 @@ for( int x = 2; x < 1000; x++ )
         //}
         if(daemons.size() > 0)
             destroy_daemon(relative_script_path);
+        sol::environment to_load;
+        _init_entity_env(relative_script_path, etype, to_load);
+        b = lua_safe_script(script_text, to_load, reason);
     } break;
     case EntityType::COMMAND: {
-
+        sol::environment to_load;
+        _init_entity_env(relative_script_path, etype, to_load);
+        b = lua_safe_script(script_text, to_load, reason);
     } break;
     case EntityType::LIB: {
         return lua_safe_script(script_text, (*m_state).globals(), reason);
@@ -174,13 +223,6 @@ for( int x = 2; x < 1000; x++ )
     default:
         break;
     }
-    sol::environment to_load;
-    _init_entity_env(relative_script_path, etype, to_load);
-
-    //std::string test_ = to_load["_INTERNAL_SCRIPT_PATH_"];
-
-    bool b = lua_safe_script(script_text, to_load, reason);
-
     return b;
 }
 
@@ -1118,6 +1160,27 @@ roomobj* entity_manager::GetRoomByScriptPath(std::string& script_path, unsigned 
 {
     std::string room_path = script_path + ":id=" + std::to_string(instance_id);
     auto search = m_room_lookup.find(room_path);
+    if(search != m_room_lookup.end()) {
+        return search->second;
+    }
+    /*
+    std::set<std::shared_ptr<entity_wrapper> > rooms;
+    get_rooms_from_path(script_path, rooms);
+
+    for(auto& ew : rooms) {
+        if(ew->instance_id == instance_id) {
+            return dynamic_cast<roomobj*>(ew->script_ent);
+        }
+    }
+    */
+
+    return NULL;
+}
+
+roomobj* entity_manager::GetRoomByScriptPath(std::string& script_path)
+{
+    //std::string room_path = script_path + ":id=" + std::to_string(instance_id);
+    auto search = m_room_lookup.find(script_path);
     if(search != m_room_lookup.end()) {
         return search->second;
     }
