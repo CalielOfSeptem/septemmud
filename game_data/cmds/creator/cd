@@ -1,0 +1,13 @@
+inherit command
+c = command.new('cd', 0)
+c:SetAliases( { 'chdir' } )
+
+function c:ExecuteCommand ( o, cmd )
+	o = player_cast(o)
+	cmd = string.gsub(cmd, "(cd)", "")
+	cmd = string.gsub(cmd, "(chdir)", "")
+	cmd = trim(cmd)
+	change_directory(cmd, o)
+end
+
+

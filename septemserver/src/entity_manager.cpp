@@ -7,6 +7,7 @@
 #include "script_entities/commandobj.h"
 #include "string_utils.h"
 #include "global_settings.h"
+#include "fs/fs_manager.h"
 #include "config.h"
 
 #include <iostream>
@@ -375,6 +376,10 @@ void entity_manager::init_lua()
                                 &living_entity::DoCommand,
                                 sol::base_classes,
                                 sol::bases<living_entity, script_entity>());
+                                
+    lua.new_usertype<file_entity>("file_entity", 
+            "Name", sol::readonly(&file_entity::name),
+            "isDirectory", sol::readonly(&file_entity::isDirectory));
 
     lua.new_usertype<living_entity>("living_entity",
                                     "GetType",
@@ -440,12 +445,15 @@ void entity_manager::init_lua()
     lua.set_function("get_entity_by_name", [&](std::string ename) -> playerobj * { return this->get_player(ename); });
     
     lua.set_function("get_setting", [&](std::string sname) -> std::string { return global_settings::Instance().GetSetting(sname); });
+    
+    lua.set_function("get_dir_list", [&](std::string dir) -> std::vector<file_entity> { return fs_manager::Instance().get_dir_list(dir); });
 
+    lua.set_function("change_directory", [&](std::string dir, playerobj * p) -> bool { return fs_manager::Instance().change_directory(dir, p); });
     //lua.set_function("tail_entity_log",
     //                 [&](script_entity * se) -> std::vector<std::string> & { return this->get_player(ename); });
 
-    sol::environment tmp = sol::environment(lua, sol::create); // inherit);
-    lua["_g_mirror_"] = tmp;
+    //sol::environment tmp = sol::environment(lua, sol::create); // inherit);
+    //lua["_g_mirror_"] = tmp;
 
     /*
         sol::environment global_env = lua.globals();

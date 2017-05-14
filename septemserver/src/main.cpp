@@ -12,6 +12,7 @@
 #include "global_settings.h"
 #include "config.h"
 #include "game_manager.h"
+#include "script_entities/playerobj.h"
 
 namespace ba = boost::asio;
 namespace po = boost::program_options;
@@ -202,7 +203,14 @@ int main(int argc, char **argv)
    // entity_manager::Instance().load_player();
     while( true )
     {
-        std::cout<<">";
+        if( entity_manager::Instance().get_player("caliel") != NULL )
+        {
+            playerobj * p = entity_manager::Instance().get_player("caliel");
+            std::cout<< "[/" << p->cwd << "] >";
+        }
+        else
+            std::cout<<">";
+            
         std::getline(std::cin, blah);
         if( blah == "stop" )
         {

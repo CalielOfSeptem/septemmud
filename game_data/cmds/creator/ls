@@ -1,4 +1,6 @@
 inherit command
+local ansicolors = require 'ansicolors'
+
 c = command.new('ls', 0)
 local lfs = require 'lfs'
 
@@ -33,14 +35,47 @@ function attrdir (path, o)
     end
 end
 
-
 function c:ExecuteCommand ( o, cmd )
 	o = player_cast(o)
-	cwd = o.cwd
-	cwd = get_setting(settings.DEFAULT_GAME_DATA_PATH) .. cwd
-	print(cwd)
+	--cwd = o.cwd
+	--cwd = --get_setting(settings.DEFAULT_GAME_DATA_PATH) .. cwd
+	--print(cwd)
+	files = get_dir_list( o.cwd )
+	s = ''
+	--print(ansicolors('%{red}hello'))
+	--o:SendToEntity(s)
+	for i = 1, #files do
+		fname = files[i].Name
+		if files[i].isDirectory then 
+			fname = fname .. '/'
+			s = s .. ansicolors('%{blue}' .. string.format( "%-32s", fname ).. '%{reset}')
+			--fname = fname .. '/'
+			--fname = ansicolors('%{blue}' .. fname .. '%{reset}')
+		else
+			s = s .. string.format( "%-32s", fname )
+		end
+		
+		--s = s .. files[i].Name .. '\t\t'
+		if( math.fmod(i,3) == 0 ) then
+			o:SendToEntity(s)
+			--print(s)
+			s = ''
+		end
+	end
+	if( s:len() > 0 ) then
+		o:SendToEntity(s)
+	end
+	--print( s )
+
 	
-	attrdir (cwd, o)
+	
+	--for k, v in pairs(files) do
+		
+		--print(k, v.Name)
+		--print( string.format( "%-20s %-10d.", "Albert Einstein", "29314" ) )
+	--end
+	
+	--attrdir (cwd, o)
 end
 
 

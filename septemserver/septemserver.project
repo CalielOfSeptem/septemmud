@@ -17,6 +17,9 @@
     <File Name="src/entity_manager.cpp"/>
     <File Name="src/main.cpp"/>
     <File Name="src/heartbeat_manager.cpp"/>
+    <VirtualDirectory Name="fs">
+      <File Name="src/fs/fs_manager.cpp"/>
+    </VirtualDirectory>
   </VirtualDirectory>
   <VirtualDirectory Name="include">
     <VirtualDirectory Name="script_entities">
@@ -36,6 +39,9 @@
     <File Name="include/game_manager.h"/>
     <File Name="include/loghelper.h"/>
     <File Name="include/entity_manager.h"/>
+    <VirtualDirectory Name="fs">
+      <File Name="include/fs/fs_manager.h"/>
+    </VirtualDirectory>
   </VirtualDirectory>
   <Description/>
   <Dependencies/>
