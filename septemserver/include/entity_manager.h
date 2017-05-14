@@ -42,6 +42,8 @@ struct _internal_lua_
     entity_manager& operator=(entity_manager const&) = delete;  // Copy assign
     entity_manager& operator=(entity_manager &&) = delete;      // Move assign
     
+    bool do_update ( std::string& entitypath, playerobj* p );
+    
     bool compile_entity( std::string& relative_script_path, EntityType etype, std::string& script_text, std::string& reason );
     
     bool compile_virtual_file( std::string& relative_script_path, EntityType etype, std::string& script_text, std::string& reason );

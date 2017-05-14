@@ -134,13 +134,14 @@ for( int x = 2; x < 1000; x++ )
         std::set<std::shared_ptr<entity_wrapper> > rooms;
         get_rooms_from_path(relative_script_path, rooms);
 
-       // for(auto& r : rooms) {
+        for(auto& r : rooms) {
+            
             // script_entity& self = r->script_ent.value().selfobj.as<script_entity>();
             //*self = NULL;
             // r->script_ent.value().selfobj = NULL;
             // r->script_env.value() = sol::nil;
             //(*r->script_state).collect_garbage();
-       // }
+        }
         if(rooms.size() > 0)
             destroy_room(relative_script_path);
 
@@ -176,12 +177,10 @@ for( int x = 2; x < 1000; x++ )
     sol::environment to_load;
     _init_entity_env(relative_script_path, etype, to_load);
 
-    std::string test_ = to_load["_INTERNAL_SCRIPT_PATH_"];
-    //assert(test_ == relative_script_path);
+    //std::string test_ = to_load["_INTERNAL_SCRIPT_PATH_"];
 
     bool b = lua_safe_script(script_text, to_load, reason);
 
-    //_currently_loading_script = "";
     return b;
 }
 
@@ -369,6 +368,7 @@ void entity_manager::init_lua()
                                 "GetType",
                                 &script_entity::GetEntityTypeString,
                                 "cwd", sol::readonly(&playerobj::cwd),
+                                "workspacePath", sol::readonly(&playerobj::workspacePath),
                                 // "Debug", &script_entity::debug,
                                 "GetName",
                                 &script_entity::GetName,
@@ -449,6 +449,8 @@ void entity_manager::init_lua()
     lua.set_function("get_dir_list", [&](std::string dir) -> std::vector<file_entity> { return fs_manager::Instance().get_dir_list(dir); });
 
     lua.set_function("change_directory", [&](std::string dir, playerobj * p) -> bool { return fs_manager::Instance().change_directory(dir, p); });
+    
+    lua.set_function("do_update", [&](std::string dir, playerobj * p) -> bool { return this->do_update(dir, p); });
     //lua.set_function("tail_entity_log",
     //                 [&](script_entity * se) -> std::vector<std::string> & { return this->get_player(ename); });
 
@@ -1318,6 +1320,26 @@ std::vector<std::string> entity_manager::tail_entity_log(script_entity* se)
     // }
     std::vector<std::string> s;
     return s;
+}
+
+
+bool entity_manager::do_update(std::string& entitypath, playerobj* p )
+{
+    std::string temp = entitypath;
+    fs_manager::Instance().translate_path( temp, p );
+    if( fs::is_directory(temp ))
+    {
+        p->SendToEntity("Directory compiling not yet implemeneted..");
+    }
+    else
+    {
+        std::string reason;
+        if ( !compile_script_file(temp, reason) )
+        {
+            p->SendToEntity(std::string("Error: ") + reason );
+        }
+    }
+    return true;
 }
 
 

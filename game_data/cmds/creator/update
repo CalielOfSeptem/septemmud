@@ -1,0 +1,29 @@
+inherit command
+c = command.new('update', 0)
+c:SetAliases( { 'compile' } )
+
+function c:ExecuteCommand ( o, cmd )
+	if o ~= nil then
+		--if( o:GetType():lower() == "player" ) then
+		--	o = player_cast(o)
+		--end
+		local myTable = cmd:split( ' ' )
+		if #myTable <= 1 then
+			usage(o)
+			return true;
+		end
+		
+		-- remove update portion and name of char to force
+		table.remove(myTable, 1)
+
+		cmd = table.concat(myTable, " ")
+
+		do_update ( cmd, player_cast(o) )
+	end
+end
+
+function usage(o_orig)
+	o_orig:SendToEntity('USAGE: update <Implement me later>')
+end
+
+

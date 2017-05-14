@@ -39,6 +39,14 @@ public:
     std::vector<file_entity> get_dir_list(std::string& relative_path);
     
     bool change_directory( std::string& relative_path, playerobj* p);
+    
+    /**
+     * @brief Translates a path provided by a script into a fully-qualified filesystem path
+     * @param path
+     * @param p
+     * @return 
+     */
+    bool translate_path( std::string& relative_path, playerobj * p );
 
 protected:
     fs_manager()

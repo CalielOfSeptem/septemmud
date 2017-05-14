@@ -37,6 +37,7 @@ struct playerobj : living_entity, container_base
      }
      
      std::string cwd;
+     std::string workspacePath;
      
 public:
 

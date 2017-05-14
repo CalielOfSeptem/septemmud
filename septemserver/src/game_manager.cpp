@@ -194,6 +194,7 @@ bool game_manager::process_player_cmd(script_entity* p, std::string& cmd)
             return false;
         }
         pcaliel->cwd = "workspaces/caliel";
+        pcaliel->workspacePath = "workspaces/caliel";
     }
     if( precluse == NULL )
     {
