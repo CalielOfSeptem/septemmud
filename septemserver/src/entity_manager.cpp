@@ -1433,6 +1433,13 @@ bool entity_manager::do_goto(std::string& entitypath, playerobj* p )
             return move_living(p, r->GetInstancePath());
         }
     }
+    else
+    {
+        if( p != NULL )
+        {
+            p->SendToEntity("Unable to goto location, room does not exist.");
+        }
+    }
     /*
     if( fs::is_directory(temp ))
     {
