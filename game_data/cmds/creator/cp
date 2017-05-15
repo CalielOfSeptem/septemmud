@@ -16,9 +16,9 @@ function c:ExecuteCommand ( o, cmd )
 		-- remove cp portion
 		table.remove(myTable, 1)
 
-		--cmd = table.concat(myTable, " ")
+		cmd = table.concat(myTable, " ")
 
-		do_copy ( myTable[1], myTable[2], player_cast(o) )
+		do_update ( cmd, player_cast(o) )
 	end
 end
 

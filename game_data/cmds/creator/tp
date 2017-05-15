@@ -1,0 +1,34 @@
+inherit command
+c = command.new('tp', 0)
+c:SetAliases( { 'teleport' } )
+
+function c:ExecuteCommand ( o, cmd )
+	if o ~= nil then
+		--if( o:GetType():lower() == "player" ) then
+		--	o = player_cast(o)
+		--end
+		local myTable = cmd:split( ' ' )
+		if #myTable ~= 3 then
+			usage(o)
+			return true;
+		end
+		
+		-- remove tp portion
+		table.remove(myTable, 1)
+
+		local t = get_entity_by_name (myTable[1])
+		if( t == nil ) then
+		
+			o:SendToEntity('No player by that name exists.')
+			return true -- even though we failed, still return true so the command processor stops looking for more commands to try..
+		end
+		--print( myTable[2] )	
+		if( do_tp ( myTable[2], t, player_cast(o) ) ) then
+			t:DoCommand('look')
+		end
+	end
+end
+
+function usage(o_orig)
+	o_orig:SendToEntity('USAGE: tp <Implement me later>')
+end

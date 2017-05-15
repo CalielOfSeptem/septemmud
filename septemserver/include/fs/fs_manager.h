@@ -46,7 +46,7 @@ public:
      * @param p
      * @return 
      */
-    bool translate_path( std::string& relative_path, playerobj * p );
+    bool translate_path( std::string& relative_path, playerobj* p, std::string& reason );
     
     bool do_copy( std::string& patha, std::string& pathb, playerobj * p );
     

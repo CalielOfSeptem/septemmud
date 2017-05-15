@@ -15,7 +15,9 @@ function c:ExecuteCommand ( o, cmd )
 		-- remove goto portion
 		table.remove(myTable, 1)
 
-		do_goto ( myTable[1], player_cast(o) )
+		if( do_goto ( myTable[1], player_cast(o) ) ) then
+			o:DoCommand('look')		
+		end
 	end
 end
 

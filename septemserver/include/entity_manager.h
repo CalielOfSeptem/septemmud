@@ -75,6 +75,7 @@ struct _internal_lua_
     
     bool do_command(living_entity * e, const std::string cmd);
     bool do_goto(std::string& entitypath, playerobj* p );
+    bool do_tp(std::string& entitypath, playerobj* p_targ, playerobj * p_caller );
     
     /**
      * @brief A bloody work around to link scripts with their instantiated objects

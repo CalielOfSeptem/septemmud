@@ -499,6 +499,8 @@ void entity_manager::init_lua()
      lua.set_function("do_remove", [&](std::string path, playerobj * p) -> bool { return fs_manager::Instance().do_remove(path, p); });
      
      lua.set_function("do_goto", [&](std::string path, playerobj * p) -> bool { return this->do_goto(path, p); });
+     
+     lua.set_function("do_tp", [&](std::string path, playerobj * p1, playerobj *p2) -> bool { return this->do_tp(path, p1, p2); });
     //lua.set_function("tail_entity_log",
     //                 [&](script_entity * se) -> std::vector<std::string> & { return this->get_player(ename); });
 
@@ -1400,7 +1402,11 @@ std::vector<std::string> entity_manager::tail_entity_log(script_entity* se)
 bool entity_manager::do_update(std::string& entitypath, playerobj* p )
 {
     std::string temp = entitypath;
-    fs_manager::Instance().translate_path( temp, p );
+    std::string reason;
+    if( !fs_manager::Instance().translate_path( temp, p, reason ) )
+    {
+        p->SendToEntity(reason);
+    }
     if( fs::is_directory(temp ))
     {
         p->SendToEntity("Directory compiling not yet implemeneted..");
@@ -1420,40 +1426,58 @@ bool entity_manager::do_goto(std::string& entitypath, playerobj* p )
 {
     std::string temp = entitypath;
     
-    fs_manager::Instance().translate_path( temp, p );
+    std::string reason;
+    if( !fs_manager::Instance().translate_path( temp, p, reason ) )
+    {
+        p->SendToEntity(reason);
+        return false;
+    }
+    if( p == NULL )
+    {
+        p->SendToEntity("Target player cannot be null");
+    }
     
     std::string rel_path = std::regex_replace(temp, std::regex(global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH)), "");
     
     roomobj * r =  GetRoomByScriptPath(rel_path);
     if( r != NULL )
     {
-        if( p != NULL )
-        {
-            //p->SendToEntity("OK");
-            return move_living(p, r->GetInstancePath());
-        }
+        return move_living(p, r->GetInstancePath());
     }
     else
     {
-        if( p != NULL )
-        {
-            p->SendToEntity("Unable to goto location, room does not exist.");
-        }
+        p->SendToEntity("Unable to goto location, room does not exist.");
     }
-    /*
-    if( fs::is_directory(temp ))
+
+    return false;
+}
+
+bool entity_manager::do_tp(std::string& entitypath, playerobj* p_targ, playerobj* p_caller )
+{
+    std::string temp = entitypath;
+    
+    std::string reason;
+    if( !fs_manager::Instance().translate_path( temp, p_caller, reason ) )
     {
-        p->SendToEntity("Directory compiling not yet implemeneted..");
+        p_caller->SendToEntity(reason);
+    }
+    if( p_targ == NULL || p_caller == NULL )
+    {
+        p_caller->SendToEntity("Target player cannot be null");
+    }
+    
+    std::string rel_path = std::regex_replace(temp, std::regex(global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH)), "");
+    
+    roomobj * r =  GetRoomByScriptPath(rel_path);
+    if( r != NULL )
+    {
+        return move_living(p_targ, r->GetInstancePath());
     }
     else
     {
-        std::string reason;
-        if ( !compile_script_file(temp, reason) )
-        {
-            p->SendToEntity(std::string("Error: ") + reason );
-        }
+        p_caller->SendToEntity("Unable to goto location, room does not exist.");
     }
-    */
+
     return false;
 }
 

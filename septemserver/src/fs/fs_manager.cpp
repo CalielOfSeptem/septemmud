@@ -140,12 +140,12 @@ bool fs_manager::change_directory(std::string& relative_path, playerobj* p)
     return true;
 }
 
-bool fs_manager::translate_path(std::string& relative_path, playerobj* p)
+bool fs_manager::translate_path(std::string& relative_path, playerobj* p, std::string &reason)
 {
     try 
     {
         if( relative_path.size() == 0 )
-             throw std::invalid_argument("A path must be specificed.");
+             throw std::invalid_argument("A path must be specified.");
              
         
         auto game_root_path = boost::filesystem::canonical(global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH));
@@ -171,8 +171,9 @@ bool fs_manager::translate_path(std::string& relative_path, playerobj* p)
     catch(const std::exception &e) {
       //  string content="Could not open path "+request->path+": "+e.what();
       //  *response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
-      if( p != NULL )
-        p->SendToEntity(std::string("Error: ") +e.what());
+      //if( p != NULL )
+       // p->SendToEntity(std::string("Error: ") +e.what());
+       reason = e.what();
       return false;
     }
     
