@@ -1,0 +1,27 @@
+inherit command
+c = command.new('rm', 0)
+--c:SetAliases( { 'remove' } )
+
+function c:ExecuteCommand ( o, cmd )
+	if o ~= nil then
+		--if( o:GetType():lower() == "player" ) then
+		--	o = player_cast(o)
+		--end
+		local myTable = cmd:split( ' ' )
+		if #myTable ~= 2 then
+			usage(o)
+			return true;
+		end
+		
+		-- remove rm portion
+		table.remove(myTable, 1)
+
+		--cmd = table.concat(myTable, " ")
+
+		do_remove ( myTable[1], player_cast(o) )
+	end
+end
+
+function usage(o_orig)
+	o_orig:SendToEntity('USAGE: rm <Implement me later>')
+end

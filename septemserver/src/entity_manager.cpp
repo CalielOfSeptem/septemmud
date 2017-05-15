@@ -493,6 +493,12 @@ void entity_manager::init_lua()
     lua.set_function("change_directory", [&](std::string dir, playerobj * p) -> bool { return fs_manager::Instance().change_directory(dir, p); });
     
     lua.set_function("do_update", [&](std::string dir, playerobj * p) -> bool { return this->do_update(dir, p); });
+    
+    lua.set_function("do_copy", [&](std::string patha, std::string pathb, playerobj * p) -> bool { return fs_manager::Instance().do_copy(patha, pathb, p); });
+    
+     lua.set_function("do_remove", [&](std::string path, playerobj * p) -> bool { return fs_manager::Instance().do_remove(path, p); });
+     
+     lua.set_function("do_goto", [&](std::string path, playerobj * p) -> bool { return this->do_goto(path, p); });
     //lua.set_function("tail_entity_log",
     //                 [&](script_entity * se) -> std::vector<std::string> & { return this->get_player(ename); });
 
@@ -1180,7 +1186,12 @@ roomobj* entity_manager::GetRoomByScriptPath(std::string& script_path, unsigned 
 roomobj* entity_manager::GetRoomByScriptPath(std::string& script_path)
 {
     //std::string room_path = script_path + ":id=" + std::to_string(instance_id);
-    auto search = m_room_lookup.find(script_path);
+    std::string roompath = script_path;
+    std::size_t found = roompath.find(":id=");
+    if(found == std::string::npos) {
+        roompath += ":id=0";
+    }
+    auto search = m_room_lookup.find(roompath);
     if(search != m_room_lookup.end()) {
         return search->second;
     }
@@ -1405,6 +1416,39 @@ bool entity_manager::do_update(std::string& entitypath, playerobj* p )
     return true;
 }
 
+bool entity_manager::do_goto(std::string& entitypath, playerobj* p )
+{
+    std::string temp = entitypath;
+    
+    fs_manager::Instance().translate_path( temp, p );
+    
+    std::string rel_path = std::regex_replace(temp, std::regex(global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH)), "");
+    
+    roomobj * r =  GetRoomByScriptPath(rel_path);
+    if( r != NULL )
+    {
+        if( p != NULL )
+        {
+            //p->SendToEntity("OK");
+            return move_living(p, r->GetInstancePath());
+        }
+    }
+    /*
+    if( fs::is_directory(temp ))
+    {
+        p->SendToEntity("Directory compiling not yet implemeneted..");
+    }
+    else
+    {
+        std::string reason;
+        if ( !compile_script_file(temp, reason) )
+        {
+            p->SendToEntity(std::string("Error: ") + reason );
+        }
+    }
+    */
+    return false;
+}
 
 
 /*

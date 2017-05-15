@@ -132,7 +132,8 @@ bool fs_manager::change_directory(std::string& relative_path, playerobj* p)
     catch(const std::exception &e) {
       //  string content="Could not open path "+request->path+": "+e.what();
       //  *response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
-      p->SendToEntity(std::string("Error: ") +e.what());
+      if( p != NULL )
+        p->SendToEntity(std::string("Error: ") +e.what());
       return false;
     }
     
@@ -170,9 +171,121 @@ bool fs_manager::translate_path(std::string& relative_path, playerobj* p)
     catch(const std::exception &e) {
       //  string content="Could not open path "+request->path+": "+e.what();
       //  *response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
-      p->SendToEntity(std::string("Error: ") +e.what());
+      if( p != NULL )
+        p->SendToEntity(std::string("Error: ") +e.what());
       return false;
     }
     
     return true;
+}
+
+bool fs_manager::do_copy(std::string& patha, std::string& pathb, playerobj * p)
+{
+    try 
+    {
+        if( patha.size() == 0 || pathb.size() == 0 )
+             throw std::invalid_argument("A path must be specificed.");
+             
+        auto game_root_path = boost::filesystem::canonical(global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH));
+        
+        fs::path path_a;
+        
+        if( patha[0] == '/' )
+            path_a = boost::filesystem::canonical(game_root_path/patha);
+        else
+            path_a = boost::filesystem::canonical(game_root_path/p->cwd/patha);
+            
+        fs::path path_b;
+        
+        if( pathb[0] == '/' )
+            path_b = boost::filesystem::weakly_canonical(game_root_path/pathb);
+        else
+            path_b = boost::filesystem::weakly_canonical(game_root_path/p->cwd/pathb);
+
+
+        if( !fs::exists(path_a) )
+             throw std::invalid_argument("path does not exist");
+             
+       // if( !fs::is_regular(path_a) )
+       //      throw std::invalid_argument("path must be a file");
+             
+       // if( fs::exists(path_b) )
+       //      throw std::invalid_argument("destination already exists");
+             
+        
+        if(std::distance(game_root_path.begin(), game_root_path.end())>std::distance(path_a.begin(), path_a.end()) ||
+           !std::equal(game_root_path.begin(), game_root_path.end(), path_a.begin()))
+        {
+            throw std::invalid_argument("path must be within root path");
+        }
+        
+        if(std::distance(game_root_path.begin(), game_root_path.end())>std::distance(path_b.begin(), path_b.end()) ||
+           !std::equal(game_root_path.begin(), game_root_path.end(), path_b.begin()))
+        {
+            throw std::invalid_argument("path must be within root path");
+        }
+      //  if(std::distance(game_root_path.begin(), game_root_path.end())>std::distance(path_b.begin(), path_b.end()) ||
+      //     !std::equal(game_root_path.begin(), game_root_path.end(), path_b.begin()))
+      //  {
+      //      throw std::invalid_argument("path must be within root path");
+      //  }
+        
+       // std::cout << "PATHA: " << path_a.string() << std::endl;
+       // std::cout << "PATHB: " << path_b.string() << std::endl;
+       fs::copy(path_a, path_b);
+        if( p != NULL )
+            p->SendToEntity("OK");
+
+        //relative_path = path.string();
+    }
+    catch(const std::exception &e) {
+      //  string content="Could not open path "+request->path+": "+e.what();
+      //  *response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
+      if( p != NULL )
+        p->SendToEntity(std::string("Error: ") +e.what());
+      return false;
+    }
+    
+    return true;   
+}
+bool fs_manager::do_remove(std::string& path, playerobj* p)
+{
+    try 
+    {
+        if( path.size() == 0 )
+             throw std::invalid_argument("A path must be specificed.");
+             
+        auto game_root_path = boost::filesystem::canonical(global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH));
+        
+        fs::path path_a;
+        
+        if( path[0] == '/' )
+            path_a = boost::filesystem::canonical(game_root_path/path);
+        else
+            path_a = boost::filesystem::canonical(game_root_path/p->cwd/path);
+
+        if( !fs::exists(path_a) )
+             throw std::invalid_argument("path does not exist");
+             
+        if(std::distance(game_root_path.begin(), game_root_path.end())>std::distance(path_a.begin(), path_a.end()) ||
+           !std::equal(game_root_path.begin(), game_root_path.end(), path_a.begin()))
+        {
+            throw std::invalid_argument("path must be within root path");
+        }
+        
+
+        fs::remove(path_a);
+        if( p != NULL )
+            p->SendToEntity("OK");
+        //relative_path = path.string();
+    }
+    catch(const std::exception &e) {
+      //  string content="Could not open path "+request->path+": "+e.what();
+      //  *response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
+      if( p != NULL )
+        p->SendToEntity(std::string("Error: ") +e.what());
+      return false;
+    }
+    
+    return true;   
 }

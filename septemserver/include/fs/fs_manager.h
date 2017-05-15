@@ -47,6 +47,10 @@ public:
      * @return 
      */
     bool translate_path( std::string& relative_path, playerobj * p );
+    
+    bool do_copy( std::string& patha, std::string& pathb, playerobj * p );
+    
+    bool do_remove( std::string& path, playerobj * p );
 
 protected:
     fs_manager()

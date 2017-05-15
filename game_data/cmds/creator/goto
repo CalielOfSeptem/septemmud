@@ -1,0 +1,24 @@
+inherit command
+c = command.new('goto', 0)
+
+function c:ExecuteCommand ( o, cmd )
+	if o ~= nil then
+		--if( o:GetType():lower() == "player" ) then
+		--	o = player_cast(o)
+		--end
+		local myTable = cmd:split( ' ' )
+		if #myTable ~= 2 then
+			usage(o)
+			return true;
+		end
+		
+		-- remove goto portion
+		table.remove(myTable, 1)
+
+		do_goto ( myTable[1], player_cast(o) )
+	end
+end
+
+function usage(o_orig)
+	o_orig:SendToEntity('USAGE: goto <Implement me later>')
+end
