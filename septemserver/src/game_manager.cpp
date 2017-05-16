@@ -8,12 +8,49 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/algorithm/string.hpp>
+
+#include "boost/date_time/posix_time/posix_time.hpp"
+#include "boost/date_time/gregorian/gregorian.hpp"
+
+namespace dt = boost::date_time;
+
 namespace fs = boost::filesystem;
 
 void game_manager::init()
 {
+    using namespace boost::posix_time;
+    using namespace boost::gregorian;
+    
+    std::string last_reboot = global_settings::Instance().GetSetting( DEFAULT_LAST_REBOOT );
     auto log = spd::get("main");
     log->debug( "Begin Init");
+    
+    if( last_reboot.size() > 0 )
+    {
+        /*
+        date d(from_simple_string(last_reboot));
+        std::stringstream ss;
+        date::ymd_type ymd = d.year_month_day();
+        greg_weekday wd = d.day_of_week();
+        ss << "Last reboot = ";
+        ss << wd.as_long_string() << " "
+                << ymd.month.as_long_string() << " "
+                << ymd.day << ", " << ymd.year
+                << std::endl;
+        */
+        std::stringstream ss;
+        ss << "Last reboot = ";
+        ss << last_reboot;
+        //std::string date_string = to_simple_string(ptime);
+       log->debug(ss.str());
+    }
+    
+    ptime now = second_clock::local_time();
+    std::cout << now << std::endl;
+    global_settings::Instance().SetSetting( DEFAULT_LAST_REBOOT, to_simple_string(now) );
+    
+    
+
     
     std::string reason;
     // load libs

@@ -17,4 +17,5 @@ enum // Define log instances. Default is 0 and is omitted from this enum.
 #define DEFAULT_LIBS_PATH "DEFAULT_LIBS_PATH"
 #define DEFAULT_LOGS_PATH "DEFAULT_LOGS_PATH"
 #define DEFAULT_ROOM_LOG_PATH "DEFAULT_ROOM_LOG_PATH"
+#define DEFAULT_LAST_REBOOT "LAST_REBOOT"
 #endif
