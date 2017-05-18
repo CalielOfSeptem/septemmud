@@ -1,0 +1,20 @@
+inherit item
+
+i = item.new()
+
+i:SetName('a rock')
+
+i:SetLook('an ordinary rock')
+
+f = function i:onTap( self )
+print('on tap')
+end
+
+i:AddAction('tap', f)
+i:SetWeight(1)
+i:SetSize(size.tiny)
+i:isWearable = false
+i:isContainer = false
+i:isStackable = false
+
+

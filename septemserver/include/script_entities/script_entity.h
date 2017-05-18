@@ -107,14 +107,27 @@ struct script_entity {
             this->name = name;
         }
         
+        const std::string& GetLook()
+        {
+            return look;
+        }
+        
+        void SetLook(const std::string& look)
+        {
+            this->look = look;
+        }
+        
+        
 private:
         my_sink m_entityLog;
         std::unordered_map<std::string, sol::object> props;
         EntityType m_type = EntityType::UNKNOWN;
         script_entity* environment_;
         std::string script_path;
+        
   
 protected:
+        std::string look;
         std::string name;
 };
 

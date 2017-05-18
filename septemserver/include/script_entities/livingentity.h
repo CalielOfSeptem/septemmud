@@ -8,6 +8,25 @@
 
 class roomobj;
 
+struct handobj : public container_base
+{
+     virtual void AddEntityToInventory(script_entity * se) override
+     {
+         container_base::AddEntityToInventory(se);
+     }
+     
+     virtual bool RemoveEntityFromInventoryByID( const std::string& id  ) override
+     {
+         return container_base::RemoveEntityFromInventoryByID(id);
+     }
+     
+    virtual bool RemoveEntityFromInventory( script_entity * se ) override
+    {
+        return container_base::RemoveEntityFromInventory(se);
+    }
+     
+};
+
 struct living_entity : public script_entity
 {
 
@@ -27,6 +46,9 @@ struct living_entity : public script_entity
     virtual bool DoCommand(sol::this_state ts, const std::string& cmd );
     
     roomobj* GetRoom();
+    
+    handobj RightHand;
+    handobj LeftHand;
 
 };
 #endif

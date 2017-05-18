@@ -5,6 +5,7 @@
 #include "script_entities/playerobj.h"
 #include "script_entities/daemonobj.h"
 #include "script_entities/commandobj.h"
+#include "script_entities/itemobj.h"
 #include "string_utils.h"
 #include "global_settings.h"
 #include "fs/fs_manager.h"
@@ -335,6 +336,29 @@ void entity_manager::init_lua()
                               "GetExit",
                               &exitobj::GetExit);
 
+    lua.new_usertype<handobj>("hand",
+                            "GetInventory",
+                            &container_base::GetInventory,
+                            sol::base_classes,
+                            sol::bases<container_base>() );
+                            
+    lua.new_usertype<itemobj>("item",
+                            "GetInventory",
+                            &container_base::GetInventory,
+                            "size", sol::property(&itemobj::get_size, &itemobj::set_size),
+                            "isWearable", sol::property(&itemobj::get_isWearable, &itemobj::set_isWearable),
+                            "isStackable", sol::property(&itemobj::get_isStackable, &itemobj::set_isStackable),
+                            "isContainer", sol::property(&itemobj::get_isContainer, &itemobj::set_isContainer),
+                            sol::base_classes,
+                            sol::bases<script_entity, container_base>() );
+                            
+                            
+     //                            double m_weight; // item weight in stones
+    // ItemSize m_size = ItemSize::TINY;
+    // bool bisWearable;
+    // bool bisStackable;
+    // bool bisContainer;
+    
     lua.new_usertype<roomobj>("room",
                               sol::constructors<roomobj(sol::this_state, sol::this_environment)>(),
                               sol::meta_function::new_index,
@@ -416,6 +440,10 @@ void entity_manager::init_lua()
                                 &script_entity::GetName,
                                 "DoCommand",
                                 &living_entity::DoCommand,
+                                "RightHand",
+                                &playerobj::RightHand,
+                                "LeftHand",
+                                &playerobj::LeftHand,
                                 sol::base_classes,
                                 sol::bases<living_entity, script_entity>());
                                 
