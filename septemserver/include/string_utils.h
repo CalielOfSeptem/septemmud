@@ -8,6 +8,9 @@
 #include <fstream>
 
 
+
+
+
 static inline void strip_path(std::string& path)
 {
     std::replace_if(path.begin() , path.end() ,  

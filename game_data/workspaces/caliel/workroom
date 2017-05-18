@@ -5,6 +5,6 @@ p1:SetDescription('A workroom.')
 p1:AddExit( direction.north, 'realms/void', true)
 p1:Debug('Loaded room!')
 
-p1:AddItem ( '/workspaces/caliel/entities/rock' )
+--p1:AddItem ( '/workspaces/caliel/entities/rock' )
 
 

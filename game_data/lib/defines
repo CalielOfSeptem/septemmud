@@ -11,3 +11,15 @@ direction.southeast = { 'southeast', 'se' }
 direction.southwest = { 'southwest', 'sw' }
 settings = {}
 settings.DEFAULT_GAME_DATA_PATH = "DEFAULT_GAME_DATA_PATH"
+
+--FINE, DIMINUTIVE, TINY, SMALL, MEDIUM, LARGE, ENORMOUS, GARGANTUAN, COLOSSAL };
+itemSize = {}
+itemSize.fine 		= 0
+itemSize.diminutive 	= 1
+itemSize.tiny 		= 2
+itemSize.small 		= 3
+itemSize.medium 	= 4
+itemSize.large 		= 5
+itemSize.enormous 	= 6
+itemSize.gargantuan 	= 7
+itemSize.colossal 	= 8

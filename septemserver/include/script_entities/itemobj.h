@@ -6,16 +6,13 @@
 #include "script_entities/container_base.h"
 #include <stdio.h>
 
-enum class ItemSize { FINE, DIMINUTIVE, TINY, SMALL, MEDIUM, LARGE, GARGANTUAN, COLOSSAL };
+enum class ItemSize { FINE, DIMINUTIVE, TINY, SMALL, MEDIUM, LARGE, ENORMOUS, GARGANTUAN, COLOSSAL };
 
 struct itemobj : public script_entity, public container_base
 {
-     itemobj(sol::this_state ts, sol::this_environment te, std::string name) :
-        script_entity(ts, te, EntityType::ITEM, name)
-     {
-        
-     }
+     itemobj(sol::this_state ts, sol::this_environment te, std::string name);
      
+     itemobj(sol::this_state ts, sol::this_environment te);
      
      double get_weight ()
      {
@@ -66,7 +63,7 @@ struct itemobj : public script_entity, public container_base
          bisContainer = b;
      }
      
-     bool get_uid()
+     std::string get_uid()
      {
          return uid;
      }

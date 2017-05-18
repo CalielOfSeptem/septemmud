@@ -12,6 +12,7 @@
       <File Name="src/script_entities/roomobj.cpp"/>
       <File Name="src/script_entities/daemonobj.cpp"/>
       <File Name="src/script_entities/livingentity.cpp"/>
+      <File Name="src/script_entities/itemobj.cpp"/>
     </VirtualDirectory>
     <File Name="src/game_manager.cpp"/>
     <File Name="src/entity_manager.cpp"/>

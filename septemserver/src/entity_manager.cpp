@@ -213,6 +213,11 @@ for( int x = 2; x < 1000; x++ )
         _init_entity_env(relative_script_path, etype, to_load);
         b = lua_safe_script(script_text, to_load, reason);
     } break;
+    case EntityType::ITEM: {
+        sol::environment to_load;
+        _init_entity_env(relative_script_path, etype, to_load);
+        b = lua_safe_script(script_text, to_load, reason);
+    } break;
     case EntityType::COMMAND: {
         sol::environment to_load;
         _init_entity_env(relative_script_path, etype, to_load);
@@ -221,6 +226,7 @@ for( int x = 2; x < 1000; x++ )
     case EntityType::LIB: {
         return lua_safe_script(script_text, (*m_state).globals(), reason);
     } break;
+    
     default:
         break;
     }
@@ -318,6 +324,8 @@ void entity_manager::init_lua()
                        sol::lib::debug);
 
     lua.new_usertype<script_entity>("script_entity", 
+            "GetName",  &script_entity::GetName,
+            "SetName", &script_entity::SetName,
             "Reset",  &script_entity::clear_props,
             "GetType", 
             &script_entity::GetEntityTypeString);
@@ -343,9 +351,15 @@ void entity_manager::init_lua()
                             sol::bases<container_base>() );
                             
     lua.new_usertype<itemobj>("item",
+                            sol::constructors<itemobj(sol::this_state, sol::this_environment)>(),
+                            sol::meta_function::new_index,
+                            &itemobj::set_property_lua,
+                            sol::meta_function::index,
+                            &itemobj::get_property_lua,
                             "GetInventory",
                             &container_base::GetInventory,
                             "size", sol::property(&itemobj::get_size, &itemobj::set_size),
+                            "weight", sol::property(&itemobj::get_weight, &itemobj::set_weight),
                             "isWearable", sol::property(&itemobj::get_isWearable, &itemobj::set_isWearable),
                             "isStackable", sol::property(&itemobj::get_isStackable, &itemobj::set_isStackable),
                             "isContainer", sol::property(&itemobj::get_isContainer, &itemobj::set_isContainer),
@@ -620,7 +634,7 @@ bool entity_manager::load_script_text(std::string& script_path,
             token = "";
             file_tokens.push_back(token);
             bFoundType = true;
-        } else if(token.compare("inherit object") == 0) {
+        } else if(token.compare("inherit item") == 0) {
             if(bFoundType) // bad. only one type per script
             {
                 reason = "Multiple inherit directives detected. Only one entity type is allowed per script.";
@@ -1022,6 +1036,9 @@ void entity_manager::register_entity(script_entity* entityobj, std::string &sp, 
             log->debug( ss.str() );
             
         }
+    } break;
+    case EntityType::ITEM: {
+      //TODO, IMPLEMENT THIS CASE  
     } break;
     case EntityType::COMMAND: {
         // get the current instance ID from the env..
