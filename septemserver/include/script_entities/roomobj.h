@@ -140,6 +140,8 @@ public:
      
     std::vector<script_entity*> GetPlayers(const std::string& name);
     
+    std::vector<script_entity*> GetItems();
+    
     virtual void debug( sol::this_state ts, const std::string& msg ) override;
     
 private:

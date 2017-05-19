@@ -4,7 +4,12 @@ p1:SetTitle('Caliel\'s Workroom')
 p1:SetDescription('A workroom.')
 p1:AddExit( direction.north, 'realms/void', true)
 p1:Debug('Loaded room!')
+clone_item( '/workspaces/caliel/entities/rock', p1 )
 
---p1:AddItem ( '/workspaces/caliel/entities/rock' )
+function p1:hb()
+	for i = 1, 10000 do
+		clone_item( '/workspaces/caliel/entities/rock', p1 )
+	end
+end
 
-
+register_heartbeat(p1.hb)

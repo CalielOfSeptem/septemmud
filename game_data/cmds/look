@@ -36,23 +36,29 @@ end
 
 function FormatRoom(r, o)
 	local s = "[" .. r:GetTitle() .. "]\r\n"
-	s = s .. r:GetDescription() .. "\r\n"
-	s = s .. "Obvious paths: "
-	local exits = r:GetExits()
-	if( #exits == 0 ) then
-		s = s .. 'none.'
-	end
-	for i = 1, #exits do
-		local myTable = exits[i]:GetExit()
-		str = myTable[1]
-		str = str:lower()
-		if i ~= #exits then
-			str = str .. ', '
+	s = s .. r:GetDescription() .. " "
+	
+	local items = r:GetItems()
+	if( #items > 0 ) then
+		--s = s .. "\r\n"
+		s = s .. "You also see "
+	
+		for i = 1, #items do
+			--local it = player_cast(players[i])
+			--print(po)
+			local iname = items[i]:GetName()--po:GetPlayerName()
+			--firstToUpper(pname)
+			--iname = string.gsub(iname, "(%a)([%w_']*)", titleCase)
+			--str = myTable[1]
+			str = iname--str:lower()
+			if i ~= #items then
+				str = str .. ', '
 
-		else
-			str = str .. '.' 
+			else
+				str = str .. '.' 
+			end
+			s = s .. str
 		end
-		s = s .. str
 	end
 	
 	local players = r:GetPlayers(o:GetName())
@@ -78,6 +84,24 @@ function FormatRoom(r, o)
 		end
 	end
 
+		
+	s = s .. "\r\nObvious paths: "
+	local exits = r:GetExits()
+	if( #exits == 0 ) then
+		s = s .. 'none.'
+	end
+	for i = 1, #exits do
+		local myTable = exits[i]:GetExit()
+		str = myTable[1]
+		str = str:lower()
+		if i ~= #exits then
+			str = str .. ', '
+
+		else
+			str = str .. '.' 
+		end
+		s = s .. str
+	end
 
 	
 	return s

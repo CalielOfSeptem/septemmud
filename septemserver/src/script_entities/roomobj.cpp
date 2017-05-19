@@ -27,6 +27,20 @@ std::vector<script_entity*> roomobj::GetPlayers(const std::string& name)
     return players;
 }
 
+std::vector<script_entity*> roomobj::GetItems()
+{
+    std::vector<script_entity*> items;
+    for(auto obj : GetInventory()) {
+        if(obj->GetType() == EntityType::ITEM) {
+            // playerobj * p = dynamic_cast<playerobj*>(obj);
+           // if(boost::to_lower_copy(obj->GetName()) != boost::to_lower_copy(name)) {
+                items.push_back(obj);
+           // }
+        }
+    }
+    return items;
+}
+
 void roomobj::debug(sol::this_state ts, const std::string& msg)
 {
     for(auto obj : GetInventory()) {

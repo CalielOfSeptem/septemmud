@@ -20,11 +20,32 @@
 #include <boost/algorithm/string.hpp>
 #include <unordered_set>
 
+#include <random>
+#include <algorithm>
+#include <iterator>
 #include "spdlog/spdlog.h"
 
 namespace spd = spdlog;
 
 namespace fs = boost::filesystem;
+
+namespace {
+std::string const default_chars = 
+    "abcdefghijklmnaoqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+}
+
+std::string random_string(size_t len = 15, std::string const &allowed_chars = default_chars) {
+    std::mt19937_64 gen { std::random_device()() };
+
+    std::uniform_int_distribution<size_t> dist { 0, allowed_chars.length()-1 };
+
+    std::string ret;
+
+    std::generate_n(std::back_inserter(ret), len, [&] { return allowed_chars[dist(gen)]; });
+    return ret;
+}
+
+
 
 void get_entity_str(EntityType etype, std::string& str)
 {
@@ -75,6 +96,7 @@ bool entity_manager::compile_and_clone(std::string& relative_script_path,
                                        std::string& script_path_virtual,
                                        std::string& tag_text,
                                        std::string& tag_replace,
+                                       std::string& addl_lua,
                                        std::string& reason)
 {
     // return compile_entity(relative_script_path, etype, script_text, reason);
@@ -93,10 +115,14 @@ bool entity_manager::compile_and_clone(std::string& relative_script_path,
         if(!load_script_text(_fullpath, _scriptext, et, reason)) {
             return false;
         }
+
+            
+        
         if(tag_text.size() != 0) {
             boost::replace_all(_scriptext, tag_text, tag_replace);
         }
-        
+        //_scriptext = _scriptext + "\n_INTERNAL_UUID_ = '"+tag_replace+"'"; //may need to rethink this
+        //std::cout << _scriptext << std::endl;
         if(!compile_entity(script_path_virtual, et, _scriptext, reason))
             return false;
 
@@ -233,6 +259,56 @@ for( int x = 2; x < 1000; x++ )
     return b;
 }
 
+bool entity_manager::clone_item(std::string& relative_script_path, script_entity* obj)
+{
+    std::string uid = random_string();
+    std::string reason;
+    std::string tag = "";
+    std::string vpath = relative_script_path + "/" + uid;
+    std::string adl_lua = "\n_ENTITY_ENV_PATH_ = '" + obj->GetInstancePath() + "'";
+    adl_lua += "\n_ENTITY_ENV_TYPE_ = '" + obj->GetEntityTypeString() + "'";
+    adl_lua += "\n_INTERNAL_UUID_ = '"+uid+"'"; //may need to rethink this
+    if( !this->compile_and_clone( relative_script_path, vpath, tag, uid, adl_lua, reason ) )
+    {
+        return false;
+    }
+    else
+    {
+        itemobj * i = GetItemByScriptPath(vpath);
+        if( i != NULL )
+        {
+            switch( obj->GetType() )
+            {
+                case EntityType::ROOM:
+                case EntityType::PLAYER:
+                case EntityType::NPC:
+                {
+                    if( auto e = dynamic_cast<container_base*>(obj) )
+                    {
+                        e->AddEntityToInventory(i);
+                        return true;
+                    }
+                    else
+                    {
+                        std::cout << "Died" << std::endl;
+                        return false;
+                    }
+                        
+                } break;
+                default:
+                    return false;
+                break;
+            }
+            std::cout << "Found it" << std::endl;
+        }
+        // now find the item &..
+      //  get_daemons_from_path()
+    }
+    return true;
+}
+
+
+
 bool entity_manager::compile_script_file(std::string& file_path, std::string& reason)
 {
     auto log = spd::get("main");
@@ -278,7 +354,8 @@ bool entity_manager::load_player(std::string playerName)
 
     std::string tpath = ss.str();
     std::string tagtext = "player_name"; // a hack to get our player name into the lua object constructor
-    return compile_and_clone(player_script_path, tpath, tagtext, playerName, reason);
+    std::string adllua = "";
+    return compile_and_clone(player_script_path, tpath, tagtext, playerName, adllua, reason);
 }
 
 bool entity_manager::lua_safe_script(std::string& script_text, sol::environment env, std::string& reason)
@@ -358,11 +435,34 @@ void entity_manager::init_lua()
                             &itemobj::get_property_lua,
                             "GetInventory",
                             &container_base::GetInventory,
+                            
+                            "GetSize", &itemobj::get_size,
+                            "SetSize", &itemobj::set_size,
+                            
+                            "GetWeight", &itemobj::get_weight,
+                            "SetWeight", &itemobj::set_weight,
+                            
+                            "GetWearable", &itemobj::get_isWearable,
+                            "SetWearable", &itemobj::set_isWearable,
+
+                            "GetStackable", &itemobj::get_isStackable,
+                            "SetStackable", &itemobj::set_isStackable,
+                            
+                            "GetIsContainer", &itemobj::get_isContainer,
+                            "SetIsContainer", &itemobj::set_isContainer,
+                            
+                            "weight", sol::property(&itemobj::get_weight, &itemobj::set_weight),
+                            "isWearable", sol::property(&itemobj::get_isWearable, &itemobj::set_isWearable),
+                            "isStackable", sol::property(&itemobj::get_isStackable, &itemobj::set_isStackable),
+                            "isContainer", sol::property(&itemobj::get_isContainer, &itemobj::set_isContainer),
+                            
                             "size", sol::property(&itemobj::get_size, &itemobj::set_size),
                             "weight", sol::property(&itemobj::get_weight, &itemobj::set_weight),
                             "isWearable", sol::property(&itemobj::get_isWearable, &itemobj::set_isWearable),
                             "isStackable", sol::property(&itemobj::get_isStackable, &itemobj::set_isStackable),
                             "isContainer", sol::property(&itemobj::get_isContainer, &itemobj::set_isContainer),
+                            
+                            
                             sol::base_classes,
                             sol::bases<script_entity, container_base>() );
                             
@@ -403,6 +503,8 @@ void entity_manager::init_lua()
                               &container_base::GetInventory,
                               "GetPlayers",
                               &roomobj::GetPlayers,
+                              "GetItems",
+                              &roomobj::GetItems,
                               sol::base_classes,
                               sol::bases<script_entity, container_base>());
 
@@ -538,11 +640,13 @@ void entity_manager::init_lua()
     
     lua.set_function("do_copy", [&](std::string patha, std::string pathb, playerobj * p) -> bool { return fs_manager::Instance().do_copy(patha, pathb, p); });
     
-     lua.set_function("do_remove", [&](std::string path, playerobj * p) -> bool { return fs_manager::Instance().do_remove(path, p); });
+    lua.set_function("do_remove", [&](std::string path, playerobj * p) -> bool { return fs_manager::Instance().do_remove(path, p); });
      
-     lua.set_function("do_goto", [&](std::string path, playerobj * p) -> bool { return this->do_goto(path, p); });
+    lua.set_function("do_goto", [&](std::string path, playerobj * p) -> bool { return this->do_goto(path, p); });
      
-     lua.set_function("do_tp", [&](std::string path, playerobj * p1, playerobj *p2) -> bool { return this->do_tp(path, p1, p2); });
+    lua.set_function("do_tp", [&](std::string path, playerobj * p1, playerobj *p2) -> bool { return this->do_tp(path, p1, p2); });
+    
+    lua.set_function("clone_item", [&](std::string path, script_entity * e) -> bool { return this->clone_item(path, e); });
     //lua.set_function("tail_entity_log",
     //                 [&](script_entity * se) -> std::vector<std::string> & { return this->get_player(ename); });
 
@@ -709,7 +813,7 @@ bool entity_manager::destroy_player(std::string& script_path)
         m_player_objs.erase(search);
     }
 
-    lua.collect_garbage();
+  //  lua.collect_garbage();
 
     return true;
 }
@@ -738,7 +842,7 @@ bool entity_manager::destroy_room(std::string& script_path)
         m_room_objs.erase(search);
     }
 
-    lua.collect_garbage();
+    //lua.collect_garbage();
 
     return true;
 }
@@ -765,10 +869,38 @@ bool entity_manager::destroy_command(std::string& script_path)
         m_cmd_objs.erase(search);
     }
 
-    lua.collect_garbage();
+    //lua.collect_garbage();
 
     return true;
 }
+
+bool entity_manager::destroy_item(std::string& script_path)
+{
+
+    sol::state& lua = (*m_state);
+    {
+        auto search = m_item_objs.find(script_path);
+        if(search == m_item_objs.end()) {
+            return false;
+        }
+
+        sol::environment env;
+        std::string name;
+        get_parent_env_of_entity(script_path, env, name);
+
+        for(auto e : search->second) {
+            destroy_entity(e);
+        }
+
+        env[name] = sol::nil;
+        m_item_objs.erase(search);
+    }
+
+    //lua.collect_garbage();
+
+    return true;
+}
+
 
 bool entity_manager::destroy_daemon(std::string& script_path)
 {
@@ -792,7 +924,7 @@ bool entity_manager::destroy_daemon(std::string& script_path)
         m_daemon_objs.erase(search);
     }
 
-    lua.collect_garbage();
+    //lua.collect_garbage();
 
     return true;
 }
@@ -934,6 +1066,34 @@ void entity_manager::deregister_room(roomobj* room)
     }
 }
 
+
+void entity_manager::register_item(itemobj* item)
+{
+    
+    std::string item_path = item->GetInstancePath();
+    m_item_lookup[item_path] = item;
+    auto log = spd::get("main");
+
+    std::stringstream ss;
+    ss << "Registered item into lookup table, item = " << item_path;
+    log->debug( ss.str() );
+    
+}
+
+void entity_manager::deregister_item(itemobj* item)
+{
+    std::string item_path = item->GetInstancePath();
+    auto search = m_item_lookup.find(item_path);
+    if(search != m_item_lookup.end()) {
+        m_item_lookup.erase(search);
+        auto log = spd::get("main");
+        std::stringstream ss;
+        ss  << "De-Registered item from lookup table, item = " << item_path;
+        log->debug( ss.str() );
+    }
+}
+
+
 void entity_manager::register_daemon(daemonobj* daemon)
 {
     std::string daemon_path = daemon->GetInstancePath();
@@ -1037,9 +1197,6 @@ void entity_manager::register_entity(script_entity* entityobj, std::string &sp, 
             
         }
     } break;
-    case EntityType::ITEM: {
-      //TODO, IMPLEMENT THIS CASE  
-    } break;
     case EntityType::COMMAND: {
         // get the current instance ID from the env..
         // commandobj * cmdobj = static_cast<commandobj*>(entityobj);
@@ -1061,6 +1218,20 @@ void entity_manager::register_entity(script_entity* entityobj, std::string &sp, 
             std::set<std::shared_ptr<entity_wrapper> > new_set;
             new_set.insert(ew);
             m_cmd_objs.insert({ ew->script_path, new_set }); // new_set ); //new_set );get_entity_str()
+            std::string e_str;
+            get_entity_str(ew->entity_type, e_str);
+            ss << "Registered new entity, type = " << e_str << ", Path =" << ew->script_path;
+            log->debug( ss.str() );
+        }
+    } break;
+    case EntityType::ITEM: {
+        auto search = m_item_objs.find(sp);
+        if(search != m_item_objs.end()) {
+            search->second.insert(ew);
+        } else {
+            std::set<std::shared_ptr<entity_wrapper> > new_set;
+            new_set.insert(ew);
+            m_item_objs.insert({ ew->script_path, new_set }); // new_set ); //new_set );get_entity_str()
             std::string e_str;
             get_entity_str(ew->entity_type, e_str);
             ss << "Registered new entity, type = " << e_str << ", Path =" << ew->script_path;
@@ -1138,6 +1309,7 @@ void entity_manager::get_daemons_from_path(std::string& script_path,
     }
 }
 
+
 bool entity_manager::get_parent_env_of_entity(std::string& script_path, sol::environment& env, std::string& env_name)
 {
     sol::state& lua = (*m_state);
@@ -1163,6 +1335,7 @@ void entity_manager::reset()
     this->m_daemon_lookup.clear();
     this->m_default_cmds.clear();
     this->m_room_lookup.clear();
+    this->m_item_lookup.clear();
 
     _heartbeat.deregister_all_heartbeat_funcs();
 
@@ -1204,6 +1377,18 @@ void entity_manager::reset()
 
     for(auto& cmdname : destroy_entities)
         destroy_command(cmdname);
+        
+    destroy_entities.clear();
+    for(auto& cmd : m_item_objs) {
+        for(auto& ew : cmd.second) {
+            destroy_entities.push_back(ew->script_path);
+        }
+    }
+
+    for(auto& itemname : destroy_entities)
+        destroy_item(itemname);
+        
+        
     this->m_state_internal.reset();
     m_state.reset();
     // m_room_objs.clear();
@@ -1229,6 +1414,45 @@ roomobj* entity_manager::GetRoomByScriptPath(std::string& script_path, unsigned 
 
     return NULL;
 }
+
+
+itemobj* entity_manager::GetItemByScriptPath(std::string& script_path, unsigned int instance_id)
+{
+    std::string item_path = script_path + ":id=" + std::to_string(instance_id);
+    auto search = m_item_lookup.find(script_path);
+    if(search != m_item_lookup.end()) {
+        return search->second;
+    }
+    /*
+    std::set<std::shared_ptr<entity_wrapper> > rooms;
+    get_rooms_from_path(script_path, rooms);
+
+    for(auto& ew : rooms) {
+        if(ew->instance_id == instance_id) {
+            return dynamic_cast<roomobj*>(ew->script_ent);
+        }
+    }
+    */
+
+    return NULL;
+}
+
+itemobj* entity_manager::GetItemByScriptPath(std::string& script_path)
+{
+    //std::string room_path = script_path + ":id=" + std::to_string(instance_id);
+    std::string itempath = script_path;
+    std::size_t found = itempath.find(":id=");
+    if(found == std::string::npos) {
+        itempath += ":id=0";
+    }
+    auto search = m_item_lookup.find(itempath);
+    if(search != m_item_lookup.end()) {
+        return search->second;
+    }
+
+    return NULL;
+}
+
 
 roomobj* entity_manager::GetRoomByScriptPath(std::string& script_path)
 {
@@ -1525,7 +1749,6 @@ bool entity_manager::do_tp(std::string& entitypath, playerobj* p_targ, playerobj
 
     return false;
 }
-
 
 /*
 bool entity_manager::compile_lib(std::string& script_or_path, std::string& reason)
