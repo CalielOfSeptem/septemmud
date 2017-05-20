@@ -8,8 +8,7 @@ void heartbeat_manager::do_heartbeats()
 {
     for(auto& kv : bindings) {
         try {
-            //sol::state st = sol::state_view(kv.second.lua_state);
-            
+
             kv.second.lua_state.set_function("debug_hook", [&kv](sol::object o) -> void 
             { 
                 sol::optional<std::string> spath = kv.second.script_path;//lua_state["_INTERNAL_SCRIPT_PATH_"];
@@ -27,10 +26,9 @@ void heartbeat_manager::do_heartbeats()
                     std::string s = "Infinite loop detected. Operation terminated.";
                     if( se )
                     {
-                        sol::this_state sta;
-                        sta.L = kv.second.lua_state.lua_state();
-                        //rooms[0]->script_ent->Debug(sta, s);
-                        se->debug(sta, s);
+                        //sol::this_state sta;
+                        ///sta.L = kv.second.lua_state.lua_state();
+                        se->debug(s);
                     }
                     lua_pushstring( kv.second.lua_state.lua_state(), s.c_str());
                     lua_error( kv.second.lua_state.lua_state() );
@@ -40,10 +38,10 @@ void heartbeat_manager::do_heartbeats()
                     std::string s = "Error. Reason = " + err.value();
                     if( se )
                     {
-                        sol::this_state sta;
-                        sta.L = kv.second.lua_state.lua_state();
+                       // sol::this_state sta;
+                       // sta.L = kv.second.lua_state.lua_state();
                         //rooms[0]->script_ent->Debug(sta, s);
-                        se->debug(sta, s);
+                        se->debug(s);
                     }
                     lua_pushstring( kv.second.lua_state.lua_state(), s.c_str());
                     lua_error( kv.second.lua_state.lua_state() );
@@ -52,12 +50,13 @@ void heartbeat_manager::do_heartbeats()
             });
 
             
-            kv.second.lua_state.script("debug.sethook (debug_hook, '', 1048575)");
+            kv.second.lua_state.script("debug.sethook (debug_hook, '', 10000)");
             auto result = kv.second.pf();
             if(!result.valid()) {
                 sol::error err = result;
                 std::cout << err.what() << std::endl;
             }
+            kv.second.lua_state.script("debug.sethook ()");
         } catch(std::exception& ex) {
             std::cout << ex.what();
         }

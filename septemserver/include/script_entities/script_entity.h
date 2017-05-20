@@ -94,7 +94,7 @@ struct script_entity {
         
         std::shared_ptr< _sol_userdata_ > m_userdata;
         
-        virtual void debug( sol::this_state ts, const std::string& msg );
+        virtual void debug( const std::string& msg );
         
 
         const std::string& GetName()

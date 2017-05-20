@@ -142,7 +142,7 @@ public:
     
     std::vector<script_entity*> GetItems();
     
-    virtual void debug( sol::this_state ts, const std::string& msg ) override;
+    virtual void debug( const std::string& msg ) override;
     
 private:
     std::string title;

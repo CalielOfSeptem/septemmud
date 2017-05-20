@@ -36,8 +36,10 @@ struct heartbeat_manager
         sol::environment target_env(sol::env_key, pf);
         sol::optional<std::string> script_path = target_env["_INTERNAL_SCRIPT_PATH_"];
         sol::optional<std::string> e_type = target_env["_INTERNAL_ENTITY_TYPE_"];
+       
         if( script_path )
         {
+             std::cout << script_path.value() << std::endl;
             if( script_path.value().empty() )
                 return -1; // yeah.. don't go trying to use an empty value
            // std::cout << script_path.value();

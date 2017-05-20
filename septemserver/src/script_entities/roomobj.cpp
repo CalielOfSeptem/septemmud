@@ -41,7 +41,7 @@ std::vector<script_entity*> roomobj::GetItems()
     return items;
 }
 
-void roomobj::debug(sol::this_state ts, const std::string& msg)
+void roomobj::debug(const std::string& msg)
 {
     for(auto obj : GetInventory()) {
         if(obj->GetType() == EntityType::PLAYER) {
@@ -50,5 +50,5 @@ void roomobj::debug(sol::this_state ts, const std::string& msg)
                 p->SendToEntity("DEBUG: " + msg);
         }
     }
-    script_entity::debug(ts, msg);
+    script_entity::debug(msg);
 }

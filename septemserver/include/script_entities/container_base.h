@@ -14,6 +14,14 @@
      
      virtual void AddEntityToInventory(script_entity * se)
      {
+         script_entity * env = se->GetEnvironment();
+         if( env != NULL && dynamic_cast<container_base*>(env) != this )
+         {
+             if( container_base * cb = dynamic_cast<container_base*>(env) )
+             {
+                 cb->RemoveEntityFromInventory(se);
+             }
+         }
          inventory.insert(se);
      }
      

@@ -2,14 +2,30 @@ inherit room
 p1 = room.new()
 p1:SetTitle('Caliel\'s Workroom')
 p1:SetDescription('A workroom.')
-p1:AddExit( direction.north, 'realms/void', true)
+p1:AddExit( direction.north, '/realms/void', true)
+p1:AddExit( direction.south, '/workspaces/caliel/workroom:id=1', true)
+p1:AddExit( direction.east, 'workspaces/caliel/workroom:id=2', true)
 p1:Debug('Loaded room!')
-clone_item( '/workspaces/caliel/entities/rock', p1 )
+clone_item( 'workspaces/caliel/entities/rock', p1 )
 
 function p1:hb()
-	for i = 1, 10000 do
-		clone_item( '/workspaces/caliel/entities/rock', p1 )
+	for i = 1, 10 do
+		clone_item( 'workspaces/caliel/entities/rock', p1 )
 	end
 end
 
 register_heartbeat(p1.hb)
+
+p2 = room.new()
+p2:SetTitle('Castle Foyer')
+p2:SetDescription('A castle foyer that includes a plush red carpet and lavish draperies.')
+p2:AddExit( direction.north, 'workspaces/caliel/workroom:id=0', true)
+--p1:Debug('Loaded room!')
+
+function p2:hb()
+	--for i = 1, 100 do
+	--	clone_item( 'workspaces/caliel/entities/rock', p2 )
+	--end
+end
+
+register_heartbeat(p2.hb)

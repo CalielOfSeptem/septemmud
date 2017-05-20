@@ -1,0 +1,104 @@
+inherit command
+c = command.new('get')
+
+	
+function c:ExecuteCommand ( o_orig, cmd )
+
+	s_type = o_orig:GetType()
+	
+	if (s_type:lower() ~= "player" and s_type:lower() ~= "npc") then
+		return false;
+	end
+	
+	o = living_cast(o_orig)
+	if ( o == nil ) then 
+		return false 
+	end	
+	
+	local myTable = cmd:split( ' ' )
+	if #myTable < 2 then
+		usage(o)
+		return true;
+	end
+	
+	-- remove get portion
+	table.remove(myTable, 1)
+	
+	local s1 = myTable[1]
+	
+	--local plimit = false
+	
+	--if( s1:lower() == 'my' ) then
+	--	plimit = true -- limit to player
+	--end
+	
+	--table.remove(myTable, 1)
+	
+	if( #myTable == 0 ) then
+		usage(o)
+		return true;
+	end
+	
+	local item_to_find = myTable[1]:lower() -- at this point we should have an object..
+	table.remove(myTable, 1)
+	
+	local cmd = table.concat(myTable, " ") -- put it back together
+	sm1 = string.match(cmd, "from my %a+")
+	
+	if sm1 then
+		-- limit to player's inventory
+		--print('FROM MY FOUND')
+	else
+		sm2 = string.match(cmd, "from %a+")
+		if sm2 then
+			-- find object starting in room then to the player's own inventory
+			--print('FROM FOUND')
+		end
+	end
+	
+	local player = player_cast(o_orig)
+	local room = player:GetRoom()
+	local items = room:GetItems()
+	local found_item = nil
+	
+	for i = 1, #items do
+		local itemName = items[i]:GetName():lower():split( ' ' )
+		for j = 1, #itemName do
+			if( itemName[j]:starts(item_to_find) ) then
+			-- found it.
+			found_item = items[i]
+			--print('FOUND IT!')
+			end
+		end
+	end
+	
+	if found_item == nil then
+		o:SendToEntity('Get what?')
+		return true
+	end
+	
+	
+	if( o:RightHand():IsEmpty() ~= true and o:LeftHand():IsEmpty() ~= true ) then
+		o:SendToEntity('Both of your hands are already full.')
+		return false;
+	end
+	
+	if( o:RightHand():IsEmpty() ) then
+		o:RightHand():AddToInventory(found_item)
+		o:SendToEntity('You pick up ' .. found_item:GetName() .. ' in your right hand.')	
+		return true;
+	end
+	
+	if( o:LeftHand():IsEmpty() ) then
+		o:LeftHand():AddToInventory(found_item)
+		o:SendToEntity('You pick up ' .. found_item:GetName() .. ' in your left hand.')	
+		return true;
+	end
+	
+	
+
+end
+
+function usage(o_orig)
+	o_orig:SendToEntity('USAGE: get <Implement me later>')
+end

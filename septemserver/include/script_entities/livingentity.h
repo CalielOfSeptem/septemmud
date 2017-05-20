@@ -24,6 +24,11 @@ struct handobj : public container_base
     {
         return container_base::RemoveEntityFromInventory(se);
     }
+    
+    bool IsEmpty()
+    {
+        return (this->GetInventory().size()==0);
+    }
      
 };
 
@@ -47,8 +52,18 @@ struct living_entity : public script_entity
     
     roomobj* GetRoom();
     
-    handobj RightHand;
-    handobj LeftHand;
+    handobj * GetRightHand()
+    {
+        return &m_RightHand;
+    }
+    
+    handobj * GetLeftHand()
+    {
+        return &m_LeftHand;
+    }
+    
+    handobj m_RightHand;
+    handobj m_LeftHand;
 
 };
 #endif

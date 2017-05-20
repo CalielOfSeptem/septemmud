@@ -424,6 +424,12 @@ void entity_manager::init_lua()
     lua.new_usertype<handobj>("hand",
                             "GetInventory",
                             &container_base::GetInventory,
+                            "IsEmpty",
+                            &handobj::IsEmpty,
+                            "AddToInventory",
+                            &handobj::AddEntityToInventory,
+                            "RemoveFromInventory",
+                            &handobj::RemoveEntityFromInventory,
                             sol::base_classes,
                             sol::bases<container_base>() );
                             
@@ -556,10 +562,6 @@ void entity_manager::init_lua()
                                 &script_entity::GetName,
                                 "DoCommand",
                                 &living_entity::DoCommand,
-                                "RightHand",
-                                &playerobj::RightHand,
-                                "LeftHand",
-                                &playerobj::LeftHand,
                                 sol::base_classes,
                                 sol::bases<living_entity, script_entity>());
                                 
@@ -583,6 +585,10 @@ void entity_manager::init_lua()
                                     &living_entity::GetRoom,
                                     "GetName",
                                     &script_entity::GetName,
+                                    "RightHand",
+                                    &living_entity::GetRightHand,
+                                    "LeftHand",
+                                    &living_entity::GetLeftHand,
                                     sol::base_classes,
                                     sol::bases<script_entity>());
 
@@ -618,6 +624,8 @@ void entity_manager::init_lua()
     lua.set_function("command_cast", &downcast<commandobj>);
     lua.set_function("room_cast", &downcast<roomobj>);
     lua.set_function("player_cast", &downcast<playerobj>);
+    lua.set_function("living_cast", &downcast<living_entity>);
+
 
     lua.set_function("get_default_commands", [&]() -> std::map<std::string, commandobj*> & 
     { 
@@ -795,7 +803,7 @@ bool entity_manager::get_room_by_script(std::string& script_path, std::unordered
 
 bool entity_manager::destroy_player(std::string& script_path)
 {
-    sol::state& lua = (*m_state);
+    //sol::state& lua = (*m_state);
 
     {
         auto search = m_player_objs.find(script_path);
@@ -821,7 +829,7 @@ bool entity_manager::destroy_player(std::string& script_path)
 bool entity_manager::destroy_room(std::string& script_path)
 {
 
-    sol::state& lua = (*m_state);
+    //sol::state& lua = (*m_state);
     {
         auto search = m_room_objs.find(script_path);
         if(search == m_room_objs.end()) {
@@ -850,7 +858,7 @@ bool entity_manager::destroy_room(std::string& script_path)
 bool entity_manager::destroy_command(std::string& script_path)
 {
 
-    sol::state& lua = (*m_state);
+    //sol::state& lua = (*m_state);
     {
         auto search = m_cmd_objs.find(script_path);
         if(search == m_cmd_objs.end()) {
@@ -877,7 +885,7 @@ bool entity_manager::destroy_command(std::string& script_path)
 bool entity_manager::destroy_item(std::string& script_path)
 {
 
-    sol::state& lua = (*m_state);
+    //sol::state& lua = (*m_state);
     {
         auto search = m_item_objs.find(script_path);
         if(search == m_item_objs.end()) {
@@ -905,7 +913,7 @@ bool entity_manager::destroy_item(std::string& script_path)
 bool entity_manager::destroy_daemon(std::string& script_path)
 {
 
-    sol::state& lua = (*m_state);
+    //sol::state& lua = (*m_state);
     {
         auto search = m_daemon_objs.find(script_path);
         if(search == m_daemon_objs.end()) {
@@ -1541,20 +1549,30 @@ get_entity_path_from_id_string(const std::string& entity_id, std::string& entity
 
 bool entity_manager::move_living(script_entity* target, const std::string& roomid)
 {
-    std::string roompath = roomid;
+    if( roomid.size() == 0 )
+    {
+        target->debug("Error, path cannot be empty.");
+        return false;
+    }
+    std::string roompath = boost::to_lower_copy(roomid);
     std::size_t found = roompath.find(":id=");
     if(found == std::string::npos) {
         roompath += ":id=0";
     }
-    //unsigned int instance = 0;
-    //
-    auto search = m_room_lookup.find(boost::to_lower_copy(roompath));
-    roomobj* r = search->second;
+    if( roompath[0] == '/' )
+        roompath.erase(0, 1);
+    
+    roomobj* r = GetRoomByScriptPath(roompath);
     if(r != NULL) {
         move_entity(target, static_cast<script_entity*>(r));
     }
-    // LOG_DEBUG << r->GetTitle();
-    // get_entity_path_from_id_string(roomid, roompath, instance);
+    else
+    {
+        std::stringstream ss;
+        ss << "Error. Path [" << roomid << "] not found.";
+        target->debug(ss.str());
+        return false;
+    }
     return true;
 }
 

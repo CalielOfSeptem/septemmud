@@ -54,7 +54,7 @@ script_entity::~script_entity()
     entity_manager::Instance().deregister_entity(this, m_type);
 }
 
-void script_entity::debug(sol::this_state ts, const std::string& msg)
+void script_entity::debug(const std::string& msg)
 {
     //lua_State* L = ts;
     //sol::userdata selfobj = sol::userdata(L, 1);
