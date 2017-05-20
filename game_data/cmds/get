@@ -85,13 +85,17 @@ function c:ExecuteCommand ( o_orig, cmd )
 	
 	if( o:RightHand():IsEmpty() ) then
 		o:RightHand():AddToInventory(found_item)
-		o:SendToEntity('You pick up ' .. found_item:GetName() .. ' in your right hand.')	
+		o:SendToPlayer('You pick up ' .. found_item:GetName() .. ' in your right hand.')
+		local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
+		o:SendToRoom( pname .. ' picks up ' .. found_item:GetName() .. '.')		
 		return true;
 	end
 	
 	if( o:LeftHand():IsEmpty() ) then
 		o:LeftHand():AddToInventory(found_item)
-		o:SendToEntity('You pick up ' .. found_item:GetName() .. ' in your left hand.')	
+		o:SendToPlayer('You pick up ' .. found_item:GetName() .. ' in your left hand.')	
+		local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
+		o:SendToRoom( pname .. ' picks up ' .. found_item:GetName() .. '.')
 		return true;
 	end
 	
