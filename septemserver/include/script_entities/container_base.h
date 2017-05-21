@@ -10,19 +10,31 @@
 
  struct container_base
  {
-     //container() = default;
-     
+     virtual script_entity * GetOwner() = 0;
      virtual void AddEntityToInventory(script_entity * se)
      {
+         if( se == NULL )
+             return;
+             
          script_entity * env = se->GetEnvironment();
-         if( env != NULL && dynamic_cast<container_base*>(env) != this )
+         
+         if( env != NULL && env == GetOwner() )
+             return;
+             
+         if( env != NULL )
          {
+             // remove entity from inventory
              if( container_base * cb = dynamic_cast<container_base*>(env) )
              {
                  cb->RemoveEntityFromInventory(se);
              }
          }
+         
          inventory.insert(se);
+         auto t = GetOwner();
+         if( t == NULL )
+             return;
+         se->SetEnvironment( GetOwner() );
      }
      
      virtual bool RemoveEntityFromInventoryByID( const std::string& id  )
@@ -34,6 +46,7 @@
                 // Check if key's first character is Fi
                 if( (*it)->GetInstancePath() == id )
                 {
+                    (*it)->SetEnvironment(NULL);
                     it = this->inventory.erase(it);
                     return true;
                 }
@@ -52,6 +65,7 @@
                 // Check if key's first character is Fi
                 if( (*it) == se )
                 {
+                    (*it)->SetEnvironment(NULL);
                     it = this->inventory.erase(it);
                     return true;
                 }
@@ -67,5 +81,6 @@
      }
      protected:
      std::set< script_entity* > inventory;
+    
  };
  #endif

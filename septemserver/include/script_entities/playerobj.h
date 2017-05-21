@@ -6,7 +6,7 @@
 #include "script_entities/container_base.h"
 #include <stdio.h>
 
-struct playerobj : living_entity, container_base
+struct playerobj : living_entity
 {
      playerobj(sol::this_state ts, sol::this_environment te, std::string name) :
         living_entity(ts, te, EntityType::PLAYER, name)

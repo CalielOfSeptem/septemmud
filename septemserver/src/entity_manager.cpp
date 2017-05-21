@@ -430,8 +430,12 @@ void entity_manager::init_lua()
                             &handobj::AddEntityToInventory,
                             "RemoveFromInventory",
                             &handobj::RemoveEntityFromInventory,
+                            "GetItem",
+                            &handobj::GetItem,
                             sol::base_classes,
                             sol::bases<container_base>() );
+                            
+
                             
     lua.new_usertype<itemobj>("item",
                             sol::constructors<itemobj(sol::this_state, sol::this_environment)>(),
@@ -507,6 +511,10 @@ void entity_manager::init_lua()
                               &script_entity::debug,
                               "GetInventory",
                               &container_base::GetInventory,
+                              "AddToInventory",
+                              &roomobj::AddEntityToInventory,
+                              "RemoveFromInventory",
+                              &roomobj::RemoveEntityFromInventory,
                               "GetPlayers",
                               &roomobj::GetPlayers,
                               "GetItems",

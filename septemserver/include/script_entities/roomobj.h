@@ -85,6 +85,11 @@ public:
         return true;
     }
     
+    virtual script_entity * GetOwner() override
+    {
+        return this;
+    }
+    
     
     std::vector<exitobj>& GetExits()
     {
@@ -118,22 +123,23 @@ public:
         return short_description;
     }
     
-    virtual void AddEntityToInventory(script_entity * se)
+    virtual void AddEntityToInventory(script_entity * se) override
     {
-         se->SetEnvironment(static_cast<script_entity*>(this));
          container_base::AddEntityToInventory(se);
+        // se->SetEnvironment( static_cast<script_entity*>(this) );
+         //se->SetEnvironment(static_cast<script_entity*>(this)); // this must be called AFTER the above (to remove the se from its previous owner)
     }
      
-    virtual bool RemoveEntityFromInventoryByID( const std::string& id  )
+    virtual bool RemoveEntityFromInventoryByID( const std::string& id  ) override
     {
         return container_base::RemoveEntityFromInventoryByID(id);
          // TODO: implement this and be sure to nuke a removed items environment_ pointer..
          
     }
     
-    virtual bool RemoveEntityFromInventory( script_entity * se )
+    virtual bool RemoveEntityFromInventory( script_entity * se ) override
     {
-        se->SetEnvironment(NULL);
+        //se->SetEnvironment(NULL);
         return container_base::RemoveEntityFromInventory(se);
     }
 

@@ -14,6 +14,12 @@ struct itemobj : public script_entity, public container_base
      
      itemobj(sol::this_state ts, sol::this_environment te);
      
+    virtual script_entity * GetOwner() override
+    {
+        return this;
+    }
+    
+     
      double get_weight ()
      {
          return m_weight;

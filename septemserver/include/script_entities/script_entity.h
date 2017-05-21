@@ -26,7 +26,13 @@ struct script_entity {
         {
             
         }
+        
         script_entity(sol::this_state ts, sol::this_environment te, EntityType myType, std::string name);
+        
+        script_entity()
+        {
+            
+        }
         
         ~script_entity();
 
