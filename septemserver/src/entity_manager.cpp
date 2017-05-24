@@ -121,10 +121,11 @@ bool entity_manager::compile_and_clone(std::string& relative_script_path,
         if(tag_text.size() != 0) {
             boost::replace_all(_scriptext, tag_text, tag_replace);
         }
-        //_scriptext = _scriptext + "\n_INTERNAL_UUID_ = '"+tag_replace+"'"; //may need to rethink this
-        //std::cout << _scriptext << std::endl;
+       // _scriptext = _scriptext + "\n_INTERNAL_SCRIPT_PATH_BASE_ = '"+relative_script_path+"'"; //may need to rethink this
+       // std::cout << _scriptext << std::endl;
         if(!compile_entity(script_path_virtual, et, _scriptext, reason))
             return false;
+        
 
     } catch(std::exception& ex) {
         reason = ex.what();
@@ -270,13 +271,18 @@ bool entity_manager::clone_item(std::string& relative_script_path, script_entity
     adl_lua += "\n_INTERNAL_UUID_ = '"+uid+"'"; //may need to rethink this
     if( !this->compile_and_clone( relative_script_path, vpath, tag, uid, adl_lua, reason ) )
     {
+        if( obj != NULL )
+            obj->debug(reason);
         return false;
     }
     else
     {
         itemobj * i = GetItemByScriptPath(vpath);
+       
         if( i != NULL )
         {
+            i->SetBaseScriptPath(relative_script_path);
+            relative_script_path = vpath;
             switch( obj->GetType() )
             {
                 case EntityType::ROOM:
@@ -304,6 +310,7 @@ bool entity_manager::clone_item(std::string& relative_script_path, script_entity
         // now find the item &..
       //  get_daemons_from_path()
     }
+    
     return true;
 }
 
@@ -404,8 +411,9 @@ void entity_manager::init_lua()
             "GetName",  &script_entity::GetName,
             "SetName", &script_entity::SetName,
             "Reset",  &script_entity::clear_props,
-            "GetType", 
-            &script_entity::GetEntityTypeString);
+            "GetType", &script_entity::GetEntityTypeString,
+            "destroy", sol::property(&script_entity::get_destroy, &script_entity::set_destroy)
+            );
 
     lua.new_usertype<exitobj>("exitobj",
                               "GetExitPath",
@@ -458,8 +466,20 @@ void entity_manager::init_lua()
                             "GetStackable", &itemobj::get_isStackable,
                             "SetStackable", &itemobj::set_isStackable,
                             
+                            "GetCurrentStackCount", &itemobj::get_currentStackCount,
+                            "SetCurrentStackCount", &itemobj::set_currentStackCount,
+                            
+                            "IncrementStackCount", &itemobj::incrementStackCount,
+                            "DecrementStackCount", &itemobj::decrementStackCount,
+                            
+                            "GetDefaultStackSize", &itemobj::get_defaultStackSize,
+                            "SetDefaultStackSize", &itemobj::set_defaultStackSize,
+                            
                             "GetIsContainer", &itemobj::get_isContainer,
                             "SetIsContainer", &itemobj::set_isContainer,
+                            
+                            "GetPluralName", &itemobj::get_pluralName,
+                            "SetPluralName", &itemobj::set_pluralName,
                             
                             "weight", sol::property(&itemobj::get_weight, &itemobj::set_weight),
                             "isWearable", sol::property(&itemobj::get_isWearable, &itemobj::set_isWearable),
@@ -1143,7 +1163,7 @@ void entity_manager::register_entity(script_entity* entityobj, std::string &sp, 
     ew->entity_type = etype;
     //assert(_currently_loading_script.size() != 0);
     ew->script_path = sp;
-    entityobj->SetScriptPath(ew->script_path);
+    //entityobj->SetScriptPath(ew->script_path);
     ew->script_ent = entityobj;
     ew->_script_f_ = m_state_internal->_current_script_f_; // <-- work around to ensure all objects in env get destroyed
 
@@ -1407,6 +1427,94 @@ void entity_manager::reset()
         
     this->m_state_internal.reset();
     m_state.reset();
+    // m_room_objs.clear();
+}
+
+void entity_manager::garbage_collect()
+{
+    //this->m_daemon_lookup.clear();
+    //this->m_default_cmds.clear();
+    //this->m_room_lookup.clear();
+    //this->m_item_lookup.clear();
+
+    //_heartbeat.deregister_all_heartbeat_funcs();
+
+    std::vector<std::string> destroy_entities;
+    for(auto& e : m_room_objs) {
+        for(auto& ew : e.second) {
+            if( ew->script_ent->get_destroy() )
+            {
+              destroy_entities.push_back(ew->script_path);  
+              deregister_room( static_cast<roomobj*>(ew->script_ent) );
+            }
+        }
+    }
+
+    for(auto& rname : destroy_entities)
+        destroy_room(rname);
+
+    destroy_entities.clear();
+
+    for(auto& e : m_player_objs) {
+        if( e.second->script_ent->get_destroy() )
+        {
+            destroy_entities.push_back(e.second->script_path);
+            //( static_cast<daemonobj*>(ew->script_ent) );
+        }
+    }
+
+    for(auto& pname : destroy_entities)
+        destroy_player(pname);
+
+    destroy_entities.clear();
+    for(auto& d : m_daemon_objs) {
+        for(auto& ew : d.second) {
+            if( ew->script_ent->get_destroy() )
+            {
+                destroy_entities.push_back(ew->script_path);
+                deregister_daemon( static_cast<daemonobj*>(ew->script_ent) );
+            }
+        }
+    }
+
+    for(auto& dname : destroy_entities)
+        destroy_daemon(dname);
+
+    destroy_entities.clear();
+    for(auto& cmd : m_cmd_objs) {
+        for(auto& ew : cmd.second) {
+            if( ew->script_ent->get_destroy() )
+            {
+                destroy_entities.push_back(ew->script_path);
+                deregister_command( static_cast<commandobj*>(ew->script_ent) );
+            }
+        }
+    }
+
+    for(auto& cmdname : destroy_entities)
+        destroy_command(cmdname);
+        
+    destroy_entities.clear();
+    for(auto& cmd : m_item_objs) {
+        for(auto& ew : cmd.second) {
+            if( ew->script_ent->get_destroy() )
+            {
+                destroy_entities.push_back(ew->script_path);
+                deregister_item( static_cast<itemobj*>(ew->script_ent) );
+            }
+        }
+    }
+
+    for(auto& itemname : destroy_entities)
+    {
+        destroy_item(itemname);
+       // this->m_item_lookup.clear();
+    }
+        
+    sol::state& lua = (*m_state);
+    lua.collect_garbage();
+    //this->m_state_internal.reset();
+    //m_state.reset();
     // m_room_objs.clear();
 }
 

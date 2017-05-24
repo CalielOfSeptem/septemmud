@@ -27,14 +27,14 @@ std::vector<script_entity*> roomobj::GetPlayers(const std::string& name)
     return players;
 }
 
-std::vector<script_entity*> roomobj::GetItems()
+std::vector<itemobj*> roomobj::GetItems()
 {
-    std::vector<script_entity*> items;
+    std::vector<itemobj*> items;
     for(auto obj : GetInventory()) {
         if(obj->GetType() == EntityType::ITEM) {
             // playerobj * p = dynamic_cast<playerobj*>(obj);
            // if(boost::to_lower_copy(obj->GetName()) != boost::to_lower_copy(name)) {
-                items.push_back(obj);
+                items.push_back(static_cast<itemobj*>(obj));
            // }
         }
     }

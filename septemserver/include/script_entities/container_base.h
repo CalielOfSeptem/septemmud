@@ -6,36 +6,11 @@
  #include <memory>
  #include <set>
  #include "entity_wrapper.h"
- 
 
  struct container_base
  {
      virtual script_entity * GetOwner() = 0;
-     virtual void AddEntityToInventory(script_entity * se)
-     {
-         if( se == NULL )
-             return;
-             
-         script_entity * env = se->GetEnvironment();
-         
-         if( env != NULL && env == GetOwner() )
-             return;
-             
-         if( env != NULL )
-         {
-             // remove entity from inventory
-             if( container_base * cb = dynamic_cast<container_base*>(env) )
-             {
-                 cb->RemoveEntityFromInventory(se);
-             }
-         }
-         
-         inventory.insert(se);
-         auto t = GetOwner();
-         if( t == NULL )
-             return;
-         se->SetEnvironment( GetOwner() );
-     }
+     virtual void AddEntityToInventory(script_entity * se);
      
      virtual bool RemoveEntityFromInventoryByID( const std::string& id  )
      {

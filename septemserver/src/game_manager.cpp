@@ -260,7 +260,7 @@ bool game_manager::process_player_cmd(script_entity* p, std::string& cmd)
     //roomt->AddEntityToInventory(pcaliel);
     if( entity_manager::Instance().do_command(pcaliel, cmd) )
     {
-        
+        entity_manager::Instance().garbage_collect();
     }
     else
     {

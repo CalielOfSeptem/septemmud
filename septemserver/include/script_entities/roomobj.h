@@ -5,7 +5,7 @@
 //#include "script_entities/playerobj.h"
 #include <sol.hpp>
 
-
+struct itemobj;
 
 struct exitobj
 {
@@ -146,7 +146,7 @@ public:
      
     std::vector<script_entity*> GetPlayers(const std::string& name);
     
-    std::vector<script_entity*> GetItems();
+    std::vector<itemobj*> GetItems();
     
     virtual void debug( const std::string& msg ) override;
     

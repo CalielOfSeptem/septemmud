@@ -126,7 +126,7 @@ struct _internal_lua_
     
     std::vector<std::string> tail_entity_log( script_entity * se );
     
-    
+    void garbage_collect();
 protected:
     entity_manager()
     ;

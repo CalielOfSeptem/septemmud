@@ -44,13 +44,13 @@ function FormatRoom(r, o)
 		s = s .. "You also see "
 	
 		for i = 1, #items do
-			--local it = player_cast(players[i])
-			--print(po)
-			local iname = items[i]:GetName()--po:GetPlayerName()
-			--firstToUpper(pname)
-			--iname = string.gsub(iname, "(%a)([%w_']*)", titleCase)
-			--str = myTable[1]
-			str = iname--str:lower()
+			local iname = items[i]:GetName()
+			str = iname
+			print( items[i]:GetCurrentStackCount() )
+			if( items[i].isStackable and items[i]:GetCurrentStackCount() > 1 ) then
+			
+				str = items[i]:GetPluralName()
+			end
 			if i ~= #items then
 				str = str .. ', '
 

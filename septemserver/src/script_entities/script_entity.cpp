@@ -23,7 +23,13 @@ script_entity::script_entity(sol::this_state ts, sol::this_environment te, Entit
         }
     sol::environment& env = te;      
     sol::optional<std::string> sp = env["_INTERNAL_SCRIPT_PATH_"];
+    
     assert( sp );
+    this->SetScriptPath( sp.value() );
+   // sol::optional<std::string> sp2 = env["_INTERNAL_SCRIPT_PATH_BASE_"];
+    //assert( sp2 );
+   // if( sp2 )
+   //     this->SetBaseScriptPath( sp2.value() );
     // references the object that called this function
     // in constructors:
 
@@ -131,4 +137,9 @@ void script_entity::SetScriptPath(std::string& path)
     script_path = path;
 
     
+}
+
+void script_entity::SetBaseScriptPath(std::string& path)
+{
+    base_script_path = path;
 }

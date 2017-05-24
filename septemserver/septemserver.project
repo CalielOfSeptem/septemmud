@@ -13,6 +13,7 @@
       <File Name="src/script_entities/daemonobj.cpp"/>
       <File Name="src/script_entities/livingentity.cpp"/>
       <File Name="src/script_entities/itemobj.cpp"/>
+      <File Name="src/script_entities/container_base.cpp"/>
     </VirtualDirectory>
     <File Name="src/game_manager.cpp"/>
     <File Name="src/entity_manager.cpp"/>
@@ -58,7 +59,7 @@
       <ResourceCompiler Options=""/>
     </GlobalSettings>
     <Configuration Name="Debug" CompilerType="GCC" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
-      <Compiler Options="-g;-O0;-std=c++14;-Wall" C_Options="-g;-O0;-Wall" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+      <Compiler Options="-g;-O0;-std=c++14;-Wall;-ftemplate-depth=10000" C_Options="-g;-O0;-Wall" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
         <IncludePath Value="."/>
         <IncludePath Value="include/"/>
         <IncludePath Value="../sol2"/>

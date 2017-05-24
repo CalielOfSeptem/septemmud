@@ -91,6 +91,9 @@ struct script_entity {
         std::string GetScriptPath() { return script_path; }
         void SetScriptPath(std::string& path) ;
         
+        std::string GetBaseScriptPath() { return base_script_path; }
+        void SetBaseScriptPath(std::string& path) ;
+        
         std::string GetInstancePath()
         {
             return script_path + ":id=" + std::to_string(instanceID);
@@ -123,6 +126,17 @@ struct script_entity {
             this->look = look;
         }
         
+        const bool get_destroy()
+        {
+            return m_destroy;
+        }
+        
+        void set_destroy(bool destroy)
+        {
+            m_destroy = destroy;
+            if( destroy )
+                clear_props();
+        }
         
 private:
         my_sink m_entityLog;
@@ -130,6 +144,8 @@ private:
         EntityType m_type = EntityType::UNKNOWN;
         script_entity* environment_;
         std::string script_path;
+        std::string base_script_path;
+        bool m_destroy = false;
         
   
 protected:
