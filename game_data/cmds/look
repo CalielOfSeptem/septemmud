@@ -44,13 +44,13 @@ function FormatRoom(r, o)
 		s = s .. "You also see "
 	
 		for i = 1, #items do
-			local iname = items[i]:GetName()
+			local iname = items[i]:GetCurrentName()
 			str = iname
-			print( items[i]:GetCurrentStackCount() )
-			if( items[i].isStackable and items[i]:GetCurrentStackCount() > 1 ) then
+			--print( items[i]:GetCurrentStackCount() )
+			--if( items[i].isStackable and items[i]:GetCurrentStackCount() > 1 ) then
 			
-				str = items[i]:GetPluralName()
-			end
+			--	str = items[i]:GetPluralName()
+			--end
 			if i ~= #items then
 				str = str .. ', '
 

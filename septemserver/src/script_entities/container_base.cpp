@@ -11,7 +11,7 @@ void container_base::AddEntityToInventory(script_entity* se)
 
     if(env != NULL && env == GetOwner())
         return;
-        
+        /*
     if(itemobj* item = dynamic_cast<itemobj*>(se)) {
         if(item->get_isStackable()) {
            if( item->get_currentStackCount() > 1 )
@@ -31,6 +31,7 @@ void container_base::AddEntityToInventory(script_entity* se)
            }
         }
     }
+     */
 
     if(env != NULL) {
         // remove entity from inventory
@@ -46,7 +47,7 @@ void container_base::AddEntityToInventory(script_entity* se)
                     ///std::cout << itemb->GetScriptPath() << std::endl;
                    // std::cout << item->GetScriptPath() << std::endl;
                     if(itemb->GetBaseScriptPath() == item->GetBaseScriptPath() && itemb->get_currentStackCount() < itemb->get_defaultStackSize()) {
-                       // std::cout << itemb->get_currentStackCount() << std::endl;
+                       //[ std::cout << itemb->get_currentStackCount() << std::endl;
                         itemb->incrementStackCount();
                         item->set_destroy(true);
                         return; // no reason to add it, we just added to a stack.

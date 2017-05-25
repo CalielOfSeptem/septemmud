@@ -479,6 +479,7 @@ void entity_manager::init_lua()
                             "SetIsContainer", &itemobj::set_isContainer,
                             
                             "GetPluralName", &itemobj::get_pluralName,
+                            "GetCurrentName", &itemobj::get_currentName,
                             "SetPluralName", &itemobj::set_pluralName,
                             
                             "weight", sol::property(&itemobj::get_weight, &itemobj::set_weight),

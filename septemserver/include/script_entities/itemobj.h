@@ -82,14 +82,27 @@ struct itemobj : public script_entity, public container_base
     
     virtual std::string get_pluralName()
     {
-        return pluralName;
+       // if( get_currentStackCount() == 1 )
+        //    return name;
+        //else return pluralName;
+        //return pluralName;
     }
      
     virtual void set_pluralName(std::string s)
     {
         pluralName = s;
     }
-          
+    
+        
+    virtual std::string get_currentName()
+    {
+        if( get_currentStackCount() == 1 )
+            return name;
+        else 
+            return pluralName;
+        //return pluralName;
+    }
+         
     virtual int get_defaultStackSize()
     {
         return this->m_defaultStackSize;

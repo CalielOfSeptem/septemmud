@@ -10,7 +10,7 @@ clone_item( 'workspaces/caliel/entities/rock', p1 )
 
 function p1:hb()
 	for i = 1, 25 do
-		clone_item( 'workspaces/caliel/entities/rock', p1 )
+		clone_item( 'workspaces/caliel/entities/simple arrow', p1 )
 	end
 end
 
