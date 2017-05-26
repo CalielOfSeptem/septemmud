@@ -1,8 +1,8 @@
 inherit item
 
-i = item.new()
+i = item.new('a rock', itemType.thrown)
 
-i:SetName('a rock')
+--i:SetName('a rock')
 
 i.Look = 'an ordinary rock'
 

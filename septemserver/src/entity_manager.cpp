@@ -446,7 +446,7 @@ void entity_manager::init_lua()
 
                             
     lua.new_usertype<itemobj>("item",
-                            sol::constructors<itemobj(sol::this_state, sol::this_environment)>(),
+                            sol::constructors<itemobj(sol::this_state, sol::this_environment, std::string, ItemType)>(),
                             sol::meta_function::new_index,
                             &itemobj::set_property_lua,
                             sol::meta_function::index,
@@ -654,7 +654,7 @@ void entity_manager::init_lua()
     lua.set_function("room_cast", &downcast<roomobj>);
     lua.set_function("player_cast", &downcast<playerobj>);
     lua.set_function("living_cast", &downcast<living_entity>);
-
+    lua.set_function("int_to_string", &int_to_string);
 
     lua.set_function("get_default_commands", [&]() -> std::map<std::string, commandobj*> & 
     { 

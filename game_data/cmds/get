@@ -56,7 +56,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 		end
 	end
 	
-	local player = player_cast(o_orig)
+	local player = living_cast(o_orig)
 	local room = player:GetRoom()
 	local items = room:GetItems()
 	local found_item = nil

@@ -12,7 +12,8 @@ direction.southwest = { 'southwest', 'sw' }
 settings = {}
 settings.DEFAULT_GAME_DATA_PATH = "DEFAULT_GAME_DATA_PATH"
 
---FINE, DIMINUTIVE, TINY, SMALL, MEDIUM, LARGE, ENORMOUS, GARGANTUAN, COLOSSAL };
+-- The following match C++ defines, do not change without also updating C++ defines..
+--enum class ItemSize { FINE=0, DIMINUTIVE, TINY, SMALL, MEDIUM, LARGE, ENORMOUS, GARGANTUAN, COLOSSAL };
 itemSize = {}
 itemSize.fine 		= 0
 itemSize.diminutive 	= 1
@@ -23,3 +24,16 @@ itemSize.large 		= 5
 itemSize.enormous 	= 6
 itemSize.gargantuan 	= 7
 itemSize.colossal 	= 8
+
+--enum class ItemType { DEFAULT=0, ARMOR, PLANT, INSTRUMENT, TOOL, MELEE, RANGED, THROWN, SKIN, AMMO };
+itemType = {}
+itemType.default	= 0
+itemType.armor		= 1
+itemType.plant		= 2
+itemType.instrument	= 3
+itemType.tool		= 4
+itemType.melee		= 5
+itemType.ranged		= 6
+itemType.thrown		= 7
+itemType.skin		= 8
+itemType.ammo		= 9

@@ -6,13 +6,16 @@
 #include "script_entities/container_base.h"
 #include <stdio.h>
 
-enum class ItemSize { FINE, DIMINUTIVE, TINY, SMALL, MEDIUM, LARGE, ENORMOUS, GARGANTUAN, COLOSSAL };
+// These match the lua defines, do not change without also updating defines..
+enum class ItemSize { FINE=0, DIMINUTIVE, TINY, SMALL, MEDIUM, LARGE, ENORMOUS, GARGANTUAN, COLOSSAL };
+enum class ItemType { DEFAULT=0, ARMOR, PLANT, INSTRUMENT, TOOL, MELEE, RANGED, THROWN, SKIN, AMMO };
+
 
 struct itemobj : public script_entity, public container_base
 {
-    itemobj(sol::this_state ts, sol::this_environment te, std::string name);
+    itemobj(sol::this_state ts, sol::this_environment te, std::string name, ItemType itype);
 
-    itemobj(sol::this_state ts, sol::this_environment te);
+    //itemobj(sol::this_state ts, sol::this_environment te);
 
     virtual script_entity * GetOwner() override
     {
@@ -142,6 +145,7 @@ struct itemobj : public script_entity, public container_base
      
     double m_weight; // item weight in stones
     ItemSize m_size = ItemSize::TINY;
+    ItemType m_type = ItemType::DEFAULT;
     int m_defaultStackSize = 10;
     int m_currentStackCount = 1;
     bool bisWearable;

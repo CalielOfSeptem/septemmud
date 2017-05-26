@@ -1,0 +1,119 @@
+inherit command
+c = command.new('count')
+
+
+function c:CheckHands( o_orig, s1 )
+	if( o_orig:RightHand():IsEmpty() == false ) then
+		local itemName = o_orig:RightHand():GetItem():GetCurrentName():lower():split( ' ' )
+		for j = 1, #itemName do
+			if( itemName[j] ~= 'a' and itemName[j] ~= 'an' and itemName[j] ~= 'some' and itemName[j]:starts(s1) ) then
+				local room = o_orig:GetRoom()
+				found_item = o_orig:RightHand():GetItem()
+			end
+		end
+	end
+	
+	if( o_orig:LeftHand():IsEmpty() == false ) then
+	
+		local itemName = o_orig:LeftHand():GetItem():GetCurrentName():lower():split( ' ' )
+		for j = 1, #itemName do
+			if( itemName[j] ~= 'a' and itemName[j] ~= 'an'  and itemName[j] ~= 'some' and itemName[j]:starts(s1) ) then
+				local room = o_orig:GetRoom()
+				found_item = o_orig:LeftHand():GetItem()
+			end
+		end
+	end
+	
+	if found_item == nil then return false end
+	
+	if found_item.isStackable and found_item:GetCurrentStackCount() > 1 then
+		o_orig:SendToEntity( 'You count ' .. found_item:GetCurrentName() .. ' and find there are ' .. int_to_string(found_item:GetCurrentStackCount()) .. '.' )
+	else
+		o_orig:SendToEntity( 'You count ' .. found_item:GetCurrentName() .. ' and find there is only one.' )
+	end
+	
+	return true
+end
+
+function c:CheckEnv( o_orig, s1 )
+	
+	local room = o_orig:GetRoom()
+	local items = room:GetItems()
+	local found_item = nil
+	
+	for i = 1, #items do
+		local itemName = items[i]:GetCurrentName():lower():split( ' ' )
+		for j = 1, #itemName do
+			if( itemName[j] ~= 'a' and itemName[j] ~= 'an' and itemName[j]:starts(s1) ) then
+				found_item = items[i]
+				if found_item.isStackable and found_item:GetCurrentStackCount() > 1 then
+					o_orig:SendToEntity( 'You count ' .. found_item:GetCurrentName() .. ' and find there are ' .. int_to_string(found_item:GetCurrentStackCount()) .. '.' )
+				else
+					o_orig:SendToEntity( 'You count ' .. found_item:GetCurrentName() .. ' and find there is only one.' )
+				end
+				return true;
+			end
+		end
+	end
+	
+end
+	
+function c:ExecuteCommand ( o_orig, cmd )
+
+	s_type = o_orig:GetType()
+	
+	if (s_type:lower() ~= "player" and s_type:lower() ~= "npc") then
+		return false;
+	end
+	--local o_orig = living_cast(o_orig)
+	o_orig = living_cast(o_orig)
+	if ( o_orig == nil ) then 
+		return false 
+	end	
+	
+	local myTable = cmd:split( ' ' )
+	if #myTable < 2 then
+		usage(o_orig)
+		return true;
+	end
+	
+	-- remove count portion
+	table.remove(myTable, 1)
+	
+	--local s1 = myTable[1]
+	
+	
+	if( #myTable == 0 ) then
+		usage(o_orig)
+		return true
+	end
+	
+
+	
+	local cmd = table.concat(myTable, " ") -- put it back together
+	sm1 = string.match(cmd, "my %a+")
+	
+	if ( sm1 ) then
+		table.remove(myTable, 1) -- remove the my part
+		local item_to_find = myTable[1]:lower() -- at this point we should have an object..
+		
+		if( c:CheckHands( o_orig, item_to_find ) ) then
+			return true
+		else
+			o_orig:SendToEntity('Count what? Unable to find that in your inventory.')
+		end
+	else
+		local item_to_find = myTable[1]:lower() -- at this point we should have an object..
+		if( c:CheckEnv( o_orig, item_to_find ) ) then
+			return true
+		elseif( c:CheckHands( o_orig, item_to_find ) ) then
+			return true
+		else
+			o_orig:SendToEntity('Count what? Unable to find that in your inventory.')
+		end
+	end
+end
+
+function usage(o_orig)
+	o_orig:SendToEntity('USAGE: count <Implement me later>')
+end

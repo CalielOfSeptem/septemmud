@@ -1,6 +1,6 @@
 #ifndef STRING_UTILS_HPP__
 #define STRING_UTILS_HPP__
-
+#pragma once
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -86,6 +86,60 @@ static inline std::string rtrimmed(std::string s) {
 static inline std::string trimmed(std::string s) {
     trim(s);
     return s;
+}
+
+static inline std::string int_to_string(int value)
+{
+    std::stringstream ss;
+    const char * const ones[20] = {"zero", "one", "two", "three","four","five","six","seven",
+    "eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen",
+    "eighteen","nineteen"};
+    const char * const tens[10] = {"", "ten", "twenty", "thirty","forty","fifty","sixty","seventy",
+    "eighty","ninety"};
+
+    if(value<0)
+    {
+        ss<<"minus ";
+        ss << int_to_string(-value);
+    }
+    else if(value>=1000)
+    {
+        ss << int_to_string(value/1000);
+        ss<<" thousand";
+        if(value % 1000)
+        {
+            if(value % 1000 < 100)
+            {
+                ss << " and";
+            }
+            ss << " " ;
+            ss << int_to_string(value % 1000);
+        }
+    }
+    else if(value >= 100)
+    {
+        ss << int_to_string(value / 100);
+        ss <<" hundred";
+        if(value % 100)
+        {
+            ss << " and ";
+            ss << int_to_string (value % 100);
+        }
+    }
+    else if(value >= 20)
+    {
+        ss << tens[value / 10];
+        if(value % 10)
+        {
+            ss << " ";
+            ss << int_to_string(value % 10);
+        }
+    }
+    else
+    {
+        ss<<ones[value];
+    }
+    return ss.str();
 }
 /*
 static bool is_email_valid(const std::string& email)
