@@ -35,18 +35,32 @@ function c:CheckEnv( o_orig, s1 )
 	local items = room:GetItems()
 	local found_item = nil
 	
+	local s_num = string.match(s1, '%d+')
+	local skip_index = 1 -- don't skip by default
+	if( s_num ~= nil ) then
+		skip_index = s_num
+		s1 = string.match(s1, '%a+')
+		print(s1)
+	end
+	--print (skip_index)
 	for i = 1, #items do
 		local itemName = items[i]:GetItemNoun():lower()
 
 		if( itemName:starts(s1) or items[i]:GetItemPluralNoun():lower():starts(s1)) then
+			--print(skip_index)
+			skip_index = skip_index - 1
+		
+			if ( skip_index ~= 0 ) then goto continue end -- keep looking
+			
 			found_item = items[i]
 			if found_item.isStackable and found_item:GetCurrentStackCount() > 1 then
 				o_orig:SendToEntity( 'You count ' .. found_item:GetName() .. ' and find there are ' .. int_to_string(found_item:GetCurrentStackCount()) .. '.' )
 			else
 				o_orig:SendToEntity( 'You count ' .. found_item:GetName() .. ' and find there is only one.' )
 			end
-			return true;
+			return true
 		end
+		::continue::
 
 	end
 	

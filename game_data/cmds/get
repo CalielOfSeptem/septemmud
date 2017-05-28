@@ -44,7 +44,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 	
 	local cmd = table.concat(myTable, " ") -- put it back together
 	sm1 = string.match(cmd, "from my %a+")
-	
+	-- TODO, fix this stuff later..
 	if sm1 then
 		-- limit to player's inventory
 		--print('FROM MY FOUND')
@@ -56,20 +56,32 @@ function c:ExecuteCommand ( o_orig, cmd )
 		end
 	end
 	
+	local s_num = string.match(item_to_find, '%d+')
+	local skip_index = 1 -- don't skip by default
+	if( s_num ~= nil ) then
+		skip_index = s_num
+		item_to_find = string.match(item_to_find, '%a+')
+		--print(s1)
+	end
+	
 	local player = living_cast(o_orig)
 	local room = player:GetRoom()
 	local items = room:GetItems()
 	local found_item = nil
 	
 	for i = 1, #items do
+
 		local itemName = items[i]:GetItemNoun():lower()
 
 		if( itemName:starts(item_to_find) or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
-		-- found it.
-		found_item = items[i]
-		--print('FOUND IT!')
+			--print(skip_index)
+			skip_index = skip_index - 1
+			
+			if ( skip_index ~= 0 ) then goto continue end -- keep looking
+			
+			found_item = items[i]
 		end
-
+		::continue::
 	end
 	
 	if found_item == nil then

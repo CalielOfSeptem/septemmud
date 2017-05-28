@@ -39,24 +39,34 @@ void container_base::AddEntityToInventory(script_entity* se)
             cb->RemoveEntityFromInventory(se);
         }
     }
-
+    
     if(itemobj* item = dynamic_cast<itemobj*>(se)) {
         if(item->get_isStackable()) {
             for(script_entity* se_t : inventory) {
                 if(itemobj* itemb = dynamic_cast<itemobj*>(se_t)) {
-                    ///std::cout << itemb->GetScriptPath() << std::endl;
-                   // std::cout << item->GetScriptPath() << std::endl;
-                    if(itemb->GetBaseScriptPath() == item->GetBaseScriptPath() && itemb->get_currentStackCount() < itemb->get_defaultStackSize()) {
-                       //[ std::cout << itemb->get_currentStackCount() << std::endl;
-                        itemb->incrementStackCount();
-                        item->set_destroy(true);
-                        return; // no reason to add it, we just added to a stack.
+                    if(itemb->GetBaseScriptPath() == item->GetBaseScriptPath() && itemb->get_currentStackCount() < itemb->get_defaultStackSize())
+                    {
+                        // do merge..
+                        unsigned int remain =  itemb->get_defaultStackSize() - itemb->get_currentStackCount();
+                        unsigned int t_cnt = item->get_currentStackCount();
+                        if( t_cnt > remain )
+                        {
+                            // top off the stack on the ground...
+                            itemb->set_currentStackCount( itemb->get_currentStackCount() + remain );
+                            item->set_currentStackCount( item->get_currentStackCount() - remain );
+                        }
+                        else
+                        {
+                            itemb->set_currentStackCount( itemb->get_currentStackCount() + item->get_currentStackCount());
+                            item->set_destroy(true); // object is empty, delete it..
+                            return; // just return..
+                        }
                     }
                 }
             }
+            assert(item->get_currentStackCount() > 0);
         }
     }
-
     inventory.insert(se);
     auto t = GetOwner();
     if(t == NULL)

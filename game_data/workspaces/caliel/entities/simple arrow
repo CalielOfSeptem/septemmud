@@ -16,7 +16,7 @@ i.size = itemSize.small
 i.isWearable = false
 i.isContainer = false
 i.isStackable = true
-i:SetDefaultStackSize( 20 )
+i:SetDefaultStackSize( 10 )
 i:SetPluralName('some simple arrows')
 
 

@@ -1,0 +1,46 @@
+inherit command
+c = command.new('swap')
+
+	
+function c:ExecuteCommand ( o_orig, cmd )
+
+	s_type = o_orig:GetType()
+	
+	if (s_type:lower() ~= "player" and s_type:lower() ~= "npc") then
+		return false;
+	end
+	
+	o = living_cast(o_orig)
+	if ( o == nil ) then 
+		return false 
+	end	
+	
+	if( o:RightHand():IsEmpty() and o:LeftHand():IsEmpty() ) then
+		o:SendToEntity('You glance down and find your hands empty.')
+		return false;
+	end
+	
+	local r_item = o:RightHand():GetItem()
+	local l_item = o:LeftHand():GetItem()
+	
+	if( r_item ~= nil ) then
+		o:RightHand():RemoveItem(r_item)
+	end
+	if(	l_item ~= nil ) then
+		o:LeftHand():RemoveItem(l_item)
+	end
+	
+	if( r_item ~= nil ) then
+		o:LeftHand():AddItem(r_item)
+		o:SendToPlayer('You swap the ' .. r_item:GetItemNoun() .. ' to your left hand.') 
+	end
+	if(	l_item ~= nil ) then
+		o:RightHand():AddItem(l_item)
+		o:SendToPlayer('You swap the ' .. l_item:GetItemNoun() .. ' to your right hand.') 
+	end
+	return true
+end
+
+function usage(o_orig)
+	o_orig:SendToEntity('USAGE: swap <Implement me later>')
+end

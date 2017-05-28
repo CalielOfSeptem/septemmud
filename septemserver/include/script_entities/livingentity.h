@@ -28,6 +28,19 @@ struct handobj : public container_base, public script_entity
         return container_base::RemoveEntityFromInventory(se);
     }
     
+    virtual void AddItem(itemobj * i)
+    {
+        container_base::AddEntityToInventory( dynamic_cast<script_entity*>(i));
+
+    }
+
+    virtual bool RemoveItem( itemobj * i )
+    {
+        return RemoveEntityFromInventory( dynamic_cast<script_entity*>(i) );
+        //return container_base::RemoveEntityFromInventory(se);
+    }
+    
+    
     bool IsEmpty()
     {
         return (this->GetInventory().size()==0);
