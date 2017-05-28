@@ -1,0 +1,67 @@
+inherit command
+c = command.new('split')
+
+	
+function c:ExecuteCommand ( o_orig, cmd )
+
+	s_type = o_orig:GetType()
+	
+	if (s_type:lower() ~= "player" and s_type:lower() ~= "npc") then
+		return false;
+	end
+	
+	o = living_cast(o_orig)
+	if ( o == nil ) then 
+		return false 
+	end	
+	
+	local myTable = cmd:split( ' ' )
+	if #myTable ~= 2 then
+		usage(o)
+		return true;
+	end
+	
+	-- remove split portion
+	table.remove(myTable, 1)
+	
+	local s1 = myTable[1]
+	
+	bfound = false
+	if( o:RightHand():IsEmpty() == false ) then
+		local itemName = o:RightHand():GetItem():GetCurrentName():lower():split( ' ' )
+		for j = 1, #itemName do
+			if( itemName[j] ~= 'a' and itemName[j] ~= 'an' and itemName[j] ~= 'some' and itemName[j]:starts(s1) ) then
+				local room = o:GetRoom()
+				itemobj = o:RightHand():GetItem()
+				room:AddToInventory( itemobj )	
+				o:SendToPlayer('You drop ' .. itemobj:GetCurrentName() .. '.')	
+				local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
+				o:SendToRoom( pname .. ' drops ' .. itemobj:GetCurrentName() .. '.')
+				return true
+			end
+		end
+	end
+	
+	if( o:LeftHand():IsEmpty() == false ) then
+	
+		local itemName = o:LeftHand():GetItem():GetCurrentName():lower():split( ' ' )
+		for j = 1, #itemName do
+			if( itemName[j] ~= 'a' and itemName[j] ~= 'an'  and itemName[j] ~= 'some' and itemName[j]:starts(s1) ) then
+				local room = o:GetRoom()
+				itemobj = o:LeftHand():GetItem()
+				room:AddToInventory( itemobj )	
+				o:SendToPlayer('You drop ' .. itemobj:GetCurrentName() .. '.')	
+				local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
+				o:SendToRoom( pname .. ' drops ' .. itemobj:GetCurrentName() .. '.')
+				return true
+			end
+		end
+	end
+	
+	o:SendToPlayer('Drop what?')
+	return true
+end
+
+function usage(o_orig)
+	o_orig:SendToEntity('USAGE: drop <Implement me later>')
+end

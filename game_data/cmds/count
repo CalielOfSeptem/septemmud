@@ -1,35 +1,29 @@
 inherit command
 c = command.new('count')
 
-
 function c:CheckHands( o_orig, s1 )
 	if( o_orig:RightHand():IsEmpty() == false ) then
-		local itemName = o_orig:RightHand():GetItem():GetCurrentName():lower():split( ' ' )
-		for j = 1, #itemName do
-			if( itemName[j] ~= 'a' and itemName[j] ~= 'an' and itemName[j] ~= 'some' and itemName[j]:starts(s1) ) then
-				local room = o_orig:GetRoom()
-				found_item = o_orig:RightHand():GetItem()
-			end
+		if( o_orig:RightHand():GetItem():GetItemNoun():lower():starts(s1) 
+			or o_orig:RightHand():GetItem():GetItemPluralNoun():lower():starts(s1)) then
+			local room = o_orig:GetRoom()
+			found_item = o_orig:RightHand():GetItem()
 		end
 	end
 	
 	if( o_orig:LeftHand():IsEmpty() == false ) then
-	
-		local itemName = o_orig:LeftHand():GetItem():GetCurrentName():lower():split( ' ' )
-		for j = 1, #itemName do
-			if( itemName[j] ~= 'a' and itemName[j] ~= 'an'  and itemName[j] ~= 'some' and itemName[j]:starts(s1) ) then
-				local room = o_orig:GetRoom()
-				found_item = o_orig:LeftHand():GetItem()
-			end
+		if( o_orig:LeftHand():GetItem():GetItemNoun():lower():starts(s1)
+			or o_orig:LeftHand():GetItem():GetItemPluralNoun():lower():starts(s1)) then
+			local room = o_orig:GetRoom()
+			found_item = o_orig:LeftHand():GetItem()
 		end
 	end
 	
 	if found_item == nil then return false end
 	
 	if found_item.isStackable and found_item:GetCurrentStackCount() > 1 then
-		o_orig:SendToEntity( 'You count ' .. found_item:GetCurrentName() .. ' and find there are ' .. int_to_string(found_item:GetCurrentStackCount()) .. '.' )
+		o_orig:SendToEntity( 'You count ' .. found_item:GetName() .. ' and find there are ' .. int_to_string(found_item:GetCurrentStackCount()) .. '.' )
 	else
-		o_orig:SendToEntity( 'You count ' .. found_item:GetCurrentName() .. ' and find there is only one.' )
+		o_orig:SendToEntity( 'You count ' .. found_item:GetName() .. ' and find there is only one.' )
 	end
 	
 	return true
@@ -42,18 +36,18 @@ function c:CheckEnv( o_orig, s1 )
 	local found_item = nil
 	
 	for i = 1, #items do
-		local itemName = items[i]:GetCurrentName():lower():split( ' ' )
-		for j = 1, #itemName do
-			if( itemName[j] ~= 'a' and itemName[j] ~= 'an' and itemName[j]:starts(s1) ) then
-				found_item = items[i]
-				if found_item.isStackable and found_item:GetCurrentStackCount() > 1 then
-					o_orig:SendToEntity( 'You count ' .. found_item:GetCurrentName() .. ' and find there are ' .. int_to_string(found_item:GetCurrentStackCount()) .. '.' )
-				else
-					o_orig:SendToEntity( 'You count ' .. found_item:GetCurrentName() .. ' and find there is only one.' )
-				end
-				return true;
+		local itemName = items[i]:GetItemNoun():lower()
+
+		if( itemName:starts(s1) or items[i]:GetItemPluralNoun():lower():starts(s1)) then
+			found_item = items[i]
+			if found_item.isStackable and found_item:GetCurrentStackCount() > 1 then
+				o_orig:SendToEntity( 'You count ' .. found_item:GetName() .. ' and find there are ' .. int_to_string(found_item:GetCurrentStackCount()) .. '.' )
+			else
+				o_orig:SendToEntity( 'You count ' .. found_item:GetName() .. ' and find there is only one.' )
 			end
+			return true;
 		end
+
 	end
 	
 end

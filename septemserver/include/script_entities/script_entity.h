@@ -106,12 +106,12 @@ struct script_entity {
         virtual void debug( const std::string& msg );
         
 
-        const std::string& GetName()
+        virtual const std::string& GetName()
         {
             return name;
         }
         
-        void SetName(const std::string& name)
+        virtual void SetName(const std::string& name)
         {
             this->name = name;
         }

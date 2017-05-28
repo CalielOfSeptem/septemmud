@@ -62,14 +62,14 @@ function c:ExecuteCommand ( o_orig, cmd )
 	local found_item = nil
 	
 	for i = 1, #items do
-		local itemName = items[i]:GetName():lower():split( ' ' )
-		for j = 1, #itemName do
-			if( itemName[j] ~= 'a' and itemName[j] ~= 'an' and itemName[j]:starts(item_to_find) ) then
-			-- found it.
-			found_item = items[i]
-			--print('FOUND IT!')
-			end
+		local itemName = items[i]:GetItemNoun():lower()
+
+		if( itemName:starts(item_to_find) or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
+		-- found it.
+		found_item = items[i]
+		--print('FOUND IT!')
 		end
+
 	end
 	
 	if found_item == nil then
@@ -85,17 +85,17 @@ function c:ExecuteCommand ( o_orig, cmd )
 	
 	if( o:RightHand():IsEmpty() ) then
 		o:RightHand():AddToInventory(found_item)
-		o:SendToPlayer('You pick up ' .. found_item:GetCurrentName() .. ' in your right hand.')
+		o:SendToPlayer('You pick up ' .. found_item:GetName() .. ' in your right hand.')
 		local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
-		o:SendToRoom( pname .. ' picks up ' .. found_item:GetCurrentName() .. '.')		
+		o:SendToRoom( pname .. ' picks up ' .. found_item:GetName() .. '.')		
 		return true;
 	end
 	
 	if( o:LeftHand():IsEmpty() ) then
 		o:LeftHand():AddToInventory(found_item)
-		o:SendToPlayer('You pick up ' .. found_item:GetCurrentName() .. ' in your left hand.')	
+		o:SendToPlayer('You pick up ' .. found_item:GetName() .. ' in your left hand.')	
 		local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
-		o:SendToRoom( pname .. ' picks up ' .. found_item:GetCurrentName() .. '.')
+		o:SendToRoom( pname .. ' picks up ' .. found_item:GetName() .. '.')
 		return true;
 	end
 	

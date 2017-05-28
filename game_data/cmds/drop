@@ -31,33 +31,33 @@ function c:ExecuteCommand ( o_orig, cmd )
 	--if( my_o ~= nil and my_o:GetName
 	bfound = false
 	if( o:RightHand():IsEmpty() == false ) then
-		local itemName = o:RightHand():GetItem():GetCurrentName():lower():split( ' ' )
-		for j = 1, #itemName do
-			if( itemName[j] ~= 'a' and itemName[j] ~= 'an' and itemName[j] ~= 'some' and itemName[j]:starts(s1) ) then
-				local room = o:GetRoom()
-				itemobj = o:RightHand():GetItem()
-				room:AddToInventory( itemobj )	
-				o:SendToPlayer('You drop ' .. itemobj:GetCurrentName() .. '.')	
-				local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
-				o:SendToRoom( pname .. ' drops ' .. itemobj:GetCurrentName() .. '.')
-				return true
-			end
+		local item = o:RightHand():GetItem()--:GetItemNoun():lower()
+	
+		if( item:GetItemNoun():lower():starts(s1)
+			or item:GetItemPluralNoun():lower():starts(s1)) then
+			local room = o:GetRoom()
+			--item = o:RightHand():GetItem()
+			room:AddToInventory( item )	
+			o:SendToPlayer('You drop ' .. item:GetName() .. '.')	
+			local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
+			o:SendToRoom( pname .. ' drops ' .. item:GetName() .. '.')
+			return true
 		end
+
 	end
 	
 	if( o:LeftHand():IsEmpty() == false ) then
+		local item = o:LeftHand():GetItem()
 	
-		local itemName = o:LeftHand():GetItem():GetCurrentName():lower():split( ' ' )
-		for j = 1, #itemName do
-			if( itemName[j] ~= 'a' and itemName[j] ~= 'an'  and itemName[j] ~= 'some' and itemName[j]:starts(s1) ) then
-				local room = o:GetRoom()
-				itemobj = o:LeftHand():GetItem()
-				room:AddToInventory( itemobj )	
-				o:SendToPlayer('You drop ' .. itemobj:GetCurrentName() .. '.')	
-				local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
-				o:SendToRoom( pname .. ' drops ' .. itemobj:GetCurrentName() .. '.')
-				return true
-			end
+		if( item:GetItemNoun():lower():starts(s1) 
+			or item:GetItemPluralNoun():lower():starts(s1)) then
+			local room = o:GetRoom()
+			--itemobj = o:LeftHand():GetItem():GetItemNoun():lower()
+			room:AddToInventory( item )	
+			o:SendToPlayer('You drop ' .. item:GetName() .. '.')	
+			local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
+			o:SendToRoom( pname .. ' drops ' .. item:GetName() .. '.')
+			return true
 		end
 	end
 	

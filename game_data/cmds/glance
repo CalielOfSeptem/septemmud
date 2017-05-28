@@ -22,7 +22,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 	
 	s_right = 'nothing'
 	if( o:RightHand():IsEmpty() ~= true ) then
-		s_right = o:RightHand():GetItem():GetCurrentName()
+		s_right = o:RightHand():GetItem():GetName()
 		--o:SendToPlayer('You pick up ' .. found_item:GetName() .. ' in your right hand.')
 		--local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
 		--o:SendToRoom( pname .. ' picks up ' .. found_item:GetName() .. '.')		
@@ -31,7 +31,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 	
 	s_left = 'nothing'
 	if( o:LeftHand():IsEmpty() ~= true ) then
-		s_left = o:LeftHand():GetItem():GetCurrentName()
+		s_left = o:LeftHand():GetItem():GetName()
 	end
 
 	o:SendToPlayer('You glance down and see ' .. s_right .. ' in your right hand, and ' .. s_left .. ' in your left hand.')
