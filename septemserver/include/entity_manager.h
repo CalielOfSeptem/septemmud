@@ -58,6 +58,7 @@ struct _internal_lua_
                             std::string& reason );
                             
     bool clone_item ( std::string& relative_script_path, script_entity * obj );
+    bool clone_item_to_hand(std::string& relative_script_path, handobj* obj);
     
     void invoke_heartbeat();
     

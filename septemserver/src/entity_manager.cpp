@@ -260,6 +260,11 @@ for( int x = 2; x < 1000; x++ )
     return b;
 }
 
+bool entity_manager::clone_item_to_hand(std::string& relative_script_path, handobj* obj)
+{
+    return clone_item( relative_script_path, obj->GetOwner());
+}
+
 bool entity_manager::clone_item(std::string& relative_script_path, script_entity* obj)
 {
     std::string uid = random_string();
@@ -283,22 +288,25 @@ bool entity_manager::clone_item(std::string& relative_script_path, script_entity
         {
             i->SetBaseScriptPath(relative_script_path);
             relative_script_path = vpath;
+            
+            if( auto e = dynamic_cast<container_base*>(obj) )
+            {
+                e->AddEntityToInventory(i);
+                return true;
+            }
+            else
+            {
+                obj->debug("Error moving cloned object into inventory. Invalid cast.");
+                return false;
+            }
+            /*
             switch( obj->GetType() )
             {
                 case EntityType::ROOM:
                 case EntityType::PLAYER:
                 case EntityType::NPC:
                 {
-                    if( auto e = dynamic_cast<container_base*>(obj) )
-                    {
-                        e->AddEntityToInventory(i);
-                        return true;
-                    }
-                    else
-                    {
-                        std::cout << "Died" << std::endl;
-                        return false;
-                    }
+
                         
                 } break;
                 default:
@@ -306,6 +314,7 @@ bool entity_manager::clone_item(std::string& relative_script_path, script_entity
                 break;
             }
             std::cout << "Found it" << std::endl;
+            */
         }
         // now find the item &..
       //  get_daemons_from_path()
@@ -410,6 +419,7 @@ void entity_manager::init_lua()
     lua.new_usertype<script_entity>("script_entity", 
             "GetName",  &script_entity::GetName,
             "SetName", &script_entity::SetName,
+            "GetBaseScriptPath", &script_entity::GetBaseScriptPath,
             "Reset",  &script_entity::clear_props,
             "GetType", &script_entity::GetEntityTypeString,
             "destroy", sol::property(&script_entity::get_destroy, &script_entity::set_destroy)
@@ -490,12 +500,7 @@ void entity_manager::init_lua()
                             "isWearable", sol::property(&itemobj::get_isWearable, &itemobj::set_isWearable),
                             "isStackable", sol::property(&itemobj::get_isStackable, &itemobj::set_isStackable),
                             "isContainer", sol::property(&itemobj::get_isContainer, &itemobj::set_isContainer),
-                            
                             "size", sol::property(&itemobj::get_size, &itemobj::set_size),
-                            "weight", sol::property(&itemobj::get_weight, &itemobj::set_weight),
-                            "isWearable", sol::property(&itemobj::get_isWearable, &itemobj::set_isWearable),
-                            "isStackable", sol::property(&itemobj::get_isStackable, &itemobj::set_isStackable),
-                            "isContainer", sol::property(&itemobj::get_isContainer, &itemobj::set_isContainer),
                             
                             
                             sol::base_classes,
@@ -688,6 +693,8 @@ void entity_manager::init_lua()
     lua.set_function("do_tp", [&](std::string path, playerobj * p1, playerobj *p2) -> bool { return this->do_tp(path, p1, p2); });
     
     lua.set_function("clone_item", [&](std::string path, script_entity * e) -> bool { return this->clone_item(path, e); });
+    
+    lua.set_function("clone_item_to_hand", [&](std::string path, handobj * e) -> bool { return this->clone_item_to_hand(path, e); });
     //lua.set_function("tail_entity_log",
     //                 [&](script_entity * se) -> std::vector<std::string> & { return this->get_player(ename); });
 

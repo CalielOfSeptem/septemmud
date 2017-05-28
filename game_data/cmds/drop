@@ -1,7 +1,9 @@
 inherit command
 c = command.new('drop')
 
-	
+-- TODO: add drop left/right
+-- TODO: add function to make drop code generic (i.e,, a function that can handle either hand)
+-- TODO: add a swap command to compliment this command 
 function c:ExecuteCommand ( o_orig, cmd )
 
 	s_type = o_orig:GetType()

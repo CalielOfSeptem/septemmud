@@ -15,7 +15,7 @@ i.weight = 1
 i.size = itemSize.tiny
 i.isWearable = false
 i.isContainer = false
-i.isStackable = true
+i.isStackable = false
 i:SetPluralName('a pile of rocks')
 
 

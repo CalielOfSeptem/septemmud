@@ -1,6 +1,26 @@
 inherit command
 c = command.new('split')
-
+-- hand is the hand the item should be split INTO, not from
+function c:SplitItem( o_orig, hand, item )
+	if( item ~= nil ) then
+		if( item.isStackable == false ) then
+			o_orig:SendToPlayer('You fumble with the ' .. item:GetItemNoun() .. ' but are unable to find a way to split it.')
+			return true -- stop processing, you found the item but its not splittable
+		end
+		
+		if( item:GetCurrentStackCount() == 1 ) then
+			o_orig:SendToPlayer('You fumble with the ' .. item:GetItemNoun() .. ' but to no avail.')
+			return true -- stop processing, you found the item but its already in its least form..
+		else
+			--print('you split the item.')
+			new_item = clone_item_to_hand( item:GetBaseScriptPath(), hand )
+			return true
+		end
+		
+	else 
+		return false
+	end
+end
 	
 function c:ExecuteCommand ( o_orig, cmd )
 
@@ -21,47 +41,28 @@ function c:ExecuteCommand ( o_orig, cmd )
 		return true;
 	end
 	
-	-- remove split portion
-	table.remove(myTable, 1)
-	
-	local s1 = myTable[1]
-	
-	bfound = false
-	if( o:RightHand():IsEmpty() == false ) then
-		local itemName = o:RightHand():GetItem():GetCurrentName():lower():split( ' ' )
-		for j = 1, #itemName do
-			if( itemName[j] ~= 'a' and itemName[j] ~= 'an' and itemName[j] ~= 'some' and itemName[j]:starts(s1) ) then
-				local room = o:GetRoom()
-				itemobj = o:RightHand():GetItem()
-				room:AddToInventory( itemobj )	
-				o:SendToPlayer('You drop ' .. itemobj:GetCurrentName() .. '.')	
-				local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
-				o:SendToRoom( pname .. ' drops ' .. itemobj:GetCurrentName() .. '.')
-				return true
-			end
-		end
+	if( o:RightHand():IsEmpty() and o:LeftHand():IsEmpty() ) then
+		o:SendToPlayer('Split what? Your hands are empty.')
+		return true
 	end
 	
-	if( o:LeftHand():IsEmpty() == false ) then
-	
-		local itemName = o:LeftHand():GetItem():GetCurrentName():lower():split( ' ' )
-		for j = 1, #itemName do
-			if( itemName[j] ~= 'a' and itemName[j] ~= 'an'  and itemName[j] ~= 'some' and itemName[j]:starts(s1) ) then
-				local room = o:GetRoom()
-				itemobj = o:LeftHand():GetItem()
-				room:AddToInventory( itemobj )	
-				o:SendToPlayer('You drop ' .. itemobj:GetCurrentName() .. '.')	
-				local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
-				o:SendToRoom( pname .. ' drops ' .. itemobj:GetCurrentName() .. '.')
-				return true
-			end
-		end
+	if( o:RightHand():IsEmpty() == false and o:LeftHand():IsEmpty() == false ) then
+		o:SendToPlayer('Your hands are full, you will need a free hand to split an item.')
+		return true
 	end
 	
-	o:SendToPlayer('Drop what?')
+	local r_item = o:RightHand():GetItem()
+	local l_item = o:LeftHand():GetItem()
+	if( c:SplitItem( o, o:LeftHand(), r_item ) ) then
+		return true
+	end
+	if( c:SplitItem( o, o:RightHand(), l_item ) ) then
+		return true
+	end
+	
 	return true
 end
 
 function usage(o_orig)
-	o_orig:SendToEntity('USAGE: drop <Implement me later>')
+	o_orig:SendToEntity('USAGE: split <Implement me later>')
 end
