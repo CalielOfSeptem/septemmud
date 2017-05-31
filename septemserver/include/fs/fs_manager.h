@@ -51,6 +51,8 @@ public:
     bool do_copy( std::string& patha, std::string& pathb, playerobj * p );
     
     bool do_remove( std::string& path, playerobj * p );
+    
+    bool get_player_save_dir( const std::string& pname, std::string& fullpath );
 
 protected:
     fs_manager()

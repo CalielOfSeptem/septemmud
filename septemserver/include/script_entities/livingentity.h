@@ -6,6 +6,9 @@
 #include "script_entities/script_entity.h"
 #include "script_entities/roomobj.h"
 #include "script_entities/itemobj.h"
+
+
+
 class roomobj;
 struct living_entity;
 
@@ -58,11 +61,14 @@ struct handobj : public container_base, public script_entity
         return this;
     }
     
-     
 };
 
 struct living_entity : public script_entity
 {
+    living_entity()
+    {
+        
+    }
 
     living_entity(sol::this_state ts, sol::this_environment te, EntityType et, std::string name)
         : script_entity(ts, te, et, name)

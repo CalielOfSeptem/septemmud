@@ -188,7 +188,7 @@ for( int x = 2; x < 1000; x++ )
         b = lua_safe_script(script_text, to_load, reason);
         if( !b )
         {
-            // we have a problem, move players to void.. or shutdown server is void is borked too
+            // TODO: we have a problem, move players to void.. or shutdown server is void is borked too
         }
         else
         {
@@ -287,6 +287,7 @@ bool entity_manager::clone_item(std::string& relative_script_path, script_entity
         if( i != NULL )
         {
             i->SetBaseScriptPath(relative_script_path);
+            i->set_uid(uid);
             relative_script_path = vpath;
             
             if( auto e = dynamic_cast<container_base*>(obj) )
@@ -366,7 +367,7 @@ bool entity_manager::load_player(std::string playerName)
     std::string reason;
 
     std::stringstream ss;
-    ss << "entities/player_" << playerName;
+    ss << "entities/player_" << boost::to_lower_copy(playerName);
 
     std::string tpath = ss.str();
     std::string tagtext = "player_name"; // a hack to get our player name into the lua object constructor
@@ -602,6 +603,8 @@ void entity_manager::init_lua()
                                 &script_entity::GetName,
                                 "DoCommand",
                                 &living_entity::DoCommand,
+                                "DoSave",
+                                &playerobj::do_save,
                                 sol::base_classes,
                                 sol::bases<living_entity, script_entity>());
                                 

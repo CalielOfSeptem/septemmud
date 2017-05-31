@@ -6,8 +6,12 @@
 #include "script_entities/container_base.h"
 #include <stdio.h>
 
-struct playerobj : living_entity
+struct playerobj : living_entity 
 {
+    playerobj()
+    {
+        
+    }
      playerobj(sol::this_state ts, sol::this_environment te, std::string name) :
         living_entity(ts, te, EntityType::PLAYER, name)
      {
@@ -31,17 +35,23 @@ struct playerobj : living_entity
      {
          return bIsCreator;
      }
+     
      std::string& GetPlayerName()
      {
          return name;
      }
+
+     
      
      std::string cwd;
      std::string workspacePath;
      
-public:
+
+
 
     bool bIsCreator;
+    
+    bool do_save();
     
 };
  

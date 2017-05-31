@@ -1,6 +1,16 @@
 inherit command
 c = command.new('drop')
 
+
+
+function c:DropItem( o_orig, item )
+	local room = o_orig:GetRoom()
+	room:AddToInventory( item )	
+	o_orig:SendToPlayer('You drop ' .. item:GetName() .. '.')	
+	local pname = string.gsub(o_orig:GetName(), "(%a)([%w_']*)", titleCase)
+	o_orig:SendToRoom( pname .. ' drops ' .. item:GetName() .. '.')
+end
+
 -- TODO: add drop left/right
 -- TODO: add function to make drop code generic (i.e,, a function that can handle either hand)
 -- TODO: add a swap command to compliment this command 
@@ -28,6 +38,26 @@ function c:ExecuteCommand ( o_orig, cmd )
 	
 	local s1 = myTable[1]
 	
+	if( s1:lower() == 'right' ) then
+		if( o:RightHand():IsEmpty() == false ) then
+			self:DropItem( o, o:RightHand():GetItem() )
+			return true
+		else
+			o:SendToPlayer('Your right hand is already empty.')
+			return true
+		end
+	end
+	
+	if( s1:lower() == 'left' ) then
+		if( o:LeftHand():IsEmpty() == false ) then
+			self:DropItem( o, o:LeftHand():GetItem() )
+			return true
+		else
+			o:SendToPlayer('Your left hand is already empty.')
+			return true
+		end
+	end
+	
 	--local my_o = o:RightHand:GetItem()
 	
 	--if( my_o ~= nil and my_o:GetName
@@ -37,12 +67,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 	
 		if( item:GetItemNoun():lower():starts(s1)
 			or item:GetItemPluralNoun():lower():starts(s1)) then
-			local room = o:GetRoom()
-			--item = o:RightHand():GetItem()
-			room:AddToInventory( item )	
-			o:SendToPlayer('You drop ' .. item:GetName() .. '.')	
-			local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
-			o:SendToRoom( pname .. ' drops ' .. item:GetName() .. '.')
+			self:DropItem( o, o:RightHand():GetItem() )
 			return true
 		end
 
@@ -53,12 +78,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 	
 		if( item:GetItemNoun():lower():starts(s1) 
 			or item:GetItemPluralNoun():lower():starts(s1)) then
-			local room = o:GetRoom()
-			--itemobj = o:LeftHand():GetItem():GetItemNoun():lower()
-			room:AddToInventory( item )	
-			o:SendToPlayer('You drop ' .. item:GetName() .. '.')	
-			local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
-			o:SendToRoom( pname .. ' drops ' .. item:GetName() .. '.')
+			self:DropItem( o, o:LeftHand():GetItem() )
 			return true
 		end
 	end

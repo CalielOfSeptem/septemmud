@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=ken
-Date                   :=28/05/17
+Date                   :=31/05/17
 CodeLitePath           :=/home/ken/.codelite
 LinkerName             :=/usr/bin/g++
 SharedObjectLinkerName :=/usr/bin/g++ -shared -fPIC
@@ -50,7 +50,7 @@ LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)/home/ken/gi
 AR       := /usr/bin/ar rcu
 CXX      := /usr/bin/g++
 CC       := /usr/bin/gcc
-CXXFLAGS :=  -g -O0 -std=c++14 -Wall -ftemplate-depth=10000 $(Preprocessors)
+CXXFLAGS :=  -g -O0 -std=c++14 -Wall -ftemplate-depth=10000 -ftemplate-backtrace-limit=0 $(Preprocessors)
 CFLAGS   :=  -g -O0 -Wall $(Preprocessors)
 ASFLAGS  := 
 AS       := /usr/bin/as
@@ -61,7 +61,7 @@ AS       := /usr/bin/as
 ##
 CodeLiteDir:=/usr/share/codelite
 Objects0=$(IntermediateDirectory)/src_game_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_entity_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_main.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_heartbeat_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_script_entity.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_commandobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_roomobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_daemonobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_livingentity.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_itemobj.cpp$(ObjectSuffix) \
-	$(IntermediateDirectory)/src_script_entities_container_base.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_fs_fs_manager.cpp$(ObjectSuffix) 
+	$(IntermediateDirectory)/src_script_entities_container_base.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_playerobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_fs_fs_manager.cpp$(ObjectSuffix) 
 
 
 
@@ -184,6 +184,14 @@ $(IntermediateDirectory)/src_script_entities_container_base.cpp$(DependSuffix): 
 
 $(IntermediateDirectory)/src_script_entities_container_base.cpp$(PreprocessSuffix): src/script_entities/container_base.cpp
 	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_script_entities_container_base.cpp$(PreprocessSuffix) src/script_entities/container_base.cpp
+
+$(IntermediateDirectory)/src_script_entities_playerobj.cpp$(ObjectSuffix): src/script_entities/playerobj.cpp $(IntermediateDirectory)/src_script_entities_playerobj.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/script_entities/playerobj.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_script_entities_playerobj.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/src_script_entities_playerobj.cpp$(DependSuffix): src/script_entities/playerobj.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/src_script_entities_playerobj.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/src_script_entities_playerobj.cpp$(DependSuffix) -MM src/script_entities/playerobj.cpp
+
+$(IntermediateDirectory)/src_script_entities_playerobj.cpp$(PreprocessSuffix): src/script_entities/playerobj.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_script_entities_playerobj.cpp$(PreprocessSuffix) src/script_entities/playerobj.cpp
 
 $(IntermediateDirectory)/src_fs_fs_manager.cpp$(ObjectSuffix): src/fs/fs_manager.cpp $(IntermediateDirectory)/src_fs_fs_manager.cpp$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/fs/fs_manager.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_fs_fs_manager.cpp$(ObjectSuffix) $(IncludePath)

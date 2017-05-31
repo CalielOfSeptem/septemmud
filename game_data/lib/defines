@@ -37,3 +37,4 @@ itemType.ranged		= 6
 itemType.thrown		= 7
 itemType.skin		= 8
 itemType.ammo		= 9
+itemType.wearable	= 10

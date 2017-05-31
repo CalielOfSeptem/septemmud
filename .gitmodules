@@ -16,3 +16,6 @@
 [submodule "Simple-Web-Server"]
 	path = Simple-Web-Server
 	url = https://github.com/eidheim/Simple-Web-Server.git
+[submodule "cereal"]
+	path = cereal
+	url = https://github.com/USCiLab/cereal.git

@@ -1,2 +1,10 @@
 inherit player
-p1 = player.new('player_name')
+p = player.new('player_name')
+
+function p:hb()
+	p:DoSave()
+	print('YES')
+end
+--print( _FS_PATH_ )
+register_heartbeat(p.hb)
+

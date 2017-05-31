@@ -2,10 +2,6 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-enum // Define log instances. Default is 0 and is omitted from this enum.
-{
-    RoomLog = 1
-};
 
 
 #define DEFAULT_GAME_DATA_PATH "DEFAULT_GAME_DATA_PATH"
@@ -18,4 +14,5 @@ enum // Define log instances. Default is 0 and is omitted from this enum.
 #define DEFAULT_LOGS_PATH "DEFAULT_LOGS_PATH"
 #define DEFAULT_ROOM_LOG_PATH "DEFAULT_ROOM_LOG_PATH"
 #define DEFAULT_LAST_REBOOT "LAST_REBOOT"
+#define DEFAULT_BASE_SAVE_PATH "DEFAULT_BASE_SAVE_PATH"
 #endif

@@ -7,9 +7,10 @@
 #include <stdio.h>
 #include "string_utils.h"
 #include <boost/algorithm/string.hpp>
+
 // These match the lua defines, do not change without also updating defines..
 enum class ItemSize { FINE=0, DIMINUTIVE, TINY, SMALL, MEDIUM, LARGE, ENORMOUS, GARGANTUAN, COLOSSAL };
-enum class ItemType { DEFAULT=0, ARMOR, PLANT, INSTRUMENT, TOOL, MELEE, RANGED, THROWN, SKIN, AMMO };
+enum class ItemType { DEFAULT=0, ARMOR, PLANT, INSTRUMENT, TOOL, MELEE, RANGED, THROWN, SKIN, AMMO, WEARABLE };
 
 
 struct itemobj : public script_entity, public container_base
@@ -218,6 +219,10 @@ struct itemobj : public script_entity, public container_base
             m_currentStackCount--;
         }
     }
+    
+   // virtual void SetEnvironment(script_entity* be) override;
+
+
      
     double m_weight; // item weight in stones
     ItemSize m_size = ItemSize::TINY;

@@ -58,7 +58,7 @@ struct script_entity {
             return environment_; //.value();
         }
 
-        void SetEnvironment(script_entity* be)
+        virtual void SetEnvironment(script_entity* be)
         {
             environment_ = be;
         }
@@ -144,11 +144,11 @@ private:
         EntityType m_type = EntityType::UNKNOWN;
         script_entity* environment_;
         std::string script_path;
-        std::string base_script_path;
         bool m_destroy = false;
         
   
 protected:
+        std::string base_script_path;
         std::string look;
         std::string name;
 };
