@@ -105,6 +105,16 @@ struct itemobj : public script_entity, public container_base
         itemNoun = noun;
     }
     
+    virtual ItemType get_itemType()
+    {
+        return m_type;
+    }
+     
+    virtual void set_itemType(ItemType t)
+    {
+        m_type = t;
+    }
+    
     virtual std::string get_itemAdjectives()
     {
         return itemAdjectives;
@@ -219,6 +229,10 @@ struct itemobj : public script_entity, public container_base
             m_currentStackCount--;
         }
     }
+    
+    virtual bool do_save() override;
+    
+    virtual void on_environment_change(EnvironmentChangeEvent evt, script_entity * env) override;
     
    // virtual void SetEnvironment(script_entity* be) override;
 

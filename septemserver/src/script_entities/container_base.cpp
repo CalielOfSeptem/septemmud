@@ -37,6 +37,7 @@ void container_base::AddEntityToInventory(script_entity* se)
         // remove entity from inventory
         if(container_base* cb = dynamic_cast<container_base*>(env)) {
             cb->RemoveEntityFromInventory(se);
+            //se->on_environment_change(EventChangeEvent::REMOVED, env);
         }
     }
     
@@ -72,4 +73,5 @@ void container_base::AddEntityToInventory(script_entity* se)
     if(t == NULL)
         return;
     se->SetEnvironment(GetOwner());
+    se->on_environment_change(EnvironmentChangeEvent::ADDED, t);
 }

@@ -14,7 +14,7 @@ function p1:hb()
 	end
 end
 
---register_heartbeat(p1.hb)
+register_heartbeat(p1.hb)
 
 p2 = room.new()
 p2:SetTitle('Castle Foyer')

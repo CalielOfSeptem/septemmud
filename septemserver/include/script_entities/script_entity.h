@@ -10,7 +10,8 @@
 #include "loghelper.h"
 
 enum class EntityType { UNKNOWN, ROOM, ITEM, NPC, PLAYER, COMMAND, DAEMON, LIB };
-
+enum class EnvironmentChangeEvent { ADDED, REMOVED };
+ 
 struct _sol_userdata_
 {
     ~_sol_userdata_()
@@ -138,7 +139,28 @@ struct script_entity {
                 clear_props();
         }
         
+        std::string get_entityStorageLocation()
+        {
+            return entity_storage_location;
+        }
+        
+        void set_entityStorageLocation(std::string& str)
+        {
+            entity_storage_location = str;
+        }
+        
+        virtual bool do_save()
+        {
+            
+        }
+        
+        virtual void on_environment_change(EnvironmentChangeEvent evt, script_entity * env)
+        {
+            
+        }
+        
 private:
+        std::string entity_storage_location; // used for persistence
         my_sink m_entityLog;
         std::unordered_map<std::string, sol::object> props;
         EntityType m_type = EntityType::UNKNOWN;

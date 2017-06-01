@@ -6,7 +6,9 @@
  #include <memory>
  #include <set>
  #include "entity_wrapper.h"
+ 
 
+ 
  struct container_base
  {
      virtual script_entity * GetOwner() = 0;
@@ -22,7 +24,9 @@
                 if( (*it)->GetInstancePath() == id )
                 {
                     (*it)->SetEnvironment(NULL);
+                    (*it)->on_environment_change(EnvironmentChangeEvent::REMOVED, this->GetOwner());
                     it = this->inventory.erase(it);
+                    
                     return true;
                 }
                 else
@@ -41,7 +45,9 @@
                 if( (*it) == se )
                 {
                     (*it)->SetEnvironment(NULL);
+                    (*it)->on_environment_change(EnvironmentChangeEvent::REMOVED, this->GetOwner());
                     it = this->inventory.erase(it);
+                    
                     return true;
                 }
                 else

@@ -1,4 +1,6 @@
 {
     "leftHand": 0,
-    "rightHand": 0
+    "rightHand": {
+        "workspaces/caliel/entities/simple arrow": "6q6v3u108vURNRs"
+    }
 }
