@@ -10,7 +10,8 @@ function c:FindItemInHand( hand, item_to_find )
 	end
 	return nil
 end
-	
+
+
 function c:ExecuteCommand ( o_orig, cmd )
 
 	local s_type = o_orig:GetType()
@@ -107,6 +108,11 @@ function c:ExecuteCommand ( o_orig, cmd )
 					o_orig:SendToEntity('You put ' .. found_item_targ:GetName() .. ' in your ' .. found_item_dest:GetItemNoun() .. '.' )
 					local pname = string.gsub(o_orig:GetName(), "(%a)([%w_']*)", titleCase)
 					o_orig:SendToRoom( pname .. ' puts ' .. found_item_targ:GetName() .. ' in their ' .. found_item_dest:GetItemNoun() .. '.' )
+					
+					if( o_orig:GetType():lower() == 'player' ) then
+						local player = player_cast(o_orig)
+						player:DoSave()
+					end
 				else
 					o_orig:SendToEntity( 'You try and stuff it in, but that won\'t fit in your ' .. found_item_dest:GetItemNoun() .. '.' )
 				end
@@ -159,6 +165,10 @@ function c:ExecuteCommand ( o_orig, cmd )
 			o_orig:SendToEntity('You put ' .. found_item_targ:GetName() .. ' in the ' .. found_item_dest:GetItemNoun() .. '.' )
 			local pname = string.gsub(o_orig:GetName(), "(%a)([%w_']*)", titleCase)
 			o_orig:SendToRoom( pname .. ' puts ' .. found_item_targ:GetName() .. ' in the ' .. found_item_dest:GetItemNoun() .. '.' )
+			if( o_orig:GetType():lower() == 'player' ) then
+				local player = player_cast(o_orig)
+				player:DoSave()
+			end
 		else
 			o_orig:SendToEntity( 'You try and stuff it in, but that won\'t fit in the ' .. found_item_dest:GetItemNoun() .. '.' )
 		end

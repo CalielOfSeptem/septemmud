@@ -9,7 +9,13 @@ function c:DropItem( o_orig, item )
 	o_orig:SendToPlayer('You drop ' .. item:GetName() .. '.')	
 	local pname = string.gsub(o_orig:GetName(), "(%a)([%w_']*)", titleCase)
 	o_orig:SendToRoom( pname .. ' drops ' .. item:GetName() .. '.')
+	if( o_orig:GetType():lower() == 'player' ) then
+		local player = player_cast(o_orig)
+		player:DoSave()
+	end
 end
+
+
 
 -- TODO: add drop left/right
 -- TODO: add function to make drop code generic (i.e,, a function that can handle either hand)
@@ -41,6 +47,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 	if( s1:lower() == 'right' ) then
 		if( o:RightHand():IsEmpty() == false ) then
 			self:DropItem( o, o:RightHand():GetItem() )
+			--o:DoSave()
 			return true
 		else
 			o:SendToPlayer('Your right hand is already empty.')
@@ -51,6 +58,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 	if( s1:lower() == 'left' ) then
 		if( o:LeftHand():IsEmpty() == false ) then
 			self:DropItem( o, o:LeftHand():GetItem() )
+			--o:DoSave()
 			return true
 		else
 			o:SendToPlayer('Your left hand is already empty.')
@@ -68,6 +76,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 		if( item:GetItemNoun():lower():starts(s1)
 			or item:GetItemPluralNoun():lower():starts(s1)) then
 			self:DropItem( o, o:RightHand():GetItem() )
+			--o:DoSave()
 			return true
 		end
 
@@ -79,6 +88,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 		if( item:GetItemNoun():lower():starts(s1) 
 			or item:GetItemPluralNoun():lower():starts(s1)) then
 			self:DropItem( o, o:LeftHand():GetItem() )
+			--o:DoSave()
 			return true
 		end
 	end

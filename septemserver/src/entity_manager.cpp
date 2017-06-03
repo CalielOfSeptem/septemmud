@@ -639,6 +639,8 @@ void entity_manager::init_lua()
                                     &living_entity::GetRightHand,
                                     "LeftHand",
                                     &living_entity::GetLeftHand,
+                                    "DoSave",
+                                    &living_entity::do_save,
                                     sol::base_classes,
                                     sol::bases<script_entity>());
 

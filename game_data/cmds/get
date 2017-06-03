@@ -1,6 +1,16 @@
 inherit command
 c = command.new('get')
 
+function c:MoveItemToHand( o_orig, hand, item_to_drop )
+	hand:AddToInventory(item_to_drop)
+	o_orig:SendToEntity('You pick up ' .. item_to_drop:GetName() .. ' in your right hand.')
+	local pname = string.gsub(o_orig:GetName(), "(%a)([%w_']*)", titleCase)
+	o_orig:SendToRoom( pname .. ' picks up ' .. item_to_drop:GetName() .. '.')		
+	if( o_orig:GetType():lower() == 'player' ) then
+		local player = player_cast(o_orig)
+		player:DoSave()
+	end
+end
 	
 function c:ExecuteCommand ( o_orig, cmd )
 
@@ -96,18 +106,20 @@ function c:ExecuteCommand ( o_orig, cmd )
 	end
 	
 	if( o:RightHand():IsEmpty() ) then
-		o:RightHand():AddToInventory(found_item)
-		o:SendToPlayer('You pick up ' .. found_item:GetName() .. ' in your right hand.')
-		local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
-		o:SendToRoom( pname .. ' picks up ' .. found_item:GetName() .. '.')		
+		self:MoveItemToHand( o_orig, o:RightHand(), found_item )
+		--o:RightHand():AddToInventory(found_item)
+		--o:SendToPlayer('You pick up ' .. found_item:GetName() .. ' in your right hand.')
+		--local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
+		--o:SendToRoom( pname .. ' picks up ' .. found_item:GetName() .. '.')		
 		return true;
 	end
 	
 	if( o:LeftHand():IsEmpty() ) then
-		o:LeftHand():AddToInventory(found_item)
-		o:SendToPlayer('You pick up ' .. found_item:GetName() .. ' in your left hand.')	
-		local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
-		o:SendToRoom( pname .. ' picks up ' .. found_item:GetName() .. '.')
+		self:MoveItemToHand( o_orig, o:LeftHand(), found_item )
+		--o:LeftHand():AddToInventory(found_item)
+		--o:SendToPlayer('You pick up ' .. found_item:GetName() .. ' in your left hand.')	
+		--local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
+		--o:SendToRoom( pname .. ' picks up ' .. found_item:GetName() .. '.')
 		return true;
 	end
 	

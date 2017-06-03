@@ -1,6 +1,6 @@
 {
-    "leftHand": {
-        "YBEAoF2m2xh9Gy0": "workspaces/caliel/entities/backpack"
-    },
-    "rightHand": 0
+    "leftHand": 0,
+    "rightHand": {
+        "M41fwOhxD1q4N0O": "workspaces/caliel/entities/rock"
+    }
 }

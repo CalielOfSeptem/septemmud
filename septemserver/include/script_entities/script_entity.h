@@ -151,7 +151,7 @@ struct script_entity {
         
         virtual bool do_save()
         {
-            
+            return true;
         }
         
         virtual void on_environment_change(EnvironmentChangeEvent evt, script_entity * env)
@@ -161,7 +161,7 @@ struct script_entity {
         
         virtual bool do_load()
         {
-        
+            return true;
         }
         
 private:
