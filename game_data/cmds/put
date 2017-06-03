@@ -1,0 +1,170 @@
+inherit command
+c = command.new('put')
+
+function c:FindItemInHand( hand, item_to_find )
+	if( hand:IsEmpty() == false ) then
+		local i = hand:GetItem():GetItemNoun()
+		if( i:lower():starts(item_to_find) ) then
+			return hand:GetItem()
+		end
+	end
+	return nil
+end
+	
+function c:ExecuteCommand ( o_orig, cmd )
+
+	local s_type = o_orig:GetType()
+	
+	if (s_type:lower() ~= "player" and s_type:lower() ~= "npc") then
+		return false;
+	end
+	
+	o = living_cast(o_orig)
+	if ( o == nil ) then 
+		return false 
+	end	
+	
+	local myTable = cmd:split( ' ' )
+	if #myTable < 4 then
+		usage(o)
+		return true;
+	end
+
+	-- remove put portion
+	table.remove(myTable, 1)
+	
+	
+	-- ex/ put arrow in [my] back
+	-- step 1. check to make sure object is in our hands.. fail if its not found
+	local to_put = myTable[1]
+	
+	
+	local found_item_targ = nil
+	local t_item = c:FindItemInHand( o:LeftHand(), to_put )
+	if( t_item ~= nil ) then
+		found_item_targ = t_item
+	end
+	
+	t_item = c:FindItemInHand( o:RightHand(), to_put )
+	if( t_item ~= nil ) then
+		found_item_targ = t_item
+	end
+	
+	if( found_item_targ == nil ) then
+		o_orig:SendToEntity('Put what, where?')
+		return true
+	end
+	
+
+	-- remove object part
+	table.remove(myTable, 1)
+	-- step 2.  next part should be 'in'
+	if ( myTable[1]:lower() ~= 'in' ) then
+		usage(o)
+		return true
+	end
+	table.remove(myTable, 1) -- remove 'in' part
+	
+	-- step 3. next word may be 'my'.. or an object 
+	local local_only = false
+	if( myTable[1]:lower() == 'my' ) then
+		-- limit search for one of the player's containers
+		local_only = true
+		table.remove(myTable, 1) -- remove 'my' part
+	end
+	
+	-- step 4. find the object to put things into, make sure its a container
+	
+	local item_to_find = myTable[1]
+	local s_num = string.match(item_to_find, '%d+')
+	local skip_index = 1 -- don't skip by default
+	if( s_num ~= nil ) then
+		skip_index = s_num
+		item_to_find = string.match(item_to_find, '%a+')
+	end
+	
+	local player = living_cast(o)
+	local room = player:GetRoom()
+	local items = room:GetItems()
+	local found_item_dest = nil
+	
+	if ( local_only ) then
+		local t_item = c:FindItemInHand( o:LeftHand(), item_to_find )
+		if( t_item ~= nil and t_item ~= found_item_targ ) then -- make sure its not the same object, like putting a pack in a pack..
+			found_item_dest = t_item
+		end
+		t_item = c:FindItemInHand( o:RightHand(), item_to_find )
+		if( t_item ~= nil and t_item ~= found_item_targ ) then
+			found_item_dest = t_item
+		end
+		
+		if( found_item_dest ) then
+			if( found_item_dest:GetIsContainer() == false ) then
+				o_orig:SendToEntity('You can\'t put things in there!')
+				return true
+			else
+				if( found_item_dest:AddToInventory(found_item_targ) ) then
+					o_orig:SendToEntity('You put ' .. found_item_targ:GetName() .. ' in your ' .. found_item_dest:GetItemNoun() .. '.' )
+					local pname = string.gsub(o_orig:GetName(), "(%a)([%w_']*)", titleCase)
+					o_orig:SendToRoom( pname .. ' puts ' .. found_item_targ:GetName() .. ' in their ' .. found_item_dest:GetItemNoun() .. '.' )
+				else
+					o_orig:SendToEntity( 'You try and stuff it in, but that won\'t fit in your ' .. found_item_dest:GetItemNoun() .. '.' )
+				end
+			end
+			--print('IN HAND SUCCESS!')
+			return true
+		end
+	end
+	
+
+	
+	for i = 1, #items do
+
+		local itemName = items[i]:GetItemNoun():lower()
+
+		if( itemName:starts(item_to_find) or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
+			--print(skip_index)
+			skip_index = skip_index - 1
+			
+			if ( skip_index ~= 0 ) then goto continue end -- keep looking
+			
+			found_item_dest = items[i]
+		end
+		::continue::
+	end
+	
+	if( found_item_dest == nil ) then
+	-- look in hands
+		local t_item = c:FindItemInHand( o:LeftHand(), item_to_find )
+		if( t_item ~= nil and t_item ~= found_item_targ ) then -- make sure its not the same object, like putting a pack in a pack..
+			found_item_dest = t_item
+		end
+		t_item = c:FindItemInHand( o:RightHand(), item_to_find )
+		if( t_item ~= nil and t_item ~= found_item_targ ) then
+			found_item_dest = t_item
+		end
+	end
+	
+	if( found_item_dest == nil ) then
+		o_orig:SendToEntity('Put what.. in where?')
+		return true
+	end
+	
+	-- step 5. put it in there.. if its a container..
+	if( found_item_dest:GetIsContainer() == false ) then
+		o_orig:SendToEntity('You can\'t put things in there!')
+		return true
+	else
+		if( found_item_dest:AddToInventory(found_item_targ) ) then
+			o_orig:SendToEntity('You put ' .. found_item_targ:GetName() .. ' in the ' .. found_item_dest:GetItemNoun() .. '.' )
+			local pname = string.gsub(o_orig:GetName(), "(%a)([%w_']*)", titleCase)
+			o_orig:SendToRoom( pname .. ' puts ' .. found_item_targ:GetName() .. ' in the ' .. found_item_dest:GetItemNoun() .. '.' )
+		else
+			o_orig:SendToEntity( 'You try and stuff it in, but that won\'t fit in the ' .. found_item_dest:GetItemNoun() .. '.' )
+		end
+	end
+end
+
+function usage(o_orig)
+	o_orig:SendToEntity('USAGE: put <Implement me later>')
+end

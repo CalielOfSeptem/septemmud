@@ -32,11 +32,11 @@ function c:ExecuteCommand ( o_orig, cmd )
 	
 	if( r_item ~= nil ) then
 		o:LeftHand():AddItem(r_item)
-		o:SendToPlayer('You swap the ' .. r_item:GetItemNoun() .. ' to your left hand.') 
+		o:SendToPlayer('You swap ' .. r_item:GetName() .. ' to your left hand.') 
 	end
 	if(	l_item ~= nil ) then
 		o:RightHand():AddItem(l_item)
-		o:SendToPlayer('You swap the ' .. l_item:GetItemNoun() .. ' to your right hand.') 
+		o:SendToPlayer('You swap ' .. l_item:GetName() .. ' to your right hand.') 
 	end
 	return true
 end

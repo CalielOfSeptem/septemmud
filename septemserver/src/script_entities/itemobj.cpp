@@ -27,6 +27,7 @@ void itemobj::on_environment_change(EnvironmentChangeEvent evt, script_entity * 
         {
             if( fs::exists(this->get_entityStorageLocation() + "/" + this->get_uid() ) )
                 fs::remove(this->get_entityStorageLocation() + "/" + this->get_uid());
+            //set_isInitialized(false);
         }
         catch(std::exception& ex)
         {
@@ -37,7 +38,64 @@ void itemobj::on_environment_change(EnvironmentChangeEvent evt, script_entity * 
     {
         std::string location = env->get_entityStorageLocation();
         this->set_entityStorageLocation(location);
-        do_save();
+        
+        if( !location.empty()  )
+        {
+            do_load();
+            set_isInitialized(true);
+        }
+
+        
+        //do_save();
+    }
+}
+
+bool itemobj::do_load()
+{
+    if( this->get_entityStorageLocation().empty())
+        return false;
+        
+    try
+    {
+        if( !fs::exists(this->get_entityStorageLocation() + "/" + this->uid) )
+        {
+            this->do_save();
+            return true;
+        }
+        std::ifstream i(this->get_entityStorageLocation() + "/" + this->uid);
+        json j;
+        i >> j;
+        
+        SetLook(j["look"]);
+        SetName(j["name"]);
+        
+        set_weight(j["weight"]);
+        set_size(j["size"]);
+        set_itemType(j["item_type"]);
+        
+        set_defaultStackSize(j["defaultStackSize"]);
+        set_currentStackCount(j["currentStackCount"]);
+        set_isWearable(j["isWearable"]);
+        set_isStackable(j["isStackable"]);
+        set_isContainer(j["isContainer"]);
+        set_pluralName( j["pluralName"]);
+        
+        const json& inventory = j["inventory"]; //<<<< this bit was hard to figure out
+        for (auto& element : json::iterator_wrapper(inventory)) {
+            if( element.key().size() > 0 && element.value() != NULL )
+            {
+                std::cout << element.key() << " maps to " << element.value() << std::endl;
+                std::string s1 = element.key();
+                std::string s2 = element.value();
+                entity_manager::Instance().clone_item( s2, dynamic_cast<script_entity*>(this), s1 );
+            }
+
+        }
+
+    }
+    catch(std::exception &ex)
+    {
+        this->debug(ex.what());
     }
 }
 
@@ -65,6 +123,16 @@ bool itemobj::do_save()
         j["isStackable"] = get_isStackable();
         j["isContainer"] = get_isContainer();
         j["pluralName"] = get_pluralName();
+        
+        std::vector< script_entity*  > items = this->GetInventory();
+        std::map< std::string, std::string > item_objs;
+        for( auto i : items )
+        {
+            itemobj * obj = dynamic_cast< itemobj * > (i);
+            item_objs[obj->get_uid()] = i->GetBaseScriptPath();
+        }
+ 
+        j["inventory"] = item_objs;
 
         std::ofstream o(this->get_entityStorageLocation() + "/" + this->get_uid() );
         o << std::setw(4) << j << std::endl;
@@ -80,3 +148,26 @@ bool itemobj::do_save()
     return true;
 }
 
+bool itemobj::AddEntityToInventory(script_entity* se)
+{
+    bool b = container_base::AddEntityToInventory(se);
+    this->do_save();
+    return b;
+}
+
+bool itemobj::RemoveEntityFromInventory(script_entity* se)
+{
+    bool b = container_base::RemoveEntityFromInventory(se);
+    this->do_save();
+    return b;
+}
+
+std::vector<itemobj*> itemobj::GetItems()
+{
+    std::vector<itemobj*> t_items;
+    for( auto i : this->GetInventory() )
+    {
+        t_items.push_back(dynamic_cast<itemobj*>(i));
+    }
+    return t_items;
+}

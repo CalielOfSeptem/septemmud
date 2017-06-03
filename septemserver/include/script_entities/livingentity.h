@@ -15,9 +15,9 @@ struct living_entity;
 struct handobj : public container_base, public script_entity
 {
      
-     virtual void AddEntityToInventory(script_entity * se) override
+     virtual bool AddEntityToInventory(script_entity * se) override
      {
-         container_base::AddEntityToInventory(se);
+         return container_base::AddEntityToInventory(se);
         
      }
      

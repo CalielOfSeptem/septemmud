@@ -260,14 +260,15 @@ for( int x = 2; x < 1000; x++ )
     return b;
 }
 
-bool entity_manager::clone_item_to_hand(std::string& relative_script_path, handobj* obj)
+bool entity_manager::clone_item_to_hand(std::string& relative_script_path, handobj* obj, std::string uid)
 {
-    return clone_item( relative_script_path, obj->GetOwner());
+    return clone_item( relative_script_path, obj->GetOwner(), uid);
 }
 
-bool entity_manager::clone_item(std::string& relative_script_path, script_entity* obj)
+bool entity_manager::clone_item(std::string& relative_script_path, script_entity* obj, std::string uid)
 {
-    std::string uid = random_string();
+    if( uid.size() == 0 )
+        uid = random_string();
     std::string reason;
     std::string tag = "";
     std::string vpath = relative_script_path + "/" + uid;
@@ -466,6 +467,12 @@ void entity_manager::init_lua()
                             &itemobj::get_property_lua,
                             "GetInventory",
                             &container_base::GetInventory,
+                            "GetItems",
+                            &itemobj::GetItems,
+                            "AddToInventory",
+                            &container_base::AddEntityToInventory,
+                            "AddItem",
+                            &container_base::AddEntityToInventory,
                             
                             "GetSize", &itemobj::get_size,
                             "SetSize", &itemobj::set_size,
@@ -1757,40 +1764,51 @@ void entity_manager::debug(std::string& msg)
 
 bool entity_manager::do_command(living_entity* e, const std::string cmd)
 {
-    std::string command_proc_path = global_settings::Instance().GetSetting(DEFAULT_COMMAND_PROC);
-    unsigned int id = 0;
-    daemonobj* dobj = entity_manager::Instance().GetDaemonByScriptPath(command_proc_path, id);
-    if(dobj == NULL) {
-        auto log = spd::get("main");
-        std::stringstream ss;
-        ss << "Error attempting to retrieve command proc.";
-        log->debug( ss.str() );
-        
-        return false;
-    }
-
-    sol::optional<sol::table> self =
-        dobj->m_userdata
-            ->selfobj; // ew_daemon->env_obj.value()[ew_daemon->script_obj_name];//(*lua_primary)[entity_env[0]][entity_env[1]][ew_daemon->script_obj_name];
-                       // //(*ew_daemon->script_state)[ew_daemon->script_obj_name];
-
-    if(self) {
-        sol::protected_function exec = self.value()["process_command"];
-        auto result = exec(self, e, cmd);
-        if(!result.valid()) {
-            sol::error err = result;
+    try
+    {
+        std::string command_proc_path = global_settings::Instance().GetSetting(DEFAULT_COMMAND_PROC);
+        unsigned int id = 0;
+        daemonobj* dobj = entity_manager::Instance().GetDaemonByScriptPath(command_proc_path, id);
+        if(dobj == NULL) {
             auto log = spd::get("main");
             std::stringstream ss;
-            ss << err.what();
+            ss << "Error attempting to retrieve command proc.";
             log->debug( ss.str() );
+            
+            return false;
         }
-        return true;
-    } else {
+
+        sol::optional<sol::table> self =
+            dobj->m_userdata
+                ->selfobj; // ew_daemon->env_obj.value()[ew_daemon->script_obj_name];//(*lua_primary)[entity_env[0]][entity_env[1]][ew_daemon->script_obj_name];
+                           // //(*ew_daemon->script_state)[ew_daemon->script_obj_name];
+
+        if(self) {
+            sol::protected_function exec = self.value()["process_command"];
+            auto result = exec(self, e, cmd);
+            if(!result.valid()) {
+                sol::error err = result;
+                auto log = spd::get("main");
+                std::stringstream ss;
+                ss << err.what();
+                log->debug( ss.str() );
+            }
+            return true;
+        } else {
+            auto log = spd::get("main");
+            std::stringstream ss;
+            ss << "Error attempting to retrieve command proc.";
+            log->debug( ss.str() );
+            return false;
+        }
+
+    }
+    catch(std::exception& ex )
+    {
         auto log = spd::get("main");
         std::stringstream ss;
-        ss << "Error attempting to retrieve command proc.";
+        ss << "Error attempting to execute command proc " << ex.what();
         log->debug( ss.str() );
-        return false;
     }
 
     return false;

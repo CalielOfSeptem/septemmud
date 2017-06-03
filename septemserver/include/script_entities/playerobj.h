@@ -47,7 +47,8 @@ struct playerobj : living_entity
 
     bool bIsCreator;
     
-    bool do_save();
+    virtual bool do_save() override;
+    virtual bool do_load() override;
     
 };
  

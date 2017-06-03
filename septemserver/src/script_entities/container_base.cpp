@@ -2,15 +2,15 @@
 #include "script_entities/itemobj.h"
 #include "entity_manager.h"
 
-void container_base::AddEntityToInventory(script_entity* se)
+bool container_base::AddEntityToInventory(script_entity* se)
 {
     if(se == NULL)
-        return;
+        return false;
 
     script_entity* env = se->GetEnvironment();
 
     if(env != NULL && env == GetOwner())
-        return;
+        return false;
         /*
     if(itemobj* item = dynamic_cast<itemobj*>(se)) {
         if(item->get_isStackable()) {
@@ -60,7 +60,7 @@ void container_base::AddEntityToInventory(script_entity* se)
                         {
                             itemb->set_currentStackCount( itemb->get_currentStackCount() + item->get_currentStackCount());
                             item->set_destroy(true); // object is empty, delete it..
-                            return; // just return..
+                            return true; 
                         }
                     }
                 }
@@ -68,10 +68,11 @@ void container_base::AddEntityToInventory(script_entity* se)
             assert(item->get_currentStackCount() > 0);
         }
     }
-    inventory.insert(se);
+    inventory.push_back(se);
     auto t = GetOwner();
     if(t == NULL)
-        return;
+        return false;
     se->SetEnvironment(GetOwner());
     se->on_environment_change(EnvironmentChangeEvent::ADDED, t);
+    return true;
 }

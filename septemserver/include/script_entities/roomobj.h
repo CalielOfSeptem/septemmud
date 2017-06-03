@@ -123,9 +123,9 @@ public:
         return short_description;
     }
     
-    virtual void AddEntityToInventory(script_entity * se) override
+    virtual bool AddEntityToInventory(script_entity * se) override
     {
-         container_base::AddEntityToInventory(se);
+         return container_base::AddEntityToInventory(se);
         // se->SetEnvironment( static_cast<script_entity*>(this) );
          //se->SetEnvironment(static_cast<script_entity*>(this)); // this must be called AFTER the above (to remove the se from its previous owner)
     }

@@ -12,12 +12,12 @@
  struct container_base
  {
      virtual script_entity * GetOwner() = 0;
-     virtual void AddEntityToInventory(script_entity * se);
+     virtual bool AddEntityToInventory(script_entity * se);
      
      virtual bool RemoveEntityFromInventoryByID( const std::string& id  )
      {
          // TODO: implement this and be sure to nuke a removed items environment_ pointer..
-         std::set< script_entity*  >::iterator it = this->inventory.begin();
+         std::vector< script_entity*  >::iterator it = this->inventory.begin();
 
           while (it != this->inventory.end()) {
                 // Check if key's first character is Fi
@@ -38,7 +38,7 @@
     virtual bool RemoveEntityFromInventory( script_entity * se )
     {
          // TODO: implement this and be sure to nuke a removed items environment_ pointer..
-         std::set< script_entity*  >::iterator it = this->inventory.begin();
+         std::vector< script_entity*  >::iterator it = this->inventory.begin();
 
           while (it != this->inventory.end()) {
                 // Check if key's first character is Fi
@@ -56,12 +56,12 @@
         return false;
     }
      
-     virtual const std::set< script_entity*  >& GetInventory()
+     virtual const std::vector< script_entity*  >& GetInventory()
      {
          return inventory;
      }
      protected:
-     std::set< script_entity* > inventory;
+     std::vector< script_entity* > inventory;
     
  };
  #endif

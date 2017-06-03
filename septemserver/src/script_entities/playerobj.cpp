@@ -1,6 +1,7 @@
 #include "script_entities/playerobj.h"
 #include "fs/fs_manager.h"
 #include <iomanip>
+#include "entity_manager.h"
 #include "json.hpp"
 using json = nlohmann::json;
 
@@ -14,6 +15,7 @@ living_entity(ts, te, EntityType::PLAYER, name)
     this->set_entityStorageLocation( p );
     m_RightHand.set_entityStorageLocation(p);
     m_LeftHand.set_entityStorageLocation(p);
+    do_load();
 }
      
 
@@ -26,16 +28,18 @@ bool playerobj::do_save()
         if( m_RightHand.GetItem() )
         {
             j["rightHand"] = std::map<std::string, std::string> {{ 
-                    m_RightHand.GetItem()->GetBaseScriptPath(), 
-                    m_RightHand.GetItem()->get_uid() }};
+                    m_RightHand.GetItem()->get_uid(),
+                    m_RightHand.GetItem()->GetBaseScriptPath()
+                    }};
         }
         else
             j["rightHand"] = NULL;
             
         if( m_LeftHand.GetItem() )
            j["leftHand"] = std::map<std::string, std::string> {{ 
+                    m_LeftHand.GetItem()->get_uid(),
                     m_LeftHand.GetItem()->GetBaseScriptPath(), 
-                    m_LeftHand.GetItem()->get_uid() }};
+                    }};
         else
             j["leftHand"] = NULL;
             
@@ -53,5 +57,43 @@ bool playerobj::do_save()
        
     return true;
 }
-     
-     
+
+bool playerobj::do_load()
+{
+    if( this->get_entityStorageLocation().size() == 0 )
+        return false;
+        
+    try
+    {
+        std::ifstream i(this->get_entityStorageLocation() + "/player_save");
+        json j;
+        i >> j;
+        const json& rh = j["rightHand"]; //<<<< this bit was hard to figure out
+        for (auto& element : json::iterator_wrapper(rh)) {
+            if( element.key().size() > 0 && element.value() != NULL )
+            {
+                std::cout << element.key() << " maps to " << element.value() << std::endl;
+                std::string s1 = element.key();
+                std::string s2 = element.value();
+                entity_manager::Instance().clone_item_to_hand( s2, &m_RightHand, s1);
+            }
+
+        }
+       const json& lh = j["leftHand"]; //<<<< this bit was hard to figure out
+       for (auto& element : json::iterator_wrapper(lh)) {
+            if( element.key().size() > 0 && element.value() != NULL )
+            {
+                std::cout << element.key() << " maps to " << element.value() << std::endl;
+                std::string s1 = element.key();
+                std::string s2 = element.value();
+                entity_manager::Instance().clone_item_to_hand( s2, &m_LeftHand, s1);
+            }
+
+        }
+    }
+    catch(std::exception &ex)
+    {
+        this->debug(ex.what());
+    }
+    return true;
+}

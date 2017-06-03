@@ -74,6 +74,16 @@ struct itemobj : public script_entity, public container_base
     {
         bisContainer = b;
     }
+    
+    virtual bool get_isInitialized()
+    {
+        return bisInitialized;
+    }
+     
+    virtual void set_isInitialized(bool b)
+    {
+        bisInitialized = b;
+    }
      
     virtual std::string get_uid()
     {
@@ -136,7 +146,7 @@ struct itemobj : public script_entity, public container_base
         this->pluralName = pluralName;
     }
     
-    virtual const std::string& get_itemPluralNoun()
+    virtual std::string get_itemPluralNoun()
     {
         std::vector<std::string> parts = split(pluralName, ' ');
         if( parts.size() == 0 )
@@ -212,6 +222,8 @@ struct itemobj : public script_entity, public container_base
     {
         m_currentStackCount = stackCount;
     }
+    
+
      
     virtual void incrementStackCount()
     {
@@ -232,11 +244,16 @@ struct itemobj : public script_entity, public container_base
     
     virtual bool do_save() override;
     
+    virtual bool do_load() override;
+    
     virtual void on_environment_change(EnvironmentChangeEvent evt, script_entity * env) override;
     
    // virtual void SetEnvironment(script_entity* be) override;
 
-
+    virtual bool AddEntityToInventory(script_entity * se) override;
+    virtual bool RemoveEntityFromInventory(script_entity * se) override;
+    
+    std::vector< itemobj *> GetItems();
      
     double m_weight; // item weight in stones
     ItemSize m_size = ItemSize::TINY;
@@ -246,6 +263,7 @@ struct itemobj : public script_entity, public container_base
     bool bisWearable;
     bool bisStackable = false;
     bool bisContainer;
+    bool bisInitialized = false;
     
     std::string uid;
     std::string pluralName;

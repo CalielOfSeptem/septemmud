@@ -159,6 +159,11 @@ struct script_entity {
             
         }
         
+        virtual bool do_load()
+        {
+        
+        }
+        
 private:
         std::string entity_storage_location; // used for persistence
         my_sink m_entityLog;

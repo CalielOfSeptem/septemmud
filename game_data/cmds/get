@@ -41,8 +41,9 @@ function c:ExecuteCommand ( o_orig, cmd )
 	
 	local item_to_find = myTable[1]:lower() -- at this point we should have an object..
 	table.remove(myTable, 1)
-	
+
 	local cmd = table.concat(myTable, " ") -- put it back together
+
 	sm1 = string.match(cmd, "from my %a+")
 	-- TODO, fix this stuff later..
 	if sm1 then
@@ -70,11 +71,10 @@ function c:ExecuteCommand ( o_orig, cmd )
 	local found_item = nil
 	
 	for i = 1, #items do
-
-		local itemName = items[i]:GetItemNoun():lower()
-
-		if( itemName:starts(item_to_find) or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
-			--print(skip_index)
+	--print(i)
+	--print( items[i]:GetItemNoun() )
+		if( items[i]:GetItemNoun():lower():starts(item_to_find)  or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
+		--print(i)
 			skip_index = skip_index - 1
 			
 			if ( skip_index ~= 0 ) then goto continue end -- keep looking

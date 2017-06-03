@@ -6,12 +6,49 @@ c:SetAliases( { 'l' } )
 -- o is the base_entity from which the command originated.  Cmd is the command text.  Note that the verb
 -- which initiated the command will be the first element in cmd.  Ex/ > look, cmd="look", >look chest, cmd = "look chest"
 
+function c:FindItemInHand( hand, item_to_find )
+	if( hand:IsEmpty() == false ) then
+		local i = hand:GetItem():GetItemNoun()
+		if( i:lower():starts(item_to_find) ) then
+			return hand:GetItem()
+		end
+	end
+	return nil
+end
 
+function c:ShowInventory( item, o )
+	local items = item:GetItems()
+	if( #items == 0 ) then
+		o:SendToEntity('The ' .. item:GetItemNoun() .. ' is empty.') 
+		return
+	end
+	local s = 'You look in the ' .. item:GetItemNoun() .. ' and see '
+	if( #items > 0 ) then
+		for i = 1, #items do
+			local iname = items[i]:GetName()
+			str = iname
+			--print( items[i]:GetCurrentStackCount() )
+			--if( items[i].isStackable and items[i]:GetCurrentStackCount() > 1 ) then
+			
+			--	str = items[i]:GetPluralName()
+			--end
+			if i ~= #items then
+				str = str .. ', '
+
+			else
+				str = str .. '.' 
+			end
+			s = s .. str
+		end
+	end
+	o:SendToEntity(s)
+end
 
 function c:ExecuteCommand ( o, cmd )
 	--print(inspect(_ENV))
 	--print('Look command called..')
 	--p = player_cast(o)
+	o = living_cast(o)
 	if o ~= nil then
 		--tail( '/home/ken/git-repos/septemmud/game_data/logs/L-2017-03-17.log', 10000, true)
 		--if( o:GetType():lower() == "player" ) then
@@ -22,6 +59,32 @@ function c:ExecuteCommand ( o, cmd )
 		-- GetEnvironment requires a cast as its generic to all game items/players.
 		-- GetRoom does not as its already a room object ptr
 		-- example: env = room_cast(p:GetEnvironment())
+		local sm1 = string.match(cmd, "in my %a+")
+		-- TODO, fix this stuff later..
+		if sm1 then
+			local myTable = sm1:split( ' ' )
+			--print (sm1)
+			local item_to_examine = myTable[3]
+			--print(item_to_examine)
+			local item = c:FindItemInHand( o:LeftHand(), item_to_examine )
+			if( item ~= nil ) then
+				if( item:GetIsContainer() ) then
+					self:ShowInventory( item, o )
+				else
+					-- TODO: just show the item, its not a container.
+				end
+			end
+			
+			item = c:FindItemInHand( o:RightHand(), item_to_examine )
+			if( item ~= nil ) then
+				if( item:GetIsContainer() ) then
+					self:ShowInventory( item, o )
+				else
+					-- TODO: just show the item, its not a container.
+				end
+			end
+			return true
+		end
 		env = o:GetRoom()
 		
 		if env ~= nil then

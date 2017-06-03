@@ -1,22 +1,13 @@
 inherit item
 
-i = item.new('a backpack', itemType.thrown)
+i = item.new('a backpack', itemType.default)
 
---i:SetName('a rock')
+i.Look = 'an ordinary backpack'
 
-i.Look = 'an ordinary rock'
-
---f = function i:onTap( self )
---print('on tap')
---end
-
---i:AddAction('tap', f)
 i.weight = 1
-i.size = itemSize.tiny
-i.isWearable = false
-i.isContainer = false
-i.isStackable = false
-i:SetPluralName('a pile of rocks')
+i.size = itemSize.medium
+i.isWearable = true
+i.isContainer = true
 
 
 
