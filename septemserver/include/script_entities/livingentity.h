@@ -200,6 +200,17 @@ struct living_entity : public script_entity
     
     bool AddInventorySlot( std::string slotName, unsigned int maxItems=1, ItemSize maxItemSize = ItemSize::COLOSSAL );
     
+    std::vector<inventory_slot*> GetInventorySlots()
+    {
+        std::vector< inventory_slot * > slots;
+        slots.reserve(m_inventory_slots.size());
+        for( auto kvp : m_inventory_slots )
+        {
+            slots.push_back(kvp.second);
+        }
+        return slots;
+    }
+    
 private:
     
     std::map < std::string, inventory_slot* > m_inventory_slots;

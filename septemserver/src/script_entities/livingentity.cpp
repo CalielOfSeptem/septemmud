@@ -102,10 +102,12 @@ void living_entity::SendToEnvironment(const std::string& msg)
 
 bool living_entity::AddInventorySlot(std::string slotName, unsigned int maxItems, ItemSize maxItemSize)
 {
-    if( !m_inventory_slots.find(slotName) == m_inventory_slots.end() )
+    if( m_inventory_slots.find(slotName) != m_inventory_slots.end() )
     {
         return false;
     }
     m_inventory_slots[slotName] = new inventory_slot(slotName, maxItems, maxItemSize);
+    std::string loca = this->get_entityStorageLocation();
+    m_inventory_slots[slotName]->set_entityStorageLocation(loca);
     return true;
 }

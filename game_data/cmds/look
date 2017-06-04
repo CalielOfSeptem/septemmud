@@ -16,6 +16,71 @@ function c:FindItemInHand( hand, item_to_find )
 	return nil
 end
 
+function c:CheckHands( o, item_to_find )
+	local item = c:FindItemInHand( o:LeftHand(), item_to_find )
+	if( item ~= nil ) then
+		if( item:GetIsContainer() ) then
+			self:ShowInventory( item, o )
+		else
+			-- TODO: just show the item, its not a container.
+		end
+		return true
+	end
+	
+	item = c:FindItemInHand( o:RightHand(), item_to_find )
+	if( item ~= nil ) then
+		if( item:GetIsContainer() ) then
+			self:ShowInventory( item, o )
+		else
+			-- TODO: just show the item, its not a container.
+		end
+		return true
+	end
+	return false
+end
+
+function c:FindItemInEnv( o, item_to_find )
+
+	local s_num = string.match(item_to_find, '%d+')
+	local skip_index = 1 -- don't skip by default
+	if( s_num ~= nil ) then
+		skip_index = s_num
+		item_to_find = string.match(item_to_find, '%a+')
+		--print(s1)
+	end
+	
+	local player = living_cast(o)
+	local room = player:GetRoom()
+	local items = room:GetItems()
+	local found_item = nil
+	
+	for i = 1, #items do
+	--print(i)
+	--print( items[i]:GetItemNoun() )
+		if( items[i]:GetItemNoun():lower():starts(item_to_find)  or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
+		--print(i)
+			skip_index = skip_index - 1
+			
+			if ( skip_index ~= 0 ) then goto continue end -- keep looking
+			
+			found_item = items[i]
+		end
+		::continue::
+	end
+	
+	if found_item == nil then
+		--o:SendToEntity('Look in what? No such object exists.')
+		return false
+	end
+	
+	if( found_item:GetIsContainer() ) then
+		self:ShowInventory( found_item, o )
+	else
+	-- TODO: just look at item, its not a container
+	end
+	
+end
+
 function c:ShowInventory( item, o )
 	local items = item:GetItems()
 	if( #items == 0 ) then
@@ -59,32 +124,35 @@ function c:ExecuteCommand ( o, cmd )
 		-- GetEnvironment requires a cast as its generic to all game items/players.
 		-- GetRoom does not as its already a room object ptr
 		-- example: env = room_cast(p:GetEnvironment())
-		local sm1 = string.match(cmd, "in my %a+")
+		local sm1 = string.match(cmd, "in my .+")
 		-- TODO, fix this stuff later..
-		if sm1 then
+		if sm1 ~= nil then
 			local myTable = sm1:split( ' ' )
 			--print (sm1)
 			local item_to_examine = myTable[3]
 			--print(item_to_examine)
-			local item = c:FindItemInHand( o:LeftHand(), item_to_examine )
-			if( item ~= nil ) then
-				if( item:GetIsContainer() ) then
-					self:ShowInventory( item, o )
-				else
-					-- TODO: just show the item, its not a container.
-				end
-			end
-			
-			item = c:FindItemInHand( o:RightHand(), item_to_examine )
-			if( item ~= nil ) then
-				if( item:GetIsContainer() ) then
-					self:ShowInventory( item, o )
-				else
-					-- TODO: just show the item, its not a container.
-				end
-			end
+			--print( item_to_examine )
+			self:CheckHands( o, item_to_examine )
+
 			return true
 		end
+		
+		local sm2 = string.match(cmd, "in .+")
+		if sm2 ~= nil then
+			local myTable = sm2:split( ' ' )
+			local item_to_examine = myTable[2]
+			if( self:FindItemInEnv( o, item_to_examine ) ) then
+				return true
+			end
+			if( self:CheckHands( o, item_to_examine ) ) then -- try hands..
+				return true
+			end
+			o:SendToEntity('Look in what? No such object exists.')
+			return true
+		end
+		-- TODO, fix this stuff later..
+		
+		
 		env = o:GetRoom()
 		
 		if env ~= nil then

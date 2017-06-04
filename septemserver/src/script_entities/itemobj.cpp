@@ -25,9 +25,17 @@ void itemobj::on_environment_change(EnvironmentChangeEvent evt, script_entity * 
     {
         try
         {
-            if( fs::exists(this->get_entityStorageLocation() + "/" + this->get_uid() ) )
-                fs::remove(this->get_entityStorageLocation() + "/" + this->get_uid());
-            //set_isInitialized(false);
+            this->remove_settings_file();
+                
+            // if this is a container, remove their files as well..
+            
+            for( auto it : this->GetItems() )
+            {
+                it->remove_settings_file();
+                std::string l = "";
+                it->set_entityStorageLocation(l);
+            }
+
         }
         catch(std::exception& ex)
         {
@@ -43,6 +51,12 @@ void itemobj::on_environment_change(EnvironmentChangeEvent evt, script_entity * 
         {
             do_load();
             set_isInitialized(true);
+            
+            for( auto it : this->GetItems() )
+            {
+                it->set_entityStorageLocation( location );
+                it->do_load();
+            }
         }
 
         
@@ -97,6 +111,7 @@ bool itemobj::do_load()
     {
         this->debug(ex.what());
     }
+    return true;
 }
 
 bool itemobj::do_save()
@@ -170,4 +185,21 @@ std::vector<itemobj*> itemobj::GetItems()
         t_items.push_back(dynamic_cast<itemobj*>(i));
     }
     return t_items;
+}
+
+bool itemobj::remove_settings_file()
+{
+    if( this->get_entityStorageLocation().empty() )
+        return false;
+    try
+    {
+        if( fs::exists(this->get_entityStorageLocation() + "/" + this->get_uid() ) )
+            fs::remove(this->get_entityStorageLocation() + "/" + this->get_uid() ); 
+    }
+    catch( std::exception& ex )
+    {
+        this->debug(ex.what());
+        return false;
+    }
+    return true;
 }

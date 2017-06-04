@@ -1,0 +1,98 @@
+inherit command
+c = command.new('wear')
+
+function c:WearItem( o_orig, item )
+	slots = o_orig:GetInventorySlots()
+	
+	
+	--o_orig:SendToEntity('You wear that')
+	----local room = o_orig:GetRoom()
+	--room:AddToInventory( item )	
+	--o_orig:SendToPlayer('You drop ' .. item:GetName() .. '.')	
+	--local pname = string.gsub(o_orig:GetName(), "(%a)([%w_']*)", titleCase)
+	--o_orig:SendToRoom( pname .. ' drops ' .. item:GetName() .. '.')
+	--if( o_orig:GetType():lower() == 'player' ) then
+	--	local player = player_cast(o_orig)
+	--	player:DoSave()
+	--end
+end
+
+
+
+-- TODO: add drop left/right
+-- TODO: add function to make drop code generic (i.e,, a function that can handle either hand)
+-- TODO: add a swap command to compliment this command 
+function c:ExecuteCommand ( o_orig, cmd )
+
+	s_type = o_orig:GetType()
+	
+	if (s_type:lower() ~= "player" and s_type:lower() ~= "npc") then
+		return false;
+	end
+	
+	o = living_cast(o_orig)
+	if ( o == nil ) then 
+		return false 
+	end	
+	
+	local myTable = cmd:split( ' ' )
+	if #myTable ~= 2 then
+		usage(o)
+		return true;
+	end
+	
+	-- remove wear portion
+	table.remove(myTable, 1)
+	
+	local s1 = myTable[1]
+	
+	if( s1:lower() == 'right' ) then
+		if( o:RightHand():IsEmpty() == false ) then
+			self:WearItem( o, o:RightHand():GetItem() )
+			return true
+		else
+			o:SendToPlayer('Wear what? Your right hand is empty.')
+			return true
+		end
+	end
+	
+	if( s1:lower() == 'left' ) then
+		if( o:LeftHand():IsEmpty() == false ) then
+			self:WearItem( o, o:LeftHand():GetItem() )
+			return true
+		else
+			o:SendToPlayer('Wear what? Your left hand is empty.')
+			return true
+		end
+	end
+	
+	
+	bfound = false
+	if( o:RightHand():IsEmpty() == false ) then
+		local item = o:RightHand():GetItem()--:GetItemNoun():lower()
+	
+		if( item:GetItemNoun():lower():starts(s1)
+			or item:GetItemPluralNoun():lower():starts(s1)) then
+			self:WearItem( o, o:RightHand():GetItem() )
+			return true
+		end
+
+	end
+	
+	if( o:LeftHand():IsEmpty() == false ) then
+		local item = o:LeftHand():GetItem()
+	
+		if( item:GetItemNoun():lower():starts(s1) 
+			or item:GetItemPluralNoun():lower():starts(s1)) then
+			self:WearItem( o, o:LeftHand():GetItem() )
+			return true
+		end
+	end
+	
+	o:SendToPlayer('Wear what?')
+	return true
+end
+
+function usage(o_orig)
+	o_orig:SendToEntity('USAGE: drop <Implement me later>')
+end

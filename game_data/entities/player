@@ -1,10 +1,11 @@
 inherit player
 p = player.new('player_name')
 
+p:AddInventorySlot("back", 1, itemSize.large)
+
 function p:hb()
 	p:DoSave()
-	print('YES')
 end
---print( _FS_PATH_ )
+
 register_heartbeat(p.hb)
 

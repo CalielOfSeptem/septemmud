@@ -246,6 +246,8 @@ struct itemobj : public script_entity, public container_base
     
     virtual bool do_load() override;
     
+    virtual bool remove_settings_file();
+    
     virtual void on_environment_change(EnvironmentChangeEvent evt, script_entity * env) override;
     
    // virtual void SetEnvironment(script_entity* be) override;

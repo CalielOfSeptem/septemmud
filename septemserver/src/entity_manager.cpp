@@ -6,6 +6,7 @@
 #include "script_entities/daemonobj.h"
 #include "script_entities/commandobj.h"
 #include "script_entities/itemobj.h"
+
 #include "string_utils.h"
 #include "global_settings.h"
 #include "fs/fs_manager.h"
@@ -458,6 +459,10 @@ void entity_manager::init_lua()
                             sol::bases<container_base>() );
                             
 
+    lua.new_usertype<inventory_slot>("inventory_slot",
+                                sol::base_classes,
+                                sol::bases<container_base>());
+                            
                             
     lua.new_usertype<itemobj>("item",
                             sol::constructors<itemobj(sol::this_state, sol::this_environment, std::string, ItemType)>(),
@@ -641,6 +646,10 @@ void entity_manager::init_lua()
                                     &living_entity::GetLeftHand,
                                     "DoSave",
                                     &living_entity::do_save,
+                                    "AddInventorySlot",
+                                    &living_entity::AddInventorySlot,
+                                    "GetInventorySlots",
+                                    &living_entity::GetInventorySlots,
                                     sol::base_classes,
                                     sol::bases<script_entity>());
 
