@@ -2,8 +2,21 @@ inherit command
 c = command.new('wear')
 
 function c:WearItem( o_orig, item )
-	slots = o_orig:GetInventorySlots()
+	if( item.isWearable ~= true ) then 
+		o_orig:SendToPlayer('You can\'t wear that!')	
+		return false;
+	end
 	
+	-- TODO: logic to ensure item limits/restrictions are observed
+	o_orig:AddItem(item)
+	o_orig:SendToPlayer('You put on ' .. item:GetName() .. '.')	
+	local pname = string.gsub(o_orig:GetName(), "(%a)([%w_']*)", titleCase)
+	o_orig:SendToRoom( pname .. ' puts on ' .. item:GetName() .. '.')
+	if( o_orig:GetType():lower() == 'player' ) then
+		local player = player_cast(o_orig)
+		player:DoSave()
+	end
+	return true
 	
 	--o_orig:SendToEntity('You wear that')
 	----local room = o_orig:GetRoom()

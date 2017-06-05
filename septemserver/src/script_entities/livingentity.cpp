@@ -99,7 +99,7 @@ void living_entity::SendToEnvironment(const std::string& msg)
         }
     }
 }
-
+/*
 bool living_entity::AddInventorySlot(std::string slotName, unsigned int maxItems, ItemSize maxItemSize)
 {
     if( m_inventory_slots.find(slotName) != m_inventory_slots.end() )
@@ -110,4 +110,30 @@ bool living_entity::AddInventorySlot(std::string slotName, unsigned int maxItems
     std::string loca = this->get_entityStorageLocation();
     m_inventory_slots[slotName]->set_entityStorageLocation(loca);
     return true;
+}
+*/
+
+
+bool living_entity::AddEntityToInventory(script_entity* se)
+{
+    bool b = container_base::AddEntityToInventory(se);
+    this->do_save();
+    return b;
+}
+
+bool living_entity::RemoveEntityFromInventory(script_entity* se)
+{
+    bool b = container_base::RemoveEntityFromInventory(se);
+    this->do_save();
+    return b;
+}
+
+std::vector<itemobj*> living_entity::GetItems()
+{
+    std::vector<itemobj*> t_items;
+    for( auto i : this->GetInventory() )
+    {
+        t_items.push_back(dynamic_cast<itemobj*>(i));
+    }
+    return t_items;
 }

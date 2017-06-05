@@ -1,4 +1,7 @@
 {
+    "inventory": {
+        "am9eDdXmooMJVEN": "workspaces/caliel/entities/backpack"
+    },
     "leftHand": 0,
     "rightHand": 0
 }

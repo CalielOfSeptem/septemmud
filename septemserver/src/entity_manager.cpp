@@ -458,11 +458,11 @@ void entity_manager::init_lua()
                             sol::base_classes,
                             sol::bases<container_base>() );
                             
-
+/*
     lua.new_usertype<inventory_slot>("inventory_slot",
                                 sol::base_classes,
                                 sol::bases<container_base>());
-                            
+*/                        
                             
     lua.new_usertype<itemobj>("item",
                             sol::constructors<itemobj(sol::this_state, sol::this_environment, std::string, ItemType)>(),
@@ -502,6 +502,9 @@ void entity_manager::init_lua()
                             
                             "GetIsContainer", &itemobj::get_isContainer,
                             "SetIsContainer", &itemobj::set_isContainer,
+                            
+                            "GetInventorySlot", &itemobj::get_inventorySlot,
+                            "SetInventorySlot", &itemobj::set_inventorySlot,
                             
                             "GetPluralName", &itemobj::get_pluralName,
                             "SetPluralName", &itemobj::set_pluralName,
@@ -646,10 +649,18 @@ void entity_manager::init_lua()
                                     &living_entity::GetLeftHand,
                                     "DoSave",
                                     &living_entity::do_save,
+                                    "AddToInventory",
+                                    &container_base::AddEntityToInventory,
+                                    "AddItem",
+                                    &container_base::AddEntityToInventory,
+                                    "GetItems",
+                                    &living_entity::GetItems,
+                                    /*
                                     "AddInventorySlot",
                                     &living_entity::AddInventorySlot,
                                     "GetInventorySlots",
                                     &living_entity::GetInventorySlots,
+                                    */
                                     sol::base_classes,
                                     sol::bases<script_entity>());
 

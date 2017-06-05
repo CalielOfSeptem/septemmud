@@ -43,6 +43,20 @@ bool playerobj::do_save()
         else
             j["leftHand"] = NULL;
             
+            
+        std::vector< script_entity* > items = this->GetInventory();
+        std::map< std::string, std::string > item_objs;
+        for( auto i : items )
+        {
+            itemobj * obj = dynamic_cast< itemobj * > (i);
+            item_objs[obj->get_uid()] = i->GetBaseScriptPath();
+        }
+ 
+        j["inventory"] = item_objs;
+
+       // std::ofstream o(this->get_entityStorageLocation() + "/" + this->get_uid() );
+       // o << std::setw(4) << j << std::endl;
+            
         std::ofstream o(this->get_entityStorageLocation() + "/player_save");
         o << std::setw(4) << j << std::endl;
     }
@@ -87,6 +101,18 @@ bool playerobj::do_load()
                 std::string s1 = element.key();
                 std::string s2 = element.value();
                 entity_manager::Instance().clone_item_to_hand( s2, &m_LeftHand, s1);
+            }
+
+        }
+                
+        const json& inventory = j["inventory"]; //<<<< this bit was hard to figure out
+        for (auto& element : json::iterator_wrapper(inventory)) {
+            if( element.key().size() > 0 && element.value() != NULL )
+            {
+                std::cout << element.key() << " maps to " << element.value() << std::endl;
+                std::string s1 = element.key();
+                std::string s2 = element.value();
+                entity_manager::Instance().clone_item( s2, dynamic_cast<script_entity*>(this), s1 );
             }
 
         }

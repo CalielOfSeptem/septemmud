@@ -2,6 +2,8 @@ inherit item
 
 i = item.new('a backpack', itemType.default)
 
+i:SetInventorySlot( inventorySlot.back )
+
 i.Look = 'an ordinary backpack'
 
 i.weight = 1

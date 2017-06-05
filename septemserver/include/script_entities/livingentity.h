@@ -6,11 +6,14 @@
 #include "script_entities/script_entity.h"
 #include "script_entities/roomobj.h"
 #include "script_entities/itemobj.h"
+#include "script_entities/container_base.h"
 
 
 
 class roomobj;
 struct living_entity;
+
+/*
 
 struct inventory_slot : public container_base, public script_entity
 {
@@ -102,7 +105,7 @@ private:
     unsigned int m_maxItems = 1; // default is 1 item
     ItemSize m_maxSize = ItemSize::COLOSSAL; // biggest item that can fit
 };
-
+*/
 struct handobj : public container_base, public script_entity
 {
      
@@ -154,7 +157,7 @@ struct handobj : public container_base, public script_entity
     
 };
 
-struct living_entity : public script_entity
+struct living_entity : public script_entity, public container_base
 {
     living_entity()
     {
@@ -169,10 +172,12 @@ struct living_entity : public script_entity
     
     ~living_entity()
     {
+        /*
         for( auto kvp : m_inventory_slots )
         {
             delete (kvp.second);
         }
+        */
     }
 
     virtual void SendToEntity(const std::string& msg)
@@ -194,12 +199,20 @@ struct living_entity : public script_entity
     {
         return &m_LeftHand;
     }
+    virtual bool AddEntityToInventory(script_entity * se) override;
+    virtual bool RemoveEntityFromInventory(script_entity * se) override;
     
+    virtual script_entity * GetOwner() override
+    {
+        return this;
+    }
+    
+    std::vector< itemobj *> GetItems();
     handobj m_RightHand;
     handobj m_LeftHand;
     
-    bool AddInventorySlot( std::string slotName, unsigned int maxItems=1, ItemSize maxItemSize = ItemSize::COLOSSAL );
-    
+  //  bool AddInventorySlot( std::string slotName, unsigned int maxItems=1, ItemSize maxItemSize = ItemSize::COLOSSAL );
+    /*
     std::vector<inventory_slot*> GetInventorySlots()
     {
         std::vector< inventory_slot * > slots;
@@ -210,10 +223,11 @@ struct living_entity : public script_entity
         }
         return slots;
     }
+    */
     
 private:
     
-    std::map < std::string, inventory_slot* > m_inventory_slots;
+    //std::map < std::string, inventory_slot* > m_inventory_slots;
 
 };
 #endif
