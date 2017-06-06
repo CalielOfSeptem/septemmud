@@ -2,7 +2,9 @@
     "base_script_path": "workspaces/caliel/entities/backpack",
     "currentStackCount": 1,
     "defaultStackSize": 10,
-    "inventory": {},
+    "inventory": {
+        "RcrwIsf0czfFKnv": "workspaces/caliel/entities/rock"
+    },
     "isContainer": true,
     "isStackable": false,
     "isWearable": true,
@@ -10,8 +12,8 @@
     "look": "",
     "name": "a backpack",
     "pluralName": "",
-    "script_path": "workspaces/caliel/entities/backpack/am9eDdXmooMJVEN",
+    "script_path": "workspaces/caliel/entities/backpack/zSCDhAeoPqc7vr5",
     "size": 4,
-    "uid": "am9eDdXmooMJVEN",
+    "uid": "zSCDhAeoPqc7vr5",
     "weight": 1.0
 }

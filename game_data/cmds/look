@@ -1,7 +1,7 @@
 inherit command
 
 	
-c = command.new('look', 0) -- priority zero means that this command will win out over other similar commands, e.g., lo will resolve to look rather than locate.
+c = command.new('look') 
 c:SetAliases( { 'l' } )
 -- o is the base_entity from which the command originated.  Cmd is the command text.  Note that the verb
 -- which initiated the command will be the first element in cmd.  Ex/ > look, cmd="look", >look chest, cmd = "look chest"
@@ -39,8 +39,34 @@ function c:CheckHands( o, item_to_find )
 	return false
 end
 
-function c:FindItemInEnv( o, item_to_find )
+function c:FindItemInInv( o, item_to_find )
+	local s_num = string.match(item_to_find, '%d+')
+	local skip_index = 1 -- don't skip by default
+	if( s_num ~= nil ) then
+		skip_index = s_num
+		item_to_find = string.match(item_to_find, '%a+')
+		--print(s1)
+	end
+	
+	local player = living_cast(o)
+	local items = player:GetItems()
+	local found_item = nil
+	
+	for i = 1, #items do
+		if( items[i]:GetItemNoun():lower():starts(item_to_find)  or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
+			skip_index = skip_index - 1
+			
+			if ( skip_index ~= 0 ) then goto continue end -- keep looking
+			
+			return items[i]
+		end
+		::continue::
+	end
+	return nil
+end
 
+
+function c:FindItemInEnv( o, item_to_find )
 	local s_num = string.match(item_to_find, '%d+')
 	local skip_index = 1 -- don't skip by default
 	if( s_num ~= nil ) then
@@ -52,32 +78,18 @@ function c:FindItemInEnv( o, item_to_find )
 	local player = living_cast(o)
 	local room = player:GetRoom()
 	local items = room:GetItems()
-	local found_item = nil
 	
 	for i = 1, #items do
-	--print(i)
-	--print( items[i]:GetItemNoun() )
 		if( items[i]:GetItemNoun():lower():starts(item_to_find)  or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
-		--print(i)
 			skip_index = skip_index - 1
 			
 			if ( skip_index ~= 0 ) then goto continue end -- keep looking
 			
-			found_item = items[i]
+			return items[i]
 		end
 		::continue::
 	end
-	
-	if found_item == nil then
-		--o:SendToEntity('Look in what? No such object exists.')
-		return false
-	end
-	
-	if( found_item:GetIsContainer() ) then
-		self:ShowInventory( found_item, o )
-	else
-	-- TODO: just look at item, its not a container
-	end
+	return nil
 	
 end
 
@@ -132,8 +144,15 @@ function c:ExecuteCommand ( o, cmd )
 			local item_to_examine = myTable[3]
 			--print(item_to_examine)
 			--print( item_to_examine )
-			self:CheckHands( o, item_to_examine )
-
+			if self:CheckHands( o, item_to_examine ) then
+				return true
+			end
+			fitem = self:FindItemInInv( o, item_to_examine )
+			if( fitem ) then
+				self:ShowInventory( fitem, o )
+				return true
+			end
+			o:SendToEntity('Look in what? No such object exists.')
 			return true
 		end
 		
@@ -141,10 +160,18 @@ function c:ExecuteCommand ( o, cmd )
 		if sm2 ~= nil then
 			local myTable = sm2:split( ' ' )
 			local item_to_examine = myTable[2]
-			if( self:FindItemInEnv( o, item_to_examine ) ) then
+			
+			fitem = self:FindItemInEnv( o, item_to_examine )
+			if( fitem ) then
+				self:ShowInventory( fitem, o )
 				return true
 			end
 			if( self:CheckHands( o, item_to_examine ) ) then -- try hands..
+				return true
+			end
+			fitem = self:FindItemInInv( o, item_to_examine )
+			if( fitem ) then
+				self:ShowInventory( fitem, o )
 				return true
 			end
 			o:SendToEntity('Look in what? No such object exists.')

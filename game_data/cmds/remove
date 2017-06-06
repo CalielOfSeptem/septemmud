@@ -1,0 +1,105 @@
+inherit command
+c = command.new('remove')
+c:SetAliases( { 'rem' } )
+
+function c:MoveItemToHand( o_orig, hand, item_to_remove )
+	hand:AddToInventory(item_to_remove)
+	o_orig:SendToEntity('You remove ' .. item_to_remove:GetName() .. '.')
+	local pname = string.gsub(o_orig:GetName(), "(%a)([%w_']*)", titleCase)
+	o_orig:SendToRoom( pname .. ' remove ' .. item_to_remove:GetName() .. '.')		
+	if( o_orig:GetType():lower() == 'player' ) then
+		local player = player_cast(o_orig)
+		player:DoSave()
+	end
+end
+
+
+
+function c:RemoveItemToFreeHand( o_orig, item_to_move)
+	if( o_orig:RightHand():IsEmpty() ~= true and o_orig:LeftHand():IsEmpty() ~= true ) then
+		o_orig:SendToEntity('Both of your hands are already full.')
+		return false;
+	end
+	
+	if( o_orig:RightHand():IsEmpty() ) then
+		self:MoveItemToHand( o_orig, o_orig:RightHand(), item_to_move )		
+		return true;
+	end
+	
+	if( o_orig:LeftHand():IsEmpty() ) then
+		self:MoveItemToHand( o_orig, o_orig:LeftHand(), item_to_move )
+		return true;
+	end
+end
+
+function c:FindItemInInv( o, item_to_find )
+	local s_num = string.match(item_to_find, '%d+')
+	local skip_index = 1 -- don't skip by default
+	if( s_num ~= nil ) then
+		skip_index = s_num
+		item_to_find = string.match(item_to_find, '%a+')
+	end
+	
+	local player = living_cast(o)
+	local items = player:GetItems()
+	local found_item = nil
+	
+	for i = 1, #items do
+	--print(i)
+	--print( items[i]:GetItemNoun() )
+		if( items[i]:GetItemNoun():lower():starts(item_to_find)  or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
+		--print(i)
+			skip_index = skip_index - 1
+			
+			if ( skip_index ~= 0 ) then goto continue end -- keep looking
+			
+			found_item = items[i]
+		end
+		::continue::
+	end
+	return found_item
+end
+	
+function c:ExecuteCommand ( o_orig, cmd )
+
+	s_type = o_orig:GetType()
+	
+	if (s_type:lower() ~= "player" and s_type:lower() ~= "npc") then
+		return false;
+	end
+	
+	o = living_cast(o_orig)
+	if ( o == nil ) then 
+		return false 
+	end	
+	
+	local myTable = cmd:split( ' ' )
+	if #myTable < 2 then
+		usage(o)
+		return true;
+	end
+	
+	-- remove remove portion
+	table.remove(myTable, 1)
+	
+	local s1 = myTable[1]
+	
+	if( #myTable == 0 ) then
+		usage(o)
+		return true;
+	end
+	
+	local item_to_find = myTable[1]:lower() -- at this point we should have an object..
+	table.remove(myTable, 1)
+
+	local i = self:FindItemInInv( o, item_to_find )
+	
+	if ( i ) then
+		self:RemoveItemToFreeHand( o, i ) 
+	end
+	return true
+end
+
+function usage(o_orig)
+	o_orig:SendToEntity('USAGE: remove <Implement me later>')
+end

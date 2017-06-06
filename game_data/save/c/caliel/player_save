@@ -1,10 +1,9 @@
 {
     "inventory": {
-        "JvP5jaKFfGYExKd": "workspaces/caliel/entities/backpack",
-        "Q0JXaK4K9Lz8TR0": "workspaces/caliel/entities/backpack",
-        "UrGy7HX0No70B6R": "workspaces/caliel/entities/backpack",
-        "glYs6oRyE9HnlSi": "workspaces/caliel/entities/backpack"
+        "zSCDhAeoPqc7vr5": "workspaces/caliel/entities/backpack"
     },
     "leftHand": 0,
-    "rightHand": 0
+    "rightHand": {
+        "UjnGHKBrZdwDeDm": "workspaces/caliel/entities/simple arrow"
+    }
 }

@@ -11,6 +11,30 @@ function c:FindItemInHand( hand, item_to_find )
 	return nil
 end
 
+function c:FindItemInInv( o, item_to_find )
+	local s_num = string.match(item_to_find, '%d+')
+	local skip_index = 1 -- don't skip by default
+	if( s_num ~= nil ) then
+		skip_index = s_num
+		item_to_find = string.match(item_to_find, '%a+')
+	end
+	
+	local player = living_cast(o)
+	local items = player:GetItems()
+	
+	for i = 1, #items do
+		if( items[i]:GetItemNoun():lower():starts(item_to_find)  or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
+			skip_index = skip_index - 1
+			
+			if ( skip_index ~= 0 ) then goto continue end -- keep looking
+			return items[i]
+		end
+		::continue::
+	end
+	return nil
+end
+
+
 
 function c:ExecuteCommand ( o_orig, cmd )
 
@@ -81,7 +105,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 	local skip_index = 1 -- don't skip by default
 	if( s_num ~= nil ) then
 		skip_index = s_num
-		item_to_find = string.match(item_to_find, '%a+')
+		item_to_find = string.match(item_to_find, '.+')
 	end
 	
 	local player = living_cast(o)
@@ -95,6 +119,11 @@ function c:ExecuteCommand ( o_orig, cmd )
 			found_item_dest = t_item
 		end
 		t_item = c:FindItemInHand( o:RightHand(), item_to_find )
+		if( t_item ~= nil and t_item ~= found_item_targ ) then
+			found_item_dest = t_item
+		end
+		
+		t_item = c:FindItemInInv( o, item_to_find )
 		if( t_item ~= nil and t_item ~= found_item_targ ) then
 			found_item_dest = t_item
 		end
@@ -146,6 +175,10 @@ function c:ExecuteCommand ( o_orig, cmd )
 			found_item_dest = t_item
 		end
 		t_item = c:FindItemInHand( o:RightHand(), item_to_find )
+		if( t_item ~= nil and t_item ~= found_item_targ ) then
+			found_item_dest = t_item
+		end
+		t_item = c:FindItemInInv( o, item_to_find )
 		if( t_item ~= nil and t_item ~= found_item_targ ) then
 			found_item_dest = t_item
 		end
