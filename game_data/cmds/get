@@ -62,7 +62,7 @@ function c:FindItemInEnv( o, item_to_find )
 end
 
 function c:FindItemInInv( o, item_to_find )
-print(item_to_find)
+--print(item_to_find)
 	local s_num = string.match(item_to_find, '%d+')
 	local skip_index = 1 -- don't skip by default
 	if( s_num ~= nil ) then
@@ -94,17 +94,16 @@ function c:FindItemInContainer( o, container, item_to_find )
 	if( s_num ~= nil ) then
 		skip_index = s_num
 		item_to_find = string.match(item_to_find, '%a+')
-		--print(s1)
 	end
 	
 	local items = container:GetItems()
-	
+	--print(container:GetName())
 	for i = 1, #items do
 		if( items[i]:GetItemNoun():lower():starts(item_to_find)  or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
 			skip_index = skip_index - 1
 			
 			if ( skip_index ~= 0 ) then goto continue end -- keep looking
-			
+			--print ('found it')
 			return items[i]
 		end
 		::continue::
@@ -119,18 +118,18 @@ function c:GetInvItem(o, item_to_get, from_where)
 	end
 	
 	if( o:RightHand():IsEmpty() ) then
-		self:MoveItemToHand( o_orig, o:RightHand(), item_to_get )
-		o_orig:SendToEntity('You get ' .. item_to_get:GetName() .. ' from your ' .. from_where:GetItemNoun() .. '.')
-		local pname = string.gsub(o_orig:GetName(), "(%a)([%w_']*)", titleCase)
-		o_orig:SendToRoom( pname .. ' gets ' .. item_to_get:GetName() .. ' from their ' .. from_where:GetItemNoun() .. '.')	
+		self:MoveItemToHand( o, o:RightHand(), item_to_get )
+		o:SendToEntity('You get ' .. item_to_get:GetName() .. ' from your ' .. from_where:GetItemNoun() .. '.')
+		local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
+		o:SendToRoom( pname .. ' gets ' .. item_to_get:GetName() .. ' from their ' .. from_where:GetItemNoun() .. '.')	
 		return true;
 	end
 	
 	if( o:LeftHand():IsEmpty() ) then
-		self:MoveItemToHand( o_orig, o:LeftHand(), item_to_get )
-		o_orig:SendToEntity('You get ' .. item_to_get:GetName() .. ' from your ' .. from_where:GetItemNoun() .. '.')
-		local pname = string.gsub(o_orig:GetName(), "(%a)([%w_']*)", titleCase)
-		o_orig:SendToRoom( pname .. ' gets ' .. item_to_get:GetName() .. ' from their ' .. from_where:GetItemNoun() .. '.')	
+		self:MoveItemToHand( o, o:LeftHand(), item_to_get )
+		o:SendToEntity('You get ' .. item_to_get:GetName() .. ' from your ' .. from_where:GetItemNoun() .. '.')
+		local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
+		o:SendToRoom( pname .. ' gets ' .. item_to_get:GetName() .. ' from their ' .. from_where:GetItemNoun() .. '.')	
 		return true;
 	end
 	return false
@@ -182,12 +181,12 @@ function c:ExecuteCommand ( o_orig, cmd )
 	sm1 = string.match(cmd, "from my .+")
 	-- TODO, fix this stuff later..
 	if sm1 then
-		
+		local myt = cmd:split( ' ' )
 		-- limit to player's inventory
-		local fitem = c:FindItemInInv( o, sm1[3])
+		local fitem = c:FindItemInInv( o, myt[3])
 		if( fitem ~= nil ) then
 			if( fitem.isContainer == true ) then
-				f = c:FindItemInContainer( o, item_to_find, fitem )
+				f = c:FindItemInContainer( o, fitem, item_to_find )
 				if( f ) then
 					-- found it..
 					c:GetInvItem( o, f, fitem )
@@ -245,17 +244,17 @@ function c:ExecuteCommand ( o_orig, cmd )
 	
 	if( o:RightHand():IsEmpty() ) then
 		self:MoveItemToHand( o_orig, o:RightHand(), found_item )
-		o_orig:SendToEntity('You pick up ' .. item_to_drop:GetName() .. ' in your right hand.')
+		o_orig:SendToEntity('You pick up ' .. found_item:GetName() .. ' in your right hand.')
 		local pname = string.gsub(o_orig:GetName(), "(%a)([%w_']*)", titleCase)
-		o_orig:SendToRoom( pname .. ' picks up ' .. item_to_drop:GetName() .. '.')	
+		o_orig:SendToRoom( pname .. ' picks up ' .. found_item:GetName() .. '.')	
 		return true;
 	end
 	
 	if( o:LeftHand():IsEmpty() ) then
 		self:MoveItemToHand( o_orig, o:LeftHand(), found_item )
-		o_orig:SendToEntity('You pick up ' .. item_to_drop:GetName() .. ' in your left hand.')
+		o_orig:SendToEntity('You pick up ' .. found_item:GetName() .. ' in your left hand.')
 		local pname = string.gsub(o_orig:GetName(), "(%a)([%w_']*)", titleCase)
-		o_orig:SendToRoom( pname .. ' picks up ' .. item_to_drop:GetName() .. '.')	
+		o_orig:SendToRoom( pname .. ' picks up ' .. found_item:GetName() .. '.')	
 		return true;
 	end
 	

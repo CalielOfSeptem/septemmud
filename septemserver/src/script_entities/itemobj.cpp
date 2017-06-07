@@ -179,8 +179,9 @@ bool itemobj::RemoveEntityFromInventory(script_entity* se)
 
 std::vector<itemobj*> itemobj::GetItems()
 {
+    std::vector<script_entity*> ents = GetInventory();
     std::vector<itemobj*> t_items;
-    for( auto i : this->GetInventory() )
+    for( auto i : ents )
     {
         t_items.push_back(dynamic_cast<itemobj*>(i));
     }

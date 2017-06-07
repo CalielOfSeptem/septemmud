@@ -3,7 +3,5 @@
         "zSCDhAeoPqc7vr5": "workspaces/caliel/entities/backpack"
     },
     "leftHand": 0,
-    "rightHand": {
-        "UjnGHKBrZdwDeDm": "workspaces/caliel/entities/simple arrow"
-    }
+    "rightHand": 0
 }

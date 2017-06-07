@@ -1,5 +1,6 @@
 inherit command
 c = command.new('inventory')
+c:SetAliases( { 'inv', 'i' } )
 
 function c:ShowInventory(o)
 	--local s = "[" .. r:GetTitle() .. "]\r\n"
