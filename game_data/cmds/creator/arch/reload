@@ -1,0 +1,26 @@
+inherit command
+c = command.new('reload')
+
+function c:ExecuteCommand ( o, cmd )
+	if o ~= nil then
+
+		local myTable = cmd:split( ' ' )
+		if #myTable <= 1 then
+			usage(o)
+			return true;
+		end
+		
+		-- remove reload portion and name of char to force
+		table.remove(myTable, 1)
+
+		cmd = table.concat(myTable, " ")
+
+		do_reload ( cmd, player_cast(o) )
+	end
+end
+
+function usage(o_orig)
+	o_orig:SendToEntity('USAGE: update <Implement me later>')
+end
+
+

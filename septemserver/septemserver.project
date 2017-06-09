@@ -23,6 +23,7 @@
     <VirtualDirectory Name="fs">
       <File Name="src/fs/fs_manager.cpp"/>
     </VirtualDirectory>
+    <File Name="src/luatypes.cpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="include">
     <VirtualDirectory Name="script_entities">
@@ -46,6 +47,7 @@
     <VirtualDirectory Name="fs">
       <File Name="include/fs/fs_manager.h"/>
     </VirtualDirectory>
+    <File Name="include/luatypes.h"/>
   </VirtualDirectory>
   <Description/>
   <Dependencies/>

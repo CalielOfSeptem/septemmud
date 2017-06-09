@@ -7,6 +7,8 @@
 #include "script_entities/commandobj.h"
 #include "script_entities/itemobj.h"
 
+#include "luatypes.h"
+
 #include "string_utils.h"
 #include "global_settings.h"
 #include "fs/fs_manager.h"
@@ -245,6 +247,32 @@ for( int x = 2; x < 1000; x++ )
         sol::environment to_load;
         _init_entity_env(relative_script_path, etype, to_load);
         b = lua_safe_script(script_text, to_load, reason);
+        /*
+        // TODO.. fix updates to items so we recompile them..
+        if( b )
+        {
+            for( auto ie : m_item_objs )
+            {
+                //std::cout << ie.first << std::endl;
+                for( auto ew : ie.second )
+                {
+                    entity_wrapper * ewp = ew.get();
+                    if( ewp->script_ent->GetBaseScriptPath() == relative_script_path )
+                    {
+                        // TODO: fix this
+                        // 1. find items matching.  this will get hairy if its a container. what if that container
+                        // has a container in it.. and that container has a container...  and then what if the container
+                        // within the container needs to be recompiled too.
+                        //clone_item( ewp->script_ent->GetBaseScriptPath(), 
+                        //std::string& relative_script_path, script_entity* obj, std::string uid)
+                        //std::cout << "MATCH " << ewp->script_ent->GetScriptPath() << std::endl;
+                    }
+                }
+            
+            }
+        }
+        */
+
     } break;
     case EntityType::COMMAND: {
         sol::environment to_load;
@@ -261,12 +289,111 @@ for( int x = 2; x < 1000; x++ )
     return b;
 }
 
-bool entity_manager::clone_item_to_hand(std::string& relative_script_path, handobj* obj, std::string uid)
+itemobj * entity_manager::clone_item_to_hand(std::string& relative_script_path, handobj* obj, std::string uid)
 {
     return clone_item( relative_script_path, obj->GetOwner(), uid);
 }
 
-bool entity_manager::clone_item(std::string& relative_script_path, script_entity* obj, std::string uid)
+bool entity_manager::do_item_reload( std::string& entitypath, playerobj* p)
+{
+    std::string temp = entitypath;
+    std::string reason;
+    if( !fs_manager::Instance().translate_path( temp, p, reason ) )
+    {
+        p->SendToEntity(reason);
+        return false;
+    }
+    if( fs::is_directory(temp ))
+    {
+        p->SendToEntity("Can't reload a directory... not implemented yet.");
+        return false;
+    }
+    std::string relative_path = std::regex_replace(temp, std::regex("\\" +
+     global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH)), "");  // remove the extra pathing stuff we don't
+    bool b = reload_all_item_instances(relative_path);
+    return true;
+}
+
+bool entity_manager::reload_all_item_instances(std::string& relative_script_path)
+{
+    
+    
+    struct _item_index_
+    {
+        std::string uid;
+        std::string parent_env_path;
+        std::string parent_env_uid;
+        EntityType parent_type;
+        bool isContainer;
+        itemobj * io;
+        std::map< std::string, std::string > inventory;
+    };
+    std::vector < std::shared_ptr<_item_index_> > items;
+    
+    for( auto ie : m_item_objs )
+    {
+        for( auto ew : ie.second )
+        {
+            entity_wrapper * ewp = ew.get();
+            std::string s = ewp->script_ent->GetBaseScriptPath();
+            
+            if( ewp->script_ent->GetBaseScriptPath() == relative_script_path )
+            {
+                itemobj * t = static_cast<itemobj*>(ewp->script_ent);
+                
+                std::shared_ptr<_item_index_> p (new _item_index_);
+                p->uid = t->get_uid();
+                p->io = t;
+                if( t->GetEnvironment() )
+                {
+                    p->parent_env_path = t->GetEnvironment()->GetBaseScriptPath();
+                    p->parent_type = t->GetEnvironment()->GetType();
+                    p->parent_env_uid = t->GetEnvironment()->get_uid();
+
+                    if( itemobj * ie = dynamic_cast<itemobj*>(t->GetEnvironment()) )
+                    {
+                        ie->RemoveEntityFromInventory(ewp->script_ent);
+                    }
+                    else if( roomobj * ro = dynamic_cast<roomobj*>(t->GetEnvironment()) )
+                    {
+                        ro->RemoveEntityFromInventory(ewp->script_ent);
+                    }
+                    else if( living_entity * le = dynamic_cast<living_entity*>(t->GetEnvironment()) )
+                    {
+                        le->RemoveEntityFromInventory(ewp->script_ent);
+                    }
+                    
+                }
+                for( auto i : t->GetItems() )
+                {
+                    std::cout << "Adding item to destroy " << i->GetScriptPath()<< std::endl;
+                    p->inventory.insert( { i->get_uid(),  i->GetScriptPath() } );
+                }
+                items.push_back(p);
+              
+            }
+        }
+    }
+    
+    for( auto k : items )
+    {
+        std::string instance_path = k->io->GetScriptPath();
+        destroy_item( instance_path );
+        // destroy items in the inventory too..
+        for( auto kvp : k->inventory )
+        {
+           // p->inventory.insert( { t->get_uid(),  i->GetBaseScriptPath() } );
+           std::cout << "Trying to destroy " << kvp.second << std::endl;
+           destroy_item(kvp.second);
+        }
+    }
+    
+    
+    
+    return true;
+}
+
+itemobj* entity_manager::clone_item(std::string& relative_script_path, script_entity* obj, std::string uid)
 {
     if( uid.size() == 0 )
         uid = random_string();
@@ -280,7 +407,7 @@ bool entity_manager::clone_item(std::string& relative_script_path, script_entity
     {
         if( obj != NULL )
             obj->debug(reason);
-        return false;
+        return NULL;
     }
     else
     {
@@ -295,12 +422,12 @@ bool entity_manager::clone_item(std::string& relative_script_path, script_entity
             if( auto e = dynamic_cast<container_base*>(obj) )
             {
                 e->AddEntityToInventory(i);
-                return true;
+                return i;
             }
             else
             {
                 obj->debug("Error moving cloned object into inventory. Invalid cast.");
-                return false;
+                return NULL;
             }
             /*
             switch( obj->GetType() )
@@ -323,7 +450,7 @@ bool entity_manager::clone_item(std::string& relative_script_path, script_entity
       //  get_daemons_from_path()
     }
     
-    return true;
+    return NULL;
 }
 
 
@@ -410,285 +537,15 @@ template <typename T> T* downcast(script_entity* b)
 
 void entity_manager::init_lua()
 {
+
     sol::state& lua = (*m_state);
     m_state_internal.reset(new _internal_lua_);
-    lua.open_libraries(sol::lib::base,
-                       sol::lib::string,
-                       sol::lib::math,
-                       sol::lib::table,
-                       sol::lib::package,
-                       sol::lib::debug);
-
-    lua.new_usertype<script_entity>("script_entity", 
-            "GetName",  &script_entity::GetName,
-            "SetName", &script_entity::SetName,
-            "GetBaseScriptPath", &script_entity::GetBaseScriptPath,
-            "Reset",  &script_entity::clear_props,
-            "GetType", &script_entity::GetEntityTypeString,
-            "destroy", sol::property(&script_entity::get_destroy, &script_entity::set_destroy)
-            );
-
-    lua.new_usertype<exitobj>("exitobj",
-                              "GetExitPath",
-                              &exitobj::GetExitPath,
-                              "SetExit",
-                              &exitobj::SetExit,
-                              "SetExitDesc",
-                              &exitobj::SetExitDesc,
-                              "SetExitPath",
-                              &exitobj::SetExitPath,
-                              "SetObvious",
-                              &exitobj::SetObvious,
-                              "GetExit",
-                              &exitobj::GetExit);
-
-    lua.new_usertype<handobj>("hand",
-                            "GetInventory",
-                            &container_base::GetInventory,
-                            "IsEmpty",
-                            &handobj::IsEmpty,
-                            "AddToInventory",
-                            &handobj::AddEntityToInventory,
-                            "AddItem",
-                            &handobj::AddItem,
-                            "RemoveItem",
-                            &handobj::RemoveItem,
-                            "GetItem",
-                            &handobj::GetItem,
-                            sol::base_classes,
-                            sol::bases<container_base>() );
-                            
-/*
-    lua.new_usertype<inventory_slot>("inventory_slot",
-                                sol::base_classes,
-                                sol::bases<container_base>());
-*/                        
-                            
-    lua.new_usertype<itemobj>("item",
-                            sol::constructors<itemobj(sol::this_state, sol::this_environment, std::string, ItemType)>(),
-                            sol::meta_function::new_index,
-                            &itemobj::set_property_lua,
-                            sol::meta_function::index,
-                            &itemobj::get_property_lua,
-                            "GetInventory",
-                            &container_base::GetInventory,
-                            "GetItems",
-                            &itemobj::GetItems,
-                            "AddToInventory",
-                            &container_base::AddEntityToInventory,
-                            "AddItem",
-                            &container_base::AddEntityToInventory,
-                            
-                            "GetSize", &itemobj::get_size,
-                            "SetSize", &itemobj::set_size,
-                            
-                            "GetWeight", &itemobj::get_weight,
-                            "SetWeight", &itemobj::set_weight,
-                            
-                            "GetWearable", &itemobj::get_isWearable,
-                            "SetWearable", &itemobj::set_isWearable,
-
-                            "GetStackable", &itemobj::get_isStackable,
-                            "SetStackable", &itemobj::set_isStackable,
-                            
-                            "GetCurrentStackCount", &itemobj::get_currentStackCount,
-                            "SetCurrentStackCount", &itemobj::set_currentStackCount,
-                            
-                            "IncrementStackCount", &itemobj::incrementStackCount,
-                            "DecrementStackCount", &itemobj::decrementStackCount,
-                            
-                            "GetDefaultStackSize", &itemobj::get_defaultStackSize,
-                            "SetDefaultStackSize", &itemobj::set_defaultStackSize,
-                            
-                            "GetIsContainer", &itemobj::get_isContainer,
-                            "SetIsContainer", &itemobj::set_isContainer,
-                            
-                            "GetInventorySlot", &itemobj::get_inventorySlot,
-                            "SetInventorySlot", &itemobj::set_inventorySlot,
-                            
-                            "GetPluralName", &itemobj::get_pluralName,
-                            "SetPluralName", &itemobj::set_pluralName,
-                            "GetItemPluralNoun", &itemobj::get_itemPluralNoun,
-                            
-                            "GetItemNoun", &itemobj::get_itemNoun,
-                            "GetItemArticle", &itemobj::get_itemArticle,
-                            "GetItemAdjectives", &itemobj::get_itemAdjectives,
-                            
-                            "weight", sol::property(&itemobj::get_weight, &itemobj::set_weight),
-                            "isWearable", sol::property(&itemobj::get_isWearable, &itemobj::set_isWearable),
-                            "isStackable", sol::property(&itemobj::get_isStackable, &itemobj::set_isStackable),
-                            "isContainer", sol::property(&itemobj::get_isContainer, &itemobj::set_isContainer),
-                            "size", sol::property(&itemobj::get_size, &itemobj::set_size),
-                            
-                            
-                            sol::base_classes,
-                            sol::bases<script_entity, container_base>() );
-                            
-                            
-     //                            double m_weight; // item weight in stones
-    // ItemSize m_size = ItemSize::TINY;
-    // bool bisWearable;
-    // bool bisStackable;
-    // bool bisContainer;
     
-    lua.new_usertype<roomobj>("room",
-                              sol::constructors<roomobj(sol::this_state, sol::this_environment)>(),
-                              sol::meta_function::new_index,
-                              &roomobj::set_property_lua,
-                              sol::meta_function::index,
-                              &roomobj::get_property_lua,
-                              "GetTitle",
-                              &roomobj::GetTitle,
-                              "SetTitle",
-                              &roomobj::SetTitle,
-                              "GetDescription",
-                              &roomobj::GetDescription,
-                              "SetDescription",
-                              &roomobj::SetDescription,
-                              "GetShortDescription",
-                              &roomobj::GetShortDescription,
-                              "SetShortDescription",
-                              &roomobj::SetShortDescription,
-                              "GetExits",
-                              &roomobj::GetExits,
-                              "AddExit",
-                              &roomobj::AddExit,
-                              "GetType",
-                              &script_entity::GetEntityTypeString,
-                              "Debug",
-                              &script_entity::debug,
-                              "GetInventory",
-                              &container_base::GetInventory,
-                              "AddToInventory",
-                              &roomobj::AddEntityToInventory,
-                              "RemoveFromInventory",
-                              &roomobj::RemoveEntityFromInventory,
-                              "GetPlayers",
-                              &roomobj::GetPlayers,
-                              "GetItems",
-                              &roomobj::GetItems,
-                              sol::base_classes,
-                              sol::bases<script_entity, container_base>());
-
+    init_lua_state(lua);
+    
     lua.set_function("register_heartbeat", &heartbeat_manager::register_heartbeat_func_on, &_heartbeat);
     lua.set_function("deregister_heartbeat", &heartbeat_manager::deregister_heartbeat_func, &_heartbeat);
-
-    lua.new_usertype<daemonobj>("daemon",
-                                sol::constructors<daemonobj(sol::this_state ts, sol::this_environment, std::string)>(),
-                                sol::meta_function::new_index,
-                                &daemonobj::set_property_lua,
-                                sol::meta_function::index,
-                                &daemonobj::get_property_lua,
-                                "GetName",
-                                &daemonobj::GetName,
-                                "SetName",
-                                &daemonobj::SetName,
-                                "GetType",
-                                &script_entity::GetEntityTypeString,
-                                //  "Debug", &script_entity::debug,
-                                sol::base_classes,
-                                sol::bases<script_entity>());
-
-    lua.new_usertype<playerobj>("player",
-                                sol::constructors<playerobj(sol::this_state, sol::this_environment, std::string)>(),
-                                sol::meta_function::new_index,
-                                &playerobj::set_property_lua,
-                                sol::meta_function::index,
-                                &playerobj::get_property_lua,
-                                "GetPlayerName",
-                                &playerobj::GetPlayerName,
-                                "SendToEntity",
-                                &playerobj::SendToEntity,
-                                "SendToPlayer",
-                                &playerobj::SendToEntity,
-                                "GetEnvironment",
-                                &playerobj::GetEnvironment,
-                                "SetEnvironment",
-                                &playerobj::SetEnvironment,
-                                "SendToRoom",
-                                &playerobj::SendToEnvironment,
-                                "GetRoom",
-                                &playerobj::GetRoom,
-                                "GetType",
-                                &script_entity::GetEntityTypeString,
-                                "cwd", sol::readonly(&playerobj::cwd),
-                                "workspacePath", sol::readonly(&playerobj::workspacePath),
-                                // "Debug", &script_entity::debug,
-                                "GetName",
-                                &script_entity::GetName,
-                                "DoCommand",
-                                &living_entity::DoCommand,
-                                "DoSave",
-                                &playerobj::do_save,
-                                sol::base_classes,
-                                sol::bases<living_entity, script_entity>());
-                                
-    lua.new_usertype<file_entity>("file_entity", 
-            "Name", sol::readonly(&file_entity::name),
-            "isDirectory", sol::readonly(&file_entity::isDirectory));
-
-    lua.new_usertype<living_entity>("living_entity",
-                                    "GetType",
-                                    &script_entity::GetEntityTypeString,
-                                    // "Debug", &script_entity::debug,
-                                    "DoCommand",
-                                    &living_entity::DoCommand,
-                                    "SendToEntity",
-                                    &living_entity::SendToEntity,
-                                    "SendToPlayer",
-                                    &living_entity::SendToEntity,
-                                    "SendToRoom",
-                                    &living_entity::SendToEnvironment,
-                                    "GetRoom",
-                                    &living_entity::GetRoom,
-                                    "GetName",
-                                    &script_entity::GetName,
-                                    "RightHand",
-                                    &living_entity::GetRightHand,
-                                    "LeftHand",
-                                    &living_entity::GetLeftHand,
-                                    "DoSave",
-                                    &living_entity::do_save,
-                                    "AddToInventory",
-                                    &container_base::AddEntityToInventory,
-                                    "AddItem",
-                                    &container_base::AddEntityToInventory,
-                                    "GetItems",
-                                    &living_entity::GetItems,
-                                    /*
-                                    "AddInventorySlot",
-                                    &living_entity::AddInventorySlot,
-                                    "GetInventorySlots",
-                                    &living_entity::GetInventorySlots,
-                                    */
-                                    sol::base_classes,
-                                    sol::bases<script_entity>());
-
-    lua.new_usertype<commandobj>(
-        "command",
-        sol::constructors<commandobj(sol::this_state, sol::this_environment, std::string), commandobj(sol::this_state, sol::this_environment, std::string, int)>(),
-        sol::meta_function::new_index,
-        &playerobj::set_property_lua,
-        sol::meta_function::index,
-        &playerobj::get_property_lua,
-        "GetCommand",
-        &commandobj::GetCommand,
-        "SetCommand",
-        &commandobj::SetCommand,
-        "GetAliases",
-        &commandobj::GetAliases,
-        "SetAliases",
-        &commandobj::SetAliases,
-        "SetPriority",
-        &commandobj::SetPriority,
-        "GetPriority",
-        &commandobj::GetPriority,
-        "GetType",
-        &script_entity::GetEntityTypeString,
-        // "Debug", &script_entity::debug,
-        sol::base_classes,
-        sol::bases<script_entity>());
-
+    
     lua.set_function("deregister_all_heartbeat", &heartbeat_manager::deregister_all_heartbeat_funcs, &_heartbeat);
 
     lua.set_function("move_living", &entity_manager::move_living, this);
@@ -726,9 +583,11 @@ void entity_manager::init_lua()
      
     lua.set_function("do_tp", [&](std::string path, playerobj * p1, playerobj *p2) -> bool { return this->do_tp(path, p1, p2); });
     
-    lua.set_function("clone_item", [&](std::string path, script_entity * e) -> bool { return this->clone_item(path, e); });
+    lua.set_function("clone_item", [&](std::string path, script_entity * e) -> itemobj * { return this->clone_item(path, e); });
     
-    lua.set_function("clone_item_to_hand", [&](std::string path, handobj * e) -> bool { return this->clone_item_to_hand(path, e); });
+    lua.set_function("do_reload", [&](std::string path, playerobj * p) -> bool { return this->do_item_reload(path, p); });
+    
+    lua.set_function("clone_item_to_hand", [&](std::string path, handobj * e) -> itemobj * { return this->clone_item_to_hand(path, e); });
     //lua.set_function("tail_entity_log",
     //                 [&](script_entity * se) -> std::vector<std::string> & { return this->get_player(ename); });
 
@@ -1866,19 +1725,21 @@ bool entity_manager::do_update(std::string& entitypath, playerobj* p )
     if( !fs_manager::Instance().translate_path( temp, p, reason ) )
     {
         p->SendToEntity(reason);
+        return false;
     }
     if( fs::is_directory(temp ))
     {
         p->SendToEntity("Directory compiling not yet implemeneted..");
+        return false;
     }
-    else
+ 
+    //std::string reason;
+    if ( !compile_script_file(temp, reason) )
     {
-        std::string reason;
-        if ( !compile_script_file(temp, reason) )
-        {
-            p->SendToEntity(std::string("Error: ") + reason );
-        }
+        p->SendToEntity(std::string("Error: ") + reason );
+        return false;
     }
+    
     return true;
 }
 

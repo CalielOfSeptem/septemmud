@@ -9,13 +9,18 @@ p1:Debug('Loaded room!')
 clone_item( 'workspaces/caliel/entities/rock', p1 )
 
 function p1:hb()
-	clone_item( 'workspaces/caliel/entities/backpack', p1 )
-	clone_item( 'workspaces/caliel/entities/arrow', p1 )
-	for i = 1, 5 do
-		clone_item( 'workspaces/caliel/entities/rock', p1 )
-		clone_item( 'workspaces/caliel/entities/simple arrow', p1 )
+	back = clone_item( 'workspaces/caliel/entities/backpack', p1 )
+	--clone_item( 'workspaces/caliel/entities/arrow', p1 )
+	for i = 1, 100 do
+		if( back ~= nil ) then
+			clone_item( 'workspaces/caliel/entities/rock', back )
+			clone_item( 'workspaces/caliel/entities/simple arrow', back )
+		end
+		
+		--
 	end
 end
+
 
 register_heartbeat(p1.hb)
 

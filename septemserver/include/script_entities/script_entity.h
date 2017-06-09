@@ -139,6 +139,16 @@ struct script_entity {
                 clear_props();
         }
         
+        virtual std::string get_uid()
+        {
+            return uid;
+        }
+         
+        virtual void set_uid(std::string id)
+        {
+            uid = id;
+        }
+        
         std::string get_entityStorageLocation()
         {
             return entity_storage_location;
@@ -178,6 +188,7 @@ protected:
         std::string base_script_path;
         std::string look;
         std::string name;
+        std::string uid;
 };
 
 

@@ -45,6 +45,8 @@ struct _internal_lua_
     
     bool do_update ( std::string& entitypath, playerobj* p );
     
+    bool do_item_reload( std::string& entitypath, playerobj* p);
+    
     bool compile_entity( std::string& relative_script_path, EntityType etype, std::string& script_text, std::string& reason );
     
     bool compile_virtual_file( std::string& relative_script_path, EntityType etype, std::string& script_text, std::string& reason );
@@ -57,8 +59,10 @@ struct _internal_lua_
                             std::string& addl_lua,
                             std::string& reason );
                             
-    bool clone_item ( std::string& relative_script_path, script_entity * obj, std::string uid="" );
-    bool clone_item_to_hand(std::string& relative_script_path, handobj* obj, std::string uid="" );
+    itemobj * clone_item ( std::string& relative_script_path, script_entity * obj, std::string uid="" );
+    itemobj* clone_item_to_hand(std::string& relative_script_path, handobj* obj, std::string uid="" );
+    
+    bool reload_all_item_instances( std::string& relative_script_path );
     
     void invoke_heartbeat();
     

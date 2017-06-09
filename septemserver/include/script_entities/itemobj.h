@@ -117,15 +117,6 @@ struct itemobj : public script_entity, public container_base
         bisInitialized = b;
     }
      
-    virtual std::string get_uid()
-    {
-        return uid;
-    }
-     
-    virtual void set_uid(std::string id)
-    {
-        uid = id;
-    }
     
     virtual std::string get_itemArticle()
     {
@@ -312,7 +303,7 @@ struct itemobj : public script_entity, public container_base
     bool bisContainer;
     bool bisInitialized = false;
     
-    std::string uid;
+
     std::string pluralName;
     std::string itemNoun;
     std::string itemArticle;
