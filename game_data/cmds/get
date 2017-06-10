@@ -9,30 +9,7 @@ function c:MoveItemToHand( o_orig, hand, item_to_get)
 	end
 end
 
-function c:FindItemInInv( o, item_to_find )
-	local s_num = string.match(item_to_find, '%d+')
-	local skip_index = 1 -- don't skip by default
-	if( s_num ~= nil ) then
-		skip_index = s_num
-		item_to_find = string.match(item_to_find, '%a+')
-	end
-	
-	local player = living_cast(o)
-	local items = player:GetItems()
-	
-	for i = 1, #items do
-		if( items[i]:GetItemNoun():lower():starts(item_to_find)  or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
-		--print(i)
-			skip_index = skip_index - 1
-			
-			if ( skip_index ~= 0 ) then goto continue end -- keep looking
-			
-			return items[i]
-		end
-		::continue::
-	end
-	return nil
-end
+
 
 function c:FindItemInEnv( o, item_to_find )
 	local s_num = string.match(item_to_find, '%d+')
@@ -74,7 +51,24 @@ function c:FindItemInInv( o, item_to_find )
 	local player = living_cast(o)
 	local items = player:GetItems()
 	
-	
+	local r_hand = player:RightHand():GetItem()
+	if( r_hand ~= nil and ( r_hand:GetItemNoun():lower():starts(item_to_find)  or r_hand:GetItemPluralNoun():lower():starts(item_to_find) ) ) then
+			skip_index = skip_index - 1
+			
+			if ( skip_index == 0 ) then 
+				return r_hand
+			end
+	end
+		
+	local l_hand = player:LeftHand():GetItem()
+	if( l_hand ~= nil and ( l_hand:GetItemNoun():lower():starts(item_to_find)  or l_hand:GetItemPluralNoun():lower():starts(item_to_find) ) ) then
+		skip_index = skip_index - 1
+		
+		if ( skip_index == 0 ) then 
+			return l_hand
+		end
+	end
+		
 	for i = 1, #items do
 		if( items[i]:GetItemNoun():lower():starts(item_to_find)  or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
 			skip_index = skip_index - 1
@@ -87,6 +81,7 @@ function c:FindItemInInv( o, item_to_find )
 	end
 	return nil
 end
+
 
 function c:FindItemInContainer( o, container, item_to_find )
 	local s_num = string.match(item_to_find, '%d+')
@@ -111,26 +106,41 @@ function c:FindItemInContainer( o, container, item_to_find )
 	return nil
 end
 
-function c:GetInvItem(o, item_to_get, from_where)
+function c:GetInvItem(o, item_to_get, from_where, from_player_inventory)
 	if( o:RightHand():IsEmpty() ~= true and o:LeftHand():IsEmpty() ~= true ) then
 		o:SendToEntity('Both of your hands are already full.')
 		return false;
 	end
 	
+	--local article = 'from the' -- the whole idea here is to change from 'from the' to 'from your' in cases where you are picking stuff up off the ground
+	local to_player = 'from the'
+	local to_env = 'from the'
+	
+	if( from_player_inventory ) then
+		to_player = 'from your'
+		if( o:GetGender() == entityGender.male ) then
+			to_env = 'from his'
+		elseif( o:GetGender() == entityGender.female ) then
+			to_env = 'from her'
+		elseif( o:GetGender() == entityGender.unknown ) then
+			to_env = 'from it\'s'
+		end
+	end
+	
 	if( o:RightHand():IsEmpty() ) then
 		self:MoveItemToHand( o, o:RightHand(), item_to_get )
-		o:SendToEntity('You get ' .. item_to_get:GetName() .. ' from your ' .. from_where:GetItemNoun() .. '.')
+		o:SendToEntity('You get ' .. item_to_get:GetName() .. ' ' .. to_player .. ' ' .. from_where:GetItemNoun() .. '.')
 		local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
-		o:SendToRoom( pname .. ' gets ' .. item_to_get:GetName() .. ' from their ' .. from_where:GetItemNoun() .. '.')	
-		return true;
+		o:SendToRoom( pname .. ' gets ' .. item_to_get:GetName() .. ' ' .. to_env .. ' ' .. from_where:GetItemNoun() .. '.')	
+		return true
 	end
 	
 	if( o:LeftHand():IsEmpty() ) then
 		self:MoveItemToHand( o, o:LeftHand(), item_to_get )
-		o:SendToEntity('You get ' .. item_to_get:GetName() .. ' from your ' .. from_where:GetItemNoun() .. '.')
+		o:SendToEntity('You get ' .. item_to_get:GetName() .. ' ' .. to_player .. ' ' .. from_where:GetItemNoun() .. '.')
 		local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
-		o:SendToRoom( pname .. ' gets ' .. item_to_get:GetName() .. ' from their ' .. from_where:GetItemNoun() .. '.')	
-		return true;
+		o:SendToRoom( pname .. ' gets ' .. item_to_get:GetName() .. ' ' .. to_env .. ' ' .. from_where:GetItemNoun() .. '.')	
+		return true
 	end
 	return false
 end
@@ -189,22 +199,56 @@ function c:ExecuteCommand ( o_orig, cmd )
 				f = c:FindItemInContainer( o, fitem, item_to_find )
 				if( f ) then
 					-- found it..
-					c:GetInvItem( o, f, fitem )
+					c:GetInvItem( o, f, fitem, true)
 					return true
 				end
 			else
-				o_orig:SendToEntity('You can\'t get that from there!')
+				o_orig:SendToEntity('You can\'t GET that from there!')
 				return false
 			end
 		end
-		o:SendToEntity('Get what?')
+		o:SendToEntity('What are you trying to GET from?')
 		return false
 	else
-		sm2 = string.match(cmd, "from %a+")
+		sm2 = string.match(cmd, "from .+")
 		if sm2 then
-			-- find object starting in room then to the player's own inventory
-			--print('FROM FOUND')
+			local myt = sm2:split( ' ' )
+			--print( myt[2] )
+			local fitem = c:FindItemInEnv( o, myt[2])
+			if( fitem ~= nil ) then
+				if( fitem.isContainer == true ) then
+					local f = c:FindItemInContainer( o, fitem, item_to_find )
+					if( f ) then
+						-- found it..
+						c:GetInvItem( o, f, fitem )
+						return true
+					end
+				else
+					o_orig:SendToEntity('You can\'t GET that from there!')
+					return false
+				end
+			end
+			
+			local fitem = c:FindItemInInv( o, myt[2])
+			if( fitem ~= nil ) then
+				if( fitem.isContainer == true ) then
+					f = c:FindItemInContainer( o, fitem, item_to_find )
+					if( f ) then
+						-- found it..
+						c:GetInvItem( o, f, fitem, true  )
+						return true
+					end
+				else
+					o_orig:SendToEntity('You can\'t GET that from there!')
+					return false
+				end
+			end
+			
+			o:SendToEntity('What are you trying to GET from?')
+			return false
+
 		end
+
 	end
 	
 	local s_num = string.match(item_to_find, '%d+')

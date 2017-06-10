@@ -157,6 +157,8 @@ struct handobj : public container_base, public script_entity
     
 };
 
+enum EntityGender { MALE, FEMALE, UNKNOWN };
+
 struct living_entity : public script_entity, public container_base
 {
     living_entity()
@@ -211,6 +213,16 @@ struct living_entity : public script_entity, public container_base
     handobj m_RightHand;
     handobj m_LeftHand;
     
+    
+    EntityGender get_gender()
+    {
+        return m_gender;
+    }
+    
+    void set_gender( EntityGender g )
+    {
+        m_gender = g;
+    }
   //  bool AddInventorySlot( std::string slotName, unsigned int maxItems=1, ItemSize maxItemSize = ItemSize::COLOSSAL );
     /*
     std::vector<inventory_slot*> GetInventorySlots()
@@ -226,7 +238,7 @@ struct living_entity : public script_entity, public container_base
     */
     
 private:
-    
+    EntityGender m_gender = EntityGender::UNKNOWN;
     //std::map < std::string, inventory_slot* > m_inventory_slots;
 
 };

@@ -223,6 +223,7 @@ bool game_manager::process_player_cmd(script_entity* p, std::string& cmd)
         entity_manager::Instance().load_player("caliel");
         pcaliel = entity_manager::Instance().get_player("caliel");
         assert( pcaliel != NULL );
+        pcaliel->set_gender(EntityGender::MALE);
         if( !entity_manager::Instance().move_entity(pcaliel, roomt) )
         {
             auto log = spd::get("main");
@@ -238,6 +239,7 @@ bool game_manager::process_player_cmd(script_entity* p, std::string& cmd)
         entity_manager::Instance().load_player("recluse");
         precluse = entity_manager::Instance().get_player("recluse");
         assert( precluse != NULL );
+        precluse->set_gender(EntityGender::FEMALE);
         if( !entity_manager::Instance().move_entity(precluse, roomt) )
         {
             auto log = spd::get("main");

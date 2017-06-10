@@ -1,6 +1,103 @@
 inherit command
 c = command.new('count')
 
+function c:FindItemInEnv( o, item_to_find )
+	local s_num = string.match(item_to_find, '%d+')
+	local skip_index = 1 -- don't skip by default
+	if( s_num ~= nil ) then
+		skip_index = s_num
+		item_to_find = string.match(item_to_find, '%a+')
+		--print(s1)
+	end
+	
+	local player = living_cast(o)
+	local room = player:GetRoom()
+	local items = room:GetItems()
+	
+	for i = 1, #items do
+		if( items[i]:GetItemNoun():lower():starts(item_to_find)  or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
+			skip_index = skip_index - 1
+			
+			if ( skip_index ~= 0 ) then goto continue end -- keep looking
+			
+			return items[i]
+		end
+		::continue::
+	end
+	return nil
+	
+end
+
+function c:FindItemInInv( o, item_to_find )
+
+	local s_num = string.match(item_to_find, '%d+')
+	local skip_index = 1 -- don't skip by default
+	if( s_num ~= nil ) then
+		skip_index = s_num
+		item_to_find = string.match(item_to_find, '%a+')
+		--print(s1)
+	end
+	
+	local player = living_cast(o)
+	local items = player:GetItems()
+	--print('here')
+	local r_hand = player:RightHand():GetItem()
+	if( r_hand ~= nil and ( r_hand:GetItemNoun():lower():starts(item_to_find)  or r_hand:GetItemPluralNoun():lower():starts(item_to_find) ) ) then
+			skip_index = skip_index - 1
+			
+			if ( skip_index == 0 ) then 
+				return r_hand
+			end
+	end
+		--print('here')
+	local l_hand = player:LeftHand():GetItem()
+	if( l_hand ~= nil and ( l_hand:GetItemNoun():lower():starts(item_to_find)  or l_hand:GetItemPluralNoun():lower():starts(item_to_find) ) ) then
+		skip_index = skip_index - 1
+		
+		if ( skip_index == 0 ) then 
+			return l_hand
+		end
+	end
+		
+	for i = 1, #items do
+		if( items[i]:GetItemNoun():lower():starts(item_to_find)  or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
+			skip_index = skip_index - 1
+			
+			if ( skip_index ~= 0 ) then goto continue end -- keep looking
+			
+			return items[i]
+		end
+		::continue::
+	end
+	return nil
+end
+
+
+function c:FindItemInContainer( o, container, item_to_find )
+	
+	local s_num = string.match(item_to_find, '%d+')
+	local skip_index = 1 -- don't skip by default
+	if( s_num ~= nil ) then
+		skip_index = s_num
+		item_to_find = string.match(item_to_find, '%a+')
+	end
+	
+	local items = container:GetItems()
+	
+	--print(container:GetName())
+	for i = 1, #items do
+		if( items[i]:GetItemNoun():lower():starts(item_to_find)  or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
+			skip_index = skip_index - 1
+			
+			if ( skip_index ~= 0 ) then goto continue end -- keep looking
+			--print ('found it')
+			return items[i]
+		end
+		::continue::
+	end
+	return nil
+end
+
 function c:CheckHands( o_orig, s1 )
 	if( o_orig:RightHand():IsEmpty() == false ) then
 		if( o_orig:RightHand():GetItem():GetItemNoun():lower():starts(s1) 
@@ -53,11 +150,13 @@ function c:CheckEnv( o_orig, s1 )
 			if ( skip_index ~= 0 ) then goto continue end -- keep looking
 			
 			found_item = items[i]
+			
 			if found_item.isStackable and found_item:GetCurrentStackCount() > 1 then
 				o_orig:SendToEntity( 'You count ' .. found_item:GetName() .. ' and find there are ' .. int_to_string(found_item:GetCurrentStackCount()) .. '.' )
 			else
 				o_orig:SendToEntity( 'You count ' .. found_item:GetName() .. ' and find there is only one.' )
 			end
+			
 			return true
 		end
 		::continue::
@@ -88,19 +187,103 @@ function c:ExecuteCommand ( o_orig, cmd )
 	-- remove count portion
 	table.remove(myTable, 1)
 	
-	--local s1 = myTable[1]
-	
-	
 	if( #myTable == 0 ) then
 		usage(o_orig)
 		return true
 	end
 	
+	
+	local item_to_find = myTable[1]:lower()
+	
 
+	-- remove item portion
+	table.remove(myTable, 1)
 	
+	--local sm2 = string.match(cmd, "in my .+")
 	local cmd = table.concat(myTable, " ") -- put it back together
-	sm1 = string.match(cmd, "my %a+")
 	
+	local sm1 = string.match(cmd, "in my .+")
+	
+	if sm1 then
+		local myt = sm1:split( ' ' )
+		local fitem = c:FindItemInInv( o_orig, myt[3])
+		
+		if( fitem ~= nil ) then
+		
+			if( fitem.isContainer == true ) then
+			
+				f = c:FindItemInContainer( o_orig, fitem, item_to_find )
+				--print('here')
+				if( f ) then
+				
+					-- found it..
+					--c:GetInvItem( o, f, fitem, true)
+					if f.isStackable and f:GetCurrentStackCount() > 1 then
+						o_orig:SendToEntity( 'You count ' .. f:GetName() .. ' and find there are ' .. int_to_string(f:GetCurrentStackCount()) .. '.' )
+					else
+						o_orig:SendToEntity( 'You count ' .. f:GetName() .. ' and find there is only one.' )
+					end
+					return true
+				end
+			else
+				o_orig:SendToEntity('You can\'t count that!')
+				return false
+			end
+		end
+		o_orig:SendToEntity('Unable to find what you are attempting to count.')
+		return false
+	else
+		sm2 = string.match(cmd, "in .+")
+		if sm2 then
+			local myt = sm2:split( ' ' )
+			--print( myt[2] )
+			local fitem = c:FindItemInEnv( o_orig, myt[2])
+			if( fitem ~= nil ) then
+				if( fitem.isContainer == true ) then
+					local f = c:FindItemInContainer( o_orig, fitem, item_to_find )
+					if( f ) then
+						if f.isStackable and f:GetCurrentStackCount() > 1 then
+							o_orig:SendToEntity( 'You count ' .. f:GetName() .. ' and find there are ' .. int_to_string(f:GetCurrentStackCount()) .. '.' )
+						else
+							o_orig:SendToEntity( 'You count ' .. f:GetName() .. ' and find there is only one.' )
+						end
+						return true
+					end
+				else
+					o_orig:SendToEntity('You can\'t count that!')
+					return false
+				end
+			end
+			
+			local fitem = c:FindItemInInv( o_orig, myt[2])
+			if( fitem ~= nil ) then
+				if( fitem.isContainer == true ) then
+					f = c:FindItemInContainer( o_orig, fitem, item_to_find )
+					if( f ) then
+						-- found it..
+						if f.isStackable and f:GetCurrentStackCount() > 1 then
+							o_orig:SendToEntity( 'You count ' .. f:GetName() .. ' and find there are ' .. int_to_string(f:GetCurrentStackCount()) .. '.' )
+						else
+							o_orig:SendToEntity( 'You count ' .. f:GetName() .. ' and find there is only one.' )
+						end
+						return true
+					end
+				else
+					o_orig:SendToEntity('You can\'t count that!')
+					return false
+				end
+			end
+			
+			o_orig:SendToEntity('Unable to find what you are attempting to count.')
+			return false
+
+		end
+
+	end
+	
+
+	local sm1 = string.match(cmd, "my .+")
+
 	if ( sm1 ) then
 		table.remove(myTable, 1) -- remove the my part
 		local item_to_find = myTable[1]:lower() -- at this point we should have an object..
@@ -111,15 +294,17 @@ function c:ExecuteCommand ( o_orig, cmd )
 			o_orig:SendToEntity('Count what? Unable to find that in your inventory.')
 		end
 	else
-		local item_to_find = myTable[1]:lower() -- at this point we should have an object..
+		--local item_to_find = myTable[1]:lower() -- at this point we should have an object..
 		if( c:CheckEnv( o_orig, item_to_find ) ) then
 			return true
 		elseif( c:CheckHands( o_orig, item_to_find ) ) then
 			return true
 		else
-			o_orig:SendToEntity('Count what? Unable to find that in your inventory.')
+			o_orig:SendToEntity('Unable to find what you are attempting to count.')
 		end
 	end
+	
+	return false
 end
 
 function usage(o_orig)

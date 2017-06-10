@@ -68,3 +68,9 @@ inventorySlot.overRightEye                = 1<<23
 inventorySlot.onHair                      = 1<<24
 inventorySlot.inHair                      = 1<<25
 inventorySlot.head                        = 1<<26
+
+--enum EntityGender { MALE, FEMALE, UNKNOWN };
+entityGender = {}
+entityGender.male = 0
+entityGender.female = 1
+entityGender.unknown = 2

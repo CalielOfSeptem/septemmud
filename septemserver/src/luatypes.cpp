@@ -253,6 +253,10 @@ void init_lua_state(sol::state& l)
                                     &container_base::AddEntityToInventory,
                                     "GetItems",
                                     &living_entity::GetItems,
+                                    "GetGender",
+                                    &living_entity::get_gender,
+                                    "SetGender",
+                                    &living_entity::set_gender,
                                     /*
                                     "AddInventorySlot",
                                     &living_entity::AddInventorySlot,

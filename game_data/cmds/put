@@ -136,7 +136,17 @@ function c:ExecuteCommand ( o_orig, cmd )
 				if( found_item_dest:AddToInventory(found_item_targ) ) then
 					o_orig:SendToEntity('You put ' .. found_item_targ:GetName() .. ' in your ' .. found_item_dest:GetItemNoun() .. '.' )
 					local pname = string.gsub(o_orig:GetName(), "(%a)([%w_']*)", titleCase)
-					o_orig:SendToRoom( pname .. ' puts ' .. found_item_targ:GetName() .. ' in their ' .. found_item_dest:GetItemNoun() .. '.' )
+					
+					to_env = ''
+					if( o:GetGender() == entityGender.male ) then
+						to_env = 'his'
+					elseif( o:GetGender() == entityGender.female ) then
+						to_env = 'her'
+					elseif( o:GetGender() == entityGender.unknown ) then
+						to_env = 'it\'s'
+					end
+		
+					o_orig:SendToRoom( pname .. ' puts ' .. found_item_targ:GetName() .. ' in ' .. to_env .. ' ' .. found_item_dest:GetItemNoun() .. '.' )
 					
 					if( o_orig:GetType():lower() == 'player' ) then
 						local player = player_cast(o_orig)
