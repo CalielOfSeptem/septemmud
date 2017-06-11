@@ -10,6 +10,7 @@ i.weight = 1
 i.size = itemSize.medium
 i.isWearable = true
 i.isContainer = true
-
+i.isCloseable = true
+i.isOpen = false
 
 

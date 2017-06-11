@@ -107,6 +107,49 @@ struct itemobj : public script_entity, public container_base
         bisContainer = b;
     }
     
+    
+    virtual bool get_isLockable()
+    {
+        return bisLockable;
+    }
+     
+    virtual void set_isLockable(bool b)
+    {
+        bisLockable = b;
+    }
+    
+    virtual bool get_isCloseable()
+    {
+        return bisCloseable;
+    }
+     
+    virtual void set_isCloseable(bool b)
+    {
+        bisCloseable = b;
+    }
+    
+    virtual bool get_isOpen()
+    {
+        return bisOpen;
+    }
+     
+    virtual void set_isOpen(bool b)
+    {
+        bisOpen = b;
+    }
+    
+    virtual bool get_isLocked()
+    {
+        return bisLocked;
+    }
+     
+    virtual void set_isLocked(bool b)
+    {
+        bisLocked = b;
+    }
+    
+    
+    
     virtual bool get_isInitialized()
     {
         return bisInitialized;
@@ -298,10 +341,15 @@ struct itemobj : public script_entity, public container_base
     
     int m_slot_mask = 0;
     
-    bool bisWearable;
+    bool bisWearable = false;
     bool bisStackable = false;
-    bool bisContainer;
+    bool bisContainer = false;
     bool bisInitialized = false;
+    
+    bool bisLockable = false;
+    bool bisCloseable = false;
+    bool bisOpen = true;
+    bool bisLocked = false;
     
 
     std::string pluralName;

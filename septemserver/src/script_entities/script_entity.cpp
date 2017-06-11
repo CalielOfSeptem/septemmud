@@ -54,12 +54,12 @@ script_entity::~script_entity()
         auto log = spd::get("main");
         std::stringstream ss;
         ss << "Destroyed object, script path= " << script_path;
-        log->debug(ss.str());
+        log->info(ss.str());
     }
     
     entity_manager::Instance().deregister_entity(this, m_type);
 }
-
+/*
 void script_entity::debug(const std::string& msg)
 {
     //lua_State* L = ts;
@@ -130,6 +130,82 @@ void script_entity::debug(const std::string& msg)
     //  ss << this->GetInstancePath() << " " << msg;
     // std::string d = ss.str();
     //  entity_manager::Instance().debug(d);
+}
+*/
+
+void script_entity::debug(const std::string& msg)
+{
+
+   
+    auto log = spd::get(strip_path_copy(script_path));
+    
+    if( !log )
+    {
+        
+        std::string entityLog = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH) +
+                            global_settings::Instance().GetSetting(DEFAULT_LOGS_PATH);
+
+        std::string s = strip_path_copy(script_path);
+
+        entityLog += s;
+        try
+        {
+            std::vector<spdlog::sink_ptr> sinks;
+
+            auto rotating = std::make_shared<spdlog::sinks::rotating_file_sink_mt> (entityLog, "log", 1024*1024, 5, true);
+            auto stdout_sink = spdlog::sinks::stdout_sink_mt::instance();
+            
+            sinks.push_back(stdout_sink);
+            sinks.push_back(rotating);
+            
+            auto combined_logger = std::make_shared<spdlog::logger>(s, begin(sinks), end(sinks));
+            combined_logger->set_pattern("[%x %H:%M:%S:%e] %v");
+            combined_logger->set_level( spdlog::level::debug );
+            spdlog::register_logger(combined_logger);
+
+            combined_logger->debug( "[" + this->GetInstancePath() + "] "+ msg);
+            combined_logger->flush();
+            
+        }
+        catch( std::exception& )
+        {
+            
+        }
+       
+   }
+   else
+   {
+       /*
+       switch( ll )
+       {
+           case LogLevel::CRITICAL:
+           {
+               log->critical( "[" + this->GetInstancePath() + "] "+ msg);
+           }
+           break;
+           case LogLevel::ERROR:
+           {
+               log->error( "[" + this->GetInstancePath() + "] "+ msg);
+           }
+           break;
+           case LogLevel::DEBUG:
+           {
+               log->debug( "[" + this->GetInstancePath() + "] "+ msg);
+           }
+           break;
+           case LogLevel::INFO:
+           {
+               log->info( "[" + this->GetInstancePath() + "] "+ msg);
+           }
+           break;
+           default:
+           break;
+       }
+        */
+       log->debug( "[" + this->GetInstancePath() + "] "+ msg);
+       log->flush();
+   }
+
 }
 
 void script_entity::SetScriptPath(std::string& path)

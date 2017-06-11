@@ -11,6 +11,7 @@
 
 enum class EntityType { UNKNOWN, ROOM, ITEM, NPC, PLAYER, COMMAND, DAEMON, LIB };
 enum class EnvironmentChangeEvent { ADDED, REMOVED };
+enum class LogLevel { INFO, DEBUG, ERROR, CRITICAL };
  
 struct _sol_userdata_
 {
@@ -104,8 +105,9 @@ struct script_entity {
         
         std::shared_ptr< _sol_userdata_ > m_userdata;
         
-        virtual void debug( const std::string& msg );
+        //virtual void debug_script(const std::string& msg, LogLevel ll);
         
+        virtual void debug(const std::string& msg);
 
         virtual const std::string& GetName()
         {

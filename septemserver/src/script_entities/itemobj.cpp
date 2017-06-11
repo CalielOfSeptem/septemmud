@@ -98,7 +98,7 @@ bool itemobj::do_load()
         for (auto& element : json::iterator_wrapper(inventory)) {
             if( element.key().size() > 0 && element.value() != NULL )
             {
-                std::cout << element.key() << " maps to " << element.value() << std::endl;
+                //std::cout << element.key() << " maps to " << element.value() << std::endl;
                 std::string s1 = element.key();
                 std::string s2 = element.value();
                 entity_manager::Instance().clone_item( s2, dynamic_cast<script_entity*>(this), s1 );

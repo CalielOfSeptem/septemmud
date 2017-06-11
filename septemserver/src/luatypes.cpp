@@ -103,6 +103,15 @@ void init_lua_state(sol::state& l)
                             "GetIsContainer", &itemobj::get_isContainer,
                             "SetIsContainer", &itemobj::set_isContainer,
                             
+                            "GetIsLockable", &itemobj::get_isLockable,
+                            "SetIsLockable", &itemobj::set_isLockable,
+                            
+                            "GetIsLocked", &itemobj::get_isLocked,
+                            "SetIsLocked", &itemobj::set_isLocked,
+                            
+                            "GetIsOpen", &itemobj::get_isOpen,
+                            "SetIsOpen", &itemobj::set_isOpen,
+                            
                             "GetInventorySlot", &itemobj::get_inventorySlot,
                             "SetInventorySlot", &itemobj::set_inventorySlot,
                             
@@ -118,6 +127,12 @@ void init_lua_state(sol::state& l)
                             "isWearable", sol::property(&itemobj::get_isWearable, &itemobj::set_isWearable),
                             "isStackable", sol::property(&itemobj::get_isStackable, &itemobj::set_isStackable),
                             "isContainer", sol::property(&itemobj::get_isContainer, &itemobj::set_isContainer),
+                            
+                            "isCloseable", sol::property(&itemobj::get_isCloseable, &itemobj::set_isCloseable),
+                            "isLockable", sol::property(&itemobj::get_isLockable, &itemobj::set_isLockable),
+                            "isLocked", sol::property(&itemobj::get_isLocked, &itemobj::set_isLocked),
+                            "isOpen", sol::property(&itemobj::get_isOpen, &itemobj::set_isOpen),
+                            
                             "size", sol::property(&itemobj::get_size, &itemobj::set_size),
                             
                             

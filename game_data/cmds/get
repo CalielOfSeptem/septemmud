@@ -195,6 +195,10 @@ function c:ExecuteCommand ( o_orig, cmd )
 		-- limit to player's inventory
 		local fitem = c:FindItemInInv( o, myt[3])
 		if( fitem ~= nil ) then
+			if( fitem.isContainer == true and fitem.isOpen == false ) then
+				o_orig:SendToEntity('The ' .. fitem:GetItemNoun() .. ' is closed.')
+				return false;
+			end
 			if( fitem.isContainer == true ) then
 				f = c:FindItemInContainer( o, fitem, item_to_find )
 				if( f ) then
@@ -203,7 +207,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 					return true
 				end
 			else
-				o_orig:SendToEntity('You can\'t GET that from there!')
+				o_orig:SendToEntity('You can\'t get anything from that!')
 				return false
 			end
 		end
@@ -216,6 +220,10 @@ function c:ExecuteCommand ( o_orig, cmd )
 			--print( myt[2] )
 			local fitem = c:FindItemInEnv( o, myt[2])
 			if( fitem ~= nil ) then
+				if( fitem.isContainer == true and fitem.isOpen == false ) then
+					o_orig:SendToEntity('The ' .. fitem:GetItemNoun() .. ' is closed.')
+					return false;
+				end
 				if( fitem.isContainer == true ) then
 					local f = c:FindItemInContainer( o, fitem, item_to_find )
 					if( f ) then
@@ -224,13 +232,17 @@ function c:ExecuteCommand ( o_orig, cmd )
 						return true
 					end
 				else
-					o_orig:SendToEntity('You can\'t GET that from there!')
+					o_orig:SendToEntity('You can\'t get anything from that!')
 					return false
 				end
 			end
 			
 			local fitem = c:FindItemInInv( o, myt[2])
 			if( fitem ~= nil ) then
+				if( fitem.isContainer == true and fitem.isOpen == false ) then
+					o_orig:SendToEntity('The ' .. fitem:GetItemNoun() .. ' is closed.')
+					return false;
+				end
 				if( fitem.isContainer == true ) then
 					f = c:FindItemInContainer( o, fitem, item_to_find )
 					if( f ) then
@@ -239,12 +251,12 @@ function c:ExecuteCommand ( o_orig, cmd )
 						return true
 					end
 				else
-					o_orig:SendToEntity('You can\'t GET that from there!')
+					o_orig:SendToEntity('You can\'t get anything from that!')
 					return false
 				end
 			end
 			
-			o:SendToEntity('What are you trying to GET from?')
+			o:SendToEntity('What are you trying to get?')
 			return false
 
 		end
@@ -259,20 +271,9 @@ function c:ExecuteCommand ( o_orig, cmd )
 		--print(s1)
 	end
 	
-	local player = living_cast(o_orig)
-	local room = player:GetRoom()
-	local items = room:GetItems()
-	local found_item = nil
-	
-	for i = 1, #items do
-		if( items[i]:GetItemNoun():lower():starts(item_to_find)  or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
-			skip_index = skip_index - 1
-			
-			if ( skip_index ~= 0 ) then goto continue end -- keep looking
-			
-			found_item = items[i]
-		end
-		::continue::
+	found_item = self:FindItemInEnv( o, item_to_find )
+	if( found_item == nil ) then
+		found_item = self:FindItemInInv( o, item_to_find )
 	end
 	
 	if found_item == nil then
@@ -301,9 +302,6 @@ function c:ExecuteCommand ( o_orig, cmd )
 		o_orig:SendToRoom( pname .. ' picks up ' .. found_item:GetName() .. '.')	
 		return true;
 	end
-	
-	
-
 end
 
 function usage(o_orig)

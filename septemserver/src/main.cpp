@@ -200,7 +200,7 @@ int main(int argc, char **argv)
         
     game_manager gm;
     gm.start();
-   // entity_manager::Instance().load_player();
+
     while( true )
     {
         if( entity_manager::Instance().get_player("caliel") != NULL )
@@ -231,7 +231,6 @@ int main(int argc, char **argv)
         else if( blah == "login" )
         {
             entity_manager::Instance().load_player("caliel");
-           // entity_manager::Instance().load_player("recluse");
         }
         else if( blah == "hb" )
         {
@@ -240,9 +239,6 @@ int main(int argc, char **argv)
         else
         {
             gm.process_player_cmd(NULL, blah);
-            // std::cout << "Invoking heartbeats.." << std::endl;
-             //gm.do_heartbeats();
-             //entity_manager::Instance().invoke_heartbeat();
         }
         
     }

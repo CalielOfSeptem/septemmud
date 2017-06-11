@@ -272,7 +272,6 @@ for( int x = 2; x < 1000; x++ )
             }
         }
         */
-
     } break;
     case EntityType::COMMAND: {
         sol::environment to_load;
@@ -422,6 +421,9 @@ itemobj* entity_manager::clone_item(std::string& relative_script_path, script_en
             if( auto e = dynamic_cast<container_base*>(obj) )
             {
                 e->AddEntityToInventory(i);
+                std::stringstream ss;
+                ss << "Cloning entity " << relative_script_path << ", id = " << uid;
+                obj->debug(ss.str());
                 return i;
             }
             else
@@ -553,6 +555,7 @@ void entity_manager::init_lua()
     lua.set_function("command_cast", &downcast<commandobj>);
     lua.set_function("room_cast", &downcast<roomobj>);
     lua.set_function("player_cast", &downcast<playerobj>);
+    lua.set_function("item_cast", &downcast<itemobj>);
     lua.set_function("living_cast", &downcast<living_entity>);
     lua.set_function("int_to_string", &int_to_string);
 

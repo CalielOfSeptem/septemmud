@@ -129,7 +129,10 @@ function c:ExecuteCommand ( o_orig, cmd )
 		end
 		
 		if( found_item_dest ) then
-			if( found_item_dest:GetIsContainer() == false ) then
+			if( found_item_dest:GetIsContainer() == true and found_item_dest:GetIsOpen() == false ) then
+				o_orig:SendToEntity('The ' .. found_item_dest:GetItemNoun() .. ' is closed.')
+				return true
+			elseif( found_item_dest:GetIsContainer() == false ) then
 				o_orig:SendToEntity('You can\'t put things in there!')
 				return true
 			else
@@ -200,7 +203,10 @@ function c:ExecuteCommand ( o_orig, cmd )
 	end
 	
 	-- step 5. put it in there.. if its a container..
-	if( found_item_dest:GetIsContainer() == false ) then
+	if( found_item_dest:GetIsContainer() and found_item_dest:GetIsOpen() == false ) then
+		o_orig:SendToEntity('The ' .. found_item_dest:GetItemNoun() .. ' is closed.')
+		return true
+	elseif( found_item_dest:GetIsContainer() == false ) then
 		o_orig:SendToEntity('You can\'t put things in there!')
 		return true
 	else

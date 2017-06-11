@@ -1,0 +1,206 @@
+inherit command
+c = command.new('open')
+
+
+
+function c:FindItemInEnv( o, item_to_find )
+	local s_num = string.match(item_to_find, '%d+')
+	local skip_index = 1 -- don't skip by default
+	if( s_num ~= nil ) then
+		skip_index = s_num
+		item_to_find = string.match(item_to_find, '%a+')
+		--print(s1)
+	end
+	
+	local player = living_cast(o)
+	local room = player:GetRoom()
+	local items = room:GetItems()
+	
+	for i = 1, #items do
+		if( items[i]:GetItemNoun():lower():starts(item_to_find)  or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
+			skip_index = skip_index - 1
+			
+			if ( skip_index ~= 0 ) then goto continue end -- keep looking
+			
+			return items[i]
+		end
+		::continue::
+	end
+	return nil
+	
+end
+
+function c:FindItemInInv( o, item_to_find )
+--print(item_to_find)
+	local s_num = string.match(item_to_find, '%d+')
+	local skip_index = 1 -- don't skip by default
+	if( s_num ~= nil ) then
+		skip_index = s_num
+		item_to_find = string.match(item_to_find, '%a+')
+		--print(s1)
+	end
+	
+	local player = living_cast(o)
+	local items = player:GetItems()
+	
+	local r_hand = player:RightHand():GetItem()
+	if( r_hand ~= nil and ( r_hand:GetItemNoun():lower():starts(item_to_find)  or r_hand:GetItemPluralNoun():lower():starts(item_to_find) ) ) then
+			skip_index = skip_index - 1
+			
+			if ( skip_index == 0 ) then 
+				return r_hand
+			end
+	end
+		
+	local l_hand = player:LeftHand():GetItem()
+	if( l_hand ~= nil and ( l_hand:GetItemNoun():lower():starts(item_to_find)  or l_hand:GetItemPluralNoun():lower():starts(item_to_find) ) ) then
+		skip_index = skip_index - 1
+		
+		if ( skip_index == 0 ) then 
+			return l_hand
+		end
+	end
+		
+	for i = 1, #items do
+		if( items[i]:GetItemNoun():lower():starts(item_to_find)  or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
+			skip_index = skip_index - 1
+			
+			if ( skip_index ~= 0 ) then goto continue end -- keep looking
+			
+			return items[i]
+		end
+		::continue::
+	end
+	return nil
+end
+
+
+
+function c:OpenItem(o, item_to_open, from_player_inventory)
+	
+	--if( o:RightHand():IsEmpty() ~= true and o:LeftHand():IsEmpty() ~= true ) then
+	--	o:SendToEntity('Both of your hands are full! Free a hand to open the ' .. item_to_open:GetItemNoun() .. '.')
+	--	return false
+	--end
+	
+	item_to_find = item_cast(item_to_open)
+	
+	if( item_to_open:GetIsOpen() ) then
+		o:SendToEntity('The ' .. item_to_open:GetItemNoun() .. ' is already open.')
+		return false
+	end
+	
+	if( item_to_open:GetIsLocked() ) then
+		o:SendToEntity('The ' .. item_to_open:GetItemNoun() .. ' is locked.')
+		return false
+	end
+	
+	
+	local to_player = 'the'
+	local to_env = 'the'
+	
+	if( from_player_inventory ) then
+		to_player = 'your'
+		if( o:GetGender() == entityGender.male ) then
+			to_env = 'his'
+		elseif( o:GetGender() == entityGender.female ) then
+			to_env = 'her'
+		elseif( o:GetGender() == entityGender.unknown ) then
+			to_env = 'it\'s'
+		end
+	end
+	item_to_open:SetIsOpen(true)
+	o:SendToEntity('You open ' .. to_player .. ' ' .. item_to_open:GetItemNoun() .. '.')
+	local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
+	o:SendToRoom( pname .. ' opens ' .. to_env .. ' ' .. item_to_open:GetItemNoun() .. '.')	
+
+	return false
+	
+end
+
+	
+function c:ExecuteCommand ( o_orig, cmd )
+
+	s_type = o_orig:GetType()
+	
+	if (s_type:lower() ~= "player" and s_type:lower() ~= "npc") then
+		return false;
+	end
+	
+	o = living_cast(o_orig)
+	if ( o == nil ) then 
+		return false 
+	end	
+	
+	local myTable = cmd:split( ' ' )
+	if #myTable < 2 then
+		usage(o)
+		return true;
+	end
+	
+
+	table.remove(myTable, 1)
+	
+	--local s1 = myTable[1]
+
+	
+	if( #myTable == 0 ) then
+		usage(o)
+		return true;
+	end
+	
+	local item_to_find = myTable[1]:lower() -- at this point we should have an object..
+	--table.remove(myTable, 1)
+
+	local cmd = table.concat(myTable, " ") -- put it back together
+
+	sm1 = string.match(cmd, "my .+")
+	-- TODO, fix this stuff later..
+	if sm1 then
+		local myt = cmd:split( ' ' )
+		-- limit to player's inventory
+		local fitem = c:FindItemInInv( o, myt[2])
+		if( fitem ~= nil ) then
+			if( fitem.isContainer == true ) then
+				return self:OpenItem( o, fitem, true )
+			else
+				o_orig:SendToEntity('You can\'t open that!')
+				return false
+			end
+		end
+		o:SendToEntity('What are you trying to open?')
+		return false
+	end
+	
+	local s_num = string.match(item_to_find, '%d+')
+	local skip_index = 1 -- don't skip by default
+	if( s_num ~= nil ) then
+		skip_index = s_num
+		item_to_find = string.match(item_to_find, '%a+')
+		--print(s1)
+	end
+	
+	local found_item = self:FindItemInEnv( o, item_to_find )
+	if( found_item ) then
+		return self:OpenItem( o, found_item )
+	end
+	
+	if( found_item == nil ) then 
+		found_item = self:FindItemInInv( o, item_to_find )
+		if( found_item ) then
+			return self:OpenItem( o, found_item, true )
+		end
+	end
+	
+	if found_item == nil then
+		o:SendToEntity('Open what?')
+		return true
+	end
+	
+	--return self:OpenItem( o, found_item )	
+
+end
+
+function usage(o_orig)
+	o_orig:SendToEntity('USAGE: open <Implement me later>')
+end
