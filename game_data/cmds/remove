@@ -96,7 +96,10 @@ function c:ExecuteCommand ( o_orig, cmd )
 	
 	if ( i ) then
 		self:RemoveItemToFreeHand( o, i ) 
+		else
+		o_orig:SendToEntity('Remove what? You are not wearing that.')
 	end
+	
 	return true
 end
 

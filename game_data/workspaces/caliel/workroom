@@ -11,7 +11,7 @@ clone_item( 'workspaces/caliel/entities/rock', p1 )
 function p1:hb()
 	back = clone_item( 'workspaces/caliel/entities/backpack', p1 )
 	--clone_item( 'workspaces/caliel/entities/arrow', p1 )
-	for i = 1, 1 do
+	for i = 1, 10 do
 		if( back ~= nil ) then
 			clone_item( 'workspaces/caliel/entities/rock', back )
 			clone_item( 'workspaces/caliel/entities/simple arrow', back )
