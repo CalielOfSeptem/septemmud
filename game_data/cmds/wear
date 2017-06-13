@@ -49,7 +49,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 	end	
 	
 	local myTable = cmd:split( ' ' )
-	if #myTable ~= 2 then
+	if #myTable < 2 then
 		usage(o)
 		return true;
 	end
@@ -64,11 +64,11 @@ function c:ExecuteCommand ( o_orig, cmd )
 	end
 	
 	if( #myTable == 0 ) then
-		--print('zero..')
 		usage(o)
 		return true;
 	end
 	
+	local s1 = myTable[1]
 	
 	if( s1:lower() == 'right' ) then
 		if( o:RightHand():IsEmpty() == false ) then

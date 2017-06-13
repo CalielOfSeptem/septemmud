@@ -20,6 +20,7 @@ function c:ExecuteCommand ( o, cmd )
 
 		do_update ( cmd, player_cast(o) )
 	end
+	return true
 end
 
 function usage(o_orig)

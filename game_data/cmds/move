@@ -26,14 +26,9 @@ function c:ExecuteCommand ( o_orig, cmd )
 	--print(s_type)
 	if (s_type:lower() ~= "player" and s_type:lower() ~= "npc") then
 		--print('Cannot call move on a non-living entity..')
-		return false;
+		return true;
 	end
 	ob = o_orig
-	--if( s_type:lower() == "player" ) then
-	--	ob = player_cast(o_orig)
-	--end
-	
-	-- ADD IN NPC CAST
 	
 	exits = ob:GetRoom():GetExits()
 	--f(exits);
@@ -55,5 +50,6 @@ function c:ExecuteCommand ( o_orig, cmd )
 			end
 		end
 	end
+	return true
 end
 

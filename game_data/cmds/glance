@@ -7,17 +7,17 @@ function c:ExecuteCommand ( o_orig, cmd )
 	s_type = o_orig:GetType()
 	
 	if (s_type:lower() ~= "player" and s_type:lower() ~= "npc") then
-		return false;
+		return true;
 	end
 	
 	o = living_cast(o_orig)
 	if ( o == nil ) then 
-		return false 
+		return true 
 	end	
 	
 	if( o:RightHand():IsEmpty() and o:LeftHand():IsEmpty() ) then
 		o:SendToEntity('You glance down at your empty hands.')
-		return false;
+		return true;
 	end
 	
 	s_right = 'nothing'
@@ -35,7 +35,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 	end
 
 	o:SendToPlayer('You glance down and see ' .. s_right .. ' in your right hand, and ' .. s_left .. ' in your left hand.')
-
+	return true
 end
 
 function usage(o_orig)

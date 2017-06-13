@@ -124,12 +124,12 @@ function c:ExecuteCommand ( o_orig, cmd )
 	s_type = o_orig:GetType()
 	
 	if (s_type:lower() ~= "player" and s_type:lower() ~= "npc") then
-		return false;
+		return true;
 	end
 	
 	o = living_cast(o_orig)
 	if ( o == nil ) then 
-		return false 
+		return true 
 	end	
 	
 	local myTable = cmd:split( ' ' )
@@ -165,11 +165,11 @@ function c:ExecuteCommand ( o_orig, cmd )
 				return self:OpenItem( o, fitem, true )
 			else
 				o_orig:SendToEntity('You can\'t open that!')
-				return false
+				return true
 			end
 		end
 		o:SendToEntity('What are you trying to open?')
-		return false
+		return true
 	end
 	
 	local s_num = string.match(item_to_find, '%d+')
@@ -197,8 +197,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 		return true
 	end
 	
-	--return self:OpenItem( o, found_item )	
-
+	return true
 end
 
 function usage(o_orig)

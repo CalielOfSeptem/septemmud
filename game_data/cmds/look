@@ -190,6 +190,7 @@ function c:ExecuteCommand ( o, cmd )
 			
 		end	
 	end
+	return true
 end
 
 function FormatRoom(r, o)

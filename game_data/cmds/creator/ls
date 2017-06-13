@@ -76,6 +76,7 @@ function c:ExecuteCommand ( o, cmd )
 	--end
 	
 	--attrdir (cwd, o)
+	return true
 end
 
 

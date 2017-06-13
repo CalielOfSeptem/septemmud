@@ -27,6 +27,7 @@ function c:ExecuteCommand ( o, cmd )
 			t:DoCommand('look')
 		end
 	end
+	return true
 end
 
 function usage(o_orig)

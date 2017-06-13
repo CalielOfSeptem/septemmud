@@ -151,12 +151,12 @@ function c:ExecuteCommand ( o_orig, cmd )
 	s_type = o_orig:GetType()
 	
 	if (s_type:lower() ~= "player" and s_type:lower() ~= "npc") then
-		return false;
+		return true;
 	end
 	
 	o = living_cast(o_orig)
 	if ( o == nil ) then 
-		return false 
+		return true 
 	end	
 	
 	local myTable = cmd:split( ' ' )
@@ -197,7 +197,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 		if( fitem ~= nil ) then
 			if( fitem.isContainer == true and fitem.isOpen == false ) then
 				o_orig:SendToEntity('The ' .. fitem:GetItemNoun() .. ' is closed.')
-				return false;
+				return true;
 			end
 			if( fitem.isContainer == true ) then
 				f = c:FindItemInContainer( o, fitem, item_to_find )
@@ -208,11 +208,11 @@ function c:ExecuteCommand ( o_orig, cmd )
 				end
 			else
 				o_orig:SendToEntity('You can\'t get anything from that!')
-				return false
+				return true
 			end
 		end
 		o:SendToEntity('What are you trying to GET from?')
-		return false
+		return true
 	else
 		sm2 = string.match(cmd, "from .+")
 		if sm2 then
@@ -222,7 +222,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 			if( fitem ~= nil ) then
 				if( fitem.isContainer == true and fitem.isOpen == false ) then
 					o_orig:SendToEntity('The ' .. fitem:GetItemNoun() .. ' is closed.')
-					return false;
+					return true;
 				end
 				if( fitem.isContainer == true ) then
 					local f = c:FindItemInContainer( o, fitem, item_to_find )
@@ -233,7 +233,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 					end
 				else
 					o_orig:SendToEntity('You can\'t get anything from that!')
-					return false
+					return true
 				end
 			end
 			
@@ -241,7 +241,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 			if( fitem ~= nil ) then
 				if( fitem.isContainer == true and fitem.isOpen == false ) then
 					o_orig:SendToEntity('The ' .. fitem:GetItemNoun() .. ' is closed.')
-					return false;
+					return true;
 				end
 				if( fitem.isContainer == true ) then
 					f = c:FindItemInContainer( o, fitem, item_to_find )
@@ -252,12 +252,12 @@ function c:ExecuteCommand ( o_orig, cmd )
 					end
 				else
 					o_orig:SendToEntity('You can\'t get anything from that!')
-					return false
+					return true
 				end
 			end
 			
 			o:SendToEntity('What are you trying to get?')
-			return false
+			return true
 
 		end
 
@@ -284,7 +284,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 	
 	if( o:RightHand():IsEmpty() ~= true and o:LeftHand():IsEmpty() ~= true ) then
 		o:SendToEntity('Both of your hands are already full.')
-		return false;
+		return true;
 	end
 	
 	if( o:RightHand():IsEmpty() ) then
@@ -302,6 +302,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 		o_orig:SendToRoom( pname .. ' picks up ' .. found_item:GetName() .. '.')	
 		return true;
 	end
+	return true
 end
 
 function usage(o_orig)

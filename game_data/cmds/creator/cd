@@ -8,6 +8,7 @@ function c:ExecuteCommand ( o, cmd )
 	cmd = string.gsub(cmd, "(chdir)", "")
 	cmd = trim(cmd)
 	change_directory(cmd, o)
+	return true
 end
 
 

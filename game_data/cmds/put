@@ -41,12 +41,12 @@ function c:ExecuteCommand ( o_orig, cmd )
 	local s_type = o_orig:GetType()
 	
 	if (s_type:lower() ~= "player" and s_type:lower() ~= "npc") then
-		return false;
+		return true;
 	end
 	
 	o = living_cast(o_orig)
 	if ( o == nil ) then 
-		return false 
+		return true 
 	end	
 	
 	local myTable = cmd:split( ' ' )
@@ -222,6 +222,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 			o_orig:SendToEntity( 'You try and stuff it in, but that won\'t fit in the ' .. found_item_dest:GetItemNoun() .. '.' )
 		end
 	end
+	return true
 end
 
 function usage(o_orig)

@@ -22,6 +22,7 @@ function c:ExecuteCommand ( o, cmd )
 		end
 		
 	end
+	return true
 end
 
 function usage(o_orig)
