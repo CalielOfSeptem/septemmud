@@ -118,39 +118,13 @@ bool itemobj::do_save()
 {
     if( this->get_entityStorageLocation().size() == 0 )
         return false;
-        
-    json j;
-    
+ 
     try
     {
-        j["uid"] = this->get_uid();
-        j["base_script_path"] = GetBaseScriptPath();
-        j["script_path"] = GetScriptPath();
-        j["look"] = GetLook();
-        j["name"] = script_entity::GetName();
-        
-        j["weight"] = get_weight();
-        j["size"] = get_size();
-        j["item_type"] = get_itemType();
-        j["defaultStackSize"] = get_defaultStackSize();
-        j["currentStackCount"] = get_currentStackCount();
-        j["isWearable"] = get_isWearable();
-        j["isStackable"] = get_isStackable();
-        j["isContainer"] = get_isContainer();
-        j["pluralName"] = get_pluralName();
-        
-        std::vector< script_entity*  > items = this->GetInventory();
-        std::map< std::string, std::string > item_objs;
-        for( auto i : items )
-        {
-            itemobj * obj = dynamic_cast< itemobj * > (i);
-            item_objs[obj->get_uid()] = i->GetBaseScriptPath();
-        }
- 
-        j["inventory"] = item_objs;
-
+        std::string j = Serialize();
         std::ofstream o(this->get_entityStorageLocation() + "/" + this->get_uid() );
-        o << std::setw(4) << j << std::endl;
+        //o << std::setw(4) << j << std::endl;
+        o << j << std::endl;
     }
     catch( std::exception & ex )
     {
@@ -203,4 +177,35 @@ bool itemobj::remove_settings_file()
         return false;
     }
     return true;
+}
+
+std::string itemobj::Serialize()
+{
+    json j;
+    j["uid"] = this->get_uid();
+    j["base_script_path"] = GetBaseScriptPath();
+    j["script_path"] = GetScriptPath();
+    j["look"] = GetLook();
+    j["name"] = script_entity::GetName();
+    
+    j["weight"] = get_weight();
+    j["size"] = get_size();
+    j["item_type"] = get_itemType();
+    j["defaultStackSize"] = get_defaultStackSize();
+    j["currentStackCount"] = get_currentStackCount();
+    j["isWearable"] = get_isWearable();
+    j["isStackable"] = get_isStackable();
+    j["isContainer"] = get_isContainer();
+    j["pluralName"] = get_pluralName();
+    
+    std::vector< script_entity*  > items = this->GetInventory();
+    std::map< std::string, std::string > item_objs;
+    for( auto i : items )
+    {
+        itemobj * obj = dynamic_cast< itemobj * > (i);
+        item_objs[obj->get_uid()] = i->GetBaseScriptPath();
+    }
+
+    j["inventory"] = item_objs;
+    return j.dump(4);
 }

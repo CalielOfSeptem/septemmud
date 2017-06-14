@@ -318,6 +318,8 @@ struct itemobj : public script_entity, public container_base
         }
     }
     
+    std::string Serialize();
+    
     virtual bool do_save() override;
     
     virtual bool do_load() override;

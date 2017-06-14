@@ -310,23 +310,32 @@ bool entity_manager::do_item_reload( std::string& entitypath, playerobj* p)
     std::string relative_path = std::regex_replace(temp, std::regex("\\" +
      global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH)), "");  // remove the extra pathing stuff we don't
     bool b = reload_all_item_instances(relative_path);
-    return true;
+    return b;
 }
 
 bool entity_manager::reload_all_item_instances(std::string& relative_script_path)
 {
     
+    struct _item_
+    {
+        std::string uid;
+        std::string script_path;
+        std::string json;
+    };
     
     struct _item_index_
     {
         std::string uid;
+        std::string script_path;
         std::string parent_env_path;
         std::string parent_env_uid;
         EntityType parent_type;
         bool isContainer;
         itemobj * io;
-        std::map< std::string, std::string > inventory;
+        std::map< std::string, _item_ > inventory;
+        std::string json;
     };
+    
     std::vector < std::shared_ptr<_item_index_> > items;
     
     for( auto ie : m_item_objs )
@@ -342,10 +351,11 @@ bool entity_manager::reload_all_item_instances(std::string& relative_script_path
                 
                 std::shared_ptr<_item_index_> p (new _item_index_);
                 p->uid = t->get_uid();
+                p->script_path = t->GetBaseScriptPath();
                 p->io = t;
                 if( t->GetEnvironment() )
                 {
-                    p->parent_env_path = t->GetEnvironment()->GetBaseScriptPath();
+                    p->parent_env_path = t->GetEnvironment()->GetScriptPath();
                     p->parent_type = t->GetEnvironment()->GetType();
                     p->parent_env_uid = t->GetEnvironment()->get_uid();
 
@@ -366,10 +376,16 @@ bool entity_manager::reload_all_item_instances(std::string& relative_script_path
                 for( auto i : t->GetItems() )
                 {
                     std::cout << "Adding item to destroy " << i->GetScriptPath()<< std::endl;
-                    p->inventory.insert( { i->get_uid(),  i->GetScriptPath() } );
+                    _item_ i_temp;
+                    i_temp.script_path = i->GetBaseScriptPath();
+                    i_temp.uid = i->get_uid();
+                    i_temp.json = i->Serialize();
+                    p->inventory.insert( { i->get_uid(),  i_temp } );
+                    
                 }
+               
+                p->json = t->Serialize();
                 items.push_back(p);
-              
             }
         }
     }
@@ -382,10 +398,38 @@ bool entity_manager::reload_all_item_instances(std::string& relative_script_path
         for( auto kvp : k->inventory )
         {
            // p->inventory.insert( { t->get_uid(),  i->GetBaseScriptPath() } );
-           std::cout << "Trying to destroy " << kvp.second << std::endl;
-           destroy_item(kvp.second);
+           //std::cout << "Trying to destroy " << kvp.second << std::endl;
+           destroy_item(kvp.second.script_path);
         }
     }
+    
+    for( auto k : items )
+    {
+        //this->clone_item( k.second.script_path, )
+        switch( k->parent_type )
+        {
+            case EntityType::ROOM:
+            {
+                roomobj * r = this->GetRoomByScriptPath( k->parent_env_path );
+                assert( r != NULL );
+                script_entity * e_tmp = clone_item( k->script_path, dynamic_cast<script_entity*>(r), k->uid );
+                assert( e_tmp != NULL );
+                
+                
+                
+            } break;
+            case EntityType::PLAYER:
+            case EntityType::NPC:
+            {
+                
+                    
+            } break;
+            default:
+                return false;
+            break;
+        }
+    }
+    
     
     
     

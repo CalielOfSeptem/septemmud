@@ -21,7 +21,7 @@ function c:ExecuteCommand ( o, cmd )
 end
 
 function usage(o_orig)
-	o_orig:SendToEntity('USAGE: update <Implement me later>')
+	o_orig:SendToEntity('USAGE: reload <Implement me later>')
 end
 
 

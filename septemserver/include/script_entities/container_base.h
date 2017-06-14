@@ -40,19 +40,19 @@
          // TODO: implement this and be sure to nuke a removed items environment_ pointer..
          std::vector< script_entity*  >::iterator it = this->inventory.begin();
 
-          while (it != this->inventory.end()) {
-                // Check if key's first character is Fi
-                if( (*it) == se )
-                {
-                    (*it)->SetEnvironment(NULL);
-                    (*it)->on_environment_change(EnvironmentChangeEvent::REMOVED, this->GetOwner());
-                    it = this->inventory.erase(it);
-                    
-                    return true;
-                }
-                else
-                    it++;
-          }
+        while (it != this->inventory.end()) {
+            // Check if key's first character is Fi
+            if( (*it) == se )
+            {
+                (*it)->SetEnvironment(NULL);
+                (*it)->on_environment_change(EnvironmentChangeEvent::REMOVED, this->GetOwner());
+                it = this->inventory.erase(it);
+                
+                return true;
+            }
+            else
+                it++;
+        }
         return false;
     }
      
