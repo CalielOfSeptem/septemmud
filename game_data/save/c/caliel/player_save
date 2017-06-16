@@ -1,7 +1,7 @@
 {
     "inventory": {},
-    "leftHand": 0,
-    "rightHand": {
-        "anxBN8fTa9yBJnO": "workspaces/caliel/entities/backpack"
-    }
+    "leftHand": {
+        "yPeCl0aRJVi5Gsl": "workspaces/caliel/entities/simple arrow"
+    },
+    "rightHand": 0
 }

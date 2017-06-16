@@ -108,7 +108,11 @@ private:
 */
 struct handobj : public container_base, public script_entity
 {
-     
+     handobj()
+     {
+         m_type = EntityType::HAND;
+         
+     }
      virtual bool AddEntityToInventory(script_entity * se) override
      {
          return container_base::AddEntityToInventory(se);

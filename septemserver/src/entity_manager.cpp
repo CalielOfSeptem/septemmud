@@ -302,7 +302,7 @@ bool entity_manager::do_item_reload( std::string& entitypath, playerobj* p)
         p->SendToEntity(reason);
         return false;
     }
-    if( fs::is_directory(temp ))
+    if( fs::is_directory(temp) )
     {
         p->SendToEntity("Can't reload a directory... not implemented yet.");
         return false;
@@ -326,11 +326,15 @@ bool entity_manager::reload_all_item_instances(std::string& relative_script_path
     struct _item_index_
     {
         std::string uid;
+       
         std::string script_path;
         std::string parent_env_path;
         std::string parent_env_uid;
+        std::string parent_name;
         EntityType parent_type;
         bool isContainer;
+        handobj * h;
+        //bool bisHand;
         itemobj * io;
         std::map< std::string, _item_ > inventory;
         std::string json;
@@ -358,6 +362,7 @@ bool entity_manager::reload_all_item_instances(std::string& relative_script_path
                     p->parent_env_path = t->GetEnvironment()->GetScriptPath();
                     p->parent_type = t->GetEnvironment()->GetType();
                     p->parent_env_uid = t->GetEnvironment()->get_uid();
+                    p->parent_name = t->GetName();
 
                     if( itemobj * ie = dynamic_cast<itemobj*>(t->GetEnvironment()) )
                     {
@@ -371,6 +376,12 @@ bool entity_manager::reload_all_item_instances(std::string& relative_script_path
                     {
                         le->RemoveEntityFromInventory(ewp->script_ent);
                     }
+                    else if( handobj * ho = dynamic_cast<handobj*>(t->GetEnvironment()) )
+                    {
+                        ho->RemoveEntityFromInventory(ewp->script_ent);
+                        p->h = ho;
+                    }
+                    
                     
                 }
                 for( auto i : t->GetItems() )
@@ -414,14 +425,67 @@ bool entity_manager::reload_all_item_instances(std::string& relative_script_path
                 assert( r != NULL );
                 script_entity * e_tmp = clone_item( k->script_path, dynamic_cast<script_entity*>(r), k->uid );
                 assert( e_tmp != NULL );
+                r->AddEntityToInventory( e_tmp );
+                if ( !e_tmp->do_json_load( k->json ) )
+                {
+                    std::stringstream ss;
+                    ss << "Error while restoring persisted object settings, script= " << e_tmp->GetInstancePath();
+                    //debug( ss.str() );
+                }
                 
-                
+                if ( !e_tmp->do_save() )
+                {
+                    std::stringstream ss;
+                    ss << "Error while restoring persisted object settings, script= " << e_tmp->GetInstancePath();
+                  //  debug( ss.str() );
+                }
                 
             } break;
             case EntityType::PLAYER:
+            {
+                playerobj * p = this->get_player( k->parent_name );
+                assert( p != NULL );
+                script_entity * e_tmp = clone_item( k->script_path, dynamic_cast<script_entity*>(p), k->uid );
+                assert( e_tmp != NULL );
+                p->AddEntityToInventory( e_tmp );
+                if ( !e_tmp->do_json_load( k->json ) )
+                {
+                    std::stringstream ss;
+                    ss << "Error while restoring persisted object settings, script= " << e_tmp->GetInstancePath();
+                    //debug( ss.str() );
+                }
+                
+                if ( !e_tmp->do_save() )
+                {
+                    std::stringstream ss;
+                    ss << "Error while restoring persisted object settings, script= " << e_tmp->GetInstancePath();
+                  //  debug( ss.str() );
+                }
+            }break;
+            case EntityType::HAND:
+            {
+                handobj * p = k->h;
+                assert( p != NULL );
+                script_entity * e_tmp = clone_item( k->script_path, dynamic_cast<script_entity*>(p), k->uid );
+                assert( e_tmp != NULL );
+                p->AddEntityToInventory( e_tmp );
+                if ( !e_tmp->do_json_load( k->json ) )
+                {
+                    std::stringstream ss;
+                    ss << "Error while restoring persisted object settings, script= " << e_tmp->GetInstancePath();
+                    //debug( ss.str() );
+                }
+                
+                if ( !e_tmp->do_save() )
+                {
+                    std::stringstream ss;
+                    ss << "Error while restoring persisted object settings, script= " << e_tmp->GetInstancePath();
+                  //  debug( ss.str() );
+                }
+            }break;
             case EntityType::NPC:
             {
-                
+
                     
             } break;
             default:

@@ -1,6 +1,6 @@
 {
     "base_script_path": "workspaces/caliel/entities/simple arrow",
-    "currentStackCount": 10,
+    "currentStackCount": 1,
     "defaultStackSize": 10,
     "inventory": {},
     "isContainer": false,
@@ -9,9 +9,9 @@
     "item_type": 0,
     "look": "",
     "name": "a simple arrow",
-    "pluralName": "some very simple arrows",
-    "script_path": "workspaces/caliel/entities/simple arrow/yPeCl0aRJVi5Gsl",
+    "pluralName": "some really simple arrows",
+    "script_path": "workspaces/caliel/entities/simple arrow/a1O6jSFqOSgCrfd",
     "size": 3,
-    "uid": "yPeCl0aRJVi5Gsl",
+    "uid": "a1O6jSFqOSgCrfd",
     "weight": 1.0
 }

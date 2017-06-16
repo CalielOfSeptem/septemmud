@@ -9,7 +9,7 @@
 #include <iostream>
 #include "loghelper.h"
 
-enum class EntityType { UNKNOWN, ROOM, ITEM, NPC, PLAYER, COMMAND, DAEMON, LIB };
+enum class EntityType { UNKNOWN, ROOM, ITEM, NPC, PLAYER, COMMAND, DAEMON, LIB, HAND };
 enum class EnvironmentChangeEvent { ADDED, REMOVED };
 enum class LogLevel { INFO, DEBUG, ERROR, CRITICAL };
  
@@ -176,17 +176,23 @@ struct script_entity {
             return true;
         }
         
+        virtual bool do_json_load( std::string& j )
+        {
+            return true;
+        }
+        
 private:
         std::string entity_storage_location; // used for persistence
         my_sink m_entityLog;
         std::unordered_map<std::string, sol::object> props;
-        EntityType m_type = EntityType::UNKNOWN;
+        
         script_entity* environment_;
         std::string script_path;
         bool m_destroy = false;
         
   
 protected:
+        EntityType m_type = EntityType::UNKNOWN;
         std::string base_script_path;
         std::string look;
         std::string name;

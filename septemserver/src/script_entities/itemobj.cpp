@@ -79,37 +79,47 @@ bool itemobj::do_load()
         std::ifstream i(this->get_entityStorageLocation() + "/" + this->uid);
         json j;
         i >> j;
-        
-        SetLook(j["look"]);
-        SetName(j["name"]);
-        
-        set_weight(j["weight"]);
-        set_size(j["size"]);
-        set_itemType(j["item_type"]);
-        
-        set_defaultStackSize(j["defaultStackSize"]);
-        set_currentStackCount(j["currentStackCount"]);
-        set_isWearable(j["isWearable"]);
-        set_isStackable(j["isStackable"]);
-        set_isContainer(j["isContainer"]);
-        set_pluralName( j["pluralName"]);
-        
-        const json& inventory = j["inventory"]; //<<<< this bit was hard to figure out
-        for (auto& element : json::iterator_wrapper(inventory)) {
-            if( element.key().size() > 0 && element.value() != NULL )
-            {
-                //std::cout << element.key() << " maps to " << element.value() << std::endl;
-                std::string s1 = element.key();
-                std::string s2 = element.value();
-                entity_manager::Instance().clone_item( s2, dynamic_cast<script_entity*>(this), s1 );
-            }
+        _load_from_json_(j);
 
-        }
 
     }
     catch(std::exception &ex)
     {
         this->debug(ex.what());
+    }
+    return true;
+}
+
+bool itemobj::_load_from_json_(json& j)
+{
+    SetLook(j["look"]);
+    SetName(j["name"]);
+    
+    set_weight(j["weight"]);
+    set_size(j["size"]);
+    set_itemType(j["item_type"]);
+    
+    set_defaultStackSize(j["defaultStackSize"]);
+    set_currentStackCount(j["currentStackCount"]);
+    set_isWearable(j["isWearable"]);
+    set_isStackable(j["isStackable"]);
+    set_isContainer(j["isContainer"]);
+    set_pluralName( j["pluralName"]);
+    
+    const json& inventory = j["inventory"]; //<<<< this bit was hard to figure out
+    for (auto& element : json::iterator_wrapper(inventory)) {
+        if( element.key().size() > 0 && element.value() != NULL )
+        {
+            //std::cout << element.key() << " maps to " << element.value() << std::endl;
+            std::string s1 = element.key();
+            std::string s2 = element.value();
+            if( entity_manager::Instance().clone_item( s2, dynamic_cast<script_entity*>(this), s1 ) == NULL )
+            {
+                std::string err = "Error while attempting to clone item.";
+                this->debug( err );
+            }
+        }
+
     }
     return true;
 }
@@ -135,6 +145,14 @@ bool itemobj::do_save()
     }
 
     return true;
+}
+
+bool itemobj::do_json_load(std::string& j)
+{
+    if( j.empty() )
+        return false;
+    json js = json::parse(j);
+    return _load_from_json_(js);
 }
 
 bool itemobj::AddEntityToInventory(script_entity* se)

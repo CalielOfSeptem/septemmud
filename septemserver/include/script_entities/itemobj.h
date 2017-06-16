@@ -8,6 +8,11 @@
 #include "string_utils.h"
 #include <boost/algorithm/string.hpp>
 
+
+#include "json.hpp"
+
+using json = nlohmann::json;
+
 // These match the lua defines, do not change without also updating defines..
 enum class ItemSize { FINE=0, DIMINUTIVE, TINY, SMALL, MEDIUM, LARGE, ENORMOUS, GARGANTUAN, COLOSSAL };
 enum class ItemType { DEFAULT=0, ARMOR, PLANT, INSTRUMENT, TOOL, MELEE, RANGED, THROWN, SKIN, AMMO, WEARABLE };
@@ -323,6 +328,10 @@ struct itemobj : public script_entity, public container_base
     virtual bool do_save() override;
     
     virtual bool do_load() override;
+    
+    virtual bool do_json_load( std::string& j) override;
+    
+    bool _load_from_json_(json& j);
     
     virtual bool remove_settings_file();
     
