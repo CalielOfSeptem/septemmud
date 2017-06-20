@@ -362,7 +362,7 @@ bool entity_manager::reload_all_item_instances(std::string& relative_script_path
                     p->parent_env_path = t->GetEnvironment()->GetScriptPath();
                     p->parent_type = t->GetEnvironment()->GetType();
                     p->parent_env_uid = t->GetEnvironment()->get_uid();
-                    p->parent_name = t->GetName();
+                    p->parent_name = t->GetEnvironment()->GetName();
 
                     if( itemobj * ie = dynamic_cast<itemobj*>(t->GetEnvironment()) )
                     {
@@ -419,6 +419,28 @@ bool entity_manager::reload_all_item_instances(std::string& relative_script_path
         //this->clone_item( k.second.script_path, )
         switch( k->parent_type )
         {
+            case EntityType::ITEM:
+            {
+                itemobj * io = this->GetItemByScriptPath( k->parent_env_path );
+                assert( io != NULL );
+                script_entity * e_tmp = clone_item( k->script_path, dynamic_cast<script_entity*>(io), k->uid );
+                assert( e_tmp != NULL );
+                io->AddEntityToInventory( e_tmp );
+                if ( !e_tmp->do_json_load( k->json ) )
+                {
+                    std::stringstream ss;
+                    ss << "Error while restoring persisted object settings, script= " << e_tmp->GetInstancePath();
+                    //debug( ss.str() );
+                }
+                
+                if ( !e_tmp->do_save() )
+                {
+                    std::stringstream ss;
+                    ss << "Error while restoring persisted object settings, script= " << e_tmp->GetInstancePath();
+                  //  debug( ss.str() );
+                }
+                
+            } break;
             case EntityType::ROOM:
             {
                 roomobj * r = this->GetRoomByScriptPath( k->parent_env_path );

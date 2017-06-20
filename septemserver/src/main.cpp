@@ -13,9 +13,51 @@
 #include "config.h"
 #include "game_manager.h"
 #include "script_entities/playerobj.h"
+#include "septem.hpp"
+
+#include "server/connectionsm.hpp"
+#include "server/httpserv.h"
+#include <boost/asio.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/bind.hpp>
 
 namespace ba = boost::asio;
 namespace po = boost::program_options;
+
+boost::mutex global_stream_lock;
+
+static void run_io_service(boost::asio::io_service &io_service)
+{
+    io_service.run();
+}
+
+void TimerHandler(
+	const boost::system::error_code & error, 
+	boost::shared_ptr< boost::asio::deadline_timer > timer, 
+	boost::shared_ptr< boost::asio::io_service::strand > strand
+)
+{
+	if( error )
+	{
+		global_stream_lock.lock();
+		std::cout << "[" << boost::this_thread::get_id()
+			<< "] Error: " << error << std::endl;
+		global_stream_lock.unlock();
+	}
+	else
+	{
+       // entity_manager::Instance().invoke_heartbeat();
+		//std::cout << "[" << boost::this_thread::get_id()
+		//	<< "] TimerHandler " << std::endl;
+
+		timer->expires_from_now( boost::posix_time::seconds( 1 ) );
+		timer->async_wait( 
+			strand->wrap( boost::bind( &TimerHandler, _1, timer, strand ) )
+		);
+	}
+}
 
 
 int main(int argc, char **argv)
@@ -200,6 +242,36 @@ int main(int argc, char **argv)
         
     game_manager gm;
     gm.start();
+    
+    boost::asio::io_service io_service;
+    boost::shared_ptr< boost::asio::io_service::strand > strand(
+		new boost::asio::io_service::strand( io_service )
+	);
+    
+    septem application(
+        io_service
+      , std::make_shared<boost::asio::io_service::work>(std::ref(io_service))
+      , port);
+       
+       
+  //  auto s = std::make_shared<boost::asio::io_service::work>(std::ref(io_service));
+ 		
+    std::vector<std::thread> threadpool;
+
+    for (unsigned int thr = 0; thr < concurrency; ++thr)
+    {
+        threadpool.emplace_back(&run_io_service, std::ref(io_service));
+    }
+    
+    boost::shared_ptr< boost::asio::deadline_timer > timer(
+		new boost::asio::deadline_timer( io_service )
+	);
+	timer->expires_from_now( boost::posix_time::seconds( 1 ) );
+	timer->async_wait( 
+		strand->wrap( boost::bind( &TimerHandler, _1, timer, strand ) )
+	);
+    
+    std::thread http_thread =  std::thread(start_serv, 8090);
 
     while( true )
     {
@@ -242,6 +314,21 @@ int main(int argc, char **argv)
         }
         
     }
+    
+
+
+    
+    
+    
+    
+    
+    for (auto &pthread : threadpool)
+    {
+        pthread.join();
+    }
+    http_thread.join();
+    
+    io_service.stop();
 
     
 	return 0;

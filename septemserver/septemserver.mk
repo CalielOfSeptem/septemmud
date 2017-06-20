@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=ken
-Date                   :=15/06/17
+Date                   :=19/06/17
 CodeLitePath           :=/home/ken/.codelite
 LinkerName             :=/usr/bin/g++
 SharedObjectLinkerName :=/usr/bin/g++ -shared -fPIC
@@ -36,12 +36,12 @@ ObjectsFileList        :="septemserver.txt"
 PCHCompileFlags        :=
 MakeDirCommand         :=mkdir -p
 LinkOptions            :=  -lz -ldl -Wl,-export-dynamic
-IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch). $(IncludeSwitch)include/ $(IncludeSwitch)../sol2 $(IncludeSwitch)../plog/include $(IncludeSwitch)/home/ken/git-repos/lua-5.3.4/src $(IncludeSwitch)../../json/src 
+IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch). $(IncludeSwitch)include/ $(IncludeSwitch)../sol2 $(IncludeSwitch)../plog/include $(IncludeSwitch)/home/ken/git-repos/lua-5.3.4/src $(IncludeSwitch)../../json/src $(IncludeSwitch)../telnetpp/include $(IncludeSwitch)../terminalpp/include 
 IncludePCH             := 
 RcIncludePath          := 
-Libs                   := $(LibrarySwitch)boost_system $(LibrarySwitch)boost_program_options $(LibrarySwitch)boost_filesystem $(LibrarySwitch)lua $(LibrarySwitch)pthread $(LibrarySwitch)boost_date_time 
-ArLibs                 :=  "boost_system" "boost_program_options" "boost_filesystem" "lua" "pthread" "boost_date_time" 
-LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)/home/ken/git-repos/lua-5.3.4/src 
+Libs                   := $(LibrarySwitch)boost_system $(LibrarySwitch)boost_program_options $(LibrarySwitch)boost_filesystem $(LibrarySwitch)lua $(LibrarySwitch)pthread $(LibrarySwitch)boost_date_time $(LibrarySwitch)telnetpp $(LibrarySwitch)terminalpp 
+ArLibs                 :=  "boost_system" "boost_program_options" "boost_filesystem" "lua" "pthread" "boost_date_time" "telnetpp" "terminalpp" 
+LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)/home/ken/git-repos/lua-5.3.4/src $(LibraryPathSwitch)../telnetpp/Debug $(LibraryPathSwitch)../terminalpp/Debug 
 
 ##
 ## Common variables
@@ -60,8 +60,9 @@ AS       := /usr/bin/as
 ## User defined environment variables
 ##
 CodeLiteDir:=/usr/share/codelite
-Objects0=$(IntermediateDirectory)/src_game_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_entity_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_main.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_heartbeat_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_luatypes.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_script_entity.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_commandobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_roomobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_daemonobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_livingentity.cpp$(ObjectSuffix) \
-	$(IntermediateDirectory)/src_script_entities_itemobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_container_base.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_playerobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_fs_fs_manager.cpp$(ObjectSuffix) 
+Objects0=$(IntermediateDirectory)/src_game_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_entity_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_main.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_heartbeat_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_luatypes.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_septem.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_script_entity.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_commandobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_roomobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_daemonobj.cpp$(ObjectSuffix) \
+	$(IntermediateDirectory)/src_script_entities_livingentity.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_itemobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_container_base.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_playerobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_fs_fs_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_net_socket.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_net_server.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_server_context_impl.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_server_connection.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_server_client.cpp$(ObjectSuffix) \
+	$(IntermediateDirectory)/src_server_httpserv.cpp$(ObjectSuffix) 
 
 
 
@@ -137,6 +138,14 @@ $(IntermediateDirectory)/src_luatypes.cpp$(DependSuffix): src/luatypes.cpp
 $(IntermediateDirectory)/src_luatypes.cpp$(PreprocessSuffix): src/luatypes.cpp
 	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_luatypes.cpp$(PreprocessSuffix) src/luatypes.cpp
 
+$(IntermediateDirectory)/src_septem.cpp$(ObjectSuffix): src/septem.cpp $(IntermediateDirectory)/src_septem.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/septem.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_septem.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/src_septem.cpp$(DependSuffix): src/septem.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/src_septem.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/src_septem.cpp$(DependSuffix) -MM src/septem.cpp
+
+$(IntermediateDirectory)/src_septem.cpp$(PreprocessSuffix): src/septem.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_septem.cpp$(PreprocessSuffix) src/septem.cpp
+
 $(IntermediateDirectory)/src_script_entities_script_entity.cpp$(ObjectSuffix): src/script_entities/script_entity.cpp $(IntermediateDirectory)/src_script_entities_script_entity.cpp$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/script_entities/script_entity.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_script_entities_script_entity.cpp$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/src_script_entities_script_entity.cpp$(DependSuffix): src/script_entities/script_entity.cpp
@@ -208,6 +217,54 @@ $(IntermediateDirectory)/src_fs_fs_manager.cpp$(DependSuffix): src/fs/fs_manager
 
 $(IntermediateDirectory)/src_fs_fs_manager.cpp$(PreprocessSuffix): src/fs/fs_manager.cpp
 	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_fs_fs_manager.cpp$(PreprocessSuffix) src/fs/fs_manager.cpp
+
+$(IntermediateDirectory)/src_net_socket.cpp$(ObjectSuffix): src/net/socket.cpp $(IntermediateDirectory)/src_net_socket.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/net/socket.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_net_socket.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/src_net_socket.cpp$(DependSuffix): src/net/socket.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/src_net_socket.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/src_net_socket.cpp$(DependSuffix) -MM src/net/socket.cpp
+
+$(IntermediateDirectory)/src_net_socket.cpp$(PreprocessSuffix): src/net/socket.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_net_socket.cpp$(PreprocessSuffix) src/net/socket.cpp
+
+$(IntermediateDirectory)/src_net_server.cpp$(ObjectSuffix): src/net/server.cpp $(IntermediateDirectory)/src_net_server.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/net/server.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_net_server.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/src_net_server.cpp$(DependSuffix): src/net/server.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/src_net_server.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/src_net_server.cpp$(DependSuffix) -MM src/net/server.cpp
+
+$(IntermediateDirectory)/src_net_server.cpp$(PreprocessSuffix): src/net/server.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_net_server.cpp$(PreprocessSuffix) src/net/server.cpp
+
+$(IntermediateDirectory)/src_server_context_impl.cpp$(ObjectSuffix): src/server/context_impl.cpp $(IntermediateDirectory)/src_server_context_impl.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/server/context_impl.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_server_context_impl.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/src_server_context_impl.cpp$(DependSuffix): src/server/context_impl.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/src_server_context_impl.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/src_server_context_impl.cpp$(DependSuffix) -MM src/server/context_impl.cpp
+
+$(IntermediateDirectory)/src_server_context_impl.cpp$(PreprocessSuffix): src/server/context_impl.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_server_context_impl.cpp$(PreprocessSuffix) src/server/context_impl.cpp
+
+$(IntermediateDirectory)/src_server_connection.cpp$(ObjectSuffix): src/server/connection.cpp $(IntermediateDirectory)/src_server_connection.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/server/connection.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_server_connection.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/src_server_connection.cpp$(DependSuffix): src/server/connection.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/src_server_connection.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/src_server_connection.cpp$(DependSuffix) -MM src/server/connection.cpp
+
+$(IntermediateDirectory)/src_server_connection.cpp$(PreprocessSuffix): src/server/connection.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_server_connection.cpp$(PreprocessSuffix) src/server/connection.cpp
+
+$(IntermediateDirectory)/src_server_client.cpp$(ObjectSuffix): src/server/client.cpp $(IntermediateDirectory)/src_server_client.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/server/client.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_server_client.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/src_server_client.cpp$(DependSuffix): src/server/client.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/src_server_client.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/src_server_client.cpp$(DependSuffix) -MM src/server/client.cpp
+
+$(IntermediateDirectory)/src_server_client.cpp$(PreprocessSuffix): src/server/client.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_server_client.cpp$(PreprocessSuffix) src/server/client.cpp
+
+$(IntermediateDirectory)/src_server_httpserv.cpp$(ObjectSuffix): src/server/httpserv.cpp $(IntermediateDirectory)/src_server_httpserv.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/server/httpserv.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_server_httpserv.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/src_server_httpserv.cpp$(DependSuffix): src/server/httpserv.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/src_server_httpserv.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/src_server_httpserv.cpp$(DependSuffix) -MM src/server/httpserv.cpp
+
+$(IntermediateDirectory)/src_server_httpserv.cpp$(PreprocessSuffix): src/server/httpserv.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_server_httpserv.cpp$(PreprocessSuffix) src/server/httpserv.cpp
 
 
 -include $(IntermediateDirectory)/*$(DependSuffix)

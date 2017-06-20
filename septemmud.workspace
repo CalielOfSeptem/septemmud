@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CodeLite_Workspace Name="septemmud" Database="" Version="10.0.0">
   <Project Name="septemserver" Path="septemserver/septemserver.project" Active="Yes"/>
+  <Project Name="telnetpp" Path="telnetpp/telnetpp.project"/>
+  <Project Name="terminalpp" Path="terminalpp/terminalpp.project"/>
   <BuildMatrix>
     <WorkspaceConfiguration Name="Debug" Selected="yes">
       <Environment/>
       <Project Name="septemserver" ConfigName="Debug"/>
+      <Project Name="telnetpp" ConfigName="Debug"/>
+      <Project Name="terminalpp" ConfigName="Debug"/>
     </WorkspaceConfiguration>
     <WorkspaceConfiguration Name="Release" Selected="yes">
       <Environment/>
       <Project Name="septemserver" ConfigName="Release"/>
+      <Project Name="telnetpp" ConfigName="Release"/>
+      <Project Name="terminalpp" ConfigName="Release"/>
     </WorkspaceConfiguration>
   </BuildMatrix>
 </CodeLite_Workspace>

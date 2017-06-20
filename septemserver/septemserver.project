@@ -24,6 +24,17 @@
       <File Name="src/fs/fs_manager.cpp"/>
     </VirtualDirectory>
     <File Name="src/luatypes.cpp"/>
+    <VirtualDirectory Name="net">
+      <File Name="src/net/socket.cpp"/>
+      <File Name="src/net/server.cpp"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="server">
+      <File Name="src/server/context_impl.cpp"/>
+      <File Name="src/server/connection.cpp"/>
+      <File Name="src/server/client.cpp"/>
+      <File Name="src/server/httpserv.cpp"/>
+    </VirtualDirectory>
+    <File Name="src/septem.cpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="include">
     <VirtualDirectory Name="script_entities">
@@ -48,6 +59,24 @@
       <File Name="include/fs/fs_manager.h"/>
     </VirtualDirectory>
     <File Name="include/luatypes.h"/>
+    <VirtualDirectory Name="io">
+      <File Name="include/io/input_datastream.hpp"/>
+      <File Name="include/io/output_datastream.hpp"/>
+      <File Name="include/io/datastream.hpp"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="net">
+      <File Name="include/net/socket.hpp"/>
+      <File Name="include/net/server.hpp"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="server">
+      <File Name="include/server/connectionsm.hpp"/>
+      <File Name="include/server/context_impl.hpp"/>
+      <File Name="include/server/httpserv.h"/>
+      <File Name="include/server/client.hpp"/>
+      <File Name="include/server/connection.hpp"/>
+    </VirtualDirectory>
+    <File Name="include/world_context.hpp"/>
+    <File Name="include/septem.hpp"/>
   </VirtualDirectory>
   <Description/>
   <Dependencies/>
@@ -69,15 +98,21 @@
         <IncludePath Value="../plog/include"/>
         <IncludePath Value="/home/ken/git-repos/lua-5.3.4/src"/>
         <IncludePath Value="../../json/src"/>
+        <IncludePath Value="../telnetpp/include"/>
+        <IncludePath Value="../terminalpp/include"/>
       </Compiler>
       <Linker Options="-lz;-ldl;-Wl,-export-dynamic" Required="yes">
         <LibraryPath Value="/home/ken/git-repos/lua-5.3.4/src"/>
+        <LibraryPath Value="../telnetpp/Debug"/>
+        <LibraryPath Value="../terminalpp/Debug"/>
         <Library Value="boost_system"/>
         <Library Value="boost_program_options"/>
         <Library Value="boost_filesystem"/>
         <Library Value="lua"/>
         <Library Value="pthread"/>
         <Library Value="boost_date_time"/>
+        <Library Value="telnetpp"/>
+        <Library Value="terminalpp"/>
       </Linker>
       <ResourceCompiler Options="" Required="no"/>
       <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./Debug" Command="./$(ProjectName)" CommandArguments="-p 6666" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
