@@ -24,14 +24,20 @@ struct _sol_userdata_
 
 struct script_entity {
     
-        script_entity(EntityType myType, std::string name) : m_type(myType), environment_(NULL), name(name)
+        script_entity(EntityType myType, std::string name) : 
+            m_type(myType)
+            , environment_(NULL)
+            , name(name)
         {
-            
+
         }
         
         script_entity(sol::this_state ts, sol::this_environment te, EntityType myType, std::string name);
         
-        script_entity()
+        script_entity() :
+            m_type(EntityType::UNKNOWN)
+            , environment_(NULL)
+            , name("")
         {
             
         }
@@ -192,7 +198,7 @@ private:
         
   
 protected:
-        EntityType m_type = EntityType::UNKNOWN;
+        EntityType m_type;// = EntityType::UNKNOWN;
         std::string base_script_path;
         std::string look;
         std::string name;

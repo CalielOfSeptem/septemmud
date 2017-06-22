@@ -9,7 +9,7 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/algorithm/string.hpp>
-
+#include "welcome_screen.hpp"
 #include <algorithm>
 #include <cstdio>
 #include <deque>
@@ -64,6 +64,7 @@ class client::impl : public std::enable_shared_from_this<client::impl>
                 dispatch_queue_.push_back(bind(&impl::on_data, this, data));
                 strand_.post(bind(&impl::dispatch_queue, shared_from_this()));
             });
+        display_welcome();
         //send("What is your name?\r\n");
     }
     // TODO:  Add reasonable limit to the size of a command being received to avoid overrun attack
@@ -77,7 +78,7 @@ class client::impl : public std::enable_shared_from_this<client::impl>
             str.erase ( pos, 1 );
         }
                     //data.erase(std::remove(data.begin(), data.end(), '\n'), data.end());
-        send(str);
+        //send(str);
         
         for( unsigned int x = 0; x < data.length(); x++ )
         {
@@ -113,6 +114,14 @@ class client::impl : public std::enable_shared_from_this<client::impl>
     void prompt()
     {
         send("\r\n> ");
+    }
+    
+    void display_welcome()
+    {
+        send(logo_data);
+        send("\r\nPlease enter your account name:");
+        send("\r\nTo request an account visit http://www.septemmud.com.");
+        prompt();
     }
     /*
     // ======================================================================
@@ -301,7 +310,7 @@ void client::on_connection_death(std::function<void ()> const &callback)
 // ======================================================================
 void client::data(std::string const &data)
 {
-
+    std::cout << data << std::endl;
 }
 void client::send(char const* text)
 {

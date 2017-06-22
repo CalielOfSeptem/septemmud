@@ -77,6 +77,7 @@
     </VirtualDirectory>
     <File Name="include/world_context.hpp"/>
     <File Name="include/septem.hpp"/>
+    <File Name="include/welcome_screen.hpp"/>
   </VirtualDirectory>
   <Description/>
   <Dependencies/>

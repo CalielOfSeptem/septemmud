@@ -28,7 +28,7 @@ using json = nlohmann::json;
 #include "crypto.hpp"
 #endif
 
-#include <plog/Log.h>
+//#include <plog/Log.h>
 
 using namespace std;
 //Added for the json-example:
