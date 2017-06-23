@@ -59,7 +59,9 @@ public :
     
     void send(char const * text);
     
- 
+    //void on_output(std::string& s);
+    
+    void associate_player();
 
 private :
     class impl;

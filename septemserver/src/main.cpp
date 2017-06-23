@@ -290,7 +290,7 @@ int main(int argc, char **argv)
         }
         else if ( blah == "test void" )
         {
-            if( gm.get_void_room() != NULL )
+            if( entity_manager::Instance().get_void_room() != NULL )
             {
                 std::cout << "VOID TEST: OK." << std::endl;
             }
@@ -302,7 +302,7 @@ int main(int argc, char **argv)
         }
         else if( blah == "login" )
         {
-            entity_manager::Instance().load_player("caliel");
+           // entity_manager::Instance().load_player("caliel");
         }
         else if( blah == "hb" )
         {
@@ -310,7 +310,15 @@ int main(int argc, char **argv)
         }
         else
         {
-            gm.process_player_cmd(NULL, blah);
+            playerobj * p = entity_manager::Instance().get_player("caliel");
+            if( p == NULL )
+            {
+                entity_manager::Instance().load_player("caliel");
+                p = entity_manager::Instance().get_player("caliel");
+            }
+            assert( p != NULL );
+            gm.process_player_cmd(p, blah);
+            
         }
         
     }

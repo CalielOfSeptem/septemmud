@@ -186,8 +186,9 @@ function c:ExecuteCommand ( o, cmd )
 			s = FormatRoom(env, o)
 			--p:SendToEntity('[' .. env:GetTitle() .. ']')
 			--p:SendToEntity('\r\n')
+			--print('in here..')
 			o:SendToEntity(s .. '\r\n')
-			
+			--print('in here')
 		end	
 	end
 	return true

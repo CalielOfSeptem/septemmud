@@ -36,12 +36,12 @@ struct game_manager
     
     bool move_entity_into_room( script_entity* en, std::string room_path );
     
-    roomobj* get_void_room();
+   // roomobj* get_void_room();
 
     
-    bool process_player_cmd(script_entity* p, std::string& cmd);
-
-
+    bool process_player_cmd(playerobj* p, std::string& cmd);
+    
+   
     
 private:
     gameState m_state;

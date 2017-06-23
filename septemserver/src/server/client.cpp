@@ -22,6 +22,8 @@
 #include "string_utils.h"
 #include <iomanip>
 #include "server/connectionsm.hpp"
+#include "script_entities/playerobj.h"
+#include "entity_manager.h"
 
 namespace fs = boost::filesystem;
 
@@ -122,6 +124,33 @@ class client::impl : public std::enable_shared_from_this<client::impl>
         send("\r\nPlease enter your account name:");
         send("\r\nTo request an account visit http://www.septemmud.com.");
         prompt();
+        associate_player();
+    }
+    
+    void on_output(const std::string& s)
+    {
+        //playerobj * p = entity_manager::Instance().get_player("caliel");
+        //if( m_player != NULL )
+       // {
+            
+       // }
+       send(s);
+    }
+    
+    void associate_player()
+    {
+        
+        playerobj * p = entity_manager::Instance().get_player("caliel");
+        if( p == NULL )
+        {
+            entity_manager::Instance().load_player("caliel");
+            p = entity_manager::Instance().get_player("caliel");
+           // p->onOutput = std::bind(&client::on_output, this, _1)
+        }
+        assert( p != NULL );
+        //auto a = std::bind(&client::impl::on_output, this, _1);
+        p->onOutput = [this](std::string const& msg)->void { this->on_output(msg); };
+        m_player = p;
     }
     /*
     // ======================================================================
@@ -169,7 +198,7 @@ class client::impl : public std::enable_shared_from_this<client::impl>
     
 
 private :
-    
+    playerobj * m_player;
         // ======================================================================
     // REMOVE_DUPLICATE_ACCOUNTS
     // ======================================================================
@@ -218,6 +247,7 @@ private :
         puts(input.c_str());
         std::string cmd = input;//to_lower_copy(input);
         trim(cmd);
+        entity_manager::Instance().do_command(this->m_player, cmd);
     }
     
     

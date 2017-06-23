@@ -96,10 +96,13 @@ struct _internal_lua_
     sol::environment GetCurrentLoadingEnv() { return m_state_internal->_current_loading_env; }
     
     /**
-     * @brief Loads a player into the game world
+     * @brief Compils a player into the game world
      */
-    bool load_player(std::string playerName);
+    bool compile_player(std::string playerName, std::string& reason);
     
+    bool load_player(std::string playername);
+    
+    roomobj* get_void_room();
     
     
     /**

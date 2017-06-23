@@ -173,30 +173,11 @@ void game_manager::init()
     SetState(gameState::RUNNING);
 }
 
-roomobj* game_manager::get_void_room()
-{
-    auto log = spd::get("main");
-    std::stringstream ss;
-    
-    std::string void_script_path = global_settings::Instance().GetSetting(DEFAULT_VOID_ROOM);
-    unsigned int id = 0;
-    roomobj * r = entity_manager::Instance().GetRoomByScriptPath(void_script_path, id);
-    if( r != NULL )
-    {
-        return r;
-    }
-    else
-    {
-        std::string err = "Error attempting to retrieve void path.";
-        ss << err;
-        log->info(ss.str());
-        on_error(err);
-    }
-    return NULL;
-}
 
 
-bool game_manager::process_player_cmd(script_entity* p, std::string& cmd)
+
+
+bool game_manager::process_player_cmd(playerobj* p, std::string& cmd)
 {
     
     if( m_state != gameState::RUNNING )
@@ -213,54 +194,35 @@ bool game_manager::process_player_cmd(script_entity* p, std::string& cmd)
     
     playerobj * pcaliel = entity_manager::Instance().get_player("caliel");
     playerobj * precluse = entity_manager::Instance().get_player("recluse");
-    std::string wm_path = "workspaces/caliel/workroom";
-    roomobj * roomt = entity_manager::Instance().GetRoomByScriptPath(wm_path, 0);
+   // std::string wm_path = "workspaces/caliel/workroom";
+    roomobj * roomt = NULL;//entity_manager::Instance().GetRoomByScriptPath(wm_path, 0);
     
-    
-    
+    /*
     if( pcaliel == NULL )
     {
         entity_manager::Instance().load_player("caliel");
         pcaliel = entity_manager::Instance().get_player("caliel");
-        assert( pcaliel != NULL );
-        pcaliel->set_gender(EntityGender::MALE);
-        if( !entity_manager::Instance().move_entity(pcaliel, roomt) )
-        {
-            auto log = spd::get("main");
-            //LOG_ERROR << "Unable to move Caliel..";
-            log->debug("Unable to move Caliel..");
-            return false;
-        }
-        pcaliel->cwd = "workspaces/caliel";
-        pcaliel->workspacePath = "workspaces/caliel";
     }
+    */
+
     if( precluse == NULL )
     {
         entity_manager::Instance().load_player("recluse");
-        precluse = entity_manager::Instance().get_player("recluse");
-        assert( precluse != NULL );
-        precluse->set_gender(EntityGender::FEMALE);
-        if( !entity_manager::Instance().move_entity(precluse, roomt) )
-        {
-            auto log = spd::get("main");
-            log->debug("Unable to move Recluse..");
-            return false;
-        }
-        
+        pcaliel = entity_manager::Instance().get_player("recluse");
     }
     
     //roomobj * roomt = get_void_room();
-    if( pcaliel->GetEnvironment() != NULL )
-        roomt = pcaliel->GetRoom();
+   // if( pcaliel->GetEnvironment() != NULL )
+    //    roomt = pcaliel->GetRoom();
 
     
     
-    assert( roomt != NULL );
+   // assert( roomt != NULL );
 
         
     // move caliel into the room...
     //roomt->AddEntityToInventory(pcaliel);
-    if( entity_manager::Instance().do_command(pcaliel, cmd) )
+    if( entity_manager::Instance().do_command(p, cmd) )
     {
         entity_manager::Instance().garbage_collect();
     }

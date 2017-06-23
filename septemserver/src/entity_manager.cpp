@@ -621,11 +621,95 @@ bool entity_manager::compile_script_file(std::string& file_path, std::string& re
     return compile_entity(script_, etype, script_text, reason);
 }
 
-bool entity_manager::load_player(std::string playerName)
+roomobj* entity_manager::get_void_room()
+{
+    auto log = spd::get("main");
+    std::stringstream ss;
+    
+    std::string void_script_path = global_settings::Instance().GetSetting(DEFAULT_VOID_ROOM);
+    unsigned int id = 0;
+    roomobj * r = GetRoomByScriptPath(void_script_path, id);
+    if( r != NULL )
+    {
+        return r;
+    }
+    else
+    {
+        std::string err = "Error attempting to retrieve void path.";
+        ss << err;
+        log->info(ss.str());
+        //on_error(err);
+    }
+    return NULL;
+}
+
+
+bool entity_manager::load_player(std::string playername)
+{
+    std::string lpname = boost::to_lower_copy(playername);
+    
+    playerobj * pplayer = get_player(lpname);
+    
+    if( pplayer == NULL )
+    {
+        std::string reason;
+        if( !compile_player(lpname, reason) )
+        {
+            auto log = spd::get("main");
+            std::stringstream ss;
+            ss << "Error loading player: " << playername << ", reason=" << reason << std::endl;
+            log->debug( ss.str() );
+            return false;
+        }
+    }
+    
+    pplayer = get_player(lpname);
+    
+    assert( pplayer != NULL );
+    
+    if( pplayer->cwd.empty() )
+    {
+        pplayer->cwd = "workspaces/" + lpname;
+    }
+    if( pplayer->workspacePath.empty() )
+    {
+        pplayer->workspacePath = "workspaces/" + lpname;
+    }
+    
+    if( pplayer->roomPath.empty() )
+    {
+        // TODO: Put them into the default room.. or some place else.
+        roomobj * r = this->get_void_room();
+        assert(r != NULL);
+        if( !move_entity(pplayer, r) )
+        {
+            auto log = spd::get("main");
+            std::stringstream ss;
+            ss << "Unable to move " << playername << std::endl;
+            return false;
+        }
+    }
+    else
+    {
+        roomobj * r = GetRoomByScriptPath(pplayer->roomPath, pplayer->roomID);
+        assert(r != NULL);
+        if( !move_entity(pplayer, r) )
+        {
+            auto log = spd::get("main");
+            std::stringstream ss;
+            ss << "Unable to move " << playername << std::endl;
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool entity_manager::compile_player(std::string playerName, std::string& reason)
 {
     // std::string player_script_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
     std::string player_script_path = global_settings::Instance().GetSetting(BASE_PLAYER_ENTITY_PATH);
-    std::string reason;
+    //std::string reason;
 
     std::stringstream ss;
     ss << "entities/player_" << boost::to_lower_copy(playerName);
@@ -1804,8 +1888,10 @@ bool entity_manager::do_command(living_entity* e, const std::string cmd)
                 sol::error err = result;
                 auto log = spd::get("main");
                 std::stringstream ss;
-                ss << err.what();
+                ss << "Error calling process_command, entity = " << e->GetName() << ", error = " << err.what();
                 log->debug( ss.str() );
+                e->debug(ss.str());
+                
             }
             return true;
         } else {

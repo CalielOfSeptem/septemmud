@@ -53,6 +53,28 @@ bool playerobj::do_save()
         }
  
         j["inventory"] = item_objs;
+        
+        j["cwd"] = this->cwd;
+        
+        if( this->get_gender() == EntityGender::MALE )
+        {
+            j["gender"] = "male";
+        }
+        else if( this->get_gender() == EntityGender::FEMALE )
+        {
+            j["gender"] = "female";
+        }
+        else if( this->get_gender() == EntityGender::UNKNOWN )
+        {
+            j["gender"] = "unknown";
+        }
+        
+        
+        if( this->GetEnvironment() )
+        {
+            j["roomPath"] = this->GetEnvironment()->GetScriptPath();
+            j["roomID"] = this->GetEnvironment()->instanceID;
+        }
 
        // std::ofstream o(this->get_entityStorageLocation() + "/" + this->get_uid() );
        // o << std::setw(4) << j << std::endl;
@@ -115,6 +137,25 @@ bool playerobj::do_load()
                 entity_manager::Instance().clone_item( s2, dynamic_cast<script_entity*>(this), s1 );
             }
 
+        }
+        
+        if( j["gender"] == "male" )
+        {
+            this->set_gender(EntityGender::MALE);
+        }
+        else if( j["gender"] == "female" )
+        {
+            this->set_gender(EntityGender::FEMALE);
+        }
+        else if( j["gender"] == "unknown" )
+        {
+            this->set_gender(EntityGender::UNKNOWN);
+        }
+        
+        if( this->GetEnvironment() )
+        {
+            this->roomPath = j["roomPath"];
+            this->roomID = j["roomID"];
         }
     }
     catch(std::exception &ex)

@@ -18,6 +18,8 @@ struct playerobj : living_entity
      {
         if( GetName() == "caliel" )
             std::cout << msg << std::endl;
+        if( this->onOutput )
+            this->onOutput(msg);
         living_entity::SendToEntity(msg);
      }
      
@@ -36,12 +38,21 @@ struct playerobj : living_entity
      {
          return name;
      }
+     
+    virtual void on_environment_change(EnvironmentChangeEvent evt, script_entity * env) override
+    {
+        if( evt == EnvironmentChangeEvent::ADDED )
+        {
+            this->do_save();
+        }
+    }
 
      
      
      std::string cwd;
      std::string workspacePath;
-     
+     std::string roomPath;
+     unsigned long roomID;
 
 
 
@@ -49,6 +60,9 @@ struct playerobj : living_entity
     
     virtual bool do_save() override;
     virtual bool do_load() override;
+    
+    std::function<void(const std::string&)> onOutput;
+    //Output onOutput;
     
 };
  

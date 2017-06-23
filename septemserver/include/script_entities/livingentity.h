@@ -227,6 +227,11 @@ struct living_entity : public script_entity, public container_base
     {
         m_gender = g;
     }
+    
+    virtual void on_environment_change(EnvironmentChangeEvent evt, script_entity * env) override
+    {
+        
+    }
   //  bool AddInventorySlot( std::string slotName, unsigned int maxItems=1, ItemSize maxItemSize = ItemSize::COLOSSAL );
     /*
     std::vector<inventory_slot*> GetInventorySlots()
