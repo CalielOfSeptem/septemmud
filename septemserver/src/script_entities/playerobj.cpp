@@ -29,7 +29,7 @@ bool playerobj::do_save()
         {
             j["rightHand"] = std::map<std::string, std::string> {{ 
                     m_RightHand.GetItem()->get_uid(),
-                    m_RightHand.GetItem()->GetBaseScriptPath()
+                    m_RightHand.GetItem()->GetPhysicalScriptPath()
                     }};
         }
         else
@@ -38,7 +38,7 @@ bool playerobj::do_save()
         if( m_LeftHand.GetItem() )
            j["leftHand"] = std::map<std::string, std::string> {{ 
                     m_LeftHand.GetItem()->get_uid(),
-                    m_LeftHand.GetItem()->GetBaseScriptPath(), 
+                    m_LeftHand.GetItem()->GetPhysicalScriptPath(), 
                     }};
         else
             j["leftHand"] = NULL;
@@ -49,7 +49,7 @@ bool playerobj::do_save()
         for( auto i : items )
         {
             itemobj * obj = dynamic_cast< itemobj * > (i);
-            item_objs[obj->get_uid()] = i->GetBaseScriptPath();
+            item_objs[obj->get_uid()] = i->GetPhysicalScriptPath();
         }
  
         j["inventory"] = item_objs;
@@ -72,7 +72,7 @@ bool playerobj::do_save()
         
         if( this->GetEnvironment() )
         {
-            j["roomPath"] = this->GetEnvironment()->GetScriptPath();
+            j["roomPath"] = this->GetEnvironment()->GetPhysicalScriptPath();
             j["roomID"] = this->GetEnvironment()->instanceID;
         }
 

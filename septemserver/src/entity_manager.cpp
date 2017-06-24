@@ -347,19 +347,19 @@ bool entity_manager::reload_all_item_instances(std::string& relative_script_path
         for( auto ew : ie.second )
         {
             entity_wrapper * ewp = ew.get();
-            std::string s = ewp->script_ent->GetBaseScriptPath();
+            std::string s = ewp->script_ent->GetPhysicalScriptPath();
             
-            if( ewp->script_ent->GetBaseScriptPath() == relative_script_path )
+            if( ewp->script_ent->GetPhysicalScriptPath() == relative_script_path )
             {
                 itemobj * t = static_cast<itemobj*>(ewp->script_ent);
                 
                 std::shared_ptr<_item_index_> p (new _item_index_);
                 p->uid = t->get_uid();
-                p->script_path = t->GetBaseScriptPath();
+                p->script_path = t->GetPhysicalScriptPath();
                 p->io = t;
                 if( t->GetEnvironment() )
                 {
-                    p->parent_env_path = t->GetEnvironment()->GetScriptPath();
+                    p->parent_env_path = t->GetEnvironment()->GetVirtualScriptPath();
                     p->parent_type = t->GetEnvironment()->GetType();
                     p->parent_env_uid = t->GetEnvironment()->get_uid();
                     p->parent_name = t->GetEnvironment()->GetName();
@@ -386,9 +386,9 @@ bool entity_manager::reload_all_item_instances(std::string& relative_script_path
                 }
                 for( auto i : t->GetItems() )
                 {
-                    std::cout << "Adding item to destroy " << i->GetScriptPath()<< std::endl;
+                    std::cout << "Adding item to destroy " << i->GetVirtualScriptPath()<< std::endl;
                     _item_ i_temp;
-                    i_temp.script_path = i->GetBaseScriptPath();
+                    i_temp.script_path = i->GetPhysicalScriptPath();
                     i_temp.uid = i->get_uid();
                     i_temp.json = i->Serialize();
                     p->inventory.insert( { i->get_uid(),  i_temp } );
@@ -403,7 +403,7 @@ bool entity_manager::reload_all_item_instances(std::string& relative_script_path
     
     for( auto k : items )
     {
-        std::string instance_path = k->io->GetScriptPath();
+        std::string instance_path = k->io->GetVirtualScriptPath();
         destroy_item( instance_path );
         // destroy items in the inventory too..
         for( auto kvp : k->inventory )
@@ -544,7 +544,7 @@ itemobj* entity_manager::clone_item(std::string& relative_script_path, script_en
        
         if( i != NULL )
         {
-            i->SetBaseScriptPath(relative_script_path);
+            //i->SetPhysicalScriptPath(relative_script_path);
             i->set_uid(uid);
             relative_script_path = vpath;
             
@@ -932,7 +932,10 @@ bool entity_manager::load_script_text(std::string& script_path,
             file_tokens.push_back(token);
         }
     }
-    script_text = vector_to_string(file_tokens, '\n');
+    script_text += "\n_INTERNAL_PHYSICAL_SCRIPT_PATH_ = '" + std::regex_replace(script_path, std::regex(global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH)), "") + "'\n";
+    script_text += vector_to_string(file_tokens, '\n');
+    
+    //std::cout << script_text << std::endl;
     if(bFoundType == false) {
         reason = "No inherit directive found in script.";
         return false;
@@ -1172,7 +1175,7 @@ void entity_manager::register_command(commandobj* cmd)
     auto log = spd::get("main");
   
     std::stringstream ss;
-    ss << "Registered command, command = " << verb << ", script=" << cmd->GetScriptPath();
+    ss << "Registered command, command = " << verb << ", script=" << cmd->GetVirtualScriptPath();
     log->debug( ss.str() );
     
 }
@@ -1188,7 +1191,7 @@ void entity_manager::deregister_command(commandobj* cmd)
         auto log = spd::get("main");
   
         std::stringstream ss;
-        ss << "De-Registered command, command = " << verb << ", script=" << cmd->GetScriptPath();
+        ss << "De-Registered command, command = " << verb << ", script=" << cmd->GetVirtualScriptPath();
         log->debug( ss.str() );
         
       

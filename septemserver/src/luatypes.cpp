@@ -20,11 +20,14 @@ void init_lua_state(sol::state& l)
     lua.new_usertype<script_entity>("script_entity", 
             "GetName",  &script_entity::GetName,
             "SetName", &script_entity::SetName,
-            "GetBaseScriptPath", &script_entity::GetBaseScriptPath,
+            "GetPhysicalScriptPath", &script_entity::GetPhysicalScriptPath,
+            "GetVirtualScriptPath", &script_entity::GetVirtualScriptPath,
             "Reset",  &script_entity::clear_props,
             "GetType", &script_entity::GetEntityTypeString,
+            "GetEnvironment", &script_entity::GetEnvironment,
             "GetUID", &script_entity::get_uid, 
             "SetUID", &script_entity::set_uid,
+            "Debug", &script_entity::debug,
             "destroy", sol::property(&script_entity::get_destroy, &script_entity::set_destroy)
             );
 

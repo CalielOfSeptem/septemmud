@@ -12,7 +12,14 @@ struct playerobj : living_entity
     {
         
     }
-     playerobj(sol::this_state ts, sol::this_environment te, std::string name);
+    playerobj(sol::this_state ts, sol::this_environment te, std::string name);
+     
+    virtual void debug(const std::string& msg) override
+    {
+        if( this->isCreator() )
+            SendToEntity(msg);
+    }
+    
      
      void SendToEntity(const std::string& msg)  override
      {

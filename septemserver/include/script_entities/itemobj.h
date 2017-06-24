@@ -323,6 +323,16 @@ struct itemobj : public script_entity, public container_base
         }
     }
     
+    virtual void debug(const std::string& msg) override
+    {
+       // if( this->isCreator() )
+        //    SendToEntity(msg);
+        if( this->GetEnvironment() )
+        {
+            this->GetEnvironment()->debug(msg);
+        }
+    }
+    
     std::string Serialize();
     
     virtual bool do_save() override;

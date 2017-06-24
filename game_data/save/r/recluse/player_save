@@ -1,6 +1,6 @@
 {
     "cwd": "workspaces/recluse",
-    "gender": "female",
+    "gender": "unknown",
     "inventory": {},
     "leftHand": 0,
     "rightHand": 0,

@@ -201,8 +201,8 @@ std::string itemobj::Serialize()
 {
     json j;
     j["uid"] = this->get_uid();
-    j["base_script_path"] = GetBaseScriptPath();
-    j["script_path"] = GetScriptPath();
+    j["physical_script_path"] = GetPhysicalScriptPath();
+    j["virtual_script_path"] = GetVirtualScriptPath();
     j["look"] = GetLook();
     j["name"] = script_entity::GetName();
     
@@ -221,7 +221,7 @@ std::string itemobj::Serialize()
     for( auto i : items )
     {
         itemobj * obj = dynamic_cast< itemobj * > (i);
-        item_objs[obj->get_uid()] = i->GetBaseScriptPath();
+        item_objs[obj->get_uid()] = i->GetPhysicalScriptPath();
     }
 
     j["inventory"] = item_objs;

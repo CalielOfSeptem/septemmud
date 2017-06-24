@@ -13,12 +13,30 @@ function c:ExecuteCommand ( o, cmd )
 			return true;
 		end
 		
+		if( myTable[2]:lower() == 'here' ) then
+			--local path = o:GetEnvironment():GetPhysicalScriptPath()
+			local path = o:GetEnvironment():GetVirtualScriptPath()
+			if( path[0] ~= '/' ) then
+				path = '/' .. path
+			end
+			
+			--print( ' .. ' .. path)
+			if( do_update ( path, player_cast(o) ) ) then
+				o:Debug( "\nOK.\n" )
+				else
+				o:Debug( "\nError, unable to update.\n" )
+			end
+			return true
+		end
+		
 		-- remove update portion and name of char to force
 		table.remove(myTable, 1)
 
 		cmd = table.concat(myTable, " ")
 
-		do_update ( cmd, player_cast(o) )
+		if( do_update ( cmd, player_cast(o) ) ) then
+			o:Debug( "OK." )
+		end
 	end
 	return true
 end

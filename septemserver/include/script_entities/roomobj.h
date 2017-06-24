@@ -65,6 +65,7 @@ struct exitobj
     
 
 
+
 private:
     std::string exit_path; // path the script the exit is linked to
     std::string bobvious; // whether the exit is shown by default

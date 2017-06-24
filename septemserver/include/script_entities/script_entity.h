@@ -96,15 +96,15 @@ struct script_entity {
             }
         }
         
-        std::string GetScriptPath() { return script_path; }
-        void SetScriptPath(std::string& path) ;
+        std::string GetVirtualScriptPath() { return virtual_script_path; }
+        void SetVirtualScriptPath(std::string& path) ;
         
-        std::string GetBaseScriptPath() { return base_script_path; }
-        void SetBaseScriptPath(std::string& path) ;
+        std::string GetPhysicalScriptPath() { return physical_script_path; }
+        void SetPhysicalScriptPath(std::string& path) ;
         
         std::string GetInstancePath()
         {
-            return script_path + ":id=" + std::to_string(instanceID);
+            return virtual_script_path + ":id=" + std::to_string(instanceID);
         }
         
         unsigned int instanceID = 0;
@@ -193,13 +193,13 @@ private:
         std::unordered_map<std::string, sol::object> props;
         
         script_entity* environment_;
-        std::string script_path;
+        std::string virtual_script_path;
         bool m_destroy = false;
         
   
 protected:
         EntityType m_type;// = EntityType::UNKNOWN;
-        std::string base_script_path;
+        std::string physical_script_path;
         std::string look;
         std::string name;
         std::string uid;

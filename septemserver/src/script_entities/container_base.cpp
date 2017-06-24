@@ -45,7 +45,7 @@ bool container_base::AddEntityToInventory(script_entity* se)
         if(item->get_isStackable()) {
             for(script_entity* se_t : inventory) {
                 if(itemobj* itemb = dynamic_cast<itemobj*>(se_t)) {
-                    if(itemb->GetBaseScriptPath() == item->GetBaseScriptPath() && itemb->get_currentStackCount() < itemb->get_defaultStackSize())
+                    if(itemb->GetPhysicalScriptPath() == item->GetPhysicalScriptPath() && itemb->get_currentStackCount() < itemb->get_defaultStackSize())
                     {
                         // do merge..
                         unsigned int remain =  itemb->get_defaultStackSize() - itemb->get_currentStackCount();

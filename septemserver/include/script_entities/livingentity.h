@@ -232,6 +232,11 @@ struct living_entity : public script_entity, public container_base
     {
         
     }
+    
+    virtual void debug(const std::string& msg) override
+    {
+        
+    }
   //  bool AddInventorySlot( std::string slotName, unsigned int maxItems=1, ItemSize maxItemSize = ItemSize::COLOSSAL );
     /*
     std::vector<inventory_slot*> GetInventorySlots()

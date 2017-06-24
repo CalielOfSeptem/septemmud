@@ -25,7 +25,13 @@ script_entity::script_entity(sol::this_state ts, sol::this_environment te, Entit
     sol::optional<std::string> sp = env["_INTERNAL_SCRIPT_PATH_"];
     
     assert( sp );
-    this->SetScriptPath( sp.value() );
+    this->SetVirtualScriptPath( sp.value() );
+    
+    sol::optional<std::string> spv = env["_INTERNAL_PHYSICAL_SCRIPT_PATH_"];
+    
+    assert( spv );
+    this->SetPhysicalScriptPath( spv.value() );
+    
    // sol::optional<std::string> sp2 = env["_INTERNAL_SCRIPT_PATH_BASE_"];
     //assert( sp2 );
    // if( sp2 )
@@ -49,11 +55,11 @@ script_entity::script_entity(sol::this_state ts, sol::this_environment te, Entit
 script_entity::~script_entity()
 {
 
-    if ( script_path.size() > 0 )
+    if ( virtual_script_path.size() > 0 )
     {
         auto log = spd::get("main");
         std::stringstream ss;
-        ss << "Destroyed object, script path= " << script_path;
+        ss << "Destroyed object, script path= " << virtual_script_path;
         log->info(ss.str());
     }
     
@@ -137,7 +143,7 @@ void script_entity::debug(const std::string& msg)
 {
 
    
-    auto log = spd::get(strip_path_copy(script_path));
+    auto log = spd::get(strip_path_copy(virtual_script_path));
     
     if( !log )
     {
@@ -145,7 +151,7 @@ void script_entity::debug(const std::string& msg)
         std::string entityLog = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH) +
                             global_settings::Instance().GetSetting(DEFAULT_LOGS_PATH);
 
-        std::string s = strip_path_copy(script_path);
+        std::string s = strip_path_copy(virtual_script_path);
 
         entityLog += s;
         try
@@ -208,14 +214,14 @@ void script_entity::debug(const std::string& msg)
 
 }
 
-void script_entity::SetScriptPath(std::string& path)
+void script_entity::SetVirtualScriptPath(std::string& path)
 {
-    script_path = path;
+    virtual_script_path = path;
 
     
 }
 
-void script_entity::SetBaseScriptPath(std::string& path)
+void script_entity::SetPhysicalScriptPath(std::string& path)
 {
-    base_script_path = path;
+    physical_script_path = path;
 }
