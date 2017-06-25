@@ -70,6 +70,7 @@ struct itemobj : public script_entity, public container_base
     virtual void set_weight(double d)
     {
         m_weight = d;
+        do_save();
     }
      
     virtual ItemSize get_size()
@@ -80,6 +81,7 @@ struct itemobj : public script_entity, public container_base
     virtual void set_size(ItemSize is)
     {
         m_size = is;
+        do_save();
     }
      
     virtual bool get_isWearable()
@@ -90,6 +92,7 @@ struct itemobj : public script_entity, public container_base
     virtual void set_isWearable(bool b)
     {
         bisWearable = b;
+        do_save();
     }
      
     virtual bool get_isStackable()
@@ -100,6 +103,7 @@ struct itemobj : public script_entity, public container_base
     virtual void set_isStackable(bool b)
     {
         bisStackable = b;
+        do_save();
     }
      
     virtual bool get_isContainer()
@@ -110,6 +114,7 @@ struct itemobj : public script_entity, public container_base
     virtual void set_isContainer(bool b)
     {
         bisContainer = b;
+        do_save();
     }
     
     
@@ -121,6 +126,7 @@ struct itemobj : public script_entity, public container_base
     virtual void set_isLockable(bool b)
     {
         bisLockable = b;
+        do_save();
     }
     
     virtual bool get_isCloseable()
@@ -131,6 +137,7 @@ struct itemobj : public script_entity, public container_base
     virtual void set_isCloseable(bool b)
     {
         bisCloseable = b;
+        do_save();
     }
     
     virtual bool get_isOpen()
@@ -141,6 +148,7 @@ struct itemobj : public script_entity, public container_base
     virtual void set_isOpen(bool b)
     {
         bisOpen = b;
+        do_save();
     }
     
     virtual bool get_isLocked()
@@ -151,6 +159,7 @@ struct itemobj : public script_entity, public container_base
     virtual void set_isLocked(bool b)
     {
         bisLocked = b;
+        do_save();
     }
     
     
@@ -163,6 +172,7 @@ struct itemobj : public script_entity, public container_base
     virtual void set_isInitialized(bool b)
     {
         bisInitialized = b;
+        do_save();
     }
      
     
@@ -174,6 +184,7 @@ struct itemobj : public script_entity, public container_base
     virtual void set_itemArticle(std::string article)
     {
         itemArticle = article;
+        do_save();
     }
     
     virtual std::string get_itemNoun()
@@ -184,6 +195,7 @@ struct itemobj : public script_entity, public container_base
     virtual void set_itemNoun(std::string noun)
     {
         itemNoun = noun;
+        do_save();
     }
     
     virtual ItemType get_itemType()
@@ -194,6 +206,7 @@ struct itemobj : public script_entity, public container_base
     virtual void set_itemType(ItemType t)
     {
         m_type = t;
+        do_save();
     }
     
     virtual std::string get_itemAdjectives()
@@ -204,6 +217,7 @@ struct itemobj : public script_entity, public container_base
     virtual void set_itemAdjectives(std::string adjectives)
     {
         itemAdjectives = adjectives;
+        do_save();
     }
     
     
@@ -215,6 +229,7 @@ struct itemobj : public script_entity, public container_base
     virtual void set_pluralName(std::string pluralName)
     {
         this->pluralName = pluralName;
+        do_save();
     }
     
     virtual std::string get_itemPluralNoun()
@@ -259,6 +274,7 @@ struct itemobj : public script_entity, public container_base
             this->set_itemNoun(parts[parts.size()-1]);
         }
         script_entity::SetName(name);
+        do_save();
     }
      
     virtual const std::string& GetName() override
@@ -282,6 +298,7 @@ struct itemobj : public script_entity, public container_base
     virtual void set_defaultStackSize(int stackSize)
     {
         m_defaultStackSize = stackSize;
+        do_save();
     }
      
     virtual int get_currentStackCount()
@@ -292,6 +309,7 @@ struct itemobj : public script_entity, public container_base
     virtual void set_currentStackCount(int stackCount)
     {
         m_currentStackCount = stackCount;
+        do_save();
     }
     
     virtual int get_inventorySlot()
@@ -302,13 +320,15 @@ struct itemobj : public script_entity, public container_base
     virtual void set_inventorySlot(int slot)
     {
         m_slot_mask = slot;
+        do_save();
     }
     
 
      
     virtual void incrementStackCount()
     {
-        m_currentStackCount++;     
+        m_currentStackCount++;
+        do_save();     
     }
 
     virtual void decrementStackCount()
@@ -320,6 +340,7 @@ struct itemobj : public script_entity, public container_base
         else
         {
             m_currentStackCount--;
+            do_save();
         }
     }
     

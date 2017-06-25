@@ -1,0 +1,20 @@
+{
+    "currentStackCount": 1,
+    "defaultStackSize": 10,
+    "inventory": {},
+    "isContainer": false,
+    "isLockable": false,
+    "isLocked": false,
+    "isOpen": true,
+    "isStackable": false,
+    "isWearable": false,
+    "item_type": 0,
+    "look": "",
+    "name": "a rock",
+    "physical_script_path": "workspaces/caliel/entities/rock",
+    "pluralName": "a pile of rocks",
+    "size": 2,
+    "uid": "8i5aT68iOi9igBX",
+    "virtual_script_path": "workspaces/caliel/entities/rock/8i5aT68iOi9igBX",
+    "weight": 1.0
+}

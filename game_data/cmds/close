@@ -132,7 +132,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 		usage(o)
 		return true;
 	end
-	
+	--print('here')
 
 	table.remove(myTable, 1) -- remove close part
 --	local item_to_find = myTable[1]:lower() -- at this point we should have an object..
@@ -167,6 +167,8 @@ function c:ExecuteCommand ( o_orig, cmd )
 		return true
 	end
 	
+	item_to_find = cmd
+	--print( cmd )
 	local s_num = string.match(item_to_find, '%d+')
 	local skip_index = 1 -- don't skip by default
 	if( s_num ~= nil ) then

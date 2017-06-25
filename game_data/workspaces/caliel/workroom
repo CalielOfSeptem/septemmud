@@ -6,9 +6,15 @@ p1:AddExit( direction.north, '/realms/void', true)
 p1:AddExit( direction.south, '/workspaces/caliel/workroom:id=1', true)
 p1:AddExit( direction.east, 'workspaces/caliel/workroom:id=2', true)
 p1:Debug('Loaded room!')
-clone_item( 'workspaces/caliel/entities/rock', p1 )
+
+
 
 function p1:hb()
+
+end
+
+function p1:clone_items()
+	clone_item( 'workspaces/caliel/entities/rock', p1 )
 	back = clone_item( 'workspaces/caliel/entities/backpack', p1 )
 	--clone_item( 'workspaces/caliel/entities/arrow', p1 )
 	for i = 1, 10 do
@@ -21,6 +27,7 @@ function p1:hb()
 	end
 end
 
+p1:clone_items()
 
 register_heartbeat(p1.hb)
 

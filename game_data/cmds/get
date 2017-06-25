@@ -68,7 +68,7 @@ function c:FindItemInInv( o, item_to_find )
 			return l_hand
 		end
 	end
-		
+	
 	for i = 1, #items do
 		if( items[i]:GetItemNoun():lower():starts(item_to_find)  or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
 			skip_index = skip_index - 1
@@ -78,6 +78,66 @@ function c:FindItemInInv( o, item_to_find )
 			return items[i]
 		end
 		::continue::
+	end
+
+	return nil
+end
+
+function c:ScanWearables(o, item_to_find)
+	local player = living_cast(o)
+	local items = player:GetItems()
+	for i = 1, #items do
+		if( items[i]:GetItemNoun():lower():starts(item_to_find)  or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
+			--skip_index = skip_index - 1
+			
+			--if ( skip_index ~= 0 ) then goto continue end -- keep looking
+			
+			return items[i]
+		end
+		--::continue::
+	end
+	return nil
+end
+
+function c:FindItemInAllInvContainers( o, item_to_find )
+	local player = living_cast(o)
+	local items = player:GetItems()
+	--print('searching')
+	
+	local r_hand = player:RightHand():GetItem()
+	if( r_hand ~= nil ) then
+		if( r_hand.isContainer and r_hand.isOpen == true ) then
+			--print('looking in here')
+			local found_item = self:FindItemInContainer( o, r_hand, item_to_find )
+			if( found_item ) then
+				--print('sound it!!!')
+				return found_item, r_hand
+			end
+		end
+	end
+		
+	local l_hand = player:LeftHand():GetItem()
+	if( l_hand ~= nil ) then
+		if( l_hand.isContainer and l_hand.isOpen == true ) then
+			--print('looking in here')
+			local found_item = self:FindItemInContainer( o, l_hand, item_to_find )
+			if( found_item ) then
+				--print('sound it!!!')
+				return found_item, l_hand
+			end
+		end
+	end
+	
+	
+	for i = 1, #items do
+		if( items[i].isContainer and items[i].isOpen == true ) then
+			--print('looking in here')
+			local found_item = self:FindItemInContainer( o, items[i], item_to_find )
+			if( found_item ) then
+				--print('sound it!!!')
+				return found_item, items[i]
+			end
+		end
 	end
 	return nil
 end
@@ -274,6 +334,23 @@ function c:ExecuteCommand ( o_orig, cmd )
 	found_item = self:FindItemInEnv( o, item_to_find )
 	if( found_item == nil ) then
 		found_item = self:FindItemInInv( o, item_to_find )
+	end
+	
+	if( found_item == nil ) then
+		found_item = self:ScanWearables( o, item_to_find )
+		if( found_item ~= nil ) then
+			o:SendToEntity('You are wearing that, try removing it first.')
+			return true
+		end
+	end
+	
+	if( found_item == nil ) then
+		found_item, in_container = self:FindItemInAllInvContainers( o, item_to_find )
+		if( found_item ~= nil ) then
+			c:GetInvItem(o, found_item, in_container, true)
+			--o:SendToEntity('You are wearing that, try removing it first.')
+			return true
+		end
 	end
 	
 	if found_item == nil then

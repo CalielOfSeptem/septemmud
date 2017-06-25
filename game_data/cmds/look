@@ -19,24 +19,24 @@ end
 function c:CheckHands( o, item_to_find )
 	local item = c:FindItemInHand( o:LeftHand(), item_to_find )
 	if( item ~= nil ) then
-		if( item:GetIsContainer() ) then
-			self:ShowInventory( item, o )
-		else
+		--if( item:GetIsContainer() ) then
+			--self:ShowInventory( item, o )
+		----else
 			-- TODO: just show the item, its not a container.
-		end
-		return true
+		--end
+		return item
 	end
 	
 	item = c:FindItemInHand( o:RightHand(), item_to_find )
 	if( item ~= nil ) then
-		if( item:GetIsContainer() ) then
-			self:ShowInventory( item, o )
-		else
+		--if( item:GetIsContainer() ) then
+			--self:ShowInventory( item, o )
+		--else
 			-- TODO: just show the item, its not a container.
-		end
-		return true
+		--end
+		return item
 	end
-	return false
+	return nil
 end
 
 function c:FindItemInInv( o, item_to_find )
@@ -142,13 +142,22 @@ function c:ExecuteCommand ( o, cmd )
 			local myTable = sm1:split( ' ' )
 			--print (sm1)
 			local item_to_examine = myTable[3]
-			--print(item_to_examine)
-			--print( item_to_examine )
-			if self:CheckHands( o, item_to_examine ) then
-				return true
+
+			fitem = self:CheckHands( o, item_to_examine )
+
+			if( fitem == nil ) then
+				fitem = self:FindItemInInv( o, item_to_examine )
 			end
-			fitem = self:FindItemInInv( o, item_to_examine )
+
 			if( fitem ) then
+				if( fitem.isContainer == false ) then
+					o:SendToEntity('You can\'t look in that!')
+					return true
+				end
+				if( fitem.isContainer and fitem.isOpen == false) then
+					o:SendToEntity('The ' .. fitem:GetItemNoun() .. ' is closed.')
+					return true
+				end
 				self:ShowInventory( fitem, o )
 				return true
 			end
@@ -162,15 +171,30 @@ function c:ExecuteCommand ( o, cmd )
 			local item_to_examine = myTable[2]
 			
 			fitem = self:FindItemInEnv( o, item_to_examine )
-			if( fitem ) then
-				self:ShowInventory( fitem, o )
-				return true
+			--if( fitem ) then
+			--	self:ShowInventory( fitem, o )
+			---	return true
+			--end
+			--if( self:CheckHands( o, item_to_examine ) ) then -- try hands..
+			--	return true
+			--end
+			if( fitem == nil ) then
+				fitem = self:CheckHands( o, item_to_examine )
 			end
-			if( self:CheckHands( o, item_to_examine ) ) then -- try hands..
-				return true
+			
+			if( fitem == nil ) then
+				fitem = self:FindItemInInv( o, item_to_examine )
 			end
-			fitem = self:FindItemInInv( o, item_to_examine )
+			
 			if( fitem ) then
+				if( fitem.isContainer == false ) then
+					o:SendToEntity('You can\'t look in that!')
+					return true
+				end
+				if( fitem.isContainer and fitem.isOpen == false) then
+					o:SendToEntity('The ' .. fitem:GetItemNoun() .. ' is closed.')
+					return true
+				end
 				self:ShowInventory( fitem, o )
 				return true
 			end

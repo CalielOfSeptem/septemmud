@@ -2,8 +2,10 @@
     "cwd": "workspaces/caliel",
     "gender": "unknown",
     "inventory": {},
-    "leftHand": 0,
+    "leftHand": {
+        "MjrhIZGODi2hQ5k": "workspaces/caliel/entities/backpack"
+    },
     "rightHand": 0,
-    "roomID": 1,
-    "roomPath": "workspaces/caliel/workroom"
+    "roomID": 0,
+    "roomPath": "realms/void"
 }

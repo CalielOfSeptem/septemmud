@@ -106,6 +106,11 @@ bool itemobj::_load_from_json_(json& j)
     set_isContainer(j["isContainer"]);
     set_pluralName( j["pluralName"]);
     
+    set_isOpen(j["isOpen"]);
+    set_isLocked(j["isLocked"]);
+    set_isLockable(j["isLockable"]);
+    
+    
     const json& inventory = j["inventory"]; //<<<< this bit was hard to figure out
     for (auto& element : json::iterator_wrapper(inventory)) {
         if( element.key().size() > 0 && element.value() != NULL )
@@ -215,6 +220,11 @@ std::string itemobj::Serialize()
     j["isStackable"] = get_isStackable();
     j["isContainer"] = get_isContainer();
     j["pluralName"] = get_pluralName();
+    
+    j["isOpen"] = get_isOpen();
+    j["isLocked"] = get_isLocked();
+    j["isLockable"] = get_isLockable();
+    
     
     std::vector< script_entity*  > items = this->GetInventory();
     std::map< std::string, std::string > item_objs;
