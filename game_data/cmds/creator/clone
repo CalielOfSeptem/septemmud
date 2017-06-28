@@ -29,16 +29,27 @@ function c:ExecuteCommand ( o, cmd )
 		local r_hand = player:RightHand():GetItem()
 		if( r_hand == nil ) then
 			-- its empty..
-			print('here')
-			obj = do_clone( cmd, player, player:RightHand() )
+			--print('here')
+			--print('path.')
+			path = do_translate_path( cmd, player_cast(player) )
+			--print('path...')
+			print(path)
+			if( path:len() > 0 ) then
+				print( player )
+				print( player:RightHand() )
+				clone_item_to_hand( path, player:RightHand() )
+			end
+			
 
 			return true
 		end
 		local l_hand = player:LeftHand():GetItem()
 		if( l_hand == nil ) then
 			-- its empty..
-			obj = do_clone( cmd, player, player:RightHand() )
-
+			path = do_translate_path( cmd, player_cast(player) )
+			if( path:len() > 0 ) then
+				clone_item_to_hand( path, player:LeftHand() )
+			end
 			return true
 		end
 		o:SendToEntity('Your hands are full.')

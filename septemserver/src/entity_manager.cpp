@@ -800,9 +800,7 @@ void entity_manager::init_lua()
     lua.set_function("change_directory", [&](std::string dir, playerobj * p) -> bool { return fs_manager::Instance().change_directory(dir, p); });
     
     lua.set_function("do_update", [&](std::string dir, playerobj * p) -> bool { return this->do_update(dir, p); });
-    
-    lua.set_function("do_clone", [&](std::string dir, living_entity * p, handobj * h) -> bool { return this->do_clone(dir, p, h); });
-    
+        
     lua.set_function("do_copy", [&](std::string patha, std::string pathb, playerobj * p) -> bool { return fs_manager::Instance().do_copy(patha, pathb, p); });
     
     lua.set_function("do_remove", [&](std::string path, playerobj * p) -> bool { return fs_manager::Instance().do_remove(path, p); });
@@ -816,6 +814,9 @@ void entity_manager::init_lua()
     lua.set_function("do_reload", [&](std::string path, playerobj * p) -> bool { return this->do_item_reload(path, p); });
     
     lua.set_function("clone_item_to_hand", [&](std::string path, handobj * e) -> itemobj * { return this->clone_item_to_hand(path, e); });
+    
+    
+    lua.set_function("do_translate_path", [&](std::string path, playerobj * e) -> std::string { return this->do_translate_path( path, e ); });
     //lua.set_function("tail_entity_log",
     //                 [&](script_entity * se) -> std::vector<std::string> & { return this->get_player(ename); });
 
@@ -1951,21 +1952,16 @@ std::vector<std::string> entity_manager::tail_entity_log(script_entity* se)
     return s;
 }
 
-bool entity_manager::do_clone(std::string& entitypath, living_entity* p, handobj * h )
+std::string entity_manager::do_translate_path(std::string& entitypath, playerobj* p )
 {
     std::string temp = entitypath;
     std::string reason;
     if( !fs_manager::Instance().translate_path( temp, p, reason ) )
     {
         p->SendToEntity(reason);
-        return false;
+        return "";
     }
-    if( fs::is_directory(temp ))
-    {
-        p->SendToEntity("Directory compiling not yet implemeneted..");
-        return false;
-    }
-    return clone_item_to_hand(temp, h);
+    return temp;
 }
 
 bool entity_manager::do_update(std::string& entitypath, playerobj* p )
