@@ -1,0 +1,56 @@
+inherit command
+c = command.new('clone', 0)
+
+function c:MoveItemToHand( o_orig, hand, item_to_get)
+	hand:AddToInventory(item_to_get)	
+	--clone_item_to_hand( item_to_get, hand )
+	if( o_orig:GetType():lower() == 'player' ) then
+		local player = player_cast(o_orig)
+		player:DoSave()
+	end
+end
+
+function c:ExecuteCommand ( o, cmd )
+	if o ~= nil then
+
+		local myTable = cmd:split( ' ' )
+		if #myTable <= 1 then
+			usage(o)
+			return true;
+		end
+	
+
+		
+		-- remove clone portion
+		table.remove(myTable, 1)
+
+		cmd = table.concat(myTable, " ")
+		local player = living_cast(o)
+		local r_hand = player:RightHand():GetItem()
+		if( r_hand == nil ) then
+			-- its empty..
+			print('here')
+			obj = do_clone( cmd, player, player:RightHand() )
+
+			return true
+		end
+		local l_hand = player:LeftHand():GetItem()
+		if( l_hand == nil ) then
+			-- its empty..
+			obj = do_clone( cmd, player, player:RightHand() )
+
+			return true
+		end
+		o:SendToEntity('Your hands are full.')
+		--if( do_update ( cmd, player_cast(o) ) ) then
+		--	o:Debug( "OK." )
+		--end
+	end
+	return true
+end
+
+function usage(o_orig)
+	o_orig:SendToEntity('USAGE: clone <Implement me later>')
+end
+
+

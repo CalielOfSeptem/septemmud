@@ -126,6 +126,9 @@ void init_lua_state(sol::state& l)
                             "GetItemArticle", &itemobj::get_itemArticle,
                             "GetItemAdjectives", &itemobj::get_itemAdjectives,
                             
+                            "SaveProperty", &itemobj::SaveProperty,
+                            "GetProperty", &itemobj::GetProperty,
+                            
                             "weight", sol::property(&itemobj::get_weight, &itemobj::set_weight),
                             "isWearable", sol::property(&itemobj::get_isWearable, &itemobj::set_isWearable),
                             "isStackable", sol::property(&itemobj::get_isStackable, &itemobj::set_isStackable),

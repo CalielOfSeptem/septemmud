@@ -344,6 +344,37 @@ struct itemobj : public script_entity, public container_base
         }
     }
     
+    bool SaveProperty(const std::string& name, sol::object ob)
+    {
+        auto maybe_string = ob.as<sol::optional<std::string>>();
+		if (maybe_string) 
+        {
+            userProps[name] = *maybe_string;
+            return true;
+        }
+        
+        auto maybe_int = ob.as<sol::optional<int>>();
+        if( maybe_int )
+        {
+            std::string s = std::to_string(*maybe_int);
+            userProps[name] = s;
+            return true;
+        }
+        return false;
+    }
+    
+    sol::object GetProperty( const std::string& name, sol::this_state L )
+    {
+        for( auto kvp : this->userProps )
+        {
+            if( kvp.first == boost::to_lower_copy(name) )
+            {
+                return sol::object(L, sol::in_place, kvp.second);//kvp.second;
+            }
+        }
+        return sol::object(L, sol::in_place, sol::lua_nil);
+    }
+    
     virtual void debug(const std::string& msg) override
     {
        // if( this->isCreator() )
@@ -398,6 +429,8 @@ struct itemobj : public script_entity, public container_base
     std::string itemNoun;
     std::string itemArticle;
     std::string itemAdjectives;
+    
+    std::map< std::string, std::string > userProps;
 };
  
 #endif

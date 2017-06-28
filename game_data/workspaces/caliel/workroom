@@ -10,7 +10,7 @@ p1:Debug('Loaded room!')
 
 
 function p1:hb()
-
+	p1:clone_items()
 end
 
 function p1:clone_items()
@@ -27,7 +27,7 @@ function p1:clone_items()
 	end
 end
 
-p1:clone_items()
+
 
 register_heartbeat(p1.hb)
 

@@ -18,7 +18,8 @@ function c:ExecuteCommand ( o, cmd )
 
 		cmd = table.concat(myTable, " ")
 
-		do_update ( cmd, player_cast(o) )
+		--do_copy ( cmd, player_cast(o) )
+		do_copy ( myTable[1], myTable[2], player_cast(o) )
 	end
 	return true
 end

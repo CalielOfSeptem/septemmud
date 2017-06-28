@@ -12,5 +12,11 @@ i.isWearable = true
 i.isContainer = true
 i.isCloseable = true
 i.isOpen = false
+print('...')
+local b = i:SaveProperty('test', 1)
+print(b)
+
+local c = i:GetProperty('test')
+print(c)
 
 

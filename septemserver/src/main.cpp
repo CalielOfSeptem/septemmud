@@ -53,7 +53,7 @@ void TimerHandler(
 		//	<< "] TimerHandler " << std::endl;
         entity_manager::Instance().get_heartbeat_manager().do_heartbeats();
 
-		timer->expires_from_now( boost::posix_time::seconds( 1 ) );
+		timer->expires_from_now( boost::posix_time::seconds( 120 ) );
 		timer->async_wait( 
 			strand->wrap( boost::bind( &TimerHandler, _1, timer, strand ) )
 		);

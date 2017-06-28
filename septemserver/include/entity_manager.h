@@ -47,6 +47,8 @@ struct _internal_lua_
     
     bool do_item_reload( std::string& entitypath, playerobj* p);
     
+    bool do_clone(std::string& entitypath, living_entity* p, handobj* h );
+    
     bool compile_entity( std::string& relative_script_path, EntityType etype, std::string& script_text, std::string& reason );
     
     bool compile_virtual_file( std::string& relative_script_path, EntityType etype, std::string& script_text, std::string& reason );

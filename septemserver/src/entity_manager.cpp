@@ -290,6 +290,15 @@ for( int x = 2; x < 1000; x++ )
 
 itemobj * entity_manager::clone_item_to_hand(std::string& relative_script_path, handobj* obj, std::string uid)
 {
+    /*
+    std::string temp = relative_script_path;
+    std::string reason;
+    if( !fs_manager::Instance().translate_path( temp, static_cast<playerobj*>(obj->GetOwner()), reason ) )
+    {
+        ((playerobj*)obj->GetOwner())->SendToEntity(reason);
+        return false;
+    }
+    */
     return clone_item( relative_script_path, obj->GetOwner(), uid);
 }
 
@@ -792,6 +801,8 @@ void entity_manager::init_lua()
     
     lua.set_function("do_update", [&](std::string dir, playerobj * p) -> bool { return this->do_update(dir, p); });
     
+    lua.set_function("do_clone", [&](std::string dir, living_entity * p, handobj * h) -> bool { return this->do_clone(dir, p, h); });
+    
     lua.set_function("do_copy", [&](std::string patha, std::string pathb, playerobj * p) -> bool { return fs_manager::Instance().do_copy(patha, pathb, p); });
     
     lua.set_function("do_remove", [&](std::string path, playerobj * p) -> bool { return fs_manager::Instance().do_remove(path, p); });
@@ -854,6 +865,7 @@ bool entity_manager::load_script_text(std::string& script_path,
         trim(token);
 
         if(token.compare("inherit lib") == 0) {
+            if(bFoundType) // bad. only one type per script
             if(bFoundType) // bad. only one type per script
             {
                 reason = "Multiple inherit directives detected. Only one entity type is allowed per script.";
@@ -1939,6 +1951,22 @@ std::vector<std::string> entity_manager::tail_entity_log(script_entity* se)
     return s;
 }
 
+bool entity_manager::do_clone(std::string& entitypath, living_entity* p, handobj * h )
+{
+    std::string temp = entitypath;
+    std::string reason;
+    if( !fs_manager::Instance().translate_path( temp, p, reason ) )
+    {
+        p->SendToEntity(reason);
+        return false;
+    }
+    if( fs::is_directory(temp ))
+    {
+        p->SendToEntity("Directory compiling not yet implemeneted..");
+        return false;
+    }
+    return clone_item_to_hand(temp, h);
+}
 
 bool entity_manager::do_update(std::string& entitypath, playerobj* p )
 {
