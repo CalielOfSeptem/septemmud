@@ -35,6 +35,7 @@ struct heartbeat_manager
     {
         sol::environment target_env(sol::env_key, pf);
         sol::optional<std::string> script_path = target_env["_INTERNAL_SCRIPT_PATH_"];
+        //sol::optional<std::string> script_path = target_env["_INTERNAL_PHYSICAL_SCRIPT_PATH_"];
         sol::optional<std::string> e_type = target_env["_INTERNAL_ENTITY_TYPE_"];
        
         if( script_path )

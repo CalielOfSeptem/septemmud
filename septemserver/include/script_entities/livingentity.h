@@ -115,8 +115,9 @@ struct handobj : public container_base, public script_entity
      }
      virtual bool AddEntityToInventory(script_entity * se) override
      {
-         return container_base::AddEntityToInventory(se);
-        
+         bool b = container_base::AddEntityToInventory(se);
+         do_save();
+         return b;
      }
      
      virtual bool RemoveEntityFromInventoryByID( const std::string& id  ) override
@@ -129,9 +130,12 @@ struct handobj : public container_base, public script_entity
         return container_base::RemoveEntityFromInventory(se);
     }
     
-    virtual void AddItem(itemobj * i)
+    virtual bool AddItem(itemobj * i)
     {
-        container_base::AddEntityToInventory( dynamic_cast<script_entity*>(i));
+        bool b = container_base::AddEntityToInventory( dynamic_cast<script_entity*>(i));
+        //GetOwner()->do_save();
+        do_save();
+        return b;
 
     }
 
@@ -159,6 +163,15 @@ struct handobj : public container_base, public script_entity
         return this;
     }
     
+    virtual bool do_save() override
+    {
+        if( m_livingEntity != NULL )
+            m_livingEntity->do_save();
+    }
+    
+    
+    script_entity * m_livingEntity = NULL;
+    
 };
 
 enum EntityGender { MALE, FEMALE, UNKNOWN };
@@ -167,13 +180,15 @@ struct living_entity : public script_entity, public container_base
 {
     living_entity()
     {
-        
+        m_RightHand.m_livingEntity = this;
+        m_LeftHand.m_livingEntity = this;
     }
 
     living_entity(sol::this_state ts, sol::this_environment te, EntityType et, std::string name)
         : script_entity(ts, te, et, name)
     {
- 
+        m_RightHand.m_livingEntity = this;
+        m_LeftHand.m_livingEntity = this;
     }
     
     ~living_entity()

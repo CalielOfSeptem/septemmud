@@ -7,5 +7,5 @@ function p:hb()
 	p:DoSave()
 end
 
-register_heartbeat(p.hb)
+--register_heartbeat(p.hb)
 

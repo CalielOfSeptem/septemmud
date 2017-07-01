@@ -14,7 +14,8 @@
     "physical_script_path": "workspaces/caliel/entities/rock",
     "pluralName": "a pile of rocks",
     "size": 2,
-    "uid": "8i5aT68iOi9igBX",
-    "virtual_script_path": "workspaces/caliel/entities/rock/8i5aT68iOi9igBX",
+    "uid": "i53QSOyKJ7xRKZa",
+    "userProps": {},
+    "virtual_script_path": "workspaces/caliel/entities/rock/i53QSOyKJ7xRKZa",
     "weight": 1.0
 }

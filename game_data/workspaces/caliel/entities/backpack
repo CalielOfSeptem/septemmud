@@ -12,11 +12,25 @@ i.isWearable = true
 i.isContainer = true
 i.isCloseable = true
 i.isOpen = false
-print('...')
-local b = i:SaveProperty('test', 1)
-print(b)
+--print('...')
+--local b = i:SaveProperty('test', 1)
+--print(b)
+function i:hb()
+	p1:clone_items()
+	local c = i:GetProperty('test')
+	--print('HB')
+end
 
-local c = i:GetProperty('test')
-print(c)
+
+
+register_heartbeat(i.hb)
+
+
+--b = i:SaveProperty('test', 'HI')
+--print(b)
+
+--c = i:GetProperty('test')
+--print(c)
+
 
 

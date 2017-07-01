@@ -126,6 +126,17 @@ bool itemobj::_load_from_json_(json& j)
         }
 
     }
+    const json& userProps = j["userProps"]; //<<<< this bit was hard to figure out
+    for (auto& element : json::iterator_wrapper(userProps)) {
+        if( element.key().size() > 0 && element.value() != NULL )
+        {
+            std::string s1 = element.key();
+            std::string s2 = element.value();
+            //SaveProperty(s1, )
+            this->userProps[s1] = s2;
+        }
+
+    }
     return true;
 }
 
@@ -235,5 +246,6 @@ std::string itemobj::Serialize()
     }
 
     j["inventory"] = item_objs;
+    j["userProps"] = userProps;
     return j.dump(4);
 }

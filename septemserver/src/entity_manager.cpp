@@ -166,26 +166,25 @@ for( int x = 2; x < 1000; x++ )
         std::set<std::shared_ptr<entity_wrapper> > rooms;
         get_rooms_from_path(relative_script_path, rooms);
         std::map < std::string, std::vector<playerobj*> > _pents;
-        
-        //std::vector< playerobj * > ps;
-        
+
         for(auto& r : rooms) {
             roomobj * rp = dynamic_cast<roomobj*>(r->script_ent);
             for( auto pe : rp->GetInventory() )
             {
                 if( auto t = dynamic_cast<playerobj*>(pe) )
                 {
-                    //ps.push_back(t);
-                    //rp->RemoveEntityFromInventory(pe);
-                    t->SetEnvironment(NULL); // need to do this, but maybe not here.  TODO: rethink this
+                    t->SetEnvironment(NULL); 
                     _pents[rp->GetInstancePath()].push_back(t);
                 }
                 // TODO: destroy npcs and items in the room
             }
+            deregister_room(rp);
         }
         
         if(rooms.size() > 0)
+        {
             destroy_room(relative_script_path);
+        }
         sol::environment to_load;
         _init_entity_env(relative_script_path, etype, to_load);
         b = lua_safe_script(script_text, to_load, reason);
@@ -206,7 +205,7 @@ for( int x = 2; x < 1000; x++ )
                     // try to move them..
                     if( !move_living(dynamic_cast<script_entity*>(v), k.first) )
                     {
-                        // move them to void, or fail.
+                        // TODO: move them to void, or fail.
                     }
                     else
                     {
@@ -1109,6 +1108,7 @@ bool entity_manager::destroy_entity(std::shared_ptr<entity_wrapper>& ew)
     sol::environment genv = (*m_state).globals();
     genv.set_on(ew->_script_f_);
     ew.reset();
+    //(*m_state).collect_garbage();
     return true;
 }
 
@@ -1961,6 +1961,8 @@ std::string entity_manager::do_translate_path(std::string& entitypath, playerobj
         p->SendToEntity(reason);
         return "";
     }
+    temp = std::regex_replace(temp, std::regex("\\" + 
+            global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH)), "");
     return temp;
 }
 

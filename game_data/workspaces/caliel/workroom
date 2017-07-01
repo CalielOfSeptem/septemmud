@@ -10,7 +10,7 @@ p1:Debug('Loaded room!')
 
 
 function p1:hb()
-	p1:clone_items()
+	--p1:clone_items()
 end
 
 function p1:clone_items()

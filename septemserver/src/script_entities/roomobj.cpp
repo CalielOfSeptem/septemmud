@@ -10,7 +10,7 @@ roomobj::roomobj(sol::this_state ts, sol::this_environment te)
 
 roomobj::~roomobj()
 {
-    entity_manager::Instance().deregister_room(this);
+    //entity_manager::Instance().deregister_room(this);
 }
 
 std::vector<script_entity*> roomobj::GetPlayers(const std::string& name)
