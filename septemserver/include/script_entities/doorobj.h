@@ -11,22 +11,13 @@ struct doorobj : public itemobj
     {
         
     }
-    doorobj(sol::as_table_t<std::vector<std::string>>& door, const std::string& door_path, bool open=false, bool locked=false)
+    doorobj(const std::string& door_name, const std::string& door_path, bool open=false, bool locked=false)
         : door_path(door_path)
     {
-        this->door_path = door_path;
+        //this->door_path = door_path;
         this->set_isOpen(open);
         this->set_isLocked(locked);
-        const auto& vex = door.source;
-        for( auto ex : vex )
-        {
-            this->door.push_back(ex);
-        }
-    }
-    
-    const std::vector<std::string>& GetDoor()
-    {
-        return door;
+        SetName(door_name);
     }
     
     const std::string& GetDoorPath()
@@ -52,7 +43,6 @@ struct doorobj : public itemobj
 
 private:
     std::string door_path; // path the script the door is linked to
-    std::vector<std::string> door;
     roomobj * m_roomOwner;
 };
 

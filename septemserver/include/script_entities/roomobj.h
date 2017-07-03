@@ -89,11 +89,12 @@ public:
         return true;
     }
     
-    doorobj * AddDoor(sol::as_table_t<std::vector<std::string>> door, const std::string& door_path, bool open=true, bool locked=false)
+    doorobj * AddDoor(const std::string& door_name, const std::string& door_path, bool open=true, bool locked=false)
     {
         // TODO: add in validation code
-        doors.push_back(doorobj(door, door_path, open, locked));
-        return &doors[doors.size()];
+        doors.push_back(doorobj(door_name, door_path, open, locked));
+        doors[doors.size()-1].SetRoomOwner(this);
+        return &doors[doors.size()-1];
     }
     
     

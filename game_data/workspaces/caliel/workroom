@@ -5,11 +5,17 @@ p1:SetDescription('A workroom with pretty curtains.')
 p1:AddExit( direction.north, '/realms/void', true)
 p1:AddExit( direction.south, '/workspaces/caliel/workroom:id=1', true)
 p1:AddExit( direction.east, 'workspaces/caliel/workroom:id=2', true)
+
+local door = p1:AddDoor( 'a door', '/realms/void', false, false ) -- path, opened?, locked?
+
+
 p1:Debug('Loaded room!')
 
 
 
 function p1:hb()
+	--print( door )
+	print( door:GetDoorPath() )
 	--p1:clone_items()
 end
 

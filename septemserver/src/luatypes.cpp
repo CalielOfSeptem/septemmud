@@ -149,14 +149,7 @@ void init_lua_state(sol::state& l)
                             sol::bases<script_entity, container_base>() );
                             
                             
-        lua.new_usertype<doorobj>("doorobj",
-                              "GetDoorPath",
-                              &doorobj::GetDoorPath,
-                              "SetDoorPath",
-                              &doorobj::SetDoorPath,
-                            sol::base_classes,
-                            sol::bases<script_entity, itemobj>()
-                              );
+
      //                            double m_weight; // item weight in stones
     // ItemSize m_size = ItemSize::TINY;
     // bool bisWearable;
@@ -326,4 +319,15 @@ void init_lua_state(sol::state& l)
         // "Debug", &script_entity::debug,
         sol::base_classes,
         sol::bases<script_entity>());
+        
+                lua.new_usertype<doorobj>("doorobj",
+                            "GetDoorPath",
+                            &doorobj::GetDoorPath,
+                            "SetDoorPath",
+                            &doorobj::SetDoorPath,
+                            "GetRoom",
+                            &doorobj::GetRoom,
+                            sol::base_classes,
+                            sol::bases<itemobj>()
+                              );
 }
