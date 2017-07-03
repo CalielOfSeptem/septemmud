@@ -128,6 +128,7 @@ bool fs_manager::change_directory(std::string& relative_path, playerobj* p)
         //    global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH)), "");
         p->cwd = std::regex_replace(ps, std::regex("\\" + 
             global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH)), "");
+        p->do_save();
     }
     catch(const std::exception &e) {
       //  string content="Could not open path "+request->path+": "+e.what();

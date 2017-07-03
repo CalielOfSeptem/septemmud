@@ -153,6 +153,15 @@ function c:ExecuteCommand ( o_orig, cmd )
 	--table.remove(myTable, 1)
 
 	local cmd = table.concat(myTable, " ") -- put it back together
+	
+	local maybe_door = string.match(cmd, "door")
+	if( maybe_door ) then 
+		--print('maybe door!')
+		local entity_room = o:GetRoom()
+		local doors = entity_room:GetDoors()
+		
+		return true
+	end
 
 	sm1 = string.match(cmd, "my .+")
 	-- TODO, fix this stuff later..

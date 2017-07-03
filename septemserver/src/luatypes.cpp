@@ -5,6 +5,7 @@
 #include "script_entities/daemonobj.h"
 #include "script_entities/commandobj.h"
 #include "script_entities/itemobj.h"
+#include "script_entities/doorobj.h"
 #include "fs/fs_manager.h"
 void init_lua_state(sol::state& l)
 {
@@ -44,6 +45,8 @@ void init_lua_state(sol::state& l)
                               &exitobj::SetObvious,
                               "GetExit",
                               &exitobj::GetExit);
+                              
+
 
     lua.new_usertype<handobj>("hand",
                             "GetInventory",
@@ -146,6 +149,14 @@ void init_lua_state(sol::state& l)
                             sol::bases<script_entity, container_base>() );
                             
                             
+        lua.new_usertype<doorobj>("doorobj",
+                              "GetDoorPath",
+                              &doorobj::GetDoorPath,
+                              "SetDoorPath",
+                              &doorobj::SetDoorPath,
+                            sol::base_classes,
+                            sol::bases<script_entity, itemobj>()
+                              );
      //                            double m_weight; // item weight in stones
     // ItemSize m_size = ItemSize::TINY;
     // bool bisWearable;
@@ -174,6 +185,10 @@ void init_lua_state(sol::state& l)
                               &roomobj::GetExits,
                               "AddExit",
                               &roomobj::AddExit,
+                              "GetDoors",
+                              &roomobj::GetDoors,
+                              "AddDoor",
+                              &roomobj::AddDoor,
                               "GetType",
                               &script_entity::GetEntityTypeString,
                               "Debug",

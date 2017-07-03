@@ -2,10 +2,13 @@
 #define ROOM_OBJ_H_
 #include "script_entity.h"
 #include "script_entities/container_base.h"
+#include "script_entities/doorobj.h"
 //#include "script_entities/playerobj.h"
 #include <sol.hpp>
 
 struct itemobj;
+
+
 
 struct exitobj
 {
@@ -86,6 +89,14 @@ public:
         return true;
     }
     
+    doorobj * AddDoor(sol::as_table_t<std::vector<std::string>> door, const std::string& door_path, bool open=true, bool locked=false)
+    {
+        // TODO: add in validation code
+        doors.push_back(doorobj(door, door_path, open, locked));
+        return &doors[doors.size()];
+    }
+    
+    
     virtual script_entity * GetOwner() override
     {
         return this;
@@ -95,6 +106,11 @@ public:
     std::vector<exitobj>& GetExits()
     {
         return obvious_exits;
+    }
+    
+    std::vector<doorobj>& GetDoors()
+    {
+        return doors;
     }
 
     void SetTitle(const std::string& title)
@@ -157,6 +173,8 @@ private:
     std::string short_description;
 
     std::vector<exitobj> obvious_exits;
+    
+    std::vector<doorobj> doors;
 };
 
 #endif

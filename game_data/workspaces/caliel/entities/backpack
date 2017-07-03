@@ -16,14 +16,15 @@ i.isOpen = false
 --local b = i:SaveProperty('test', 1)
 --print(b)
 function i:hb()
-	p1:clone_items()
+	--p1:clone_items()
+	i:SaveProperty('test', 'HI')
 	local c = i:GetProperty('test')
-	--print('HB')
+	--print(c)
 end
 
 
 
-register_heartbeat(i.hb)
+--register_heartbeat(i.hb)
 
 
 --b = i:SaveProperty('test', 'HI')

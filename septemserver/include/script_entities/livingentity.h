@@ -166,7 +166,8 @@ struct handobj : public container_base, public script_entity
     virtual bool do_save() override
     {
         if( m_livingEntity != NULL )
-            m_livingEntity->do_save();
+            return m_livingEntity->do_save();
+        return false;
     }
     
     

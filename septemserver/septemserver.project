@@ -46,6 +46,7 @@
       <File Name="include/script_entities/daemonobj.h"/>
       <File Name="include/script_entities/commandobj.h"/>
       <File Name="include/script_entities/itemobj.h"/>
+      <File Name="include/script_entities/doorobj.h"/>
     </VirtualDirectory>
     <File Name="include/global_settings.h"/>
     <File Name="include/string_utils.h"/>

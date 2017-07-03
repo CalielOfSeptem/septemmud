@@ -198,6 +198,7 @@ private:
         
   
 protected:
+        std::map<std::string, std::string> userProps;
         EntityType m_type;// = EntityType::UNKNOWN;
         std::string physical_script_path;
         std::string look;

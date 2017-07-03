@@ -126,8 +126,8 @@ bool itemobj::_load_from_json_(json& j)
         }
 
     }
-    const json& userProps = j["userProps"]; //<<<< this bit was hard to figure out
-    for (auto& element : json::iterator_wrapper(userProps)) {
+    const json& uprops = j["userProps"]; //<<<< this bit was hard to figure out
+    for (auto& element : json::iterator_wrapper(uprops)) {
         if( element.key().size() > 0 && element.value() != NULL )
         {
             std::string s1 = element.key();
@@ -151,6 +151,7 @@ bool itemobj::do_save()
         std::ofstream o(this->get_entityStorageLocation() + "/" + this->get_uid() );
         //o << std::setw(4) << j << std::endl;
         o << j << std::endl;
+        //std::cout << j << std::endl;
     }
     catch( std::exception & ex )
     {

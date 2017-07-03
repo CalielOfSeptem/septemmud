@@ -53,6 +53,10 @@ enum InventorySlot {
 struct itemobj : public script_entity, public container_base
 {
     itemobj(sol::this_state ts, sol::this_environment te, std::string name, ItemType itype);
+    itemobj()
+    {
+        
+    }
     
     //itemobj(sol::this_state ts, sol::this_environment te, std::string name, std::string article, ItemType itype);
     
@@ -430,7 +434,7 @@ struct itemobj : public script_entity, public container_base
     std::string itemArticle;
     std::string itemAdjectives;
     
-    std::map< std::string, std::string > userProps;
+   // std::map< std::string, std::string > userProps;
 };
  
 #endif

@@ -138,6 +138,8 @@ bool playerobj::do_load()
             }
 
         }
+        //if( j["cwd"] )
+        this->cwd = j["cwd"];
         
         if( j["gender"] == "male" )
         {
