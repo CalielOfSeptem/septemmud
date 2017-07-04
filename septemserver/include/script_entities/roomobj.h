@@ -75,6 +75,31 @@ private:
     std::vector<std::string> exit;
 };
 
+struct lookobj
+{
+    lookobj( const sol::as_table_t<std::vector<std::string>>& v, const std::string& description )
+    {
+        this->description = description;
+        const auto& vex = v.source;
+        for( auto ex : vex )
+        {
+            this->look.push_back(ex);
+        }
+    }
+    const std::vector<std::string>& GetLook()
+    {
+        return look;
+    }
+    const std::string& GetDescription()
+    {
+        return description;
+    }
+    
+private:
+    std::string description;
+    std::vector<std::string> look;
+};
+
 class roomobj : public script_entity, public container_base
 {
 public:
@@ -87,6 +112,12 @@ public:
         // TODO: add in validation code
         obvious_exits.push_back(exitobj(exit, exit_path, obvious));
         return true;
+    }
+    
+    lookobj * AddLook(sol::as_table_t<std::vector<std::string>> look, const std::string& description)
+    {
+        looks.push_back(lookobj(look, description));
+        return &looks[looks.size()-1];
     }
     
     doorobj * AddDoor(const std::string& door_name, const std::string& door_path, bool open=true, bool locked=false)
@@ -112,6 +143,11 @@ public:
     std::vector<doorobj>& GetDoors()
     {
         return doors;
+    }
+    
+    std::vector<lookobj>& GetLooks()
+    {
+        return looks;
     }
 
     void SetTitle(const std::string& title)
@@ -174,7 +210,7 @@ private:
     std::string short_description;
 
     std::vector<exitobj> obvious_exits;
-    
+    std::vector<lookobj> looks;
     std::vector<doorobj> doors;
 };
 

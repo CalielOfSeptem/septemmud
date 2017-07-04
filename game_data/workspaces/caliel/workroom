@@ -1,12 +1,35 @@
 inherit room
 p1 = room.new()
-p1:SetTitle('Caliel\'s Workroom')
-p1:SetDescription('A workroom with pretty curtains.')
-p1:AddExit( direction.north, '/realms/void', true)
-p1:AddExit( direction.south, '/workspaces/caliel/workroom:id=1', true)
-p1:AddExit( direction.east, 'workspaces/caliel/workroom:id=2', true)
 
-local door = p1:AddDoor( 'a door', '/realms/void', false, false ) -- path, opened?, locked?
+p1:SetTitle('Caliel\'s Workroom')
+
+p1:SetDescription("Exquisitely carved shelves of mahogany run the length of a large, two-story study. \z
+					Ancient books, scrolls and oddities line the mahogany shelves. \z
+					The maw of an over-sized fireplace casts light from a crackling fire to light the room. \z
+					A hand-carved wooden ceiling of raised septagonal prisms form a repeating \z
+					pattern overhead and seem to absorb firelight at their hollow centers and yawn soft hues which undulate \z 
+					between gold, brown and honey. \z
+					A massive oaken table with ornately carved runes stands \z
+					about the center of the study. Haphazard stacks of leather-bound \z
+					volumes extend from the oaken table and remain perilously vertical by some \z
+					unnatural force. A few gold-trimmed ancient scrolls lay outstretched \z
+					between stacks of the leather-bond volumes and remain taut by \z
+					sculpted jade figurines depicting wild beasts which anchor each end. \z
+					A dog-leg staircase ascends to a half-landing before turning at a right angle and continuing upwards \z
+					to lead to a second story balcony. ")
+					
+p1:AddLook( { 'table', 'oaken table', 'massive oaken table' }, 'Atop the table you see several stacks of books and scrolls.')
+
+p1:AddLook( { 'exquisitely carved shelves', 'carved shelves', 'shelves' }, 'The shelves stand like carved sentinals and extend from floor \z
+				to ceiling.  A vast collection of ancient tomes cram each shelf and occasionally lean against dusty bookends and \z
+				other oddly-shaped objects serving as involuntary bookends.')
+
+
+--p1:AddExit( direction.north, '/realms/void', true)
+--p1:AddExit( direction.south, '/workspaces/caliel/workroom:id=1', true)
+--p1:AddExit( direction.east, 'workspaces/caliel/workroom:id=2', true)
+
+local door = p1:AddDoor( 'an oaken door', '/realms/void', false, false ) -- path, opened?, locked?
 
 
 p1:Debug('Loaded room!')
@@ -15,7 +38,7 @@ p1:Debug('Loaded room!')
 
 function p1:hb()
 	--print( door )
-	print( door:GetDoorPath() )
+	--print( door:GetDoorPath() )
 	--p1:clone_items()
 end
 

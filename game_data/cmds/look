@@ -89,8 +89,43 @@ function c:FindItemInEnv( o, item_to_find )
 		end
 		::continue::
 	end
+	
+
 	return nil
 	
+end
+
+function c:FindItemInLooks( o, item_to_find )
+
+	local s_num = string.match(item_to_find, '%d+')
+	local skip_index = 1 -- don't skip by default
+	if( s_num ~= nil ) then
+		skip_index = s_num
+		item_to_find = string.match(item_to_find, '%a+')
+		--print(s1)
+	end
+	
+	local player = living_cast(o)
+	local room = player:GetRoom()
+	--print(room)
+	local looks = room:GetLooks()
+
+	for i = 1, #looks do
+		local look = looks[i]:GetLook()
+		--print( looks[i]:GetDescription() )
+		for j = 1, #look do
+			--print( look[j]:lower())
+			if( look[j]:lower():starts(item_to_find)) then
+				skip_index = skip_index - 1
+				
+				if ( skip_index ~= 0 ) then goto continue end -- keep looking
+				
+				return looks[i]
+			end
+			::continue::
+		end
+	end
+	return nil
 end
 
 function c:ShowInventory( item, o )
@@ -119,103 +154,6 @@ function c:ShowInventory( item, o )
 		end
 	end
 	o:SendToEntity(s)
-end
-
-function c:ExecuteCommand ( o, cmd )
-	--print(inspect(_ENV))
-	--print('Look command called..')
-	--p = player_cast(o)
-	o = living_cast(o)
-	if o ~= nil then
-		--tail( '/home/ken/git-repos/septemmud/game_data/logs/L-2017-03-17.log', 10000, true)
-		--if( o:GetType():lower() == "player" ) then
-		--	o = player_cast(o)
-		--end
-		-- lets see what room the player/npc is in..
-		-- there are two ways, through GetEnvironment, or through GetRoom
-		-- GetEnvironment requires a cast as its generic to all game items/players.
-		-- GetRoom does not as its already a room object ptr
-		-- example: env = room_cast(p:GetEnvironment())
-		local sm1 = string.match(cmd, "in my .+")
-		-- TODO, fix this stuff later..
-		if sm1 ~= nil then
-			local myTable = sm1:split( ' ' )
-			--print (sm1)
-			local item_to_examine = myTable[3]
-
-			fitem = self:CheckHands( o, item_to_examine )
-
-			if( fitem == nil ) then
-				fitem = self:FindItemInInv( o, item_to_examine )
-			end
-
-			if( fitem ) then
-				if( fitem.isContainer == false ) then
-					o:SendToEntity('You can\'t look in that!')
-					return true
-				end
-				if( fitem.isContainer and fitem.isOpen == false) then
-					o:SendToEntity('The ' .. fitem:GetItemNoun() .. ' is closed.')
-					return true
-				end
-				self:ShowInventory( fitem, o )
-				return true
-			end
-			o:SendToEntity('Look in what? No such object exists.')
-			return true
-		end
-		
-		local sm2 = string.match(cmd, "in .+")
-		if sm2 ~= nil then
-			local myTable = sm2:split( ' ' )
-			local item_to_examine = myTable[2]
-			
-			fitem = self:FindItemInEnv( o, item_to_examine )
-			--if( fitem ) then
-			--	self:ShowInventory( fitem, o )
-			---	return true
-			--end
-			--if( self:CheckHands( o, item_to_examine ) ) then -- try hands..
-			--	return true
-			--end
-			if( fitem == nil ) then
-				fitem = self:CheckHands( o, item_to_examine )
-			end
-			
-			if( fitem == nil ) then
-				fitem = self:FindItemInInv( o, item_to_examine )
-			end
-			
-			if( fitem ) then
-				if( fitem.isContainer == false ) then
-					o:SendToEntity('You can\'t look in that!')
-					return true
-				end
-				if( fitem.isContainer and fitem.isOpen == false) then
-					o:SendToEntity('The ' .. fitem:GetItemNoun() .. ' is closed.')
-					return true
-				end
-				self:ShowInventory( fitem, o )
-				return true
-			end
-			o:SendToEntity('Look in what? No such object exists.')
-			return true
-		end
-		-- TODO, fix this stuff later..
-		
-		
-		env = o:GetRoom()
-		
-		if env ~= nil then
-			s = FormatRoom(env, o)
-			--p:SendToEntity('[' .. env:GetTitle() .. ']')
-			--p:SendToEntity('\r\n')
-			--print('in here..')
-			o:SendToEntity(s .. '\r\n')
-			--print('in here')
-		end	
-	end
-	return true
 end
 
 function FormatRoom(r, o)
@@ -291,4 +229,135 @@ function FormatRoom(r, o)
 	return s
 
 end
+
+
+function c:ExecuteCommand ( o, cmd )
+	--print(inspect(_ENV))
+	--print('Look command called..')
+	--p = player_cast(o)
+	o = living_cast(o)
+	if o ~= nil then
+		--tail( '/home/ken/git-repos/septemmud/game_data/logs/L-2017-03-17.log', 10000, true)
+		--if( o:GetType():lower() == "player" ) then
+		--	o = player_cast(o)
+		--end
+		-- lets see what room the player/npc is in..
+		-- there are two ways, through GetEnvironment, or through GetRoom
+		-- GetEnvironment requires a cast as its generic to all game items/players.
+		-- GetRoom does not as its already a room object ptr
+		-- example: env = room_cast(p:GetEnvironment())
+		local sm1 = string.match(cmd, "in my .+")
+		-- TODO, fix this stuff later..
+		if sm1 ~= nil then
+			local myTable = sm1:split( ' ' )
+			--print (sm1)
+			local item_to_examine = myTable[3]
+
+			fitem = self:CheckHands( o, item_to_examine )
+
+			if( fitem == nil ) then
+				fitem = self:FindItemInInv( o, item_to_examine )
+			end
+
+			if( fitem ) then
+				if( fitem.isContainer == false ) then
+					o:SendToEntity('You can\'t look in that!')
+					return true
+				end
+				if( fitem.isContainer and fitem.isOpen == false) then
+					o:SendToEntity('The ' .. fitem:GetItemNoun() .. ' is closed.')
+					return true
+				end
+				self:ShowInventory( fitem, o )
+				return true
+			end
+			o:SendToEntity('Look in what? No such object exists.')
+			return true
+		end
+		
+		local sm2 = string.match(cmd, "in .+")
+		if sm2 ~= nil then
+			local myTable = sm2:split( ' ' )
+			local item_to_examine = myTable[2]
+			
+			fitem = self:FindItemInEnv( o, item_to_examine )
+
+			--if( fitem ) then
+			--	self:ShowInventory( fitem, o )
+			---	return true
+			--end
+			--if( self:CheckHands( o, item_to_examine ) ) then -- try hands..
+			--	return true
+			--end
+			if( fitem == nil ) then
+				fitem = self:CheckHands( o, item_to_examine )
+			end
+			
+			if( fitem == nil ) then
+				fitem = self:FindItemInInv( o, item_to_examine )
+			end
+			
+			if( fitem ) then
+				if( fitem.isContainer == false ) then
+					o:SendToEntity('You can\'t look in that!')
+					return true
+				end
+				if( fitem.isContainer and fitem.isOpen == false) then
+					o:SendToEntity('The ' .. fitem:GetItemNoun() .. ' is closed.')
+					return true
+				end
+				self:ShowInventory( fitem, o )
+				return true
+			end
+			o:SendToEntity('Look in what? No such object exists.')
+			return true
+		end
+		
+		-- check if the player is looking at an item.. 
+		
+		local myTable = cmd:split( ' ' )
+		
+		if( #myTable > 1 ) then -- looking at an item
+			table.remove(myTable, 1) -- remove look part
+			local item_to_examine = table.concat(myTable, " ") -- put it back together
+			
+			local fitem = self:FindItemInEnv( o, item_to_examine )
+			
+			if( fitem == nil ) then
+				fitem = self:FindItemInLooks( o, item_to_examine )
+			end
+			
+			if( fitem == nil ) then
+				fitem = self:CheckHands( o, item_to_examine )
+			end
+			
+			if( fitem == nil ) then
+				fitem = self:FindItemInInv( o, item_to_examine )
+			end
+			
+			if( fitem ) then
+				--print('FOUND IT!')
+				o:SendToEntity( fitem:GetDescription() )
+				return true
+			end
+			o:SendToEntity('Look at what?')
+			return true
+			
+		end
+		
+		
+		env = o:GetRoom()
+		
+		if env ~= nil then
+			s = FormatRoom(env, o)
+			--p:SendToEntity('[' .. env:GetTitle() .. ']')
+			--p:SendToEntity('\r\n')
+			--print('in here..')
+			o:SendToEntity(s .. '\r\n')
+			--print('in here')
+		end	
+	end
+	return true
+end
+
 

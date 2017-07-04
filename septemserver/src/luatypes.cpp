@@ -182,6 +182,8 @@ void init_lua_state(sol::state& l)
                               &roomobj::GetDoors,
                               "AddDoor",
                               &roomobj::AddDoor,
+                              "AddLook",
+                              &roomobj::AddLook,
                               "GetType",
                               &script_entity::GetEntityTypeString,
                               "Debug",
@@ -196,8 +198,28 @@ void init_lua_state(sol::state& l)
                               &roomobj::GetPlayers,
                               "GetItems",
                               &roomobj::GetItems,
+                              "GetLooks",
+                              &roomobj::GetLooks,
                               sol::base_classes,
                               sol::bases<script_entity, container_base>());
+                              
+                    lua.new_usertype<doorobj>("doorobj",
+                            "GetDoorPath",
+                            &doorobj::GetDoorPath,
+                            "SetDoorPath",
+                            &doorobj::SetDoorPath,
+                            "GetRoom",
+                            &doorobj::GetRoom,
+                            sol::base_classes,
+                            sol::bases<itemobj>()
+                              );
+                              
+                    lua.new_usertype<lookobj>("lookobj",
+                            "GetLook",
+                            &lookobj::GetLook,
+                            "GetDescription",
+                            &lookobj::GetDescription
+                              );
 
 
     lua.new_usertype<daemonobj>("daemon",
@@ -320,14 +342,5 @@ void init_lua_state(sol::state& l)
         sol::base_classes,
         sol::bases<script_entity>());
         
-                lua.new_usertype<doorobj>("doorobj",
-                            "GetDoorPath",
-                            &doorobj::GetDoorPath,
-                            "SetDoorPath",
-                            &doorobj::SetDoorPath,
-                            "GetRoom",
-                            &doorobj::GetRoom,
-                            sol::base_classes,
-                            sol::bases<itemobj>()
-                              );
+
 }
