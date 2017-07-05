@@ -8,6 +8,7 @@
 #include <cassert>
 #include <iostream>
 #include "loghelper.h"
+#include "script_entities/actionobj.h"
 
 enum class EntityType { UNKNOWN, ROOM, ITEM, NPC, PLAYER, COMMAND, DAEMON, LIB, HAND };
 enum class EnvironmentChangeEvent { ADDED, REMOVED };
@@ -187,6 +188,26 @@ struct script_entity {
             return true;
         }
         
+        actionobj * AddAction(sol::function func, unsigned int interval, sol::object userData = sol::nil)
+        {
+            actions.push_back(actionobj(func, interval, userData));
+            return &actions[actions.size()-1];
+        }
+        
+    
+        std::vector<actionobj>& GetActions()
+        {
+            return actions;
+        }
+        
+        void DoActions()
+        {
+            for( auto r : GetActions() )
+            {
+                r.DoAction();
+            }
+        }
+
 private:
         std::string entity_storage_location; // used for persistence
         my_sink m_entityLog;
@@ -204,6 +225,7 @@ protected:
         std::string look;
         std::string name;
         std::string uid;
+        std::vector<actionobj> actions;
 };
 
 

@@ -68,6 +68,8 @@ struct _internal_lua_
     
     void invoke_heartbeat();
     
+    void invoke_room_actions();
+    
     void register_command( commandobj * cmd );
     void deregister_command( commandobj * cmd );
     

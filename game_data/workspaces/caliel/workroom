@@ -7,8 +7,8 @@ p1:SetDescription("Exquisitely carved shelves of mahogany run the length of a la
 					Ancient books, scrolls and oddities line the mahogany shelves. \z
 					The maw of an over-sized fireplace casts light from a crackling fire to light the room. \z
 					A hand-carved wooden ceiling of raised septagonal prisms form a repeating \z
-					pattern overhead and seem to absorb firelight at their hollow centers and yawn soft hues which undulate \z 
-					between gold, brown and honey. \z
+					pattern overhead and seem to absorb firelight at their hollow centers and yawn soft undulating \z 
+					hues of gold, brown, and orange. \z
 					A massive oaken table with ornately carved runes stands \z
 					about the center of the study. Haphazard stacks of leather-bound \z
 					volumes extend from the oaken table and remain perilously vertical by some \z
@@ -18,6 +18,12 @@ p1:SetDescription("Exquisitely carved shelves of mahogany run the length of a la
 					A dog-leg staircase ascends to a half-landing before turning at a right angle and continuing upwards \z
 					to lead to a second story balcony. ")
 					
+function p1:test_action()
+	--print('ACTION!')
+end
+
+p1:AddAction( p1.test_action, 5, nil )
+
 p1:AddLook( { 'table', 'oaken table', 'massive oaken table' }, 'Atop the table you see several stacks of books and scrolls.')
 
 p1:AddLook( { 'exquisitely carved shelves', 'carved shelves', 'shelves' }, 'The shelves stand like carved sentinals and extend from floor \z
@@ -33,6 +39,7 @@ local door = p1:AddDoor( 'an oaken door', '/realms/void', false, false ) -- path
 
 
 p1:Debug('Loaded room!')
+
 
 
 

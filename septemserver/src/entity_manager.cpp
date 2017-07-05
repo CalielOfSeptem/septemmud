@@ -2050,6 +2050,14 @@ bool entity_manager::do_tp(std::string& entitypath, playerobj* p_targ, playerobj
     return false;
 }
 
+void entity_manager::invoke_room_actions()
+{
+    for( auto r : this->m_room_lookup )
+    {
+        r.second->DoActions();
+    }
+}
+
 /*
 bool entity_manager::compile_lib(std::string& script_or_path, std::string& reason)
 {

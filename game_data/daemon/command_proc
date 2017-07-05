@@ -47,7 +47,7 @@ function d:process_command (o_orig, cmd )
 				
 	end
 	
-	print('I don\'t understand. Type \"help commands\" for more information.') 
+	o_orig:SendToEntity('I don\'t understand. Type \"help commands\" for more information.') 
 end
 
 

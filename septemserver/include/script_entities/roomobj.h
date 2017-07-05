@@ -3,6 +3,9 @@
 #include "script_entity.h"
 #include "script_entities/container_base.h"
 #include "script_entities/doorobj.h"
+#include "script_entities/lookobj.h"
+#include "script_entities/exitobj.h"
+
 //#include "script_entities/playerobj.h"
 #include <sol.hpp>
 
@@ -10,95 +13,6 @@ struct itemobj;
 
 
 
-struct exitobj
-{
-    exitobj()
-    {
-        
-    }
-    exitobj(sol::as_table_t<std::vector<std::string>>& exit, const std::string& exit_path, bool bobvious)
-        : exit_path(exit_path)
-    {
-        this->bobvious = true;
-        const auto& vex = exit.source;
-        for( auto ex : vex )
-        {
-            this->exit.push_back(ex);
-        }
-    }
-    
-    void SetExit( const sol::as_table_t<std::vector<std::string>>& v, const std::string& exit_path, bool bobvious)
-    {
-        this->bobvious = bobvious;
-        const auto& vex = v.source;
-        for( auto ex : vex )
-        {
-            this->exit.push_back(ex);
-        }
-    }
-    const std::vector<std::string>& GetExit()
-    {
-        return exit;
-    }
-    
-    const std::string& GetExitPath()
-    {
-        return exit_path;
-    }
-    
-    void SetObvious(const bool b)
-    {
-        bobvious = b;
-    }
-    
-    void SetExitPath( const std::string& exit_path )
-    {
-        this->exit_path = exit_path;
-    }
-    
-    void SetExitDesc( const sol::as_table_t<std::vector<std::string>>& v )
-    {
-        this->exit_path = exit_path;
-        const auto& vex = v.source;
-        for( auto ex : vex )
-        {
-            this->exit.push_back(ex);
-        }
-    }
-    
-
-
-
-private:
-    std::string exit_path; // path the script the exit is linked to
-    std::string bobvious; // whether the exit is shown by default
-    std::vector<std::string> exit;
-};
-
-struct lookobj
-{
-    lookobj( const sol::as_table_t<std::vector<std::string>>& v, const std::string& description )
-    {
-        this->description = description;
-        const auto& vex = v.source;
-        for( auto ex : vex )
-        {
-            this->look.push_back(ex);
-        }
-    }
-    const std::vector<std::string>& GetLook()
-    {
-        return look;
-    }
-    const std::string& GetDescription()
-    {
-        return description;
-    }
-    
-private:
-    std::string description;
-    std::vector<std::string> look;
-};
 
 class roomobj : public script_entity, public container_base
 {
@@ -119,6 +33,8 @@ public:
         looks.push_back(lookobj(look, description));
         return &looks[looks.size()-1];
     }
+    
+
     
     doorobj * AddDoor(const std::string& door_name, const std::string& door_path, bool open=true, bool locked=false)
     {
@@ -149,6 +65,7 @@ public:
     {
         return looks;
     }
+
 
     void SetTitle(const std::string& title)
     {
@@ -196,8 +113,7 @@ public:
         //se->SetEnvironment(NULL);
         return container_base::RemoveEntityFromInventory(se);
     }
-
-     
+    
     std::vector<script_entity*> GetPlayers(const std::string& name);
     
     std::vector<itemobj*> GetItems();
@@ -212,6 +128,7 @@ private:
     std::vector<exitobj> obvious_exits;
     std::vector<lookobj> looks;
     std::vector<doorobj> doors;
+    
 };
 
 #endif

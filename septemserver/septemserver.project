@@ -47,6 +47,9 @@
       <File Name="include/script_entities/commandobj.h"/>
       <File Name="include/script_entities/itemobj.h"/>
       <File Name="include/script_entities/doorobj.h"/>
+      <File Name="include/script_entities/actionobj.h"/>
+      <File Name="include/script_entities/lookobj.h"/>
+      <File Name="include/script_entities/exitobj.h"/>
     </VirtualDirectory>
     <File Name="include/global_settings.h"/>
     <File Name="include/string_utils.h"/>

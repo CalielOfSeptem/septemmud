@@ -29,6 +29,7 @@ void init_lua_state(sol::state& l)
             "GetUID", &script_entity::get_uid, 
             "SetUID", &script_entity::set_uid,
             "Debug", &script_entity::debug,
+            "AddAction", &script_entity::AddAction,
             "destroy", sol::property(&script_entity::get_destroy, &script_entity::set_destroy)
             );
 
