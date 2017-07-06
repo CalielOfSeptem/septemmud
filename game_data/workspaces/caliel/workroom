@@ -19,7 +19,7 @@ p1:SetDescription("Exquisitely carved shelves of mahogany run the length of a la
 					to lead to a second story balcony. ")
 					
 function p1:test_action()
-	--print('ACTION!')
+	print('ACTION!')
 end
 
 p1:AddAction( p1.test_action, 5, nil )

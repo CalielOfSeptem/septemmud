@@ -188,14 +188,14 @@ struct script_entity {
             return true;
         }
         
-        actionobj * AddAction(sol::function func, unsigned int interval, sol::object userData = sol::nil)
+        actionobj * AddAction(sol::protected_function func, unsigned int interval, sol::object userData = sol::nil)
         {
-            actions.push_back(actionobj(func, interval, userData));
-            return &actions[actions.size()-1];
+            actions.push_back(std::shared_ptr<actionobj>( new actionobj(func, interval, userData) ) );
+            return actions[actions.size()-1].get();
         }
         
     
-        std::vector<actionobj>& GetActions()
+        std::vector<std::shared_ptr<actionobj>>& GetActions()
         {
             return actions;
         }
@@ -204,7 +204,7 @@ struct script_entity {
         {
             for( auto r : GetActions() )
             {
-                r.DoAction();
+                r->DoAction();
             }
         }
 
@@ -225,7 +225,7 @@ protected:
         std::string look;
         std::string name;
         std::string uid;
-        std::vector<actionobj> actions;
+        std::vector<std::shared_ptr<actionobj>> actions;
 };
 
 
