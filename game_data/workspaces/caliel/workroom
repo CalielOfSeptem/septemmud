@@ -18,11 +18,14 @@ p1:SetDescription("Exquisitely carved shelves of mahogany run the length of a la
 					A dog-leg staircase ascends to a half-landing before turning at a right angle and continuing upwards \z
 					to lead to a second story balcony. ")
 					
-function p1:test_action()
-	print('ACTION!')
+function p1:timed_action()
+	--print('ACTION!')
+	if( math.random(100) > 50 ) then
+		p1:SendToRoom('A book dislodges from a nearby shelf and floats to a shelf across the room before squeezing into a vacant slot between dusty volumes.')
+	end
 end
 
-p1:AddAction( p1.test_action, 5, nil )
+p1:AddAction( p1.timed_action, 900, nil )
 
 p1:AddLook( { 'table', 'oaken table', 'massive oaken table' }, 'Atop the table you see several stacks of books and scrolls.')
 

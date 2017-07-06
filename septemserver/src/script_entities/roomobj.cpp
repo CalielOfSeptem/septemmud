@@ -52,3 +52,15 @@ void roomobj::debug(const std::string& msg)
     }
     script_entity::debug(msg);
 }
+
+void roomobj::SendToRoom(const std::string& msg)
+{
+    for(auto obj : GetInventory()) {
+        if(obj->GetType() == EntityType::PLAYER || obj->GetType() == EntityType::NPC) {
+            living_entity * p = dynamic_cast<living_entity*>(obj);
+            p->SendToEntity(msg);
+            //if( p->isCreator() )
+            //    p->SendToEntity("DEBUG: " + msg);
+        }
+    }
+}

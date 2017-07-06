@@ -21,17 +21,17 @@ public:
     
     ~roomobj();
 
-    bool AddExit(sol::as_table_t<std::vector<std::string>> exit, const std::string& exit_path, bool obvious)
+    exitobj * AddExit(sol::as_table_t<std::vector<std::string>> exit, const std::string& exit_path, bool obvious)
     {
         // TODO: add in validation code
-        obvious_exits.push_back(exitobj(exit, exit_path, obvious));
-        return true;
+        obvious_exits.push_back(std::shared_ptr<exitobj>(new exitobj(exit, exit_path, obvious)));
+        return obvious_exits[obvious_exits.size()-1].get();
     }
     
     lookobj * AddLook(sol::as_table_t<std::vector<std::string>> look, const std::string& description)
     {
-        looks.push_back(lookobj(look, description));
-        return &looks[looks.size()-1];
+        looks.push_back(std::shared_ptr<lookobj>(new lookobj(look, description)));
+        return looks[looks.size()-1].get();
     }
     
 
@@ -39,9 +39,9 @@ public:
     doorobj * AddDoor(const std::string& door_name, const std::string& door_path, bool open=true, bool locked=false)
     {
         // TODO: add in validation code
-        doors.push_back(doorobj(door_name, door_path, open, locked));
-        doors[doors.size()-1].SetRoomOwner(this);
-        return &doors[doors.size()-1];
+        doors.push_back(std::shared_ptr<doorobj>( new doorobj( door_name, door_path, open, locked)));
+        doors[doors.size()-1]->SetRoomOwner(this);
+        return doors[doors.size()-1].get();
     }
     
     
@@ -51,17 +51,17 @@ public:
     }
     
     
-    std::vector<exitobj>& GetExits()
+    std::vector<std::shared_ptr<exitobj>>& GetExits()
     {
         return obvious_exits;
     }
     
-    std::vector<doorobj>& GetDoors()
+    std::vector<std::shared_ptr<doorobj>>& GetDoors()
     {
         return doors;
     }
     
-    std::vector<lookobj>& GetLooks()
+    std::vector<std::shared_ptr<lookobj>>& GetLooks()
     {
         return looks;
     }
@@ -114,6 +114,8 @@ public:
         return container_base::RemoveEntityFromInventory(se);
     }
     
+    void SendToRoom(const std::string& msg);
+    
     std::vector<script_entity*> GetPlayers(const std::string& name);
     
     std::vector<itemobj*> GetItems();
@@ -125,9 +127,9 @@ private:
     std::string description;
     std::string short_description;
 
-    std::vector<exitobj> obvious_exits;
-    std::vector<lookobj> looks;
-    std::vector<doorobj> doors;
+    std::vector<std::shared_ptr<exitobj>> obvious_exits;
+    std::vector<std::shared_ptr<lookobj>> looks;
+    std::vector<std::shared_ptr<doorobj>> doors;
     
 };
 

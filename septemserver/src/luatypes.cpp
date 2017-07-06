@@ -201,6 +201,8 @@ void init_lua_state(sol::state& l)
                               &roomobj::GetItems,
                               "GetLooks",
                               &roomobj::GetLooks,
+                              "SendToRoom",
+                              &roomobj::SendToRoom,
                               sol::base_classes,
                               sol::bases<script_entity, container_base>());
                               
