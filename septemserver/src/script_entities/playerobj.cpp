@@ -154,11 +154,10 @@ bool playerobj::do_load()
             this->set_gender(EntityGender::UNKNOWN);
         }
         
-        if( this->GetEnvironment() )
-        {
-            this->roomPath = j["roomPath"];
-            this->roomID = j["roomID"];
-        }
+
+        this->roomPath = j["roomPath"];
+        this->roomID = j["roomID"];
+        
     }
     catch(std::exception &ex)
     {
