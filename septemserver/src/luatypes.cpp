@@ -311,6 +311,10 @@ void init_lua_state(sol::state& l)
                                     &living_entity::get_gender,
                                     "SetGender",
                                     &living_entity::set_gender,
+                                    "GetBodyPosition",
+                                    &living_entity::get_body_position,
+                                    "SetBodyPosition",
+                                    &living_entity::set_body_position,
                                     /*
                                     "AddInventorySlot",
                                     &living_entity::AddInventorySlot,

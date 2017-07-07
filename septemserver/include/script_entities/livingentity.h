@@ -176,6 +176,7 @@ struct handobj : public container_base, public script_entity
 };
 
 enum EntityGender { MALE, FEMALE, UNKNOWN };
+enum EntityBodyPosition { PRONE, SITTING, KNEELING, STANDING };
 
 struct living_entity : public script_entity, public container_base
 {
@@ -244,6 +245,16 @@ struct living_entity : public script_entity, public container_base
         m_gender = g;
     }
     
+    EntityBodyPosition get_body_position()
+    {
+        return m_bodyPosition;
+    }
+    
+    void set_body_position( EntityBodyPosition g )
+    {
+        m_bodyPosition = g;
+    }
+    
     virtual void on_environment_change(EnvironmentChangeEvent evt, script_entity * env) override
     {
         
@@ -269,6 +280,7 @@ struct living_entity : public script_entity, public container_base
     
 private:
     EntityGender m_gender = EntityGender::UNKNOWN;
+    EntityBodyPosition m_bodyPosition = EntityBodyPosition::STANDING;
     //std::map < std::string, inventory_slot* > m_inventory_slots;
 
 };

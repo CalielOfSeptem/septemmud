@@ -70,7 +70,14 @@ inventorySlot.inHair                      = 1<<25
 inventorySlot.head                        = 1<<26
 
 --enum EntityGender { MALE, FEMALE, UNKNOWN };
-entityGender = {}
-entityGender.male = 0
-entityGender.female = 1
-entityGender.unknown = 2
+entityGender 			= {}
+entityGender.male 		= 0
+entityGender.female 	= 1
+entityGender.unknown 	= 2
+
+-- enum EntityBodyPosition { PRONE, SITTING, KNEELING, STANDING };
+entityBodyPosition 				= {}
+entityBodyPosition.prone		= 0
+entityBodyPosition.sitting		= 1
+entityBodyPosition.kneeling		= 2
+entityBodyPosition.standing		= 3

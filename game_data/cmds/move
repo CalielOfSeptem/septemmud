@@ -38,6 +38,10 @@ function c:ExecuteCommand ( o_orig, cmd )
 		
 		for k1, v1 in pairs (v:GetExit()) do
 			if v1 == cmd then
+				if( ob:GetBodyPosition() ~= entityBodyPosition.standing ) then
+					ob:SendToEntity( 'You must be standing to move.' )
+					return true
+				end
 				--print('Identified exit, exit = ' .. v1 .. ', path = ' .. v:GetExitPath() )
 				ob:SendToEntity('You go ' .. v:GetExit()[1] .. '. \r\n')
 				pname = string.gsub(ob:GetName(), "(%a)([%w_']*)", titleCase)

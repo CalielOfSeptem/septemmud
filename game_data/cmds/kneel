@@ -1,0 +1,35 @@
+inherit command
+c = command.new('kneel')
+
+function c:ExecuteCommand ( o_orig, cmd )
+
+	s_type = o_orig:GetType()
+
+	if (s_type:lower() ~= "player" and s_type:lower() ~= "npc") then
+		return true;
+	end
+	o_orig = living_cast(o_orig)
+	
+	if( o_orig:GetBodyPosition() == entityBodyPosition.kneel ) then
+		o_orig:SendToEntity('You are already kneeling!')
+		return false
+	end
+	
+	if( o_orig:GetBodyPosition() == entityBodyPosition.prone 
+		or o_orig:GetBodyPosition() == entityBodyPosition.sitting ) then
+		o_orig:SetBodyPosition( entityBodyPosition.kneeling )
+		o_orig:SendToEntity('You rise to a kneeling position.')
+		pname = string.gsub(o_orig:GetName(), "(%a)([%w_']*)", titleCase)
+		o_orig:SendToRoom(pname .. ' rises to a kneeling position.')
+		return false
+		else
+			o_orig:SetBodyPosition( entityBodyPosition.kneeling )
+			o_orig:SendToEntity('You kneel.')
+			pname = string.gsub(o_orig:GetName(), "(%a)([%w_']*)", titleCase)
+			o_orig:SendToRoom(pname .. ' kneels.')
+	end
+
+
+	return false
+end
+
