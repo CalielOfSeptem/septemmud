@@ -13,9 +13,9 @@ i.Look = 'a simple arrow'
 --i:AddAction('tap', f)
 i.weight = 1
 i.size = itemSize.small
-i.isWearable = false
+--i.isWearable = false
 i.isContainer = false
-i.isStackable = true
+--i.isStackable = true
 i:SetDefaultStackSize( 10 )
 i:SetPluralName('some simple arrows')
 

@@ -101,8 +101,8 @@ bool itemobj::_load_from_json_(json& j)
     
     set_defaultStackSize(j["defaultStackSize"]);
     set_currentStackCount(j["currentStackCount"]);
-    set_isWearable(j["isWearable"]);
-    set_isStackable(j["isStackable"]);
+    //set_isWearable(j["isWearable"]);
+    //set_isStackable(j["isStackable"]);
     set_isContainer(j["isContainer"]);
     set_pluralName( j["pluralName"]);
     

@@ -90,25 +90,19 @@ struct itemobj : public script_entity, public container_base
      
     virtual bool get_isWearable()
     {
-        return bisWearable;
-    }
-     
-    virtual void set_isWearable(bool b)
-    {
-        bisWearable = b;
-        do_save();
+        return (m_slot_mask==InventorySlot::NONE)?false:true;
     }
      
     virtual bool get_isStackable()
     {
-        return bisStackable;
+        return (m_defaultStackSize==0)?false:true;
     }
      
-    virtual void set_isStackable(bool b)
-    {
-        bisStackable = b;
-        do_save();
-    }
+    //virtual void set_isStackable(bool b)
+    //{
+     //   bisStackable = b;
+    //    do_save();
+   // }
      
     virtual bool get_isContainer()
     {
@@ -413,13 +407,13 @@ struct itemobj : public script_entity, public container_base
     double m_weight; // item weight in stones
     ItemSize m_size = ItemSize::TINY;
     ItemType m_type = ItemType::DEFAULT;
-    int m_defaultStackSize = 10;
+    int m_defaultStackSize = 0;
     int m_currentStackCount = 1;
     
     int m_slot_mask = 0;
     
-    bool bisWearable = false;
-    bool bisStackable = false;
+    //bool bisWearable = false;
+    //bool bisStackable = false;
     bool bisContainer = false;
     bool bisInitialized = false;
     

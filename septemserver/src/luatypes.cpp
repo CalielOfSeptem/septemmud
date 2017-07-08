@@ -93,10 +93,10 @@ void init_lua_state(sol::state& l)
                             "SetWeight", &itemobj::set_weight,
                             
                             "GetWearable", &itemobj::get_isWearable,
-                            "SetWearable", &itemobj::set_isWearable,
+                            //"SetWearable", &itemobj::set_isWearable,
 
                             "GetStackable", &itemobj::get_isStackable,
-                            "SetStackable", &itemobj::set_isStackable,
+                            //"SetStackable", &itemobj::set_isStackable,
                             
                             "GetCurrentStackCount", &itemobj::get_currentStackCount,
                             "SetCurrentStackCount", &itemobj::set_currentStackCount,
@@ -134,8 +134,8 @@ void init_lua_state(sol::state& l)
                             "GetProperty", &itemobj::GetProperty,
                             
                             "weight", sol::property(&itemobj::get_weight, &itemobj::set_weight),
-                            "isWearable", sol::property(&itemobj::get_isWearable, &itemobj::set_isWearable),
-                            "isStackable", sol::property(&itemobj::get_isStackable, &itemobj::set_isStackable),
+                            "isWearable", sol::readonly(&itemobj::get_isWearable),
+                            "isStackable", sol::readonly(&itemobj::get_isStackable),
                             "isContainer", sol::property(&itemobj::get_isContainer, &itemobj::set_isContainer),
                             
                             "isCloseable", sol::property(&itemobj::get_isCloseable, &itemobj::set_isCloseable),
@@ -315,9 +315,10 @@ void init_lua_state(sol::state& l)
                                     &living_entity::get_body_position,
                                     "SetBodyPosition",
                                     &living_entity::set_body_position,
-                                    /*
+                                    
                                     "AddInventorySlot",
                                     &living_entity::AddInventorySlot,
+                                    /*
                                     "GetInventorySlots",
                                     &living_entity::GetInventorySlots,
                                     */

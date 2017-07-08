@@ -2,7 +2,8 @@ inherit command
 c = command.new('wear')
 
 function c:WearItem( o_orig, item )
-	if( item.isWearable ~= true ) then 
+	--print(item.isWearable)
+	if( item:isWearable() ~= true ) then 
 		o_orig:SendToPlayer('You can\'t wear that!')	
 		return false;
 	end

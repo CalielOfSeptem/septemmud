@@ -13,9 +13,9 @@
 class roomobj;
 struct living_entity;
 
-/*
 
-struct inventory_slot : public container_base, public script_entity
+
+struct inventory_slot
 {
     
     inventory_slot()
@@ -23,8 +23,8 @@ struct inventory_slot : public container_base, public script_entity
         
     }
 
-    inventory_slot( std::string slotName, unsigned int maxItems,  ItemSize maxItemSize ) :
-        m_alias(slotName), m_maxItems(maxItems), m_maxSize(maxItemSize)
+    inventory_slot( InventorySlot slot, unsigned int maxItems,  ItemSize maxItemSize ) :
+        m_slot(slot), m_maxItems(maxItems), m_maxSize(maxItemSize)
     {
         
     }
@@ -34,61 +34,6 @@ struct inventory_slot : public container_base, public script_entity
         
     }
 
-    virtual bool AddEntityToInventory(script_entity * se) override
-    {
-        return container_base::AddEntityToInventory(se);
-
-    }
-
-    virtual bool RemoveEntityFromInventoryByID( const std::string& id  ) override
-    {
-        return container_base::RemoveEntityFromInventoryByID(id);
-    }
-     
-    virtual bool RemoveEntityFromInventory( script_entity * se ) override
-    {
-        return container_base::RemoveEntityFromInventory(se);
-    }
-    
-    virtual void AddItem(itemobj * i)
-    {
-        container_base::AddEntityToInventory( dynamic_cast<script_entity*>(i));
-
-    }
-
-    virtual bool RemoveItem( itemobj * i )
-    {
-        return RemoveEntityFromInventory( dynamic_cast<script_entity*>(i) );
-        //return container_base::RemoveEntityFromInventory(se);
-    }
-    
-    
-    bool IsEmpty()
-    {
-        return (this->GetInventory().size()==0);
-    }
-    
-    itemobj * GetItem()
-    {
-        if(IsEmpty())
-            return NULL;
-        return dynamic_cast<itemobj*>(*std::next(this->GetInventory().begin(), 0));
-    }
-    
-    virtual script_entity * GetOwner() override
-    {
-        return this;
-    }
-    
-    std::string & get_alias()
-    {
-        return m_alias;
-    }
-    
-    void set_alias(std::string& s)
-    {
-        m_alias = s;
-    }
     
     unsigned int get_maxItems()
     {
@@ -101,11 +46,11 @@ struct inventory_slot : public container_base, public script_entity
     }
     
 private:
-    std::string m_alias; // human-readable name
+    InventorySlot m_slot;
     unsigned int m_maxItems = 1; // default is 1 item
     ItemSize m_maxSize = ItemSize::COLOSSAL; // biggest item that can fit
 };
-*/
+
 struct handobj : public container_base, public script_entity
 {
      handobj()
@@ -264,7 +209,8 @@ struct living_entity : public script_entity, public container_base
     {
         
     }
-  //  bool AddInventorySlot( std::string slotName, unsigned int maxItems=1, ItemSize maxItemSize = ItemSize::COLOSSAL );
+    
+    bool AddInventorySlot( InventorySlot slot, unsigned int maxItems=1, ItemSize maxItemSize = ItemSize::COLOSSAL );
     /*
     std::vector<inventory_slot*> GetInventorySlots()
     {
@@ -281,7 +227,10 @@ struct living_entity : public script_entity, public container_base
 private:
     EntityGender m_gender = EntityGender::UNKNOWN;
     EntityBodyPosition m_bodyPosition = EntityBodyPosition::STANDING;
-    //std::map < std::string, inventory_slot* > m_inventory_slots;
+    
+    bool is_stunned;
+    
+    std::map < InventorySlot, std::shared_ptr<inventory_slot>> m_inventory_slots;
 
 };
 #endif

@@ -1,6 +1,6 @@
 {
     "currentStackCount": 1,
-    "defaultStackSize": 10,
+    "defaultStackSize": 0,
     "inventory": {},
     "isContainer": true,
     "isLockable": false,
@@ -14,8 +14,8 @@
     "physical_script_path": "workspaces/caliel/entities/backpack",
     "pluralName": "",
     "size": 4,
-    "uid": "Rf1Do2xTS5VraN5",
+    "uid": "snEYjq0I5xN9uUj",
     "userProps": {},
-    "virtual_script_path": "workspaces/caliel/entities/backpack/Rf1Do2xTS5VraN5",
+    "virtual_script_path": "workspaces/caliel/entities/backpack/snEYjq0I5xN9uUj",
     "weight": 1.0
 }

@@ -8,7 +8,8 @@ i.Look = 'an ordinary backpack'
 
 i.weight = 1
 i.size = itemSize.medium
-i.isWearable = true
+--i.isWearable = true
+--i.SetDefaultStackSize = 0
 i.isContainer = true
 i.isCloseable = true
 i.isOpen = false

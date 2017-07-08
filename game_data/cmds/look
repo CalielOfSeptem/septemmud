@@ -196,6 +196,15 @@ function FormatRoom(r, o)
 			pname = string.gsub(pname, "(%a)([%w_']*)", titleCase)
 			--str = myTable[1]
 			str = pname--str:lower()
+			if( po:GetBodyPosition() == entityBodyPosition.prone ) then
+				str = str .. ', who is lying down'
+				elseif ( po:GetBodyPosition() == entityBodyPosition.kneeling ) then
+					str = str .. ', who is kneeling'
+				elseif( po:GetBodyPosition() == entityBodyPosition.sitting ) then
+					str = str .. ', who is seated'
+				else
+			end
+			
 			if i ~= #players then
 				str = str .. ', '
 

@@ -1,11 +1,11 @@
 inherit player
 p = player.new('player_name')
 
---p:AddInventorySlot("back", 1, itemSize.large)
+p:AddInventorySlot(inventorySlot.back, 1, itemSize.large)
 
-function p:hb()
-	p:DoSave()
-end
+--function p:hb()
+--	p:DoSave()
+--end
 
 --register_heartbeat(p.hb)
 
