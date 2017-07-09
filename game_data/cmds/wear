@@ -1,20 +1,7 @@
 inherit command
 c = command.new('wear')
 
-function c:WearItem( o_orig, item )
-
-	if( item:isWearable() ~= true ) then 
-		o_orig:SendToPlayer('You can\'t wear that!')	
-		return false;
-	end
-	
-	-- TODO: logic to ensure item limits/restrictions are observed
-	local inventory_slots = o_orig:GetInventorySlots()
-	--for i = 1, #inventory_slots do
-	--	print(inventory_slots[i]:GetInventorySlot())
-	--end
-	
-	if (o_orig:AddItem(item) ~= true) then
+function c:PrintItemCountError( o_orig, item )
 		local worn_items = o_orig:GetItemsAtInventorySlot( item:GetInventorySlot() )
 		--local body_slot = 
 		if( worn_items ) then
@@ -50,9 +37,36 @@ function c:WearItem( o_orig, item )
 				o_orig:SendToPlayer('Hint: You might consider REMoving an item such as' .. s .. ' to free up some space.')
 			return true
 		end
-		--o_orig:SendToPlayer('Sorry.')--You try to put on ' .. item:GetName() .. ' but you.')	
-		return false
+end
+
+function c:WearItem( o_orig, item )
+
+	if( item:isWearable() ~= true ) then 
+		o_orig:SendToPlayer('You can\'t wear that!')	
+		return false;
 	end
+	
+	-- TODO: logic to ensure item limits/restrictions are observed
+	local inventory_slots = o_orig:GetInventorySlots()
+	--for i = 1, #inventory_slots do
+	--	print(inventory_slots[i]:GetInventorySlot())
+	--end
+	
+	local maybe_added = o_orig:SafeAddItem(item)
+	
+	if( maybe_added == inventorySlotError.noSlot ) then
+		o_orig:SendToPlayer('You try to put on ' .. item:GetName() .. ' but can\'t seem to find a place to wear it.') 
+		return true
+		elseif ( maybe_added == inventorySlotError.itemCountExceeded ) then
+			self:PrintItemCountError( o_orig, item )
+			return true
+		elseif ( maybe_added == inventorySlotError.itemSizeExceeded ) then
+			o_orig:SendToPlayer('You try to put on ' .. item:GetName() .. ' but it seems too cumbersome to wear.') 
+			return true
+		else
+		
+	end
+	
 	o_orig:SendToPlayer('You put on ' .. item:GetName() .. '.')	
 	local pname = string.gsub(o_orig:GetName(), "(%a)([%w_']*)", titleCase)
 	o_orig:SendToRoom( pname .. ' puts on ' .. item:GetName() .. '.')

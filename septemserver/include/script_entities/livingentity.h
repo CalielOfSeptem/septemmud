@@ -147,7 +147,7 @@ struct handobj : public container_base, public script_entity
 
 enum EntityGender { MALE, FEMALE, UNKNOWN };
 enum EntityBodyPosition { PRONE, SITTING, KNEELING, STANDING };
-
+enum InventorySlotError { SLOT_OK, NO_SLOT, ITEM_COUNT_EXCEEDED, ITEM_SIZE_EXCEEDED };
 struct living_entity : public script_entity, public container_base
 {
     living_entity()
@@ -192,6 +192,9 @@ struct living_entity : public script_entity, public container_base
     {
         return &m_LeftHand;
     }
+    
+    virtual InventorySlotError SafeAddItemToInventory( itemobj* io );
+    
     virtual bool AddEntityToInventory(script_entity * se) override;
     virtual bool RemoveEntityFromInventory(script_entity * se) override;
     
@@ -242,6 +245,8 @@ struct living_entity : public script_entity, public container_base
     std::vector<inventory_slot*> GetInventorySlots();
     
     std::vector<itemobj*>  GetItemsInInventorySlot( InventorySlot s );
+    
+    
     
     
     

@@ -331,6 +331,9 @@ void init_lua_state(sol::state& l)
                                     "GetItemsAtInventorySlot",
                                     &living_entity::GetItemsInInventorySlot,
                                     
+                                    "SafeAddItem",
+                                    &living_entity::SafeAddItemToInventory,
+                                    
                                     sol::base_classes,
                                     sol::bases<script_entity>());
 

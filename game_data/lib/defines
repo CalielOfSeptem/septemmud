@@ -128,6 +128,12 @@ function InventorySlotToString( slot )
 		return 'head'
 	end
 end
+--enum InventorySlotError { SLOT_OK, NO_SLOT, ITEM_COUNT_EXCEEDED, ITEM_SIZE_EXCEEDED }
+inventorySlotError = {}
+inventorySlotError.none = 0
+inventorySlotError.noSlot = 1
+inventorySlotError.itemCountExceeded = 2
+inventorySlotError.itemSizeExceeded = 3
 
 --enum EntityGender { MALE, FEMALE, UNKNOWN };
 entityGender 			= {}

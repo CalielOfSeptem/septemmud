@@ -1,11 +1,31 @@
 inherit player
 p = player.new('player_name')
 
+p:AddInventorySlot(inventorySlot.body, 10, itemSize.large)
 p:AddInventorySlot(inventorySlot.back, 1, itemSize.large)
-
---function p:hb()
---	p:DoSave()
---end
-
---register_heartbeat(p.hb)
+p:AddInventorySlot(inventorySlot.waist, 4, itemSize.large)
+p:AddInventorySlot(inventorySlot.likeHeadArmor, 1, itemSize.large)
+p:AddInventorySlot(inventorySlot.overShoulder, 2, itemSize.large)
+p:AddInventorySlot(inventorySlot.likePants, 1, itemSize.large)
+p:AddInventorySlot(inventorySlot.likeShirt, 1, itemSize.large)
+p:AddInventorySlot(inventorySlot.onWrist, 2, itemSize.large)
+p:AddInventorySlot(inventorySlot.onFinger, 10, itemSize.large)
+p:AddInventorySlot(inventorySlot.onFeet, 2, itemSize.large)
+p:AddInventorySlot(inventorySlot.neck, 1, itemSize.large)
+p:AddInventorySlot(inventorySlot.belt, 3, itemSize.large)
+p:AddInventorySlot(inventorySlot.likeArmArmor, 2, itemSize.large)
+p:AddInventorySlot(inventorySlot.likeLegArmor, 2, itemSize.large)
+p:AddInventorySlot(inventorySlot.onAnEar, 4, itemSize.large)
+p:AddInventorySlot(inventorySlot.onBothEars, 1, itemSize.large)
+p:AddInventorySlot(inventorySlot.ankle, 2, itemSize.large)
+p:AddInventorySlot(inventorySlot.hands, 2, itemSize.large)
+--p:AddInventorySlot(inventorySlot.tail, 1, itemSize.large)
+p:AddInventorySlot(inventorySlot.thigh, 1, itemSize.large)
+p:AddInventorySlot(inventorySlot.upperArm, 2, itemSize.large)
+p:AddInventorySlot(inventorySlot.nose, 1, itemSize.large)
+p:AddInventorySlot(inventorySlot.overLeftEye, 1, itemSize.large)
+p:AddInventorySlot(inventorySlot.overRightEye, 1, itemSize.large)
+p:AddInventorySlot(inventorySlot.inHair, 4, itemSize.large)
+p:AddInventorySlot(inventorySlot.onHair, 4, itemSize.large)
+p:AddInventorySlot(inventorySlot.head, 1, itemSize.large)
 

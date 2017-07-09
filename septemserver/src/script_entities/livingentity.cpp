@@ -106,6 +106,7 @@ bool living_entity::AddInventorySlot(InventorySlot slot, unsigned int maxItems, 
 
 bool living_entity::AddEntityToInventory(script_entity* se)
 {
+    /*
     if( auto item = dynamic_cast<itemobj*>(se) )
     {
         // update inventory slots..
@@ -115,13 +116,15 @@ bool living_entity::AddEntityToInventory(script_entity* se)
             //if( se->
             if(  s->get_inventorySlot() & item->get_inventorySlot() )
             {
-                if( s->get_itemCount() >= s->get_maxItems() )
+                if( s->get_itemCount() >= s->get_maxItems() || s->get_maxItemSize() < item->get_itemSize() )
                 {
                     return false;
                 }
             }
         }
+        return false; // no item slot for it!!!
     }
+    */
     bool b = container_base::AddEntityToInventory(se);
     this->do_save();
     return b;
@@ -204,4 +207,31 @@ std::vector<itemobj*> living_entity::GetItemsInInventorySlot(InventorySlot s)
         }
     }
     return found;
+}
+
+InventorySlotError living_entity::SafeAddItemToInventory(itemobj* io)
+{
+
+    auto inv_slots = GetInventorySlots();
+    for (auto s : inv_slots )
+    {
+        //if( se->
+        if(  s->get_inventorySlot() & io->get_inventorySlot() )
+        {
+            if( s->get_itemCount() >= s->get_maxItems() )
+            {
+                return InventorySlotError::ITEM_COUNT_EXCEEDED;
+            }
+            else if(  s->get_maxItemSize() < io->get_size() )
+            {
+                return InventorySlotError::ITEM_SIZE_EXCEEDED;
+            }
+            else
+            {
+                AddEntityToInventory( static_cast<script_entity*>(io) );
+                return InventorySlotError::SLOT_OK;
+            }
+        }
+    }
+    return InventorySlotError::NO_SLOT;
 }
