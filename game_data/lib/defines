@@ -69,6 +69,66 @@ inventorySlot.onHair                      = 1<<24
 inventorySlot.inHair                      = 1<<25
 inventorySlot.head                        = 1<<26
 
+function InventorySlotToString( slot )
+	if slot == inventorySlot.none then   
+		return 'none'
+	elseif slot == inventorySlot.body then  
+		return 'body'
+	elseif slot == inventorySlot.back then
+		return 'back'
+	elseif slot == inventorySlot.waist then
+		return 'waist'
+	elseif slot == inventorySlot.likeHeadArmor then
+		return 'head'
+	elseif slot == inventorySlot.overShoulder then
+		return 'shoulder'
+	elseif slot == inventorySlot.likePants then 
+		return 'legs'
+	elseif slot ==inventorySlot.likeShirt then 
+		return 'torso'
+	elseif slot ==inventorySlot.onWrist then
+		return 'wrist'
+	elseif slot ==inventorySlot.onFinger then
+		return 'fingers'
+	elseif slot ==inventorySlot.onFeet then
+		return 'feet'
+	elseif slot ==inventorySlot.neck then 
+		return 'neck'
+	elseif slot ==inventorySlot.belt then 
+		return 'waist'
+	elseif slot ==inventorySlot.likeArmArmor then 
+		return 'arms'
+	elseif slot ==inventorySlot.likeLegArmor then
+		return 'legs'
+	elseif slot ==inventorySlot.onAnEar then
+		return 'ears'
+	elseif slot ==inventorySlot.onBothEars then
+		return 'ears'
+	elseif slot ==inventorySlot.ankle then     
+		return 'ankles'
+	elseif slot ==inventorySlot.hands then 
+		return 'hands'
+	elseif slot ==inventorySlot.tail then 
+		return 'tail'
+	elseif slot ==inventorySlot.thigh then   
+		return 'thighs'
+	elseif slot ==inventorySlot.upperArm then 
+		return 'upper arm'
+	elseif slot ==inventorySlot.nose then   
+		return 'nose'
+	elseif slot ==inventorySlot.overLeftEye then
+		return 'left eye'
+	elseif slot ==inventorySlot.overRightEye then
+		return 'right eye'
+	elseif slot ==inventorySlot.onHair then  
+		return 'hair'
+	elseif slot ==inventorySlot.inHair then 
+		return 'hair'
+	elseif slot ==inventorySlot.head then
+		return 'head'
+	end
+end
+
 --enum EntityGender { MALE, FEMALE, UNKNOWN };
 entityGender 			= {}
 entityGender.male 		= 0

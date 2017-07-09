@@ -2,33 +2,66 @@ inherit command
 c = command.new('wear')
 
 function c:WearItem( o_orig, item )
-	--print(item.isWearable)
+
 	if( item:isWearable() ~= true ) then 
 		o_orig:SendToPlayer('You can\'t wear that!')	
 		return false;
 	end
 	
 	-- TODO: logic to ensure item limits/restrictions are observed
-	o_orig:AddItem(item)
+	local inventory_slots = o_orig:GetInventorySlots()
+	--for i = 1, #inventory_slots do
+	--	print(inventory_slots[i]:GetInventorySlot())
+	--end
+	
+	if (o_orig:AddItem(item) ~= true) then
+		local worn_items = o_orig:GetItemsAtInventorySlot( item:GetInventorySlot() )
+		--local body_slot = 
+		if( worn_items ) then
+			if( #worn_items == 1 ) then
+				o_orig:SendToPlayer('You try to put on ' .. item:GetName() .. ' but you are already wearing too many items of that type.') 
+				o_orig:SendToPlayer('Hint: You might consider REMoving some items like your ' .. worn_items[1]:GetItemNoun() .. ' to free up some space.')
+				return true
+			end
+			local s = ''
+			for i = 1, #worn_items do
+				str = ' the ' .. worn_items[i]:GetItemNoun()
+				--if i ~= #worn_items then
+				--	str = str .. ' '
+				if ( #worn_items > 2 ) then
+					if( i ~= #worn_items ) then
+						str = str .. ','
+						else
+						str = ' or' .. str
+					end
+					else
+						if( i ~= #worn_items ) then
+						--str = str .. ','
+						else
+						str = ' or' .. str
+						end
+					--str =  ' or' .. str
+				end
+				s = s .. str
+			end
+			
+			--o_orig:SendToPlayer('You try to put on ' .. item:GetName() .. ' but you are already wearing ' .. s .. ' in that slot.')
+				o_orig:SendToPlayer('You try to put on ' .. item:GetName() .. ' but you are already wearing too many items of that type.') -- ' .. worn_items[1]:GetName() .. ' in that slot.')
+				o_orig:SendToPlayer('Hint: You might consider REMoving an item such as' .. s .. ' to free up some space.')
+			return true
+		end
+		--o_orig:SendToPlayer('Sorry.')--You try to put on ' .. item:GetName() .. ' but you.')	
+		return false
+	end
 	o_orig:SendToPlayer('You put on ' .. item:GetName() .. '.')	
 	local pname = string.gsub(o_orig:GetName(), "(%a)([%w_']*)", titleCase)
 	o_orig:SendToRoom( pname .. ' puts on ' .. item:GetName() .. '.')
-	if( o_orig:GetType():lower() == 'player' ) then
-		local player = player_cast(o_orig)
-		player:DoSave()
-	end
-	return true
-	
-	--o_orig:SendToEntity('You wear that')
-	----local room = o_orig:GetRoom()
-	--room:AddToInventory( item )	
-	--o_orig:SendToPlayer('You drop ' .. item:GetName() .. '.')	
-	--local pname = string.gsub(o_orig:GetName(), "(%a)([%w_']*)", titleCase)
-	--o_orig:SendToRoom( pname .. ' drops ' .. item:GetName() .. '.')
 	--if( o_orig:GetType():lower() == 'player' ) then
 	--	local player = player_cast(o_orig)
-	--	player:DoSave()
+		--player:DoSave()
 	--end
+	return true
+	
 end
 
 

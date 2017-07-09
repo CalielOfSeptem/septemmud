@@ -65,11 +65,17 @@ void init_lua_state(sol::state& l)
                             sol::base_classes,
                             sol::bases<container_base>() );
                             
-/*
+
     lua.new_usertype<inventory_slot>("inventory_slot",
-                                sol::base_classes,
-                                sol::bases<container_base>());
-*/                        
+                                "GetInventorySlot",
+                                &inventory_slot::get_inventorySlot,
+                                "GetMaxItems",
+                                &inventory_slot::get_maxItems,
+                                "GetMaxItemSize",
+                                &inventory_slot::get_maxItemSize,
+                                "GetItemCount",
+                                &inventory_slot::get_itemCount
+                                );
                             
     lua.new_usertype<itemobj>("item",
                             sol::constructors<itemobj(sol::this_state, sol::this_environment, std::string, ItemType)>(),
@@ -318,10 +324,13 @@ void init_lua_state(sol::state& l)
                                     
                                     "AddInventorySlot",
                                     &living_entity::AddInventorySlot,
-                                    /*
+                                    
                                     "GetInventorySlots",
                                     &living_entity::GetInventorySlots,
-                                    */
+                                    
+                                    "GetItemsAtInventorySlot",
+                                    &living_entity::GetItemsInInventorySlot,
+                                    
                                     sol::base_classes,
                                     sol::bases<script_entity>());
 

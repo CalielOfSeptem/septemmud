@@ -34,10 +34,19 @@ struct inventory_slot
         
     }
 
+    InventorySlot get_inventorySlot()
+    {
+        return m_slot;
+    }
     
     unsigned int get_maxItems()
     {
         return m_maxItems;
+    }
+    
+    ItemSize get_maxItemSize()
+    {
+        return m_maxSize;
     }
     
     void set_maxItems( unsigned int i )
@@ -45,10 +54,26 @@ struct inventory_slot
         m_maxItems = i;
     }
     
+    void set_itemCount( unsigned int i )
+    {
+        m_itemCount = i;
+    }
+    
+    unsigned int get_itemCount()
+    {
+        return m_itemCount;
+    }
+    
+    void incrementItemCount()
+    {
+        m_itemCount++;
+    }
+    
 private:
     InventorySlot m_slot;
     unsigned int m_maxItems = 1; // default is 1 item
     ItemSize m_maxSize = ItemSize::COLOSSAL; // biggest item that can fit
+    unsigned int m_itemCount = 0;
 };
 
 struct handobj : public container_base, public script_entity
@@ -211,18 +236,14 @@ struct living_entity : public script_entity, public container_base
     }
     
     bool AddInventorySlot( InventorySlot slot, unsigned int maxItems=1, ItemSize maxItemSize = ItemSize::COLOSSAL );
-    /*
-    std::vector<inventory_slot*> GetInventorySlots()
-    {
-        std::vector< inventory_slot * > slots;
-        slots.reserve(m_inventory_slots.size());
-        for( auto kvp : m_inventory_slots )
-        {
-            slots.push_back(kvp.second);
-        }
-        return slots;
-    }
-    */
+    
+    //itemobj * CheckInventorySlot( InventorySlot slot );
+    
+    std::vector<inventory_slot*> GetInventorySlots();
+    
+    std::vector<itemobj*>  GetItemsInInventorySlot( InventorySlot s );
+    
+    
     
 private:
     EntityGender m_gender = EntityGender::UNKNOWN;
