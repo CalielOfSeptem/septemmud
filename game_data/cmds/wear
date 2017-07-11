@@ -64,7 +64,6 @@ function c:WearItem( o_orig, item )
 			o_orig:SendToPlayer('You try to put on ' .. item:GetName() .. ' but it seems too cumbersome to wear.') 
 			return true
 		else
-		
 	end
 	
 	o_orig:SendToPlayer('You put on ' .. item:GetName() .. '.')	

@@ -1,0 +1,1 @@
+#include "script_entities/doorobj.h"

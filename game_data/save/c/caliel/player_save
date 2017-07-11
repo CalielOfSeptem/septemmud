@@ -1,12 +1,9 @@
 {
-    "cwd": "workspaces/caliel/entities/",
+    "cwd": "",
     "gender": "unknown",
-    "inventory": {
-        "RCfxerxArkEOXfk": "workspaces/caliel/entities/simple leather helm",
-        "x6cQQ0Dy6MweI0Z": "workspaces/caliel/entities/backpack"
-    },
+    "inventory": {},
     "leftHand": 0,
-    "rightHand": 0,
-    "roomID": 0,
-    "roomPath": "realms/void"
+    "rightHand": {
+        "7ZIaeTExs2oa9HV": "workspaces/caliel/entities/massive leather helm"
+    }
 }

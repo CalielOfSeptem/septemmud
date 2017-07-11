@@ -1,10 +1,7 @@
 {
     "currentStackCount": 1,
     "defaultStackSize": 0,
-    "inventory": {
-        "Gti5lt77QkgZ3Jy": "workspaces/caliel/entities/torque",
-        "eOzE3AWgL3Wdsf2": "workspaces/caliel/entities/simple leather helm"
-    },
+    "inventory": {},
     "isContainer": true,
     "isLockable": false,
     "isLocked": false,

@@ -16,6 +16,7 @@
       <File Name="src/script_entities/container_base.cpp"/>
       <File Name="src/script_entities/playerobj.cpp"/>
       <File Name="src/script_entities/actionobj.cpp"/>
+      <File Name="src/script_entities/doorobj.cpp"/>
     </VirtualDirectory>
     <File Name="src/game_manager.cpp"/>
     <File Name="src/entity_manager.cpp"/>

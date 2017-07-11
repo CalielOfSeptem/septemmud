@@ -39,6 +39,16 @@ itemType.skin		= 8
 itemType.ammo		= 9
 itemType.wearable	= 10
 
+-- enum class ItemMaterial { UNKNOWN=0, METAL, WOOD, FIBER, CLOTH, STONE };
+itemMaterial = {}
+itemMaterial.unknown 	= 0
+itemMaterial.metal 		= 1
+itemMaterial.wood 		= 2
+itemMaterial.fiber		= 3
+itemMaterial.cloth		= 4
+itemMaterial.stone		= 5
+
+
 inventorySlot = {}
 inventorySlot.none          			  = 0
 inventorySlot.body                        = 1<<0

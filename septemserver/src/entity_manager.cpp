@@ -1658,7 +1658,14 @@ void entity_manager::garbage_collect()
 
 roomobj* entity_manager::GetRoomByScriptPath(std::string& script_path, unsigned int instance_id)
 {
+    if( script_path.empty() )
+        return NULL;
+
     std::string room_path = script_path + ":id=" + std::to_string(instance_id);
+    if( room_path[0] == '/' )
+    {
+        room_path = room_path.erase(0, 1);
+    }
     auto search = m_room_lookup.find(room_path);
     if(search != m_room_lookup.end()) {
         return search->second;
@@ -1719,11 +1726,21 @@ itemobj* entity_manager::GetItemByScriptPath(std::string& script_path)
 roomobj* entity_manager::GetRoomByScriptPath(std::string& script_path)
 {
     //std::string room_path = script_path + ":id=" + std::to_string(instance_id);
+    if( script_path.empty() )
+        return NULL;
+
     std::string roompath = script_path;
+    
+    if( roompath[0] == '/' )
+    {
+        roompath = roompath.erase(0, 1);
+    }
+    
     std::size_t found = roompath.find(":id=");
     if(found == std::string::npos) {
         roompath += ":id=0";
     }
+
     auto search = m_room_lookup.find(roompath);
     if(search != m_room_lookup.end()) {
         return search->second;

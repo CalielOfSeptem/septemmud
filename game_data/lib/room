@@ -1,0 +1,11 @@
+inherit lib
+
+--function link_doors()
+
+--end
+
+
+function init_room(room)
+	--room.test = my_test
+end
+

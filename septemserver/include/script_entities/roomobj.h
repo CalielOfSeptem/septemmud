@@ -34,15 +34,7 @@ public:
         return looks[looks.size()-1].get();
     }
     
-
-    
-    doorobj * AddDoor(const std::string& door_name, const std::string& door_path, bool open=true, bool locked=false)
-    {
-        // TODO: add in validation code
-        doors.push_back(std::shared_ptr<doorobj>( new doorobj( door_name, door_path, open, locked)));
-        doors[doors.size()-1]->SetRoomOwner(this);
-        return doors[doors.size()-1].get();
-    }
+    doorobj * AddDoor(const std::string& door_name, const std::string& door_path, bool open=true, bool locked=false);
     
     
     virtual script_entity * GetOwner() override
@@ -122,6 +114,10 @@ public:
     
     virtual void debug( const std::string& msg ) override;
     
+        
+
+
+    
 private:
     std::string title;
     std::string description;
@@ -131,6 +127,7 @@ private:
     std::vector<std::shared_ptr<lookobj>> looks;
     std::vector<std::shared_ptr<doorobj>> doors;
     
+
 };
 
 #endif

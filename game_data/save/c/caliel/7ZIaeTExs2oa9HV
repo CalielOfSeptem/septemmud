@@ -10,12 +10,12 @@
     "isWearable": true,
     "item_type": 0,
     "look": "",
-    "name": "a simple leather helm",
-    "physical_script_path": "workspaces/caliel/entities/simple leather helm",
+    "name": "a massive leather helm",
+    "physical_script_path": "workspaces/caliel/entities/massive leather helm",
     "pluralName": "",
-    "size": 4,
-    "uid": "RCfxerxArkEOXfk",
+    "size": 6,
+    "uid": "7ZIaeTExs2oa9HV",
     "userProps": {},
-    "virtual_script_path": "workspaces/caliel/entities/simple leather helm/RCfxerxArkEOXfk",
+    "virtual_script_path": "workspaces/caliel/entities/massive leather helm/7ZIaeTExs2oa9HV",
     "weight": 1.0
 }

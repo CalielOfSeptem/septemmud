@@ -40,10 +40,35 @@ struct doorobj : public itemobj
     {
         return m_roomOwner;
     }
+ 
+ 
+    
+    bool get_isMaster()
+    {
+        return m_isMaster;
+    }
+    
+    void set_isMaster(bool b)
+    {
+        m_isMaster = b;
+    }
+    
+    roomobj * get_otherSide()
+    {
+        return m_otherSide;
+    }
+    
+    void set_otherSide(roomobj * r)
+    {
+        m_otherSide = r;
+    }
 
 private:
     std::string door_path; // path the script the door is linked to
     roomobj * m_roomOwner;
+    
+    bool m_isMaster = false;
+    roomobj * m_otherSide = NULL;
 };
 
 #endif

@@ -16,6 +16,7 @@ using json = nlohmann::json;
 // These match the lua defines, do not change without also updating defines..
 enum class ItemSize { FINE=0, DIMINUTIVE, TINY, SMALL, MEDIUM, LARGE, ENORMOUS, GARGANTUAN, COLOSSAL };
 enum class ItemType { DEFAULT=0, ARMOR, PLANT, INSTRUMENT, TOOL, MELEE, RANGED, THROWN, SKIN, AMMO, WEARABLE };
+enum class ItemMaterial { UNKNOWN=0, METAL, WOOD, FIBER, CLOTH, STONE };
 
 
 enum InventorySlot {
