@@ -220,7 +220,7 @@ void init_lua_state(sol::state& l)
                             "GetRoom",
                             &doorobj::GetRoom,
                             sol::base_classes,
-                            sol::bases<itemobj>()
+                            sol::bases<itemobj, script_entity>()
                               );
                               
                     lua.new_usertype<lookobj>("lookobj",

@@ -1,6 +1,6 @@
 inherit room
 p1 = room.new()
-init_room(p1)
+--init_room(p1)
 p1:SetTitle('Caliel\'s Workroom')
 
 p1:SetDescription("Exquisitely carved shelves of mahogany run the length of a large, two-story study. \z
@@ -15,6 +15,7 @@ p1:SetDescription("Exquisitely carved shelves of mahogany run the length of a la
 					unnatural force. A few gold-trimmed ancient scrolls lay outstretched \z
 					between stacks of the leather-bond volumes and remain taut by \z
 					sculpted jade figurines depicting wild beasts which anchor each end. \z
+					An oaken door leads south. \z
 					A dog-leg staircase ascends to a half-landing before turning at a right angle and continuing upwards \z
 					to lead to a second story balcony. ")
 					
@@ -47,7 +48,7 @@ p1:Debug('Loaded room!')
 
 
 function p1:hb()
-	p1:test()
+	--p1:test()
 	--print('..')
 	--print( door )
 	--print( door:GetDoorPath() )
@@ -73,7 +74,7 @@ end
 register_heartbeat(p1.hb)
 
 p2 = room.new()
-init_room(p2)
+--init_room(p2)
 p2:SetTitle('Castle Foyer')
 p2:SetDescription('A castle foyer that includes a plush red carpet and lavish draperies.')
 p2:AddExit( direction.north, 'workspaces/caliel/workroom:id=0', true)

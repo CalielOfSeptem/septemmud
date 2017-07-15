@@ -26,6 +26,24 @@ function c:FindItemInEnv( o, item_to_find )
 		end
 		::continue::
 	end
+	
+	local doors = o:GetRoom():GetDoors()
+
+	for i = 1, #doors do
+		local maybe_door = doors[i]:GetName():split( ' ' )
+		table.remove(maybe_door, 1) -- remove a or an
+		local door_name = table.concat(maybe_door, " ") -- put it back together
+
+		if( door_name:lower():find(item_to_find) ) then
+			skip_index = skip_index - 1
+			if ( skip_index ~= 0 ) then goto continue end -- keep looking
+			
+			return doors[i]
+		
+		end
+		::continue::
+	end			
+	
 	return nil
 	
 end
