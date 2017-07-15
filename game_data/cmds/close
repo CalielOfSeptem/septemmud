@@ -1,7 +1,15 @@
 inherit command
 c = command.new('close')
 
-
+function getNameWithDefArticle( item )
+	local iname = item:GetName()
+	if( iname ) then
+		local myTable = iname:split( ' ' )
+		myTable[1] = 'the'
+		return table.concat(myTable, " ") -- put it back together
+	end
+	return ''
+end
 
 function c:FindItemInEnv( o, item_to_find )
 	local s_num = string.match(item_to_find, '%d+')
@@ -109,8 +117,7 @@ function c:CloseItem(o, item_to_close, from_player_inventory)
 	end
 	
 	
-	local to_player = 'the'
-	local to_env = 'the'
+
 	
 	if( from_player_inventory ) then
 		to_player = 'your'
@@ -123,9 +130,9 @@ function c:CloseItem(o, item_to_close, from_player_inventory)
 		end
 	end
 	item_to_close:SetIsOpen(false)
-	o:SendToEntity('You close ' .. to_player .. ' ' .. item_to_close:GetItemNoun() .. '.')
+	o:SendToEntity('You close ' .. getNameWithDefArticle(item_to_close) .. '.')
 	local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
-	o:SendToRoom( pname .. ' closes ' .. to_env .. ' ' .. item_to_close:GetItemNoun() .. '.')	
+	o:SendToRoom( pname .. ' closes ' .. getNameWithDefArticle(item_to_close) .. '.')	
 
 	return false
 	
