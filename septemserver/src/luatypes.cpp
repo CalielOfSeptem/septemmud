@@ -219,6 +219,10 @@ void init_lua_state(sol::state& l)
                             &doorobj::SetDoorPath,
                             "GetRoom",
                             &doorobj::GetRoom,
+                            "GetOtherRoom",
+                            &doorobj::get_otherRoom,
+                            "GetOtherDoor",
+                            &doorobj::get_otherDoor,
                             sol::base_classes,
                             sol::bases<itemobj, script_entity>()
                               );

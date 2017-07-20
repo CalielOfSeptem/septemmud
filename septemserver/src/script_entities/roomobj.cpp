@@ -65,19 +65,33 @@ void roomobj::SendToRoom(const std::string& msg)
     }
 }
 
-doorobj* roomobj::AddDoor(const std::string& door_name, const std::string& door_path, bool open, bool locked)
+doorobj* roomobj::AddDoor(const std::string& door_name, const std::string& door_path, const unsigned int door_id, bool open, bool locked)
 {
     // TODO: add in validation code
-    std::shared_ptr<doorobj> new_door = std::shared_ptr<doorobj>(new doorobj(door_name, door_path, open, locked));
+    std::shared_ptr<doorobj> new_door = std::shared_ptr<doorobj>(new doorobj(door_name, door_path, door_id, open, locked));
     std::string doorp = door_path;
     roomobj* maybe_otherside = entity_manager::Instance().GetRoomByScriptPath(doorp);
     if(maybe_otherside != NULL) {
-        new_door->set_otherSide(maybe_otherside);
-        //maybe_otherside->set_isMaster = true;
-        new_door->set_isMaster(false);
+       // new_door->set_otherSide(maybe_otherside);
+        //new_door->set_isMaster(false);
+        
+        if( doorobj * dobj = maybe_otherside->GetDoorByID(door_id) )
+        {
+           // dobj->set_otherSide(this);
+           
+        }
+        else
+        {
+            // add it in.
+            doorobj * tdoor = maybe_otherside->AddDoor(door_name, this->GetInstancePath(), door_id, open, locked);
+        
+        }
+        
+        //maybe_otherside->set_otherSide(new_door); // first door intantiated wins!
+        //maybe_otherside->set_isMaster(true);
     } else {
-        new_door->set_otherSide(NULL);
-        new_door->set_isMaster(true);
+        //new_door->set_otherSide(NULL);
+        //new_door->set_isMaster(true);
     }
 
     new_door->SetRoomOwner(this);

@@ -2,6 +2,7 @@
 #define DOOROBJ_H_
 
 #include "script_entities/itemobj.h"
+//#include "script_entities/roomobj.h"
 
 struct roomobj;
 
@@ -11,13 +12,24 @@ struct doorobj : public itemobj
     {
         
     }
-    doorobj(const std::string& door_name, const std::string& door_path, bool open=false, bool locked=false)
-        : door_path(door_path)
+    doorobj(const std::string& door_name, const std::string& door_path, unsigned int door_id, bool open=false, bool locked=false)
+        : door_path(door_path), m_doorID(door_id)
     {
-        //this->door_path = door_path;
         this->set_isOpen(open);
         this->set_isLocked(locked);
         SetName(door_name);
+    }
+    
+    virtual void set_isOpen(bool b)
+    {
+        if( get_isOpen() != b )
+        {
+            itemobj::set_isOpen(b);
+            if( doorobj * dobj = this->get_otherDoor() )
+            {
+                dobj->set_isOpen(b);
+            }
+        }
     }
     
     const std::string& GetDoorPath()
@@ -41,34 +53,25 @@ struct doorobj : public itemobj
         return m_roomOwner;
     }
  
- 
-    
-    bool get_isMaster()
+    unsigned int get_doorID()
     {
-        return m_isMaster;
+        return m_doorID;
     }
     
-    void set_isMaster(bool b)
+    void set_doorID(unsigned int doorid)
     {
-        m_isMaster = b;
+        m_doorID = doorid;
     }
     
-    roomobj * get_otherSide()
-    {
-        return m_otherSide;
-    }
+    roomobj * get_otherRoom();
     
-    void set_otherSide(roomobj * r)
-    {
-        m_otherSide = r;
-    }
+    doorobj * get_otherDoor()
+    ;
 
 private:
     std::string door_path; // path the script the door is linked to
     roomobj * m_roomOwner;
-    
-    bool m_isMaster = false;
-    roomobj * m_otherSide = NULL;
+    unsigned int m_doorID;
 };
 
 #endif

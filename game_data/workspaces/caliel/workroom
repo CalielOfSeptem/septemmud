@@ -39,7 +39,7 @@ p1:AddLook( { 'exquisitely carved shelves', 'carved shelves', 'shelves' }, 'The 
 --p1:AddExit( direction.south, '/workspaces/caliel/workroom:id=1', true)
 --p1:AddExit( direction.east, 'workspaces/caliel/workroom:id=2', true)
 
-local door = p1:AddDoor( 'an oaken door', 'workspaces/caliel/workroom:id=1', false, false ) -- path, opened?, locked?
+local door = p1:AddDoor( 'an oaken door', 'workspaces/caliel/workroom:id=1', 1, false, false ) -- path, opened?, locked?
 
 
 p1:Debug('Loaded room!')
@@ -79,7 +79,7 @@ p2:SetTitle('Castle Foyer')
 p2:SetDescription('A castle foyer that includes a plush red carpet and lavish draperies.')
 p2:AddExit( direction.north, 'workspaces/caliel/workroom:id=0', true)
 --p1:Debug('Loaded room!')
-local door = p2:AddDoor( 'an oaken door', 'workspaces/caliel/workroom:id=0', false, false ) 
+local door = p2:AddDoor( 'an oaken door', 'workspaces/caliel/workroom:id=0', 1, false, false ) 
 function p2:hb()
 	--for i = 1, 100 do
 	--	clone_item( 'workspaces/caliel/entities/rock', p2 )

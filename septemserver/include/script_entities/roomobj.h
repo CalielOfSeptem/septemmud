@@ -34,7 +34,7 @@ public:
         return looks[looks.size()-1].get();
     }
     
-    doorobj * AddDoor(const std::string& door_name, const std::string& door_path, bool open=true, bool locked=false);
+    doorobj * AddDoor(const std::string& door_name, const std::string& door_path, const unsigned int door_id, bool open=true, bool locked=false);
     
     
     virtual script_entity * GetOwner() override
@@ -51,6 +51,16 @@ public:
     std::vector<std::shared_ptr<doorobj>>& GetDoors()
     {
         return doors;
+    }
+    
+    doorobj * GetDoorByID(const unsigned int did)
+    {
+        for( auto d : this->doors )
+        {
+            if( d->get_doorID() == did )
+                return d.get();
+        }
+        return NULL;
     }
     
     std::vector<std::shared_ptr<lookobj>>& GetLooks()

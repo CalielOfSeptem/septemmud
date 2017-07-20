@@ -112,12 +112,9 @@ function c:CloseItem(o, item_to_close, from_player_inventory)
 	item_to_find = item_cast(item_to_close)
 	
 	if( item_to_close:GetIsOpen() ~= true ) then
-		o:SendToEntity('The ' .. item_to_close:GetItemNoun() .. ' is already closed.')
+		o:SendToEntity('The ' .. getNameWithDefArticle(item_to_close) .. ' is already closed.')
 		return false
 	end
-	
-	
-
 	
 	if( from_player_inventory ) then
 		to_player = 'your'
@@ -133,6 +130,16 @@ function c:CloseItem(o, item_to_close, from_player_inventory)
 	o:SendToEntity('You close ' .. getNameWithDefArticle(item_to_close) .. '.')
 	local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
 	o:SendToRoom( pname .. ' closes ' .. getNameWithDefArticle(item_to_close) .. '.')	
+	
+	local maybe_other_side = item_to_close:GetOtherRoom()
+	--print(maybe_other_side)
+	if( maybe_other_side ) then
+		--local other_room = maybe_other_side:GetRoom()
+		--if( other_room ) then
+			--print(other_room)
+			maybe_other_side:SendToRoom( pname .. ' closes ' .. getNameWithDefArticle(item_to_close) .. '.' )
+		--end
+	end
 
 	return false
 	

@@ -1,7 +1,15 @@
 inherit command
 c = command.new('open')
 
-
+function getNameWithDefArticle( item )
+	local iname = item:GetName()
+	if( iname ) then
+		local myTable = iname:split( ' ' )
+		myTable[1] = 'the'
+		return table.concat(myTable, " ") -- put it back together
+	end
+	return ''
+end
 
 function c:FindItemInEnv( o, item_to_find )
 	local s_num = string.match(item_to_find, '%d+')
@@ -104,12 +112,12 @@ function c:OpenItem(o, item_to_open, from_player_inventory)
 	item_to_find = item_cast(item_to_open)
 	
 	if( item_to_open:GetIsOpen() ) then
-		o:SendToEntity('The ' .. item_to_open:GetItemNoun() .. ' is already open.')
+		o:SendToEntity('The ' .. getNameWithDefArticle(item_to_open) .. ' is already open.')
 		return false
 	end
 	
 	if( item_to_open:GetIsLocked() ) then
-		o:SendToEntity('The ' .. item_to_open:GetItemNoun() .. ' is locked.')
+		o:SendToEntity('The ' .. getNameWithDefArticle(item_to_open) .. ' is locked.')
 		return false
 	end
 	
@@ -128,9 +136,17 @@ function c:OpenItem(o, item_to_open, from_player_inventory)
 		end
 	end
 	item_to_open:SetIsOpen(true)
-	o:SendToEntity('You open ' .. to_player .. ' ' .. item_to_open:GetItemNoun() .. '.')
+	o:SendToEntity('You open ' .. to_player .. ' ' .. getNameWithDefArticle(item_to_open) .. '.')
 	local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
-	o:SendToRoom( pname .. ' opens ' .. to_env .. ' ' .. item_to_open:GetItemNoun() .. '.')	
+	o:SendToRoom( pname .. ' opens ' .. to_env .. ' ' .. getNameWithDefArticle(item_to_open) .. '.')	
+	
+	local maybe_other_side = item_to_open:GetOtherRoom()
+	if( maybe_other_side ) then
+		--local other_room = maybe_other_side:GetRoom()
+		--if( other_room ) then
+		maybe_other_side:SendToRoom( pname .. ' opens ' .. to_env .. ' ' .. getNameWithDefArticle(item_to_open) .. '.' )
+		--end
+	end
 
 	return false
 	
