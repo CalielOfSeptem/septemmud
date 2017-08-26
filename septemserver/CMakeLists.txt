@@ -1,6 +1,11 @@
 cmake_minimum_required (VERSION 3.6)
 project (Septemmud)
 
+find_package(spdlog)
+
+set(LUA_HEADER_DIR /usr/include/lua5.3)
+
+set(JSON_HEADER_DIR ../json/src)
 set(SCRIPT_ENTITIES src/script_entities)
 set(SRC src)
 set(INCLUDE include)
@@ -8,9 +13,20 @@ set(FILESYSTEM src/fs)
 set(NET src/net)
 set(SERVER src/server)
 set(SCRIPT_ENTITIES_INCLUDE_DIR ${INCLUDE}/script_entities)
+set(SOL_HEADER_DIR ../sol2)
 
-
-list(APPEND DIRECTORIES ${SCRIPT_ENTITIES} ${SCRIPT_ENTITIES_INCLUDE_DIR} ${SRC} ${INCLUDE} ${FILESYSTEM} ${NET} ${SERVER})
+list(APPEND DIRECTORIES 
+ ${SCRIPT_ENTITIES} 
+ ${SCRIPT_ENTITIES_INCLUDE_DIR} 
+ ${SRC} 
+ ${INCLUDE} 
+ ${FILESYSTEM} 
+ ${NET} 
+ ${SERVER} 
+ ${SOL_HEADER_DIR}
+ ${LUA_HEADER_DIR}
+ ${JSON_HEADER_DIR}
+ )
 
 include_directories(${DIRECTORIES})
 
