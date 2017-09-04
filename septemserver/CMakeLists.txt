@@ -14,6 +14,8 @@ set(NET src/net)
 set(SERVER src/server)
 set(SCRIPT_ENTITIES_INCLUDE_DIR ${INCLUDE}/script_entities)
 set(SOL_HEADER_DIR ../sol2)
+set(TELNETPP_HEADER_DIR ../telnetpp/include)
+set(TERMINALPP_HEADER_DIR ../terminalpp/include)
 
 list(APPEND DIRECTORIES 
  ${SCRIPT_ENTITIES} 
@@ -26,6 +28,8 @@ list(APPEND DIRECTORIES
  ${SOL_HEADER_DIR}
  ${LUA_HEADER_DIR}
  ${JSON_HEADER_DIR}
+ ${TELNETPP_HEADER_DIR}
+ ${TERMINALPP_HEADER_DIR}
  )
 
 include_directories(${DIRECTORIES})
@@ -124,7 +128,8 @@ list(APPEND HEADERS
 				${IO_HEADERS}
 				${NET_HEADERS}
 				${SERVER_HEADERS})
-				
+	
+add_definitions("-std=c++14 -ftemplate-depth=10000 -ftemplate-backtrace-limit=0")
 add_executable(septemmud
 			${SRC}
 			${HEADERS})

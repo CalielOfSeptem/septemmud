@@ -1,3 +1,5 @@
 cmake_minimum_required (VERSION 3.6)
 project (Septemmud)
+add_subdirectory(telnetpp)
+add_subdirectory(terminalpp)
 add_subdirectory(septemserver)
