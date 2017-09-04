@@ -1,0 +1,78 @@
+inherit command
+c = command.new('knock')
+
+function getNameWithDefArticle( item )
+	local iname = item:GetName()
+	if( iname ) then
+		local myTable = iname:split( ' ' )
+		myTable[1] = 'the'
+		return table.concat(myTable, " ") -- put it back together
+	end
+	return ''
+end
+
+function c:ExecuteCommand ( o_orig, cmd )
+
+	local myTable = cmd:split( ' ' )
+	if #myTable ~= 2 then
+		usage(o)
+		return true;
+	end
+	
+	-- remove enter portion
+	table.remove(myTable, 1)
+	local cmd = table.concat(myTable, " ") -- put it back together
+	
+	local s_num = string.match(cmd, '%d+')
+	local skip_index = 1 -- don't skip by default
+	if( s_num ~= nil ) then
+		skip_index = s_num
+		cmd = string.match(cmd, '%a+')
+		--print(s1)
+	end
+	
+	s_type = o_orig:GetType()
+	if (s_type:lower() ~= "player" and s_type:lower() ~= "npc") then
+		return true;
+	end
+	
+	ob = living_cast(o_orig)
+	
+	local doors = ob:GetRoom():GetDoors()
+	for i = 1, #doors do
+		local maybe_door = doors[i]:GetName():split( ' ' )
+		table.remove(maybe_door, 1) -- remove a or an
+		local door_name = table.concat(maybe_door, " ") -- put it back together
+		
+		
+
+		if( door_name:lower():find(cmd) ) then
+			skip_index = skip_index - 1
+			if ( skip_index ~= 0 ) then goto continue end -- keep looking
+			ob:SendToEntity( 'You knock on ' .. getNameWithDefArticle(doors[i]) .. '.')
+			
+			pname = string.gsub(ob:GetName(), "(%a)([%w_']*)", titleCase)
+			ob:SendToRoom(pname .. ' knocks on ' .. getNameWithDefArticle(doors[i]) .. '.')
+			
+			if( doors[i]:GetIsOpen() ~= true ) then
+				if( doors[i]:GetOtherRoom() ~= nil ) then
+					doors[i]:GetOtherRoom():SendToRoom('You hear a loud knocking coming from ' .. getNameWithDefArticle(doors[i]) .. '.' )
+				end
+			end
+			
+			--ob:SendToEntity('You go through the ' .. door_name .. '. \r\n')
+			--pname = string.gsub(ob:GetName(), "(%a)([%w_']*)", titleCase)
+			--ob:SendToRoom(pname .. ' goes through the ' .. door_name .. '. \r\n')
+			--move_living( ob, doors[i]:GetDoorPath() )
+			--ob:SendToRoom(pname .. ' just arrived.\r\n')
+			--ob:DoCommand("look")
+		end
+		::continue::
+	end					
+
+	return false
+end
+
+function usage(o_orig)
+	o_orig:SendToEntity('USAGE: enter <Implement me later>')
+end

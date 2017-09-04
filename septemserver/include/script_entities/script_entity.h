@@ -194,7 +194,7 @@ struct script_entity {
             return actions[actions.size()-1].get();
         }
         
-    
+        
         std::vector<std::shared_ptr<actionobj>>& GetActions()
         {
             return actions;
@@ -207,6 +207,7 @@ struct script_entity {
                 r->DoAction();
             }
         }
+        
 
 private:
         std::string entity_storage_location; // used for persistence

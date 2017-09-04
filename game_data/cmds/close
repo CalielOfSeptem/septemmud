@@ -130,15 +130,17 @@ function c:CloseItem(o, item_to_close, from_player_inventory)
 	o:SendToEntity('You close ' .. getNameWithDefArticle(item_to_close) .. '.')
 	local pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
 	o:SendToRoom( pname .. ' closes ' .. getNameWithDefArticle(item_to_close) .. '.')	
+	maybe_door = door_cast(item_to_close)
 	
-	local maybe_other_side = item_to_close:GetOtherRoom()
-	--print(maybe_other_side)
-	if( maybe_other_side ) then
-		--local other_room = maybe_other_side:GetRoom()
-		--if( other_room ) then
-			--print(other_room)
-			maybe_other_side:SendToRoom( pname .. ' closes ' .. getNameWithDefArticle(item_to_close) .. '.' )
-		--end
+	if( maybe_door ) then
+		local maybe_other_side = item_to_close:GetOtherRoom()
+
+		if( maybe_other_side ) then
+
+				-- TODO: May need to trim the item_to_close output here as the door may not have any adjectives set.
+				maybe_other_side:SendToRoom( 'The ' .. item_to_close:GetItemAdjectives() .. ' ' .. item_to_close:GetItemNoun() .. ' closes.' )
+
+		end
 	end
 
 	return false

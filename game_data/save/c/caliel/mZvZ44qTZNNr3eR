@@ -7,7 +7,7 @@
     "isContainer": true,
     "isLockable": false,
     "isLocked": false,
-    "isOpen": false,
+    "isOpen": true,
     "isStackable": false,
     "isWearable": true,
     "item_type": 0,

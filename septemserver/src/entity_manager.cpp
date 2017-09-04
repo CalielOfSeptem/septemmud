@@ -778,6 +778,7 @@ void entity_manager::init_lua()
     lua.set_function("room_cast", &downcast<roomobj>);
     lua.set_function("player_cast", &downcast<playerobj>);
     lua.set_function("item_cast", &downcast<itemobj>);
+    lua.set_function("door_cast", &downcast<doorobj>);
     lua.set_function("living_cast", &downcast<living_entity>);
     lua.set_function("int_to_string", &int_to_string);
 
