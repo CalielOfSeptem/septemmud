@@ -1,9 +1,10 @@
 cmake_minimum_required (VERSION 3.6)
 project (Septemmud)
 
+find_package(Boost 1.62.0 REQUIRED COMPONENTS
+				date_time filesystem system program_options)
+find_package(Lua)
 find_package(spdlog)
-
-set(LUA_HEADER_DIR /usr/include/lua5.3)
 
 set(JSON_HEADER_DIR ../json/src)
 set(SCRIPT_ENTITIES src/script_entities)
@@ -26,10 +27,11 @@ list(APPEND DIRECTORIES
  ${NET} 
  ${SERVER} 
  ${SOL_HEADER_DIR}
- ${LUA_HEADER_DIR}
  ${JSON_HEADER_DIR}
  ${TELNETPP_HEADER_DIR}
  ${TERMINALPP_HEADER_DIR}
+ ${Boost_INCLUDE_DIRS}
+ ${LUA_INCLUDE_DIR}
  )
 
 include_directories(${DIRECTORIES})
@@ -130,6 +132,16 @@ list(APPEND HEADERS
 				${SERVER_HEADERS})
 	
 add_definitions("-std=c++14 -ftemplate-depth=10000 -ftemplate-backtrace-limit=0")
+
 add_executable(septemmud
 			${SRC}
 			${HEADERS})
+			
+list(APPEND LIBRARIES
+			${Boost_LIBRARIES}
+			telnetpp
+			terminalpp
+			pthread
+			${LUA_LIBRARIES})
+			
+target_link_libraries(septemmud ${LIBRARIES})
