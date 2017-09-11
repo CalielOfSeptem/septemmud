@@ -773,6 +773,8 @@ void entity_manager::init_lua()
     lua.set_function("deregister_all_heartbeat", &heartbeat_manager::deregister_all_heartbeat_funcs, &_heartbeat);
 
     lua.set_function("move_living", &entity_manager::move_living, this);
+    
+    lua.set_function("capture_input", &entity_manager::capture_input, this);
 
     lua.set_function("command_cast", &downcast<commandobj>);
     lua.set_function("room_cast", &downcast<roomobj>);
@@ -817,6 +819,10 @@ void entity_manager::init_lua()
     
     
     lua.set_function("do_translate_path", [&](std::string path, playerobj * e) -> std::string { return this->do_translate_path( path, e ); });
+    
+   // lua.set_function( "capture_input", [&](std::string path, script_entity * e) -> itemobj * { return this->clone_item(path, e); });
+    
+    
     //lua.set_function("tail_entity_log",
     //                 [&](script_entity * se) -> std::vector<std::string> & { return this->get_player(ename); });
 
@@ -2074,6 +2080,12 @@ void entity_manager::invoke_room_actions()
     {
         r.second->DoActions();
     }
+}
+
+bool entity_manager::capture_input(sol::this_state ts, playerobj * p, sol::object f)
+{
+    std::cout << "here";
+    return true;
 }
 
 /*

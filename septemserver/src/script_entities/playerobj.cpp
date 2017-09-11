@@ -165,3 +165,51 @@ bool playerobj::do_load()
     }
     return true;
 }
+
+bool playerobj::capture_input(sol::state_view lua_state, sol::protected_function pf)
+{
+    sol::environment target_env(sol::env_key, pf);
+    sol::optional<std::string> script_path = target_env["_INTERNAL_SCRIPT_PATH_"];
+    //sol::optional<std::string> script_path = target_env["_INTERNAL_PHYSICAL_SCRIPT_PATH_"];
+    sol::optional<std::string> e_type = target_env["_INTERNAL_ENTITY_TYPE_"];
+   
+    if( script_path )
+    {
+        std::cout << script_path.value() << std::endl;
+        if( script_path.value().empty() )
+            return false; // yeah.. don't go trying to use an empty value
+       // std::cout << script_path.value();
+        //bindings.insert( {++bindingId, state_wrapper (lua_state, pf, script_path.value(), e_type.value())});
+        pf_capture_input = pf;
+        capture_input_script_path = script_path.value();
+        binputCaptured = true;
+    }
+    else
+    {
+        return false;
+    }
+}
+    /*
+    unsigned int register_heartbeat_func(sol::state_view lua_state, sol::protected_function pf)
+    {
+        sol::environment target_env(sol::env_key, pf);
+        sol::optional<std::string> script_path = target_env["_INTERNAL_SCRIPT_PATH_"];
+        //sol::optional<std::string> script_path = target_env["_INTERNAL_PHYSICAL_SCRIPT_PATH_"];
+        sol::optional<std::string> e_type = target_env["_INTERNAL_ENTITY_TYPE_"];
+       
+        if( script_path )
+        {
+             std::cout << script_path.value() << std::endl;
+            if( script_path.value().empty() )
+                return -1; // yeah.. don't go trying to use an empty value
+           // std::cout << script_path.value();
+            bindings.insert( {++bindingId, state_wrapper (lua_state, pf, script_path.value(), e_type.value())});
+        }
+        else
+        {
+            return -1;
+        }
+        
+        return bindingId;
+    }
+     */

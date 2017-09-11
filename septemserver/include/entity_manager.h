@@ -93,6 +93,8 @@ struct _internal_lua_
     bool do_goto(std::string& entitypath, playerobj* p );
     bool do_tp(std::string& entitypath, playerobj* p_targ, playerobj * p_caller );
     
+    bool capture_input(sol::this_state ts, playerobj * p, sol::object f);
+    
     /**
      * @brief A bloody work around to link scripts with their instantiated objects
      * @return 

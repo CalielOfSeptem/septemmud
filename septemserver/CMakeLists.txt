@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.6)
 project (Septemmud)
 
-find_package(Boost 1.62.0 REQUIRED COMPONENTS
+find_package(Boost 1.61.0 REQUIRED COMPONENTS
 				date_time filesystem system program_options)
 find_package(Lua)
 find_package(spdlog)

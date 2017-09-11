@@ -169,6 +169,7 @@ int main(int argc, char **argv)
     global_settings::Instance().SetSetting( DEFAULT_LOGS_PATH, "logs/");
     global_settings::Instance().SetSetting( DEFAULT_ROOM_LOG_PATH, "roomlog");
     global_settings::Instance().SetSetting( DEFAULT_BASE_SAVE_PATH, "save");
+    global_settings::Instance().SetSetting( DEFAULT_ACCOUNTS_PATH, "accounts");
     //chdir( global_settings::Instance().GetSetting( DEFAULT_GAME_DATA_PATH).c_str() );
     
    // std::string roomLog = global_settings::Instance().GetSetting( DEFAULT_GAME_DATA_PATH ) + global_settings::Instance().GetSetting( DEFAULT_LOGS_PATH ) + global_settings::Instance().GetSetting( DEFAULT_ROOM_LOG_PATH );
