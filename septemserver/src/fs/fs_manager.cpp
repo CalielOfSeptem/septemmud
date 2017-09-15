@@ -326,3 +326,38 @@ bool fs_manager::get_player_save_dir(const std::string& pname, std::string& full
 
     return true;
 }
+
+bool fs_manager::get_account_save_dir(const std::string& aname, std::string& fullpath)
+{
+    try
+    {
+        auto game_root_path = boost::filesystem::canonical(global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH));
+        auto account_save = global_settings::Instance().GetSetting(DEFAULT_ACCOUNTS_PATH);
+        
+        std::string first_letter = boost::to_lower_copy(aname).substr(0,1);
+        
+        auto patha = boost::filesystem::weakly_canonical(game_root_path/account_save/first_letter);
+        
+                //Check if path is within web_root_path
+        if(std::distance(game_root_path.begin(), game_root_path.end())>std::distance(patha.begin(), patha.end()) ||
+            !std::equal(game_root_path.begin(), game_root_path.end(), patha.begin()))
+            throw std::invalid_argument("path must be within root path");
+        //if(!boost::filesystem::is_directory(patha))
+        //    throw std::invalid_argument("must be a directory");
+        if(!(boost::filesystem::exists(patha) ))// && boost::filesystem::is_regular_file(path)))
+            boost::filesystem::create_directory(patha);
+            
+        auto pathb=boost::filesystem::weakly_canonical(game_root_path/account_save/first_letter/aname);
+        if(!(boost::filesystem::exists(pathb) ))// && boost::filesystem::is_regular_file(path)))
+            boost::filesystem::create_directory(pathb); 
+            
+        fullpath = pathb.string();
+    }
+    catch( std::exception& ex )
+    {
+        // TODO: report error to log
+        return false;
+    }
+
+    return true;    
+}

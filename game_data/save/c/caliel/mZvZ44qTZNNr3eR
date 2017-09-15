@@ -1,13 +1,11 @@
 {
     "currentStackCount": 1,
     "defaultStackSize": 0,
-    "inventory": {
-        "7ZIaeTExs2oa9HV": "workspaces/caliel/entities/massive leather helm"
-    },
+    "inventory": {},
     "isContainer": true,
     "isLockable": false,
     "isLocked": false,
-    "isOpen": true,
+    "isOpen": false,
     "isStackable": false,
     "isWearable": true,
     "item_type": 0,
