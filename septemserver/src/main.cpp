@@ -22,9 +22,12 @@
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/bind.hpp>
+#include <boost/filesystem.hpp>
 
 namespace ba = boost::asio;
 namespace po = boost::program_options;
+
+#define CONFIG_FILE_NAME "config.ini"
 
 boost::mutex global_stream_lock;
 
@@ -66,7 +69,16 @@ int main(int argc, char **argv)
 {
     
     boost::property_tree::ptree pt;
-    boost::property_tree::ini_parser::read_ini("config.ini", pt);
+
+    std::string working_directory = boost::filesystem::current_path().string();
+    try
+    {
+    	boost::property_tree::ini_parser::read_ini(CONFIG_FILE_NAME, pt);
+    }
+    catch(std::exception & ex)
+    {
+    	std::cerr << "Failed to find file: " << CONFIG_FILE_NAME << " in directory working directory " << working_directory << std::endl;
+    }
     std::cout << pt.get<std::string>("options.port") << std::endl;
     
 
@@ -117,6 +129,7 @@ int main(int argc, char **argv)
             }
             catch(...)
             {
+            	std::cerr << "Concurrency not found, setting to zero." << std::endl;
                 // Failure is to be expected here, since it might be an empty
                 // string.  In this case, concurrency will be a detectable 0.
             }
@@ -159,7 +172,8 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
     
-    global_settings::Instance().SetSetting( DEFAULT_GAME_DATA_PATH, "/home/ken/git-repos/septemmud/game_data/");
+    std::string game_data_path = working_directory + "/game_data/";
+    global_settings::Instance().SetSetting( DEFAULT_GAME_DATA_PATH, game_data_path);
     global_settings::Instance().SetSetting( BASE_PLAYER_ENTITY_PATH, "entities/player");
     global_settings::Instance().SetSetting( DEFAULT_VOID_ROOM, "realms/void");
     global_settings::Instance().SetSetting( DEFAULT_DAEMON_PATH, "daemon");
@@ -210,14 +224,38 @@ int main(int argc, char **argv)
     if( !log )
     {
         spd::set_pattern("[%x %H:%M:%S:%e] %v");
+
+
         std::string entityLog = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH) +
                             global_settings::Instance().GetSetting(DEFAULT_LOGS_PATH);
+
+
+        if(boost::filesystem::exists(entityLog) == false)
+        {
+        	bool attempt_create = boost::filesystem::create_directories(entityLog);
+        	if(attempt_create == false)
+        	{
+        		std::cerr << "Could not create logging directories: " << entityLog << std::endl;
+        		return EXIT_FAILURE;
+        	}
+        	else
+        	{
+        		std::clog << "Logging Directory Created: " << entityLog << std::endl;
+        	}
+        }
+        else
+        {
+        	std::clog << "Logging Directory Found: " << entityLog << std::endl;
+        }
+
         entityLog += "septem";
         
         try
         {
+
             std::vector<spdlog::sink_ptr> sinks;
-            auto rotating = std::make_shared<spdlog::sinks::rotating_file_sink_mt> (entityLog, "log", 1024*1024, 5, true);
+            //PD rotating file sink only takes 4 arguments.
+            auto rotating = std::make_shared<spdlog::sinks::rotating_file_sink_mt> (entityLog, "log", 1024*1024, 5);
             auto stdout_sink = spdlog::sinks::stdout_sink_mt::instance();
 
             sinks.push_back(stdout_sink);
@@ -231,9 +269,10 @@ int main(int argc, char **argv)
             //combined_logger->flush();
             
         }
-        catch( std::exception& )
+        catch( std::exception & ex )
         {
-            
+            std::cerr << "Exception Setting up logging: " << ex.what() << std::endl;
+            return EXIT_FAILURE;
         }
        
    }
