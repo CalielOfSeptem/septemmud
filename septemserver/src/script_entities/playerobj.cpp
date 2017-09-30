@@ -166,29 +166,81 @@ bool playerobj::do_load()
     return true;
 }
 
-bool playerobj::capture_input(sol::state_view lua_state, sol::protected_function pf)
+/*
+bool playerobj::capture_input(sol::this_state ts, sol::protected_function pf)
 {
+    sol::state_view lua_state = sol::state_view(ts);
     sol::environment target_env(sol::env_key, pf);
     sol::optional<std::string> script_path = target_env["_INTERNAL_SCRIPT_PATH_"];
     //sol::optional<std::string> script_path = target_env["_INTERNAL_PHYSICAL_SCRIPT_PATH_"];
-    sol::optional<std::string> e_type = target_env["_INTERNAL_ENTITY_TYPE_"];
+   // sol::optional<std::string> e_type = target_env["_INTERNAL_ENTITY_TYPE_"];
    
     if( script_path )
     {
         std::cout << script_path.value() << std::endl;
         if( script_path.value().empty() )
             return false; // yeah.. don't go trying to use an empty value
-       // std::cout << script_path.value();
-        //bindings.insert( {++bindingId, state_wrapper (lua_state, pf, script_path.value(), e_type.value())});
+
         pf_capture_input = pf;
         capture_input_script_path = script_path.value();
-        binputCaptured = true;
+        //binputCaptured = true;
+        return true;
     }
     else
     {
         return false;
     }
 }
+
+bool playerobj::execute_input_capture(sol::this_state ts, const std::string& input)
+{
+    sol::state_view lua_state = sol::state_view(ts);
+    if( !binputCaptured || capture_input_script_path.empty() )
+    {
+        return false;
+    }
+    try 
+    {
+
+        lua_state.set_function("debug_hook", [this, lua_state](sol::object o) -> void 
+        { 
+            sol::optional<std::string> spath = capture_input_script_path;
+            sol::optional<std::string> err = o.as<std::string>();
+            if( err && err.value() == "count" )
+            {
+                std::string s = "Infinite loop detected. Operation terminated.";
+                lua_pushstring( lua_state.lua_state(), s.c_str());
+                lua_error( lua_state.lua_state() );
+               // return false;
+            }
+            else
+            {
+                std::string s = "Error. Reason = " + err.value();
+                lua_pushstring( lua_state.lua_state(), s.c_str());
+                lua_error( lua_state.lua_state() );
+                //return false;
+            }
+
+        });
+
+        
+        lua_state.script("debug.sethook (debug_hook, '', 10000)");
+        auto result = pf_capture_input(input);
+        if(!result.valid()) {
+            sol::error err = result;
+            std::cout << err.what() << std::endl;
+            // TODO: log this to file
+        }
+        lua_state.script("debug.sethook ()");
+    } 
+    catch(std::exception& ex) {
+        std::cout << ex.what();
+        // TODO: log this to file
+        return false;
+    }
+    return true;
+}
+*/
     /*
     unsigned int register_heartbeat_func(sol::state_view lua_state, sol::protected_function pf)
     {

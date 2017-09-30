@@ -15,7 +15,15 @@ function d:process_command (o_orig, cmd )
 	--print('Procsesing command.  EntityType = ' .. o_orig:GetType() .. ', cmd = [' .. cmd .. ']' )
 	
 	s_type = o_orig:GetType()
-	
+	if (s_type:lower() == "player" ) then
+		local play = player_cast(o_orig)
+		--print( play:get_InputCaptured() )
+		if( play:get_InputCaptured() ) then
+			--print('Executing captured input..')
+			play:ExecuteCapture(cmd);
+		end
+		
+	end
 	if (s_type:lower() == "player" or s_type:lower() == "npc") then
 		-- first we search all known global/default commands like "look" and movement commands
 		cmds = get_default_commands()

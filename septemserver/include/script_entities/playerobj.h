@@ -53,17 +53,6 @@ struct playerobj : living_entity
             this->do_save();
         }
     }
-    
-    
-    bool get_inputCaptured()
-    {
-        return binputCaptured;
-    }
-    
-    void set_inputCaptured(bool bCaptured)
-    {
-        binputCaptured = bCaptured;
-    }
      
      
     std::string cwd;
@@ -81,11 +70,7 @@ struct playerobj : living_entity
     std::function<void(const std::string&)> onOutput;
     //Output onOutput;
     
-    bool capture_input(sol::state_view lua_state, sol::protected_function pf);
 
-    sol::protected_function pf_capture_input;
-    std::string capture_input_script_path;
-    bool binputCaptured;
 };
  
 #endif

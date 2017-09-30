@@ -30,6 +30,8 @@ p1:AddAction( p1.timed_action, 900, nil )
 
 p1:AddLook( { 'table', 'oaken table', 'massive oaken table' }, 'Atop the table you see several stacks of books and scrolls.')
 
+p1:AddLook( { 'computer', 'atari', 'xbox' }, 'This game is amazing.')
+
 p1:AddLook( { 'exquisitely carved shelves', 'carved shelves', 'shelves' }, 'The shelves stand like carved sentinals and extend from floor \z
 				to ceiling.  A vast collection of ancient tomes cram each shelf and occasionally lean against dusty bookends and \z
 				other oddly-shaped objects serving as involuntary bookends.')

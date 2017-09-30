@@ -29,3 +29,22 @@ p:AddInventorySlot(inventorySlot.inHair, 4, itemSize.large)
 p:AddInventorySlot(inventorySlot.onHair, 4, itemSize.large)
 p:AddInventorySlot(inventorySlot.head, 1, itemSize.large)
 
+inputCaptureFunc = nil
+
+function p:CaptureInput(func)
+	inputCaptureFunc = func
+end
+
+function p:ExecuteCapture(input)
+	inputCaptureFunc(self, input)
+end
+
+function p:get_InputCaptured()
+	if( inputCaptureFunc ~= nil ) then
+		return true
+	end
+	return false
+end
+
+
+

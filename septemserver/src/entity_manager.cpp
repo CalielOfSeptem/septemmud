@@ -773,8 +773,8 @@ void entity_manager::init_lua()
     lua.set_function("deregister_all_heartbeat", &heartbeat_manager::deregister_all_heartbeat_funcs, &_heartbeat);
 
     lua.set_function("move_living", &entity_manager::move_living, this);
-    
-    lua.set_function("capture_input", &entity_manager::capture_input, this);
+    //lua.set_function("capture_input", &entity_manager::capture_input, this);
+    //lua.set_function("capture_input", &entity_manager::capture_input, this);
 
     lua.set_function("command_cast", &downcast<commandobj>);
     lua.set_function("room_cast", &downcast<roomobj>);
@@ -783,6 +783,7 @@ void entity_manager::init_lua()
     lua.set_function("door_cast", &downcast<doorobj>);
     lua.set_function("living_cast", &downcast<living_entity>);
     lua.set_function("int_to_string", &int_to_string);
+    
 
     lua.set_function("get_default_commands", [&]() -> std::map<std::string, commandobj*> & 
     { 
@@ -1917,8 +1918,7 @@ bool entity_manager::do_command(living_entity* e, const std::string cmd)
         }
 
         sol::optional<sol::table> self =
-            dobj->m_userdata
-                ->selfobj; // ew_daemon->env_obj.value()[ew_daemon->script_obj_name];//(*lua_primary)[entity_env[0]][entity_env[1]][ew_daemon->script_obj_name];
+            dobj->m_userdata->selfobj; // ew_daemon->env_obj.value()[ew_daemon->script_obj_name];//(*lua_primary)[entity_env[0]][entity_env[1]][ew_daemon->script_obj_name];
                            // //(*ew_daemon->script_state)[ew_daemon->script_obj_name];
 
         if(self) {
@@ -2084,10 +2084,23 @@ void entity_manager::invoke_room_actions()
 
 bool entity_manager::capture_input(sol::this_state ts, playerobj * p, sol::object f)
 {
-    std::cout << "here";
-    return true;
-}
+    sol::state_view lua_state = sol::state_view(ts);
+    sol::protected_function pf(f);
+    sol::environment target_env(sol::env_key, pf);
+    sol::optional<std::string> script_path = target_env["_INTERNAL_SCRIPT_PATH_"];
+    //sol::optional<std::string> script_path = target_env["_INTERNAL_PHYSICAL_SCRIPT_PATH_"];
+   // sol::optional<std::string> e_type = target_env["_INTERNAL_ENTITY_TYPE_"];
+   
+    if( script_path )
+    {
 
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
 /*
 bool entity_manager::compile_lib(std::string& script_or_path, std::string& reason)
 {

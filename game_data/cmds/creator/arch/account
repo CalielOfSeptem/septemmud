@@ -17,13 +17,14 @@ function c:ExecuteCommand ( o, cmd )
 		sm1 = string.match(cmd, "create .+")
 		-- TODO, fix this stuff later..
 		if sm1 then
-			capture_input( player_cast(o), c.test_capture )
+			play = player_cast(o)
+			play:SendToEntity('Capturing input.. ' .. _INTERNAL_SCRIPT_PATH_)
+			play:CaptureInput( test_capture )
 			local myTable = cmd:split( ' ' )
 			if #myTable < 2 then
 				usage(o)
 				return true;
 			end
-			--o:SendToEntity('in here')
 		end
 	end
 	return true
@@ -33,6 +34,10 @@ function usage(o_orig)
 	o_orig:SendToEntity('USAGE: account <Implement me later>')
 end
 
-function c:test_capture(o, input)
-	
+function test_capture(o, input)
+	o:SendToEntity('TEST CAPTURE')
+end
+
+function test_something(play, test_capture)
+	-- capture_input( play, test_capture )
 end
