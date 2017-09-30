@@ -1,0 +1,10 @@
+#File Created by Phil Dyer
+#because Ken didn't bother to document.
+
+#This file consists of a list of commands to get all the lua crap that Ken used.
+#It would be great to put this into CMake, but first things first. We need to know what we 
+#are ACTUALLY using.
+
+sudo apt install luarocks
+sudo laurocks install ansicolors
+sudo laurocks install laufilesystem
