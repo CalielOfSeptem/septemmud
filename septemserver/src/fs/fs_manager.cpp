@@ -320,14 +320,17 @@ bool fs_manager::get_player_save_dir(const std::string& pname, std::string& full
     }
     catch( std::exception& ex )
     {
-        // TODO: report error to log
+        auto log = spd::get("main");
+        std::stringstream ss;
+        ss << "Critical error attempting to access account path: " << ex.what();
+        log->debug( ss.str() );
         return false;
     }
 
     return true;
 }
 
-bool fs_manager::get_account_save_dir(const std::string& aname, std::string& fullpath)
+bool fs_manager::get_account_save_dir(const std::string& aname, std::string& fullpath, bool bCreate)
 {
     try
     {
@@ -344,11 +347,11 @@ bool fs_manager::get_account_save_dir(const std::string& aname, std::string& ful
             throw std::invalid_argument("path must be within root path");
         //if(!boost::filesystem::is_directory(patha))
         //    throw std::invalid_argument("must be a directory");
-        if(!(boost::filesystem::exists(patha) ))// && boost::filesystem::is_regular_file(path)))
+        if(!(boost::filesystem::exists(patha)) && bCreate )// && boost::filesystem::is_regular_file(path)))
             boost::filesystem::create_directory(patha);
             
         auto pathb=boost::filesystem::weakly_canonical(game_root_path/account_save/first_letter/aname);
-        if(!(boost::filesystem::exists(pathb) ))// && boost::filesystem::is_regular_file(path)))
+        if(!(boost::filesystem::exists(pathb) ) && bCreate)// && boost::filesystem::is_regular_file(path)))
             boost::filesystem::create_directory(pathb); 
             
         fullpath = pathb.string();
@@ -360,4 +363,15 @@ bool fs_manager::get_account_save_dir(const std::string& aname, std::string& ful
     }
 
     return true;    
+}
+
+bool fs_manager::get_account_exists(const std::string& aname)
+{
+    std::string account_path = "";
+    if( !fs_manager::Instance().get_account_save_dir( aname, account_path) )
+    {
+        return true; // this is bad.  
+    }
+    //bool b = boost::filesystem::exists(account_path);
+    return boost::filesystem::exists(account_path);
 }

@@ -81,6 +81,7 @@ int main(int argc, char **argv)
     }
     std::cout << pt.get<std::string>("options.port") << std::endl;
     
+    
 
     
     unsigned int port        = 4000;
@@ -171,8 +172,15 @@ int main(int argc, char **argv)
         
         return EXIT_FAILURE;
     }
-    
-    std::string game_data_path = working_directory + "/game_data/";
+    std::string game_data_path =  working_directory + "/game_data/";
+    std::string maybe_data_path = pt.get<std::string>("options.game_data");
+    if( !maybe_data_path.empty() )
+    {
+        if( maybe_data_path[maybe_data_path.size()-1] != '/' )
+            maybe_data_path += "/";
+        maybe_data_path += "game_data/";
+        game_data_path =  maybe_data_path;
+    }
     global_settings::Instance().SetSetting( DEFAULT_GAME_DATA_PATH, game_data_path);
     global_settings::Instance().SetSetting( BASE_PLAYER_ENTITY_PATH, "entities/player");
     global_settings::Instance().SetSetting( DEFAULT_VOID_ROOM, "realms/void");

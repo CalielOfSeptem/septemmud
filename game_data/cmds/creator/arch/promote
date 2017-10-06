@@ -1,0 +1,27 @@
+inherit command
+c = command.new('account', 0)
+
+function c:ExecuteCommand ( o, cmd )
+	if o ~= nil then
+
+		local myTable = cmd:split( ' ' )
+		if #myTable ~= 2 then
+			usage(o)
+			return true;
+		end
+		
+		table.remove(myTable, 1) -- remove 'promote' from cmd
+
+		cmd = table.concat(myTable, " ") -- put it back together
+		
+		
+		
+	end
+	return true
+end
+
+function usage(o_orig)
+	o_orig:SendToEntity('USAGE: promote <Implement me later>')
+end
+
+

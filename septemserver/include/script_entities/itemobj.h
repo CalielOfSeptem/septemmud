@@ -98,13 +98,7 @@ struct itemobj : public script_entity, public container_base
     {
         return (m_defaultStackSize==0)?false:true;
     }
-     
-    //virtual void set_isStackable(bool b)
-    //{
-     //   bisStackable = b;
-    //    do_save();
-   // }
-     
+        
     virtual bool get_isContainer()
     {
         return bisContainer;
@@ -376,8 +370,6 @@ struct itemobj : public script_entity, public container_base
     
     virtual void debug(const std::string& msg) override
     {
-       // if( this->isCreator() )
-        //    SendToEntity(msg);
         if( this->GetEnvironment() )
         {
             this->GetEnvironment()->debug(msg);
@@ -397,8 +389,6 @@ struct itemobj : public script_entity, public container_base
     virtual bool remove_settings_file();
     
     virtual void on_environment_change(EnvironmentChangeEvent evt, script_entity * env) override;
-    
-   // virtual void SetEnvironment(script_entity* be) override;
 
     virtual bool AddEntityToInventory(script_entity * se) override;
     virtual bool RemoveEntityFromInventory(script_entity * se) override;
@@ -413,8 +403,7 @@ struct itemobj : public script_entity, public container_base
     
     int m_slot_mask = 0;
     
-    //bool bisWearable = false;
-    //bool bisStackable = false;
+
     bool bisContainer = false;
     bool bisInitialized = false;
     
@@ -428,8 +417,7 @@ struct itemobj : public script_entity, public container_base
     std::string itemNoun;
     std::string itemArticle;
     std::string itemAdjectives;
-    
-   // std::map< std::string, std::string > userProps;
+
 };
  
 #endif

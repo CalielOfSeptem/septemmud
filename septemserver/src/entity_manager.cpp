@@ -11,6 +11,7 @@
 
 #include "string_utils.h"
 #include "global_settings.h"
+#include "account_manager.h"
 #include "fs/fs_manager.h"
 #include "config.h"
 
@@ -818,9 +819,11 @@ void entity_manager::init_lua()
     
     lua.set_function("clone_item_to_hand", [&](std::string path, handobj * e) -> itemobj * { return this->clone_item_to_hand(path, e); });
     
-    
     lua.set_function("do_translate_path", [&](std::string path, playerobj * e) -> std::string { return this->do_translate_path( path, e ); });
     
+    lua.set_function("get_account_exists", [&](std::string sname) -> bool { return account_manager::Instance().get_accountExists(sname); });
+    
+    lua.set_function("create_new_account", [&](std::string aname, std::string pass, std::string email) -> bool { return account_manager::Instance().create_account(aname, pass, email); });
    // lua.set_function( "capture_input", [&](std::string path, script_entity * e) -> itemobj * { return this->clone_item(path, e); });
     
     

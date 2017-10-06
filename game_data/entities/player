@@ -36,7 +36,9 @@ function p:CaptureInput(func)
 end
 
 function p:ExecuteCapture(input)
-	inputCaptureFunc(self, input)
+	local t = inputCaptureFunc
+	inputCaptureFunc = nil
+	t(self, input)
 end
 
 function p:get_InputCaptured()

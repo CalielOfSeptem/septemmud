@@ -10,22 +10,26 @@ function c:ExecuteCommand ( o, cmd )
 			return true;
 		end
 		
-		table.remove(myTable, 1) -- remove account bit
+		table.remove(myTable, 1) -- remove 'account' from cmd
 
-		cmd = table.concat(myTable, " ")
+		cmd = table.concat(myTable, " ") -- put it back together
 		
-		sm1 = string.match(cmd, "create .+")
-		-- TODO, fix this stuff later..
+		sm1 = string.match(cmd, "create")
+		
 		if sm1 then
 			play = player_cast(o)
-			play:SendToEntity('Capturing input.. ' .. _INTERNAL_SCRIPT_PATH_)
-			play:CaptureInput( test_capture )
-			local myTable = cmd:split( ' ' )
-			if #myTable < 2 then
-				usage(o)
-				return true;
-			end
+			--play:SendToEntity('Capturing input.. ' .. _INTERNAL_SCRIPT_PATH_)
+			play:CaptureInput( account_create )
+			o:SendToEntity('Enter new player name [q=quit]:')
+			--local myTable = cmd:split( ' ' )
+			--if #myTable < 2 then
+			--	usage(o)
+			--	return true
+			-- end
+		else
+			usage(o)
 		end
+		
 	end
 	return true
 end
@@ -34,10 +38,169 @@ function usage(o_orig)
 	o_orig:SendToEntity('USAGE: account <Implement me later>')
 end
 
-function test_capture(o, input)
-	o:SendToEntity('TEST CAPTURE')
+function account_create(o, input)
+	local myTable = input:split( ' ' )
+	if #myTable > 1 then
+		o:SendToEntity('Player name cannot be multiple words. Please try again [q=quit]')
+		play:CaptureInput( account_create )
+		return true
+	end
+	
+	if( input:len() == 0 ) then
+		o:SendToEntity('Player name cannot be blank. Please try again [q=quit]')
+		play:CaptureInput( account_create )
+		return true
+	end
+	if( input:len() < 3 ) then
+		o:SendToEntity('Player name must be at least 3 characters in length. Please try again [q=quit]')
+		play:CaptureInput( account_create )
+		return true
+	end
+	if( input:lower() == 'q' ) then
+		o:SendToEntity('Player creation aborted.')
+		return true
+	end
+	-- check if account exists..
+	if( get_account_exists( input ) == true ) then
+		o:SendToEntity('Player already exists. Please try again [q=quit]')
+		play:CaptureInput( account_create )
+		return true
+	end
+	
+	-- store player name and ask for a password
+	play.tmp_player_name = input
+	o:SendToEntity('Enter a password: [q=quit]')
+	play:CaptureInput( confirm_password )
+	
+	--o:SendToEntity('Enter p: ' .. input)
 end
 
-function test_something(play, test_capture)
-	-- capture_input( play, test_capture )
+function confirm_password(o, input)
+	if( input:lower() == 'q' ) then
+		o:SendToEntity('Player creation aborted.')
+		return true
+	end
+	if( play.tmp_new_password ~= nil ) then 
+		if( input ~= play.tmp_new_password ) then
+			-- verification failed. 
+			o:SendToEntity('Password does not match.  Please re-enter the password: [q=quit]')
+			play.tmp_new_password = ''
+			play:CaptureInput( confirm_password )
+		end
+		-- its a match!
+		--create_new_account( play.tmp_player_name, play.tmp_new_password, "test@blah.com")
+		--o:SendToEntity('New player ' .. play.tmp_player_name .. ' created.')
+		o:SendToEntity('Please provide a password recovery email address: [q=quit]')
+		play:CaptureInput( confirm_email )
+		return true
+	end
+	if( input:len() < 5 ) then
+		o:SendToEntity('Password must be at least 5 characters.  Please enter a password: [q=quit]')
+		play:CaptureInput( confirm_password )
+		return false
+	end
+	
+	-- store it, then ask the user to verify..
+	-- this same function will look to see if the tmp_new_password is set above..
+	
+	play.tmp_new_password = input
+	o:SendToEntity('Please re-enter the password: [q=quit]')
+	play:CaptureInput( confirm_password )
+	return true
 end
+
+function validemail(str)
+  if str == nil then return nil, "Email cannot be blank" end
+  if (type(str) ~= 'string') then
+    --error("Expected string")
+    return nil, "Expected string"
+  end
+  local lastAt = str:find("[^%@]+$")
+  local localPart = str:sub(1, (lastAt - 2)) -- Returns the substring before '@' symbol
+  local domainPart = str:sub(lastAt, #str) -- Returns the substring after '@' symbol
+  -- we werent able to split the email properly
+  if localPart == nil then
+    return nil, "Local name is invalid"
+  end
+
+  if domainPart == nil then
+    return nil, "Domain is invalid"
+  end
+  -- local part is maxed at 64 characters
+  if #localPart > 64 then
+    return nil, "Local name must be less than 64 characters"
+  end
+  -- domains are maxed at 253 characters
+  if #domainPart > 253 then
+    return nil, "Domain must be less than 253 characters"
+  end
+  -- somthing is wrong
+  if lastAt >= 65 then
+    return nil, "Invalid @ symbol usage"
+  end
+  -- quotes are only allowed at the beginning of a the local name
+  local quotes = localPart:find("[\"]")
+  if type(quotes) == 'number' and quotes > 1 then
+    return nil, "Invalid usage of quotes"
+  end
+  -- no @ symbols allowed outside quotes
+  if localPart:find("%@+") and quotes == nil then
+    return nil, "Invalid @ symbol usage in local part"
+  end
+  -- no dot found in domain name
+  if not domainPart:find("%.") then
+    return nil, "No TLD found in domain"
+  end
+  -- only 1 period in succession allowed
+  if domainPart:find("%.%.") then
+    return nil, "Too many periods in domain"
+  end
+  if localPart:find("%.%.") then
+    return nil, "Too many periods in local part"
+  end
+  -- just a general match
+  if not str:match('[%w]*[%p]*%@+[%w]*[%.]?[%w]*') then
+    return nil, "Email pattern test failed"
+  end
+  -- all our tests passed, so we are ok
+  return true
+end
+
+function confirm_email(o, input)
+
+	if( input:lower() == 'q' ) then
+	o:SendToEntity('Player creation aborted.')
+		return true
+	end
+	if( play.tmp_new_email ~= nil ) then 
+		if( input ~= play.tmp_new_email ) then
+			-- verification failed. 
+			o:SendToEntity('Email does not match.  Please re-enter the email: [q=quit]')
+			play.tmp_new_email = ''
+			play:CaptureInput( confirm_email )
+		end
+		-- its a match!
+		if( create_new_account( play.tmp_player_name, play.tmp_new_password, play.tmp_new_email) ) then
+			o:SendToEntity('New player ' .. play.tmp_player_name .. ' created.')
+			else
+			o:SendToEntity('Error creating player ' .. play.tmp_player_name .. '.')
+		end
+		
+
+		--play:CaptureInput( confirm_email )
+		return true
+	end
+	x, y = validemail(input)
+	if( x == nil ) then
+		o:SendToEntity( y )
+		--play.tmp_new_email = input
+		o:SendToEntity('Please enter a valid email address: [q=quit]')
+		play:CaptureInput( confirm_email )
+	else
+		play.tmp_new_email = input
+		o:SendToEntity('Please re-enter the email: [q=quit]')
+		play:CaptureInput( confirm_email )
+	end
+	
+end
+

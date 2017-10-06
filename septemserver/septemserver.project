@@ -38,6 +38,7 @@
     </VirtualDirectory>
     <File Name="src/septem.cpp"/>
     <File Name="src/account.cpp"/>
+    <File Name="src/account_manager.cpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="include">
     <VirtualDirectory Name="script_entities">
@@ -86,6 +87,7 @@
     <File Name="include/septem.hpp"/>
     <File Name="include/welcome_screen.hpp"/>
     <File Name="include/account.h"/>
+    <File Name="include/account_manager.h"/>
   </VirtualDirectory>
   <Description/>
   <Dependencies/>
