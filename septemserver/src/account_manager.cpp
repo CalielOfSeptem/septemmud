@@ -1,5 +1,26 @@
 #include "account_manager.h"
 #include "fs/fs_manager.h"
+#include "global_settings.h"
+#include "config.h"
+
+#include <crypto++/cryptlib.h>
+#include <crypto++/sha.h>
+#include <crypto++/filters.h>
+#include <crypto++/base64.h>
+
+
+
+std::string SHA256HashString(std::string aString){
+    std::string digest;
+    CryptoPP::SHA256 hash;
+
+    CryptoPP::StringSource foo(aString, true,
+    new CryptoPP::HashFilter(hash,
+      new CryptoPP::Base64Encoder (
+         new CryptoPP::StringSink(digest))));
+
+    return digest;
+}
 
 bool account_manager::get_accountExists(const std::string& name)
 {
@@ -28,6 +49,7 @@ std::string decrypt(std::string const& msg, std::string const& key)
 
 bool account_manager::create_account(const std::string& player_name, const std::string& pass, const std::string& email)
 {
+    // TODO: move this logic to the account object
     if( fs_manager::Instance().get_account_exists(player_name) )
     {
         return false; // account already exists.
@@ -35,18 +57,19 @@ bool account_manager::create_account(const std::string& player_name, const std::
     std::string account_path;
     fs_manager::Instance().get_account_save_dir(boost::to_lower_copy(player_name), account_path, true); // this forces creation of the account folder
     
+
     try
     {
         json j;
-        j["player_name"] = player_name;
-        std::string private_key_temp = "abc123456790";
-        std::string penc = encrypt(pass, private_key_temp);
-        j["pass"] = penc;
-        j["email"] = email;
-        j["last_logon"] = "";
-        j["account_type"] = "player";
-        
-        std::ofstream o( account_path + "/account.json" );
+        j[global_settings::Instance().GetSetting(ACCOUNT_PLAYERNAME)] = player_name;
+       // std::string private_key_temp = "abc123456790";
+        std::string penc = SHA256HashString(pass);
+        j[global_settings::Instance().GetSetting(ACCOUNT_PASSWORD)] = penc;
+        j[global_settings::Instance().GetSetting(ACCOUNT_EMAIL)] = email;
+        j[global_settings::Instance().GetSetting(ACCOUNT_LASTLOGON)] = "";
+        j[global_settings::Instance().GetSetting(ACCOUNT_TYPE)] = "player";
+        j[global_settings::Instance().GetSetting(ACCOUNT_WORKSPACE)] = "";
+        std::ofstream o( account_path + "/account" );
         o << j.dump(4) << std::endl;
     }
     catch( std::exception & ex )
@@ -61,4 +84,14 @@ bool account_manager::create_account(const std::string& player_name, const std::
 
     return true;
     
+}
+
+bool account_manager::load_account(const std::string& name, account& ac)
+{
+    ac._playername = name;
+    if( ac.do_load() )
+    {
+        return true;
+    }
+    return false;
 }

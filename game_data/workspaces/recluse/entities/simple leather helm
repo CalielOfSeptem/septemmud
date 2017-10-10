@@ -1,0 +1,10 @@
+inherit item
+
+i = item.new('a simple leather helm', itemType.armor)
+
+i:SetInventorySlot( inventorySlot.head | inventorySlot.onBothEars )
+
+i.Look = 'a simple leather helm'
+
+i.weight = 1
+i.size = itemSize.medium

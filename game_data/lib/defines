@@ -157,3 +157,10 @@ entityBodyPosition.prone		= 0
 entityBodyPosition.sitting		= 1
 entityBodyPosition.kneeling		= 2
 entityBodyPosition.standing		= 3
+
+-- enum AccountType { UNKNOWN_TYPE, PLAYER, CREATOR, ARCH };
+accountType				= {}
+accountType.unknown		= 0
+accountType.player		= 1
+accountType.creator		= 2
+accountType.arch		= 3

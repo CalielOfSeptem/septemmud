@@ -81,26 +81,65 @@ void game_manager::init()
         //std::cout << dir->path().filename() << "\n"; // just last bit
     }
     
+    ss.str("");
+    ss << "Loading rooms via the room cache..";
+    log->debug(ss.str());
     
     
-    // Load void room
+    std::vector<std::string> r_cache;
+    std::string r_cache_reason;
+    
+        // Load void room path for comparison purposes
     std::string void_script_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
     void_script_path += global_settings::Instance().GetSetting(DEFAULT_VOID_ROOM);
-
-    //std::stringstream ss;
-    ss.str("");
-    ss << "Loading void room: " << void_script_path;
-    log->debug(ss.str());
-                
-    if(!entity_manager::Instance().compile_script_file(void_script_path, reason)) {
-        std::stringstream ss;
-        ss << "Unable to load void room, reason = " << reason;
-        //LOG_ERROR << ss.str();
-        log->debug(ss.str());
-        on_error(ss.str());
-        return;
-    } 
+    bool bVoidLoaded = false;
     
+    if( load_room_cache( r_cache, r_cache_reason ) )
+    {
+        std::string game_data_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
+        for( auto r : r_cache)
+        {
+            std::string r_t = game_data_path + r;
+            ss.str("");
+            ss << "Loading room: " << r_t;
+            log->debug(ss.str());
+            if( void_script_path == r_t )
+            {
+                bVoidLoaded = true;
+            }
+            
+            if(!entity_manager::Instance().compile_script_file(r_t, reason)) {
+                std::stringstream ss;
+                ss << "Unable to load room, reason = " << reason;
+                log->debug(ss.str());
+                if( void_script_path == r_t )
+                {
+                    on_error(ss.str());
+                }
+                return;
+            } 
+        }
+    }
+    
+    if( !bVoidLoaded )
+    {
+        //std::stringstream ss;
+        ss.str("");
+        ss << "Loading void room: " << void_script_path;
+        log->debug(ss.str());
+                    
+        if(!entity_manager::Instance().compile_script_file(void_script_path, reason)) {
+            std::stringstream ss;
+            ss << "Unable to load void room, reason = " << reason;
+            //LOG_ERROR << ss.str();
+            log->debug(ss.str());
+            on_error(ss.str());
+            return;
+        } 
+    }
+
+
+    /*
     std::string caliel_wr_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
     caliel_wr_path += "workspaces/caliel/workroom";
 
@@ -117,6 +156,7 @@ void game_manager::init()
         on_error(ss.str());
         return;
     } 
+     */
 
     std::string daemon_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
     daemon_path += global_settings::Instance().GetSetting(DEFAULT_DAEMON_PATH);
@@ -205,11 +245,11 @@ bool game_manager::process_player_cmd(playerobj* p, std::string& cmd)
     }
     */
 
-    if( precluse == NULL )
-    {
-        entity_manager::Instance().load_player("recluse");
-        pcaliel = entity_manager::Instance().get_player("recluse");
-    }
+   // if( precluse == NULL )
+   // {
+   //     entity_manager::Instance().load_player("recluse");
+   //     pcaliel = entity_manager::Instance().get_player("recluse");
+   // }
     
     //roomobj * roomt = get_void_room();
    // if( pcaliel->GetEnvironment() != NULL )
@@ -237,6 +277,35 @@ bool game_manager::process_player_cmd(playerobj* p, std::string& cmd)
 
 bool game_manager::move_entity_into_room(script_entity* en, std::string room_path)
 {
+    return true;
+}
+
+bool game_manager::load_room_cache( std::vector<std::string>& cache, std::string& reason )
+{
+    try {
+        json _j;
+        auto game_root_path = boost::filesystem::canonical(global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH));
+        auto room_cache = global_settings::Instance().GetSetting(DEFAULT_ROOM_CACHE_PATH);
+        
+        auto patha = boost::filesystem::weakly_canonical(game_root_path/room_cache);
+        
+        std::ifstream i(patha.string() + "/roomcache"); 
+        i >> _j;
+        
+        assert( !_j["room_cache"].is_null() );
+        if( !_j["room_cache"].is_null() )
+        {
+            cache = _j["room_cache"].get<std::vector<std::string>>();
+        }
+        
+    } catch(std::exception& ex) {
+        auto log = spd::get("main");
+        std::stringstream ss;
+        ss << "Error when attempting to load account " << ex.what() << ".";
+        log->debug(ss.str());
+        reason = ss.str();
+        return false;
+    }
     return true;
 }
 

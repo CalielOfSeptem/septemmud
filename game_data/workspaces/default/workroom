@@ -1,0 +1,27 @@
+inherit room
+r1 = room.new()
+
+r1:SetTitle('<player>\'s Workroom')
+r1:SetDescription("")
+					
+function r1:timed_action()
+	r1:SendToRoom('This is example timed output..')
+end
+
+r1:AddAction( r1.timed_action, 900, nil )
+
+r1:AddLook( { 'desk', 'oaken desk', 'massive oaken desk' }, 'Nothing is atop the desk.')
+
+local door = r1:AddDoor( 'an oaken door', 'realms/ether/exit', 1, false, false ) 
+
+r1:Debug('Loaded room!')
+
+function r1:hb()
+	-- Every 'heartbeat' from the game engine causes this function to be called
+end
+
+register_heartbeat(r1.hb) -- Here is the heartbeat registration.. the above function wont get called without it
+
+function r1:clone_items()
+	clone_item( 'workspaces/<player>/entities/rock', r1 ) -- example item 
+end

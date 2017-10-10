@@ -2,13 +2,12 @@
 #include "fs/fs_manager.h"
 #include <iomanip>
 #include "entity_manager.h"
-#include "json.hpp"
+
 using json = nlohmann::json;
 
 playerobj::playerobj(sol::this_state ts, sol::this_environment te, std::string name) :
 living_entity(ts, te, EntityType::PLAYER, name)
 {
-    bIsCreator = true; // just for now, and for debug purposes
     std::string p;
    // p += "/player_save";
     fs_manager::Instance().get_player_save_dir( name, p);
@@ -25,6 +24,7 @@ bool playerobj::do_save()
     
     try
     {
+        _ac.do_save();
         if( m_RightHand.GetItem() )
         {
             j["rightHand"] = std::map<std::string, std::string> {{ 
@@ -101,6 +101,8 @@ bool playerobj::do_load()
         
     try
     {
+        _ac._playername = GetPlayerName(); // maybe put this elsewhere.. undecided.
+        _ac.do_load();
         std::ifstream i(this->get_entityStorageLocation() + "/player_save");
         json j;
         i >> j;
@@ -165,6 +167,10 @@ bool playerobj::do_load()
     }
     return true;
 }
+
+
+
+
 
 /*
 bool playerobj::capture_input(sol::this_state ts, sol::protected_function pf)

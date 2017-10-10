@@ -3,7 +3,7 @@
 
 #include "spdlog/spdlog.h"
 #include <spdlog/sinks/stdout_sinks.h>
-
+#include "account.h"
 namespace spd = spdlog;
 
 #include "json.hpp"
@@ -37,6 +37,8 @@ public:
     bool get_accountExists(const std::string& name);
     
     bool create_account( const std::string& player_name, const std::string& pass, const std::string& email );
+    
+    bool load_account( const std::string& name, account & ac );
     
 
 protected:

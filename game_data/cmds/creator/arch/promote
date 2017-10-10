@@ -1,5 +1,18 @@
 inherit command
-c = command.new('account', 0)
+c = command.new('promote', 0)
+
+function dump(o)
+   if type(o) == 'table' then
+      local s = '{ '
+      for k,v in pairs(o) do
+         if type(k) ~= 'number' then k = '"'..k..'"' end
+         s = s .. '['..k..'] = ' .. dump(v) .. ','
+      end
+      return s .. '} '
+   else
+      return tostring(o)
+   end
+end
 
 function c:ExecuteCommand ( o, cmd )
 	if o ~= nil then
@@ -14,7 +27,30 @@ function c:ExecuteCommand ( o, cmd )
 
 		cmd = table.concat(myTable, " ") -- put it back together
 		
-		
+		-- check if player exists..
+		if( get_account_exists( cmd ) == true ) then
+			-- make sure the calling object is of type player and that they are an arch..
+			if (o:GetType():lower() == 'player' ) then
+				obj = player_cast(o)
+				
+					-- here we simply promote.  If player is an arch, then you cannot promote further
+					-- if player is a just a player or a creator, then bump them up a level
+				if( do_promote(obj, cmd) ) then
+				-- TODO, check if the player is logged in and then handle refreshing their account status
+					--obj:SendToEntity('Promoted ' .. cmd .. '.' )
+					else
+					obj:SendToEntity('Error attempting to promote ' .. cmd .. '. Perhaps you lack the necessary privileges.')
+				end
+				
+				
+				
+				
+			end
+			else
+			--print(inspect(_ENV))
+			--print("my calling environment", getfenv(1))
+			--o:SendToEntity('Player ' .. cmd .. ' does not exist! '.. _ENV)
+		end
 		
 	end
 	return true
@@ -23,5 +59,7 @@ end
 function usage(o_orig)
 	o_orig:SendToEntity('USAGE: promote <Implement me later>')
 end
+
+
 
 

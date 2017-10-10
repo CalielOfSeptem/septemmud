@@ -7,7 +7,10 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/format.hpp>
 #include <iomanip>
+#include <fstream>
+#include <iostream>
 #include <regex>
+#include <memory>
 #include <boost/filesystem.hpp>
 #include "config.h"
 #include "global_settings.h"
@@ -15,6 +18,31 @@
 namespace fs = boost::filesystem;
 
 bool myfunction (file_entity a, file_entity b) { return a.isDirectory; }
+
+
+void copyDirectoryRecursively(const fs::path& sourceDir, const fs::path& destinationDir)
+{
+    if (!fs::exists(sourceDir) || !fs::is_directory(sourceDir))
+    {
+        throw std::runtime_error("Source directory " + sourceDir.string() + " does not exist or is not a directory");
+    }
+    if (fs::exists(destinationDir))
+    {
+        throw std::runtime_error("Destination directory " + destinationDir.string() + " already exists");
+    }
+    if (!fs::create_directory(destinationDir))
+    {
+        throw std::runtime_error("Cannot create destination directory " + destinationDir.string());
+    }
+
+    for (const auto& dirEnt : fs::recursive_directory_iterator{sourceDir})
+    {
+        const auto& path = dirEnt.path();
+        auto relativePathStr = path.string();
+        boost::replace_first(relativePathStr, sourceDir.string(), "");
+        fs::copy(path, destinationDir / relativePathStr);
+    }
+}
 
 
 std::vector<file_entity> fs_manager::get_dir_list(std::string& relative_path)
@@ -75,6 +103,10 @@ std::vector<file_entity> fs_manager::get_dir_list(std::string& relative_path)
         catch(const std::exception &e) {
           //  string content="Could not open path "+request->path+": "+e.what();
           //  *response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
+            auto log = spd::get("main");
+            std::stringstream ss; 
+            ss << "Error when attempting to retrieve directory list: " << e.what();
+            log->debug(ss.str());
         }
         std::sort (file_entities.begin(), file_entities.end(), myfunction); 
         return file_entities;
@@ -96,7 +128,7 @@ bool fs_manager::change_directory(std::string& relative_path, playerobj* p)
         if( relative_path[0] == '/' )
             path = boost::filesystem::canonical(game_root_path/relative_path);
         else if( relative_path[0] == '~')
-            path = boost::filesystem::canonical(game_root_path/p->workspacePath);
+            path = boost::filesystem::canonical(game_root_path/p->get_workspacePath());
         else
             path = boost::filesystem::canonical(game_root_path/p->cwd/relative_path);
 
@@ -135,7 +167,12 @@ bool fs_manager::change_directory(std::string& relative_path, playerobj* p)
       //  *response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
       if( p != NULL )
         p->SendToEntity(std::string("Error: ") +e.what());
-      return false;
+        
+        auto log = spd::get("main");
+        std::stringstream ss; 
+        ss << "Error changing directory: " << e.what();
+        log->debug(ss.str());
+        return false;
     }
     
     return true;
@@ -175,6 +212,10 @@ bool fs_manager::translate_path(std::string& relative_path, playerobj* p, std::s
       //if( p != NULL )
        // p->SendToEntity(std::string("Error: ") +e.what());
        reason = e.what();
+       auto log = spd::get("main");
+        std::stringstream ss; 
+        ss << "Error translating path: " << e.what();
+        log->debug(ss.str());
       return false;
     }
     
@@ -245,6 +286,11 @@ bool fs_manager::do_copy(std::string& patha, std::string& pathb, playerobj * p)
       //  *response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
       if( p != NULL )
         p->SendToEntity(std::string("Error: ") +e.what());
+        
+        auto log = spd::get("main");
+        std::stringstream ss; 
+        ss << "Error during copy: " << e.what();
+        log->debug(ss.str());
       return false;
     }
     
@@ -286,6 +332,11 @@ bool fs_manager::do_remove(std::string& path, playerobj* p)
       //  *response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
       if( p != NULL )
         p->SendToEntity(std::string("Error: ") +e.what());
+        
+        auto log = spd::get("main");
+        std::stringstream ss; 
+        ss << "Error during remove: " << e.what();
+        log->debug(ss.str());
       return false;
     }
     
@@ -359,11 +410,55 @@ bool fs_manager::get_account_save_dir(const std::string& aname, std::string& ful
     catch( std::exception& ex )
     {
         // TODO: report error to log
+        auto log = spd::get("main");
+        std::stringstream ss; 
+        ss << "Error getting account save directory: " << ex.what();
+        log->debug(ss.str());
         return false;
     }
 
     return true;    
 }
+
+bool fs_manager::get_workspace_dir(const std::string& aname, std::string& fullpath, bool bCreate)
+{
+    try
+    {
+        auto game_root_path = boost::filesystem::canonical(global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH));
+        auto workspace_save = global_settings::Instance().GetSetting(DEFAULT_WORKSPACES_PATH);
+        
+       // std::string first_letter = boost::to_lower_copy(aname).substr(0,1);
+        
+        auto patha = boost::filesystem::weakly_canonical(game_root_path/workspace_save/aname);
+        
+                //Check if path is within web_root_path
+        if(std::distance(game_root_path.begin(), game_root_path.end())>std::distance(patha.begin(), patha.end()) ||
+            !std::equal(game_root_path.begin(), game_root_path.end(), patha.begin()))
+            throw std::invalid_argument("path must be within root path");
+        //if(!boost::filesystem::is_directory(patha))
+        //    throw std::invalid_argument("must be a directory");
+        if(!(boost::filesystem::exists(patha)) && bCreate )// && boost::filesystem::is_regular_file(path)))
+            boost::filesystem::create_directory(patha);
+            
+        //auto pathb=boost::filesystem::weakly_canonical(game_root_path/account_save/first_letter/aname);
+        //if(!(boost::filesystem::exists(pathb) ) && bCreate)// && boost::filesystem::is_regular_file(path)))
+        //    boost::filesystem::create_directory(pathb); 
+            
+        fullpath = patha.string();
+    }
+    catch( std::exception& ex )
+    {
+        // TODO: report error to log
+        auto log = spd::get("main");
+        std::stringstream ss; 
+        ss << "Error getting workspace directory: " << ex.what();
+        log->debug(ss.str());
+        return false;
+    }
+
+    return true;    
+}
+
 
 bool fs_manager::get_account_exists(const std::string& aname)
 {
@@ -374,4 +469,118 @@ bool fs_manager::get_account_exists(const std::string& aname)
     }
     //bool b = boost::filesystem::exists(account_path);
     return boost::filesystem::exists(account_path);
+}
+
+bool fs_manager::get_workspace_exists(const std::string& aname)
+{
+    std::string workspace_path = "";
+    if( !fs_manager::Instance().get_workspace_dir( aname, workspace_path) )
+    {
+        return true; // this is bad.  
+    }
+    //bool b = boost::filesystem::exists(account_path);
+    return boost::filesystem::exists(workspace_path);
+}
+/*
+bool fs_manager::do_create_workspace(std::string& aname, std::string& reason)
+{
+    std::string tmp = boost::to_lower_copy(aname);
+    std::string workspace_path = "";
+    if( fs_manager::Instance().get_workspace_dir( tmp, workspace_path) )
+    {
+        std::stringstream ss;
+        ss << "Workspace already exists for " << tmp;
+        reason = ss.str();
+        return false;
+    }
+    return fs_manager::Instance().get_workspace_dir( tmp, workspace_path, true);
+}
+*/
+
+bool fs_manager::do_create_new_workspace(std::string& aname, std::string& workroom_path, std::string& reason)
+{
+    /*
+    std::string workspace_path = "";
+    if( !fs_manager::Instance().get_workspace_dir( aname, workspace_path, true) )
+    {
+        reason = "Error creating default workroom, unable to get workspace path.";
+        return false; // this is bad.  
+    }
+    */
+    
+    try
+    {
+        
+        // pathd is the path to the default workspace folder
+        auto game_root_path = boost::filesystem::canonical(global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH));
+        auto workspace_save = global_settings::Instance().GetSetting(DEFAULT_DEFAULT_WORKSPACE);
+        auto pathd = boost::filesystem::weakly_canonical(game_root_path/workspace_save);
+        
+        // patht is the path to the new workspace folder
+        //auto game_root_path = boost::filesystem::canonical(global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH));
+        auto new_workspace = global_settings::Instance().GetSetting(DEFAULT_WORKSPACES_PATH);
+        auto patht = boost::filesystem::weakly_canonical(game_root_path/new_workspace/aname);
+        
+        // perform copy.. which includes directories too..
+        copyDirectoryRecursively(pathd, patht);
+        
+        
+        // now load up the default workroom..
+        std::string _tmp = global_settings::Instance().GetSetting(DEFAULT_WORKROOM_NAME);
+        auto patha = boost::filesystem::weakly_canonical(game_root_path / new_workspace / aname / _tmp);
+        
+                //Check if path is within web_root_path
+        if(std::distance(game_root_path.begin(), game_root_path.end())>std::distance(patha.begin(), patha.end()) ||
+            !std::equal(game_root_path.begin(), game_root_path.end(), patha.begin()))
+            throw std::invalid_argument("path must be within root path");
+
+       // if(!(boost::filesystem::exists(patha)))// && boost::filesystem::is_regular_file(path)))
+       //     boost::filesystem::create_directory(patha);
+            
+            
+        workroom_path = patht.string();
+        
+        //std::ofstream out(fullpath);
+            
+        //
+        std::stringstream buffer;
+        {
+            auto ifs=std::make_shared<std::ifstream>();
+            ifs->open(patha.string());//, ifstream::in | ios::binary | ios::ate);
+            if(*ifs) {
+                buffer << (*ifs).rdbuf();
+            }
+        }
+        std::string adjust_script = buffer.str();
+        
+        std::string camelCase = aname;
+        camelCase[0] = toupper(camelCase[0]);
+        
+        boost::replace_all(adjust_script, "<player>", camelCase);
+        
+        {
+            std::ofstream out(patha.string());
+            if(out.is_open())
+            {
+                out << adjust_script;
+                out.flush();
+                out.close();
+            }
+        
+        }
+
+    }
+    catch( std::exception& ex )
+    {
+        // TODO: report error to log
+        auto log = spd::get("main");
+        std::stringstream ss; 
+        ss << "Error getting workspace directory: " << ex.what();
+        log->debug(ss.str());
+        reason = ss.str();
+        return false;
+    }
+    
+    return true;
+    
 }

@@ -18,14 +18,15 @@ function c:ExecuteCommand ( o, cmd )
 		
 		if sm1 then
 			play = player_cast(o)
-			--play:SendToEntity('Capturing input.. ' .. _INTERNAL_SCRIPT_PATH_)
+			
+			-- cleanup any prior instances of this command for the player..
+			play.tmp_new_email = nil 
+			play.tmp_new_password = nil
+			play.tmp_player_name = nil
+			
 			play:CaptureInput( account_create )
 			o:SendToEntity('Enter new player name [q=quit]:')
-			--local myTable = cmd:split( ' ' )
-			--if #myTable < 2 then
-			--	usage(o)
-			--	return true
-			-- end
+
 		else
 			usage(o)
 		end
@@ -46,6 +47,11 @@ function account_create(o, input)
 		return true
 	end
 	
+	if( input:lower() == 'q' ) then
+		o:SendToEntity('Player creation aborted.')
+		return true
+	end
+	
 	if( input:len() == 0 ) then
 		o:SendToEntity('Player name cannot be blank. Please try again [q=quit]')
 		play:CaptureInput( account_create )
@@ -56,12 +62,9 @@ function account_create(o, input)
 		play:CaptureInput( account_create )
 		return true
 	end
-	if( input:lower() == 'q' ) then
-		o:SendToEntity('Player creation aborted.')
-		return true
-	end
+
 	-- check if account exists..
-	if( get_account_exists( input ) == true ) then
+	if( get_account_exists( input:lower() ) == true ) then
 		o:SendToEntity('Player already exists. Please try again [q=quit]')
 		play:CaptureInput( account_create )
 		return true
@@ -180,7 +183,7 @@ function confirm_email(o, input)
 			play:CaptureInput( confirm_email )
 		end
 		-- its a match!
-		if( create_new_account( play.tmp_player_name, play.tmp_new_password, play.tmp_new_email) ) then
+		if( create_new_account( play.tmp_player_name:lower(), play.tmp_new_password, play.tmp_new_email:lower()) ) then
 			o:SendToEntity('New player ' .. play.tmp_player_name .. ' created.')
 			else
 			o:SendToEntity('Error creating player ' .. play.tmp_player_name .. '.')
@@ -203,4 +206,6 @@ function confirm_email(o, input)
 	end
 	
 end
+
+
 

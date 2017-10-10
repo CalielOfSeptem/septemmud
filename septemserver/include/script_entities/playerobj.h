@@ -5,6 +5,8 @@
 #include "script_entities/livingentity.h"
 #include "script_entities/container_base.h"
 #include <stdio.h>
+#include "json.hpp"
+#include "account.h"
 
 struct playerobj : living_entity 
 {
@@ -38,8 +40,17 @@ struct playerobj : living_entity
      
      bool isCreator()
      {
-         return bIsCreator;
+         if( _ac._accountType == AccountType::CREATOR || _ac._accountType == AccountType::ARCH )
+         {
+             return true;
+         
+         }
+         else
+             return false;
+             
      }
+     
+     
      
      std::string& GetPlayerName()
      {
@@ -55,21 +66,34 @@ struct playerobj : living_entity
     }
      
      
-    std::string cwd;
-    std::string workspacePath;
-    std::string roomPath;
-    unsigned long roomID;
+    AccountType get_accountType()
+    {
+        return _ac._accountType;
+    }
+    
+    void set_accountType(AccountType atype)
+    {
+        _ac._accountType = atype;
+    }
+    
+    std::string get_workspacePath()
+    {
+        return _ac._workspacePath;
+    }
 
-
-
-    bool bIsCreator;
     
     virtual bool do_save() override;
     virtual bool do_load() override;
     
     std::function<void(const std::string&)> onOutput;
     //Output onOutput;
-    
+
+    std::string roomPath; // current room the player is in
+    unsigned long roomID;  // current ID of the room the player is in
+    std::string cwd;
+    account _ac;
+
+private:
 
 };
  

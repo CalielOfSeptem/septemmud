@@ -680,10 +680,10 @@ bool entity_manager::load_player(std::string playername)
     {
         pplayer->cwd = "workspaces/" + lpname;
     }
-    if( pplayer->workspacePath.empty() )
-    {
-        pplayer->workspacePath = "workspaces/" + lpname;
-    }
+   // if( pplayer->workspacePath.empty() )
+  //  {
+   //     pplayer->workspacePath = "workspaces/" + lpname;
+   // }
     
     if( pplayer->roomPath.empty() )
     {
@@ -701,8 +701,20 @@ bool entity_manager::load_player(std::string playername)
     else
     {
         roomobj * r = GetRoomByScriptPath(pplayer->roomPath, pplayer->roomID);
-        assert(r != NULL);
-        if( !move_entity(pplayer, r) )
+        //assert(r != NULL);
+        if( r == NULL )
+        {
+            roomobj * rv = this->get_void_room();
+            assert(rv != NULL);
+            if( !move_entity(pplayer, rv) )
+            {
+                auto log = spd::get("main");
+                std::stringstream ss;
+                ss << "Unable to move " << playername << std::endl;
+                return false;
+            }
+        }
+        else if( !move_entity(pplayer, r) )
         {
             auto log = spd::get("main");
             std::stringstream ss;
@@ -812,6 +824,8 @@ void entity_manager::init_lua()
     lua.set_function("do_goto", [&](std::string path, playerobj * p) -> bool { return this->do_goto(path, p); });
      
     lua.set_function("do_tp", [&](std::string path, playerobj * p1, playerobj *p2) -> bool { return this->do_tp(path, p1, p2); });
+    
+    lua.set_function("do_promote", [&](playerobj * p1, std::string p2) -> bool { return this->do_promote(p1, p2); });
     
     lua.set_function("clone_item", [&](std::string path, script_entity * e) -> itemobj * { return this->clone_item(path, e); });
     
@@ -1232,6 +1246,7 @@ void entity_manager::register_room(roomobj* room)
     std::stringstream ss;
     ss << "Registered room into lookup table, room = " << room_path;
     log->debug( ss.str() );
+    save_compiled_room_list(); // may need to rethink this approach
 
 }
 
@@ -2077,6 +2092,71 @@ bool entity_manager::do_tp(std::string& entitypath, playerobj* p_targ, playerobj
     return false;
 }
 
+bool entity_manager::do_promote(playerobj* a, std::string b)
+{
+    if( a->get_accountType() != AccountType::ARCH )
+    {
+        a->SendToEntity("You lack the necessary privileges to promote a player.");
+        return false;
+    }
+    
+    account tmp;
+    if( account_manager::Instance().load_account(b, tmp) )
+    {
+        if( tmp._accountType == AccountType::ARCH )
+        {
+            a->SendToEntity("Target player cannot be promoted, they are already an arch creator.");
+            return false;
+        }
+        
+        std::stringstream ss;
+        ss << "Promoting " << b << " from " << account::AccountTypeToString(tmp._accountType) << " to " << account::AccountTypeToString( (AccountType)(tmp._accountType+1) ) << ".";
+        a->SendToEntity(ss.str());
+        tmp._accountType = (AccountType)(tmp._accountType + 1);
+        tmp.do_save();
+        
+        // Here we check to see if the player was promoted to a creator, and if so, to create their workspace + base set of files such as their workroom.
+        // My current thought is to have a directory full of templated files that just get copied in, including directories
+        if( tmp._accountType == AccountType::CREATOR || tmp._accountType == AccountType::ARCH )
+        {
+            std::string reason;
+            std::string new_workspace_path;
+            if( !fs_manager::Instance().do_create_new_workspace(b, new_workspace_path, reason))
+            {
+                std::stringstream ss;
+                ss << "Error creating workspace for " << b << ", reason = " << reason << ".";
+                a->SendToEntity(ss.str());
+            }
+            else
+            {
+                std::stringstream ss;
+                ss << "Created workspace directory for for " << b << ".";
+                a->SendToEntity(ss.str());
+                
+                tmp._workspacePath = new_workspace_path;
+                tmp._workspacePath = std::regex_replace(tmp._workspacePath, std::regex("\\" + global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH)), "");  // remove the extra pathing stuff we don't
+                tmp.do_save();
+                
+                // Now compile their workroom...
+                std::string res = "";
+                std::string wpath = new_workspace_path + "/workroom";
+                if( !compile_script_file( wpath, res) )
+                {
+                    std::stringstream ss;
+                    ss << "Error compiling workroom for " << b << ", reason = " << res << ".";
+                    a->SendToEntity(ss.str());
+                }
+            }
+        }
+
+        
+        return true;
+    }
+    return false;
+    
+}
+
+
 void entity_manager::invoke_room_actions()
 {
     for( auto r : this->m_room_lookup )
@@ -2103,6 +2183,44 @@ bool entity_manager::capture_input(sol::this_state ts, playerobj * p, sol::objec
     {
         return false;
     }
+}
+
+bool entity_manager::save_compiled_room_list()
+{
+    // TODO:  make this a lazy-write system, as more rooms are added this disk access could become very expensive
+    //std::map< std::string, roomobj * > m_room_lookup;
+    std::vector <std::string> tmp;
+    for( auto & k : m_room_objs )
+    {
+        std::cout << "Adding " << k.first << " to the list.." << std::endl;
+        tmp.push_back(k.first);
+    }
+    
+        json j;
+
+    try {
+        
+        auto game_root_path = boost::filesystem::canonical(global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH));
+        auto room_cache = global_settings::Instance().GetSetting(DEFAULT_ROOM_CACHE_PATH);
+        
+        auto patha = boost::filesystem::weakly_canonical(game_root_path/room_cache);
+
+        j["room_cache"] = tmp;
+        
+        std::ofstream o(patha.string() + "/roomcache");
+        o << std::setw(4) << j << std::endl;
+    } catch(std::exception& ex) {
+        
+        auto log = spd::get("main");
+        std::stringstream ss;
+        ss << "Error when attempting to save room cache " << ": " << ex.what() << ".";
+        log->debug(ss.str());
+
+        return false;
+    }
+
+
+    return true;
 }
 /*
 bool entity_manager::compile_lib(std::string& script_or_path, std::string& reason)

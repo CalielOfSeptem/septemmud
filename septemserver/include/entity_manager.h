@@ -93,6 +93,8 @@ struct _internal_lua_
     bool do_goto(std::string& entitypath, playerobj* p );
     bool do_tp(std::string& entitypath, playerobj* p_targ, playerobj * p_caller );
     
+    bool do_promote( playerobj * a, std::string b);
+    
     bool capture_input(sol::this_state ts, playerobj * p, sol::object f);
     
     /**
@@ -271,9 +273,9 @@ private:
      */
     bool get_parent_env_of_entity( std::string& script_path, sol::environment& env, std::string& env_name );
     
-
-
-
+    
+    bool save_compiled_room_list();
+  
 };
 
 #endif

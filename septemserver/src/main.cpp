@@ -192,6 +192,18 @@ int main(int argc, char **argv)
     global_settings::Instance().SetSetting( DEFAULT_ROOM_LOG_PATH, "roomlog");
     global_settings::Instance().SetSetting( DEFAULT_BASE_SAVE_PATH, "save");
     global_settings::Instance().SetSetting( DEFAULT_ACCOUNTS_PATH, "accounts");
+    global_settings::Instance().SetSetting( DEFAULT_WORKSPACES_PATH, "workspaces");
+    global_settings::Instance().SetSetting( DEFAULT_WORKROOM_NAME, "workroom");
+    global_settings::Instance().SetSetting( DEFAULT_DEFAULT_WORKSPACE, "workspaces/default");
+    global_settings::Instance().SetSetting( DEFAULT_ROOM_CACHE_PATH, "save");
+    
+    // account related things..
+    global_settings::Instance().SetSetting( ACCOUNT_PLAYERNAME, "player_name");
+    global_settings::Instance().SetSetting( ACCOUNT_PASSWORD, "password");
+    global_settings::Instance().SetSetting( ACCOUNT_WORKSPACE, "workspace_path");
+    global_settings::Instance().SetSetting( ACCOUNT_TYPE, "account_type");
+    global_settings::Instance().SetSetting( ACCOUNT_LASTLOGON, "last_logon");
+    global_settings::Instance().SetSetting( ACCOUNT_EMAIL, "email");
     //chdir( global_settings::Instance().GetSetting( DEFAULT_GAME_DATA_PATH).c_str() );
     
    // std::string roomLog = global_settings::Instance().GetSetting( DEFAULT_GAME_DATA_PATH ) + global_settings::Instance().GetSetting( DEFAULT_LOGS_PATH ) + global_settings::Instance().GetSetting( DEFAULT_ROOM_LOG_PATH );

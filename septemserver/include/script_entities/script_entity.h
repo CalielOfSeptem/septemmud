@@ -168,6 +168,8 @@ struct script_entity {
             entity_storage_location = str;
         }
         
+        
+        
         virtual bool do_save()
         {
             return true;

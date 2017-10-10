@@ -56,7 +56,15 @@ public:
     
     bool get_account_save_dir (const std::string& aname, std::string& fullpath, bool bCreate=false );
     
+    bool get_workspace_dir (const std::string& aname, std::string& fullpath, bool bCreate=false );
+    
     bool get_account_exists( const std::string& aname );
+    
+    bool get_workspace_exists( const std::string& aname);
+    
+    //bool do_create_workspace( std::string& aname, std::string& reason);
+    
+    bool do_create_new_workspace(std::string& aname, std::string& workroom_path, std::string& reason);
     
     //bool create_directory( std::string& path, 
 
@@ -70,6 +78,8 @@ protected:
     {
          // Destructor code goes here.
     }    
+    
+    //void fs_manager::copyDirectoryRecursively(const boost::filesystem::path& sourceDir, const boost::filesystem::path& destinationDir);
     
 private:
    

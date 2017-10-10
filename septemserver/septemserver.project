@@ -124,6 +124,7 @@
         <Library Value="boost_date_time"/>
         <Library Value="telnetpp"/>
         <Library Value="terminalpp"/>
+        <Library Value="cryptopp"/>
       </Linker>
       <ResourceCompiler Options="" Required="no"/>
       <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./Debug" Command="./$(ProjectName)" CommandArguments="-p 6666" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>

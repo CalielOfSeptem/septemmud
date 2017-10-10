@@ -1,0 +1,10 @@
+inherit item
+
+i = item.new('a rusty torque', itemType.armor)
+
+i:SetInventorySlot( inventorySlot.neck )
+
+i.Look = 'a rusty torque'
+
+i.weight = 1
+i.size = itemSize.medium
