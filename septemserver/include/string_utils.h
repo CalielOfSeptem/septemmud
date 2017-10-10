@@ -1,6 +1,7 @@
+#pragma once
 #ifndef STRING_UTILS_HPP__
 #define STRING_UTILS_HPP__
-#pragma once
+
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -8,7 +9,40 @@
 #include <fstream>
 
 
+#include <crypto++/cryptlib.h>
+#include <crypto++/sha.h>
+#include <crypto++/filters.h>
+#include <crypto++/base64.h>
 
+
+
+static inline std::string SHA256HashString(std::string aString){
+    std::string digest;
+    CryptoPP::SHA256 hash;
+
+    CryptoPP::StringSource foo(aString, true,
+    new CryptoPP::HashFilter(hash,
+      new CryptoPP::Base64Encoder (
+         new CryptoPP::StringSink(digest))));
+
+    return digest;
+}
+
+namespace {
+std::string const default_chars = 
+    "abcdefghijklmnaoqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+}
+
+static inline std::string random_string(size_t len = 15, std::string const &allowed_chars = default_chars) {
+    std::mt19937_64 gen { std::random_device()() };
+
+    std::uniform_int_distribution<size_t> dist { 0, allowed_chars.length()-1 };
+
+    std::string ret;
+
+    std::generate_n(std::back_inserter(ret), len, [&] { return allowed_chars[dist(gen)]; });
+    return ret;
+}
 
 
 static inline void strip_path(std::string& path)

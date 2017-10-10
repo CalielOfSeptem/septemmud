@@ -3,24 +3,6 @@
 #include "global_settings.h"
 #include "config.h"
 
-#include <crypto++/cryptlib.h>
-#include <crypto++/sha.h>
-#include <crypto++/filters.h>
-#include <crypto++/base64.h>
-
-
-
-std::string SHA256HashString(std::string aString){
-    std::string digest;
-    CryptoPP::SHA256 hash;
-
-    CryptoPP::StringSource foo(aString, true,
-    new CryptoPP::HashFilter(hash,
-      new CryptoPP::Base64Encoder (
-         new CryptoPP::StringSink(digest))));
-
-    return digest;
-}
 
 bool account_manager::get_accountExists(const std::string& name)
 {

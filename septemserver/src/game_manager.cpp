@@ -237,13 +237,18 @@ bool game_manager::process_player_cmd(playerobj* p, std::string& cmd)
    // std::string wm_path = "workspaces/caliel/workroom";
     roomobj * roomt = NULL;//entity_manager::Instance().GetRoomByScriptPath(wm_path, 0);
     
-    /*
+    
     if( pcaliel == NULL )
     {
         entity_manager::Instance().load_player("caliel");
         pcaliel = entity_manager::Instance().get_player("caliel");
+        pcaliel->set_loggedIn(true);
     }
-    */
+    else
+    {
+        pcaliel->set_loggedIn(true);
+    }
+    
 
    // if( precluse == NULL )
    // {

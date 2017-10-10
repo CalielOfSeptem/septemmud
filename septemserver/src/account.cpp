@@ -11,13 +11,29 @@ std::string account::get_accountStorageLocation()
     return tpath;
 }
 
+bool account::do_compare(std::string pass)
+{
+    std::string tmp = SHA256HashString(pass);
+    if( tmp == _secure_password )
+    {
+        return true;
+    }
+    return false;
+}
+
 bool account::do_load()
 {
     try {
         // I'm not a fan of this particular method of account persistence, but it will work for now\
         // perhaps in the future a better method would include a database
+        
         std::string s = this->get_accountStorageLocation();
+ 
         std::ifstream i(s + "account"); // name of the account file
+        if( !i.is_open() )
+        {
+            return false;
+        }
         i >> _j;
         std::string pname = _j["player_name"];
         if(boost::to_lower_copy(pname) != boost::to_lower_copy(_playername)) {
@@ -100,17 +116,17 @@ bool account::do_save()
             j[global_settings::Instance().GetSetting(ACCOUNT_TYPE)] = "unknown";
         }
 
-        assert( !_email.empty() );
+        //assert( !_email.empty() );
         j[global_settings::Instance().GetSetting(ACCOUNT_EMAIL)] = _email;
         
         
-        assert( !_secure_password.empty() );
+      //  assert( !_secure_password.empty() );
         j[global_settings::Instance().GetSetting(ACCOUNT_PASSWORD)] = _secure_password;
         
         
         j[global_settings::Instance().GetSetting(ACCOUNT_LASTLOGON)] = _lastLogon;
         
-        assert(!_playername.empty());
+        //assert(!_playername.empty());
         j[global_settings::Instance().GetSetting(ACCOUNT_PLAYERNAME)] = _playername;
        
         
@@ -120,6 +136,10 @@ bool account::do_save()
         // o << std::setw(4) << j << std::endl;
 
         std::ofstream o(this->get_accountStorageLocation() + "/account");
+        if( !o.is_open() )
+        {
+            return false;
+        }
         o << std::setw(4) << j << std::endl;
     } catch(std::exception& ex) {
         

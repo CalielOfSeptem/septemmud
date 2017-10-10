@@ -187,6 +187,7 @@ int main(int argc, char **argv)
     global_settings::Instance().SetSetting( DEFAULT_DAEMON_PATH, "daemon");
     global_settings::Instance().SetSetting( DEFAULT_COMMANDS_PATH, "cmds");
     global_settings::Instance().SetSetting( DEFAULT_COMMAND_PROC, "daemon/command_proc");
+    global_settings::Instance().SetSetting( DEFAULT_LOGON_PROC, "daemon/logon_proc");
     global_settings::Instance().SetSetting( DEFAULT_LIBS_PATH, "lib");
     global_settings::Instance().SetSetting( DEFAULT_LOGS_PATH, "logs/");
     global_settings::Instance().SetSetting( DEFAULT_ROOM_LOG_PATH, "roomlog");

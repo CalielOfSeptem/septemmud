@@ -29,6 +29,8 @@ namespace fs = boost::filesystem;
 
 using namespace boost::algorithm;
 
+
+
 // ==========================================================================
 // CLIENT IMPLEMENTATION STRUCTURE
 // ==========================================================================
@@ -121,9 +123,10 @@ class client::impl : public std::enable_shared_from_this<client::impl>
     void display_welcome()
     {
         send(logo_data);
-        send("\r\nPlease enter your account name:");
-        send("\r\nTo request an account visit http://www.septemmud.com.");
-        prompt();
+      //  send("\r\nPlease enter your player name:");
+     //   send("\r\nTo request an account visit http://www.septemmud.com.");
+      //  prompt();
+        player_uid = random_string();
         associate_player();
     }
     
@@ -139,7 +142,13 @@ class client::impl : public std::enable_shared_from_this<client::impl>
     
     void associate_player()
     {
+        entity_manager::Instance().load_player(player_uid);
         
+        playerobj * p = entity_manager::Instance().get_player(player_uid);
+        p->onOutput = [this](std::string const& msg)->void { this->on_output(msg); };
+        m_player = p;
+        on_input_entered("");
+        /*
         playerobj * p = entity_manager::Instance().get_player("caliel");
         if( p == NULL )
         {
@@ -151,6 +160,7 @@ class client::impl : public std::enable_shared_from_this<client::impl>
         //auto a = std::bind(&client::impl::on_output, this, _1);
         p->onOutput = [this](std::string const& msg)->void { this->on_output(msg); };
         m_player = p;
+        */
     }
     /*
     // ======================================================================
@@ -264,7 +274,7 @@ private :
     std::mutex                              dispatch_queue_mutex_;
     std::deque<std::function<void ()>>      dispatch_queue_;
 
-
+    std::string                             player_uid;
 private :
     // ======================================================================
     // DISPATCH_QUEUE

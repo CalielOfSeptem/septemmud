@@ -1,0 +1,52 @@
+inherit daemon
+d = daemon.new('logon_proc')
+
+logonState = {}
+logonState.VERIFY_PLAYERNAME = 0
+logonState.VERIFY_PASSWORD = 1
+
+function d:process_command (o_orig, cmd )
+	
+	play = player_cast(o_orig);
+	if( play == nil ) then
+		return false;
+	end
+	
+--	print('input = ' .. cmd )
+
+	if( play._STATE_ == nil ) then
+		play:SendToEntity( '\r\nPlease enter your player name:\r\n')
+		play:SendToEntity( 'Please visit septemmud.com to request an account.\r\n')
+		play._STATE_ = logonState.VERIFY_PLAYERNAME
+		
+		return true
+	end
+	
+	if( play._STATE_ == logonState.VERIFY_PLAYERNAME ) then
+		-- check if account exists..
+		if( get_account_exists( cmd:lower() ) == true ) then
+			play._TMP_USER_ = cmd
+			play:SendToEntity('Please enter your password:\r\n')
+			play._STATE_ = logonState.VERIFY_PASSWORD
+			
+			return true
+			else
+			play:SendToEntity('Account does not exist.  Please re-enter your player name:\r\n')
+			play._STATE_ = logonState.VERIFY_PLAYERNAME
+			return true
+		end
+	end
+	if( play._STATE_ == logonState.VERIFY_PASSWORD ) then
+		if( play:VerifyPassword( play._TMP_USER_:lower(), cmd) ) then
+			play:SendToEntity('SUCCESS\r\n')
+			return true
+		end
+		play:SendToEntity('FAIL\r\n')
+		return true
+	end
+	
+	
+	--o_orig:SendToEntity('I don\'t understand. Type \"help commands\" for more information.\r\n') 
+end
+
+

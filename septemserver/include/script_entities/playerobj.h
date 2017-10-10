@@ -57,6 +57,14 @@ struct playerobj : living_entity
          return name;
      }
      
+     void set_playerName( std::string& aname )
+     {
+         name = aname;
+         //_ac._playername = name;
+     }
+     
+    bool verify_password( const std::string& aname, const std::string& maybe_password );
+     
     virtual void on_environment_change(EnvironmentChangeEvent evt, script_entity * env) override
     {
         if( evt == EnvironmentChangeEvent::ADDED )
@@ -80,7 +88,16 @@ struct playerobj : living_entity
     {
         return _ac._workspacePath;
     }
+    
+    bool get_loggedIn()
+    {
+        return blogged_in;
+    }
 
+    void set_loggedIn(bool b)
+    {
+        blogged_in = b;
+    }
     
     virtual bool do_save() override;
     virtual bool do_load() override;
@@ -92,6 +109,8 @@ struct playerobj : living_entity
     unsigned long roomID;  // current ID of the room the player is in
     std::string cwd;
     account _ac;
+    
+    bool blogged_in;
 
 private:
 

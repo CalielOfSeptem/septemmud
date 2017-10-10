@@ -33,21 +33,6 @@ namespace spd = spdlog;
 
 namespace fs = boost::filesystem;
 
-namespace {
-std::string const default_chars = 
-    "abcdefghijklmnaoqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-}
-
-std::string random_string(size_t len = 15, std::string const &allowed_chars = default_chars) {
-    std::mt19937_64 gen { std::random_device()() };
-
-    std::uniform_int_distribution<size_t> dist { 0, allowed_chars.length()-1 };
-
-    std::string ret;
-
-    std::generate_n(std::back_inserter(ret), len, [&] { return allowed_chars[dist(gen)]; });
-    return ret;
-}
 
 
 
@@ -1923,6 +1908,57 @@ bool entity_manager::do_command(living_entity* e, const std::string cmd)
 {
     try
     {
+        bool bdoLogon = false;
+        if( auto pp = dynamic_cast<playerobj*>(e)  )
+        {
+            if( !pp->get_loggedIn() )
+            {
+                bdoLogon = true;
+            }
+            
+        }
+        
+        if( bdoLogon )
+        {
+            std::string logon_proc_path = global_settings::Instance().GetSetting(DEFAULT_LOGON_PROC);
+            unsigned int id = 0;
+            daemonobj* dobj = entity_manager::Instance().GetDaemonByScriptPath(logon_proc_path, id);
+            if(dobj == NULL) {
+                auto log = spd::get("main");
+                std::stringstream ss;
+                ss << "Error attempting to retrieve command proc.";
+                log->debug( ss.str() );
+                
+                return false;
+            }
+
+            sol::optional<sol::table> self =
+                dobj->m_userdata->selfobj; // ew_daemon->env_obj.value()[ew_daemon->script_obj_name];//(*lua_primary)[entity_env[0]][entity_env[1]][ew_daemon->script_obj_name];
+                               // //(*ew_daemon->script_state)[ew_daemon->script_obj_name];
+
+            if(self) {
+                sol::protected_function exec = self.value()["process_command"];
+                auto result = exec(self, e, cmd);
+                if(!result.valid()) {
+                    sol::error err = result;
+                    auto log = spd::get("main");
+                    std::stringstream ss;
+                    ss << "Error calling process_command, entity = " << e->GetName() << ", error = " << err.what();
+                    log->debug( ss.str() );
+                    e->debug(ss.str());
+                    
+                }
+                return true;
+            } else {
+                auto log = spd::get("main");
+                std::stringstream ss;
+                ss << "Error attempting to retrieve command proc.";
+                log->debug( ss.str() );
+                return false;
+            }
+        }
+        
+        
         std::string command_proc_path = global_settings::Instance().GetSetting(DEFAULT_COMMAND_PROC);
         unsigned int id = 0;
         daemonobj* dobj = entity_manager::Instance().GetDaemonByScriptPath(command_proc_path, id);

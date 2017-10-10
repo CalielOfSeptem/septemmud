@@ -10,11 +10,13 @@ living_entity(ts, te, EntityType::PLAYER, name)
 {
     std::string p;
    // p += "/player_save";
+    blogged_in = false;
     fs_manager::Instance().get_player_save_dir( name, p);
     this->set_entityStorageLocation( p );
     m_RightHand.set_entityStorageLocation(p);
     m_LeftHand.set_entityStorageLocation(p);
     do_load();
+    
 }
      
 
@@ -166,6 +168,24 @@ bool playerobj::do_load()
         this->debug(ex.what());
     }
     return true;
+}
+
+bool playerobj::verify_password(const std::string& aname, const std::string& maybe_password)
+{
+    account _taccount;
+    _taccount._playername = aname;
+    if( !_taccount.do_load() )
+    {
+        return false;
+    }
+    if( _taccount.do_compare(maybe_password) )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 

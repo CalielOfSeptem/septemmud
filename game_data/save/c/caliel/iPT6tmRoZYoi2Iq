@@ -1,10 +1,7 @@
 {
     "currentStackCount": 1,
     "defaultStackSize": 0,
-    "inventory": {
-        "Tmm9KqoF3lZcCxJ": "workspaces/caliel/entities/rock",
-        "z920yQyy9PG4o17": "workspaces/caliel/entities/rock"
-    },
+    "inventory": {},
     "isContainer": true,
     "isLockable": false,
     "isLocked": false,

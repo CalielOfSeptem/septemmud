@@ -25,6 +25,8 @@ public:
    
     static std::string AccountTypeToString(AccountType at);
     
+    bool do_compare(std::string pass);
+    
     bool do_load();
     
     bool do_save();

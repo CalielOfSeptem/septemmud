@@ -286,6 +286,8 @@ void init_lua_state(sol::state& l)
                                 &living_entity::DoCommand,
                                 "DoSave",
                                 &playerobj::do_save,
+                                "VerifyPassword",
+                                &playerobj::verify_password,
                                 sol::base_classes,
                                 sol::bases<living_entity, script_entity>());
                                 
