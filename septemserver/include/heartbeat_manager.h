@@ -87,38 +87,7 @@ struct heartbeat_manager
  
 
     unsigned int register_heartbeat_func_on(sol::this_state ts, sol::object f)
-    {
-        //return 1;
-        sol::type t = f.get_type();
-        unsigned int ret = -1;
-        switch (t) {
-        case sol::type::function:
-        {
-            ret = register_heartbeat_func(sol::state_view(ts), f);
-           
-            break;
-        }
-        case sol::type::string:
-        {
-            sol::protected_function mp =  sol::state_view(ts)[f.as<std::string>()];
-            ret =register_heartbeat_func(sol::state_view(ts), mp);
-        }
-        break;
-        case sol::type::table: {
-
-        }
-        break;
-        case sol::type::userdata: {
-
-        }
-        break;
-        default:
-           // std::cout << "";
-            break;
-        }
-        return ret;
-
-    }
+    ;
     
 private:
     std::unordered_map< int, state_wrapper > bindings;

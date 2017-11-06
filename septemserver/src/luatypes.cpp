@@ -76,7 +76,7 @@ void init_lua_state(sol::state& l)
                                 "GetItemCount",
                                 &inventory_slot::get_itemCount
                                 );
-                            
+                           
     lua.new_usertype<itemobj>("item",
                             sol::constructors<itemobj(sol::this_state, sol::this_environment, std::string, ItemType)>(),
                             sol::meta_function::new_index,
@@ -98,10 +98,10 @@ void init_lua_state(sol::state& l)
                             "GetWeight", &itemobj::get_weight,
                             "SetWeight", &itemobj::set_weight,
                             
-                            "GetWearable", &itemobj::get_isWearable,
+                            "GetIsWearable", &itemobj::get_isWearable,
                             //"SetWearable", &itemobj::set_isWearable,
 
-                            "GetStackable", &itemobj::get_isStackable,
+                            "GetIsStackable", &itemobj::get_isStackable,
                             //"SetStackable", &itemobj::set_isStackable,
                             
                             "GetCurrentStackCount", &itemobj::get_currentStackCount,
@@ -140,8 +140,10 @@ void init_lua_state(sol::state& l)
                             "GetProperty", &itemobj::GetProperty,
                             
                             "weight", sol::property(&itemobj::get_weight, &itemobj::set_weight),
-                            "isWearable", sol::readonly(&itemobj::get_isWearable),
-                            "isStackable", sol::readonly(&itemobj::get_isStackable),
+                            
+                            // Following two were removed due to a bug/limitation in the most-recent version of SOL2
+                          //  "isWearable", sol::readonly(&itemobj::get_isWearable),
+                          //  "isStackable", sol::readonly(&itemobj::get_isStackable),
                             "isContainer", sol::property(&itemobj::get_isContainer, &itemobj::set_isContainer),
                             
                             "isCloseable", sol::property(&itemobj::get_isCloseable, &itemobj::set_isCloseable),

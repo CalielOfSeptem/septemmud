@@ -3,7 +3,7 @@ c = command.new('split')
 -- hand is the hand the item should be split INTO, not from
 function c:SplitItem( o_orig, hand, item )
 	if( item ~= nil ) then
-		if( item:isStackable() == false ) then
+		if( item:GetIsStackable() == false ) then
 			o_orig:SendToPlayer('You fumble with the ' .. item:GetItemNoun() .. ' but are unable to find a way to split it.')
 			return true -- stop processing, you found the item but its not splittable
 		end

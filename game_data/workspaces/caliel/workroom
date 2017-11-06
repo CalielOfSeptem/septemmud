@@ -71,9 +71,11 @@ function p1:clone_items()
 	end
 end
 
+function p1:test_something()
+	register_heartbeat(p1.hb)
+end 
 
-
-register_heartbeat(p1.hb)
+p1:test_something()
 
 p2 = room.new()
 --init_room(p2)

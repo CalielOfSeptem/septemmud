@@ -3,8 +3,11 @@
 
 //#include <unordered_map>
 #include <map>
+#include <queue>
 //#include <unordered_set>
 #include <set>
+#include <mutex>
+
 #include "entity_wrapper.h"
 #include "script_entities/roomobj.h"
 #include "script_entities/daemonobj.h"
@@ -13,6 +16,10 @@
 #include "script_entities/itemobj.h"
 #include "heartbeat_manager.h"
 #include <memory.h> //for shared_ptr
+
+#include <boost/asio.hpp>
+#include <boost/asio/strand.hpp>
+namespace ba = boost::asio;
 
 class entity_manager
 {
@@ -25,6 +32,14 @@ struct _internal_lua_
     sol::protected_function _current_script_f_;
     script_entity * _last_registered_object_;
 };
+
+struct _internal_command_wrapper_
+{
+    living_entity * ent;
+    std::string cmd;
+    
+};
+
     static entity_manager & Instance()
     {
         // Since it's a static variable, if the class has already been created,
@@ -148,6 +163,12 @@ struct _internal_lua_
     {
         return _heartbeat;
     }
+    
+    void bind_io(ba::io_service* ioservice)
+    {
+        io_serv = ioservice;
+        strand_ = boost::shared_ptr<boost::asio::strand>(new boost::asio::strand(*ioservice));
+    }
 
 protected:
     entity_manager()
@@ -179,11 +200,25 @@ private:
     
     std::shared_ptr < sol::state > m_state;
     std::shared_ptr<_internal_lua_> m_state_internal;
+    // to enforce single-threaded access
+    std::mutex  lua_stack_mutex_;
     heartbeat_manager _heartbeat;
     
     
-
+    // queue to process player commands in a serial fashion
+    std::queue<_internal_command_wrapper_> m_cmd_queue;
+    std::mutex  cmd_queue_mutex_;
     
+    
+    // for processing any command that may effect the lua stack
+    ba::io_service * io_serv;
+    boost::shared_ptr<boost::asio::strand> strand_;
+    std::mutex                              dispatch_queue_mutex_;
+    std::deque<std::function<void ()>>      dispatch_queue_;
+    
+    void on_cmd(living_entity* e, std::string const &cmd);
+    
+
     /*
      *  Initiliaze lua state and user types 
      */
@@ -276,6 +311,27 @@ private:
     
     bool save_compiled_room_list();
   
+  
+      // ======================================================================
+    // DISPATCH_QUEUE
+    // ======================================================================
+    void dispatch_queue()
+    {
+        std::function<void ()> fn;
+
+        std::unique_lock<std::mutex> lock(dispatch_queue_mutex_);
+
+        while (!dispatch_queue_.empty())
+        {
+            fn = dispatch_queue_.front();
+            dispatch_queue_.pop_front();
+            lock.unlock();
+
+            fn();
+
+            lock.lock();
+        }
+    }
 };
 
 #endif

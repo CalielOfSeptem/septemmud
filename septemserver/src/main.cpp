@@ -329,12 +329,15 @@ int main(int argc, char **argv)
     boost::shared_ptr< boost::asio::deadline_timer > timer(
 		new boost::asio::deadline_timer( io_service )
 	);
+    
 	timer->expires_from_now( boost::posix_time::seconds( 1 ) );
 	timer->async_wait( 
 		strand->wrap( boost::bind( &TimerHandler, _1, timer, strand ) )
 	);
     
     std::thread http_thread =  std::thread(start_serv, 8090);
+    
+    entity_manager::Instance().bind_io(&io_service);
 
     while( true )
     {

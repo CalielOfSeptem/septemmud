@@ -1,7 +1,7 @@
 inherit room
 r1 = room.new()
 
-r1:SetTitle('Recluse\'s Workroom')
+r1:SetTitle('Grady\'s Workroom')
 r1:SetDescription("")
 					
 function r1:timed_action()
@@ -20,18 +20,8 @@ function r1:hb()
 	-- Every 'heartbeat' from the game engine causes this function to be called
 end
 
--- now lets try a sneaky move..........
---p1 = _G['workspaces_env_']['caliel_env_']['workroom_env_']['p1']
-
---function p1:hack()
---	register_heartbeat( p1.hb )
---end
-
---p1:hack()
-
-
 register_heartbeat(r1.hb) -- Here is the heartbeat registration.. the above function wont get called without it
 
 function r1:clone_items()
-	clone_item( 'workspaces/Recluse/entities/rock', r1 ) -- example item 
+	clone_item( 'workspaces/Grady/entities/rock', r1 ) -- example item 
 end

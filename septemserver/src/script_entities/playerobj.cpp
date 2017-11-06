@@ -22,10 +22,16 @@ living_entity(ts, te, EntityType::PLAYER, name)
 
 bool playerobj::do_save()
 {
-    json j;
+ 
+    if( !get_loggedIn() )
+    {
+        return true;
+    }   
     
     try
     {
+
+        json j;
         _ac.do_save();
         if( m_RightHand.GetItem() )
         {
@@ -80,6 +86,11 @@ bool playerobj::do_save()
 
        // std::ofstream o(this->get_entityStorageLocation() + "/" + this->get_uid() );
        // o << std::setw(4) << j << std::endl;
+       
+        std::string p;
+        fs_manager::Instance().get_player_save_dir( GetPlayerName(), p, true); // make sure the directory gets created
+        //this->set_entityStorageLocation( p );
+    
             
         std::ofstream o(this->get_entityStorageLocation() + "/player_save");
         o << std::setw(4) << j << std::endl;
@@ -98,11 +109,16 @@ bool playerobj::do_save()
 
 bool playerobj::do_load()
 {
+    if( !get_loggedIn() )
+    {
+        return true;
+    }
     if( this->get_entityStorageLocation().size() == 0 )
         return false;
         
     try
     {
+
         _ac._playername = GetPlayerName(); // maybe put this elsewhere.. undecided.
         _ac.do_load();
         std::ifstream i(this->get_entityStorageLocation() + "/player_save");

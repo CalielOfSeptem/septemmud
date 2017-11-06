@@ -33,10 +33,10 @@ function c:ExecuteCommand ( o_orig, cmd )
 	exits = ob:GetRoom():GetExits()
 	--f(exits);
 						
-	for k, v in pairs(exits) do
+	for k, v in ipairs(exits) do
 		--exitobj = v:GetExit()
 		
-		for k1, v1 in pairs (v:GetExit()) do
+		for k1, v1 in ipairs (v:GetExit()) do
 			if v1 == cmd then
 				if( ob:GetBodyPosition() ~= entityBodyPosition.standing ) then
 					ob:SendToEntity( 'You must be standing to move.' )

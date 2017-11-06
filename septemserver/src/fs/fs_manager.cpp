@@ -343,7 +343,7 @@ bool fs_manager::do_remove(std::string& path, playerobj* p)
     return true;   
 }
 
-bool fs_manager::get_player_save_dir(const std::string& pname, std::string& fullpath)
+bool fs_manager::get_player_save_dir(const std::string& pname, std::string& fullpath, bool bCreate )
 {
     try
     {
@@ -360,11 +360,11 @@ bool fs_manager::get_player_save_dir(const std::string& pname, std::string& full
             throw std::invalid_argument("path must be within root path");
         //if(!boost::filesystem::is_directory(patha))
         //    throw std::invalid_argument("must be a directory");
-        if(!(boost::filesystem::exists(patha) ))// && boost::filesystem::is_regular_file(path)))
+        if(!(boost::filesystem::exists(patha)) & bCreate)// && boost::filesystem::is_regular_file(path)))
             boost::filesystem::create_directory(patha);
             
         auto pathb=boost::filesystem::weakly_canonical(game_root_path/player_save/first_letter/pname);
-        if(!(boost::filesystem::exists(pathb) ))// && boost::filesystem::is_regular_file(path)))
+        if(!(boost::filesystem::exists(pathb) ) & bCreate)// && boost::filesystem::is_regular_file(path)))
             boost::filesystem::create_directory(pathb); 
             
         fullpath = pathb.string();

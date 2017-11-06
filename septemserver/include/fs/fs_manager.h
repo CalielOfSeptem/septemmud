@@ -52,7 +52,7 @@ public:
     
     bool do_remove( std::string& path, playerobj * p );
     
-    bool get_player_save_dir( const std::string& pname, std::string& fullpath );
+    bool get_player_save_dir( const std::string& pname, std::string& fullpath, bool bCreate=false );
     
     bool get_account_save_dir (const std::string& aname, std::string& fullpath, bool bCreate=false );
     

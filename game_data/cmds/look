@@ -140,7 +140,7 @@ function c:ShowInventory( item, o )
 			local iname = items[i]:GetName()
 			str = iname
 			--print( items[i]:GetCurrentStackCount() )
-			--if( items[i].isStackable and items[i]:GetCurrentStackCount() > 1 ) then
+			--if( items[i]:GetIsStackable() and items[i]:GetCurrentStackCount() > 1 ) then
 			
 			--	str = items[i]:GetPluralName()
 			--end
@@ -169,7 +169,7 @@ function FormatRoom(r, o)
 			local iname = items[i]:GetName()
 			str = iname
 			--print( items[i]:GetCurrentStackCount() )
-			--if( items[i].isStackable and items[i]:GetCurrentStackCount() > 1 ) then
+			--if( items[i]:GetIsStackable() and items[i]:GetCurrentStackCount() > 1 ) then
 			
 			--	str = items[i]:GetPluralName()
 			--end

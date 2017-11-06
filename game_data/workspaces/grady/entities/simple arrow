@@ -1,0 +1,23 @@
+inherit item
+
+i = item.new('a simple arrow', itemType.ammo)
+
+--i:SetName('a simple arrow')
+
+i.Look = 'a simple arrow'
+
+--f = function i:onTap( self )
+--print('on tap')
+--end
+
+--i:AddAction('tap', f)
+i.weight = 1
+i.size = itemSize.small
+--i.isWearable = false
+i.isContainer = false
+--i.isStackable = true
+i:SetDefaultStackSize( 10 )
+i:SetPluralName('some simple arrows')
+
+
+

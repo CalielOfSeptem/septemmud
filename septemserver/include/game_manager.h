@@ -3,10 +3,17 @@
 
 #include "spdlog/spdlog.h"
 #include <spdlog/sinks/stdout_sinks.h>
+#include <boost/asio.hpp>
+#include <boost/asio/strand.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "entity_manager.h"
 #include "script_entities/script_entity.h"
 #include "script_entities/daemonobj.h"
+
+namespace ba = boost::asio;
+
+
 
 namespace spd = spdlog;
 
@@ -45,6 +52,7 @@ struct game_manager
     
 private:
     gameState m_state;
+    
     
     bool SetState( gameState new_state )
     {
