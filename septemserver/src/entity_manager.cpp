@@ -1905,12 +1905,42 @@ void entity_manager::debug(std::string& msg)
 
 bool entity_manager::do_command(living_entity* e, const std::string cmd)
 {
+    
+    if( auto pp = dynamic_cast<playerobj*>(e)  )
     {
-        std::unique_lock<std::mutex> lock(dispatch_queue_mutex_);
-       dispatch_queue_.push_back(std::bind(&entity_manager::on_cmd, this, e, cmd));
-       (*strand_).post(std::bind(&entity_manager::dispatch_queue, this));
+        
+        // here is the pattern:
+        
+        // check it see if 1s has passed since the last tick, this essentially
+        // allows for more commands to be received.  If we are in a new command window time
+        // then accept N commands up to the max commands
+        
+        pt::ptime t2 = pt::second_clock::local_time();
+        pt::time_duration diff = t2 - pp->get_referenceTickCount();
+        std::cout << diff.total_milliseconds() << std::endl;
+        if( diff.total_milliseconds() <= 1000 )
+        {
+            //std::cout << diff.total_milliseconds() << std::endl;
+            // we're within a window.. check for command count..
+            if( pp->get_commandCount() == pp->get_maxCmdCount() )
+            {
+                pp->SendToEntity("You have exceeded the maximum number of type-ahead commands... please wait..");
+                pp->set_referenceTickCount(); // anti flood protection.  Every time we hit this condition we continue to block more commands.
+                return false;
+            } 
+            pp->incrementCmdCount(); 
+        }
+        else
+        {
+            // reset the window..
+            pp->set_referenceTickCount();
+            pp->resetCmdCount();
+        }
     }
-
+ 
+    std::unique_lock<std::mutex> lock(dispatch_queue_mutex_);
+    dispatch_queue_.push_back(std::bind(&entity_manager::on_cmd, this, e, cmd));
+    (*strand_).post(std::bind(&entity_manager::dispatch_queue, this));
         
     return true;
    
@@ -2171,8 +2201,10 @@ void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
 {
    // std::cout << "ON CMD" << std::endl;
     
-     try
+    try
     {
+
+        
         bool bdoLogon = false;
         if( auto pp = dynamic_cast<playerobj*>(e)  )
         {

@@ -11,12 +11,14 @@ living_entity(ts, te, EntityType::PLAYER, name)
     std::string p;
    // p += "/player_save";
     blogged_in = false;
+    maxCmdCnt = 2;
+    commandCount = 0;
+    tickReference = boost::posix_time::second_clock::local_time();
     fs_manager::Instance().get_player_save_dir( name, p);
     this->set_entityStorageLocation( p );
     m_RightHand.set_entityStorageLocation(p);
     m_LeftHand.set_entityStorageLocation(p);
     do_load();
-    
 }
      
 

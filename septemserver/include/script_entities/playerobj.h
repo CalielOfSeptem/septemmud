@@ -8,11 +8,15 @@
 #include "json.hpp"
 #include "account.h"
 
+#include "boost/date_time/posix_time/posix_time.hpp"
+namespace pt = boost::posix_time;
+
+
 struct playerobj : living_entity 
 {
     playerobj()
     {
-        
+    
     }
     playerobj(sol::this_state ts, sol::this_environment te, std::string name);
      
@@ -99,6 +103,39 @@ struct playerobj : living_entity
         blogged_in = b;
     }
     
+    
+    boost::posix_time::ptime get_referenceTickCount()
+    {
+        return tickReference;
+    }
+    
+        
+    boost::posix_time::ptime set_referenceTickCount()
+    {
+        tickReference = boost::posix_time::second_clock::local_time();
+    }
+    
+    void incrementCmdCount()
+    {
+        commandCount++;
+    }
+    
+    void resetCmdCount()
+    {
+        commandCount = 0;
+    }
+    
+    unsigned long get_commandCount()
+    {
+        return commandCount;
+    }
+    
+    unsigned long get_maxCmdCount()
+    {
+        return maxCmdCnt;
+    }
+    
+    
     virtual bool do_save() override;
     virtual bool do_load() override;
     
@@ -113,7 +150,10 @@ struct playerobj : living_entity
     bool blogged_in;
 
 private:
-
+    boost::posix_time::ptime lastCmdTick;
+    boost::posix_time::ptime tickReference;
+    unsigned long commandCount;
+    unsigned long maxCmdCnt;
 };
  
 #endif
