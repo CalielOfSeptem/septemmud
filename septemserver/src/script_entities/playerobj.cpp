@@ -11,6 +11,7 @@ living_entity(ts, te, EntityType::PLAYER, name)
     std::string p;
    // p += "/player_save";
     blogged_in = false;
+    client_ = NULL;
     maxCmdCnt = 2;
     commandCount = 0;
     tickReference = boost::posix_time::second_clock::local_time();

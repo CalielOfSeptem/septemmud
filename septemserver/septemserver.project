@@ -25,7 +25,6 @@
     <VirtualDirectory Name="fs">
       <File Name="src/fs/fs_manager.cpp"/>
     </VirtualDirectory>
-    <File Name="src/luatypes.cpp"/>
     <VirtualDirectory Name="net">
       <File Name="src/net/socket.cpp"/>
       <File Name="src/net/server.cpp"/>
@@ -35,6 +34,7 @@
       <File Name="src/server/connection.cpp"/>
       <File Name="src/server/client.cpp"/>
       <File Name="src/server/httpserv.cpp"/>
+      <File Name="src/luatypes.cpp"/>
     </VirtualDirectory>
     <File Name="src/septem.cpp"/>
     <File Name="src/account.cpp"/>

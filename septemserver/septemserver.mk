@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=ken
-Date                   :=07/11/17
+Date                   :=11/11/17
 CodeLitePath           :=/home/ken/.codelite
 LinkerName             :=/usr/bin/g++
 SharedObjectLinkerName :=/usr/bin/g++ -shared -fPIC
@@ -60,9 +60,9 @@ AS       := /usr/bin/as
 ## User defined environment variables
 ##
 CodeLiteDir:=/usr/share/codelite
-Objects0=$(IntermediateDirectory)/src_game_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_entity_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_main.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_heartbeat_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_luatypes.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_septem.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_account.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_account_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_script_entity.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_commandobj.cpp$(ObjectSuffix) \
-	$(IntermediateDirectory)/src_script_entities_roomobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_daemonobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_livingentity.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_itemobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_container_base.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_playerobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_actionobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_doorobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_fs_fs_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_net_socket.cpp$(ObjectSuffix) \
-	$(IntermediateDirectory)/src_net_server.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_server_context_impl.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_server_connection.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_server_client.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_server_httpserv.cpp$(ObjectSuffix) 
+Objects0=$(IntermediateDirectory)/src_game_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_entity_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_main.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_heartbeat_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_septem.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_account.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_account_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_script_entity.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_commandobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_roomobj.cpp$(ObjectSuffix) \
+	$(IntermediateDirectory)/src_script_entities_daemonobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_livingentity.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_itemobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_container_base.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_playerobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_actionobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_doorobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_fs_fs_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_net_socket.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_net_server.cpp$(ObjectSuffix) \
+	$(IntermediateDirectory)/src_server_context_impl.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_server_connection.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_server_client.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_server_httpserv.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_luatypes.cpp$(ObjectSuffix) 
 
 
 
@@ -129,14 +129,6 @@ $(IntermediateDirectory)/src_heartbeat_manager.cpp$(DependSuffix): src/heartbeat
 
 $(IntermediateDirectory)/src_heartbeat_manager.cpp$(PreprocessSuffix): src/heartbeat_manager.cpp
 	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_heartbeat_manager.cpp$(PreprocessSuffix) src/heartbeat_manager.cpp
-
-$(IntermediateDirectory)/src_luatypes.cpp$(ObjectSuffix): src/luatypes.cpp $(IntermediateDirectory)/src_luatypes.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/luatypes.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_luatypes.cpp$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/src_luatypes.cpp$(DependSuffix): src/luatypes.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/src_luatypes.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/src_luatypes.cpp$(DependSuffix) -MM src/luatypes.cpp
-
-$(IntermediateDirectory)/src_luatypes.cpp$(PreprocessSuffix): src/luatypes.cpp
-	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_luatypes.cpp$(PreprocessSuffix) src/luatypes.cpp
 
 $(IntermediateDirectory)/src_septem.cpp$(ObjectSuffix): src/septem.cpp $(IntermediateDirectory)/src_septem.cpp$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/septem.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_septem.cpp$(ObjectSuffix) $(IncludePath)
@@ -297,6 +289,14 @@ $(IntermediateDirectory)/src_server_httpserv.cpp$(DependSuffix): src/server/http
 
 $(IntermediateDirectory)/src_server_httpserv.cpp$(PreprocessSuffix): src/server/httpserv.cpp
 	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_server_httpserv.cpp$(PreprocessSuffix) src/server/httpserv.cpp
+
+$(IntermediateDirectory)/src_luatypes.cpp$(ObjectSuffix): src/luatypes.cpp $(IntermediateDirectory)/src_luatypes.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/luatypes.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_luatypes.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/src_luatypes.cpp$(DependSuffix): src/luatypes.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/src_luatypes.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/src_luatypes.cpp$(DependSuffix) -MM src/luatypes.cpp
+
+$(IntermediateDirectory)/src_luatypes.cpp$(PreprocessSuffix): src/luatypes.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_luatypes.cpp$(PreprocessSuffix) src/luatypes.cpp
 
 
 -include $(IntermediateDirectory)/*$(DependSuffix)

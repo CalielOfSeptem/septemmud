@@ -261,6 +261,8 @@ void init_lua_state(sol::state& l)
                                 &playerobj::get_property_lua,
                                 "GetPlayerName",
                                 &playerobj::GetPlayerName,
+                                "SetPlayerName",
+                                &playerobj::set_playerName,
                                 "SendToEntity",
                                 &playerobj::SendToEntity,
                                 "SendToPlayer",

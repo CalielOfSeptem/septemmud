@@ -326,7 +326,7 @@ private:
             fn = dispatch_queue_.front();
             dispatch_queue_.pop_front();
             lock.unlock();
-
+            //std::cout << "KAPOW!" << std::endl;
             fn();
 
             lock.lock();

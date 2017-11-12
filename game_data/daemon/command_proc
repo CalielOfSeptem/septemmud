@@ -10,11 +10,12 @@ end
 
 function d:process_command (o_orig, cmd )
 	if( cmd:len() == 0 ) then
-		return false;
+		return false
 	end
 	--print('Processing command.  EntityType = ' .. o_orig:GetType() .. ', cmd = [' .. cmd .. ']' )
 	
 	s_type = o_orig:GetType()
+	
 	if (s_type:lower() == "player" ) then
 		local play = player_cast(o_orig)
 		if( play:get_InputCaptured() ) then
@@ -23,11 +24,11 @@ function d:process_command (o_orig, cmd )
 		end
 		
 	end
+	
 	if (s_type:lower() == "player" or s_type:lower() == "npc") then
 		-- first we search all known global/default commands like "look" and movement commands
 		cmds = get_default_commands()
-	
-		for k, v in ipairs(cmds) do
+		for k, v in pairs(cmds) do
 			--local b = cmd:starts(v:GetCommand():lower())
 			--print (  b)
 			--print( k)  --v:GetCommand():lower() )
@@ -38,7 +39,7 @@ function d:process_command (o_orig, cmd )
 			end
 		end
 		
-		for k, v in ipairs(cmds) do
+		for k, v in pairs(cmds) do
 			for k1, v1 in ipairs(v:GetAliases()) do
 				--print('Identified command, cmd=' .. v:GetCommand() )
 				if (cmd:lower():starts( v1:lower() ) or cmd:lower() == v1:lower()) then
@@ -55,6 +56,7 @@ function d:process_command (o_orig, cmd )
 	end
 	
 	o_orig:SendToEntity('I don\'t understand. Type \"help commands\" for more information.') 
+	return false
 end
 
 

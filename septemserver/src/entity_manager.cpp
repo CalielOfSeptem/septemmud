@@ -34,6 +34,82 @@ namespace spd = spdlog;
 namespace fs = boost::filesystem;
 
 
+std::shared_ptr< _sol_userdata_ > tdata;
+    struct a
+    {
+        a()
+        {
+            
+        }
+        a(sol::this_state ts, sol::this_environment te)
+        {
+            lua_State* L = ts;
+            tdata = std::shared_ptr<_sol_userdata_>(new _sol_userdata_);
+            tdata->selfobj = sol::userdata(L, -2);
+        }
+        
+        sol::object get_property_lua(const char* name, sol::this_state s)
+        {
+                return props[name];
+        }
+
+        void set_property_lua(const char* name, sol::stack_object object)
+        {
+                props[name] = object.as<sol::object>();
+        }
+       std::unordered_map<std::string, sol::object> props;
+       
+    };
+    
+sol::state lua;
+void init_crap()
+{
+        lua.open_libraries(sol::lib::base,
+                       sol::lib::string,
+                       sol::lib::math,
+                       sol::lib::table,
+                       sol::lib::package,
+                       sol::lib::debug);
+                 /*      
+    lua.new_usertype<a>("a",
+      sol::constructors<a(sol::this_state, sol::this_environment)>(),
+                                  sol::meta_function::new_index,
+                            &a::set_property_lua,
+                            sol::meta_function::index,
+                            &a::get_property_lua);
+                       */
+    std::map<std::string, std::string> d_cmds;
+    d_cmds["test"] = "test";
+    d_cmds["test2"] = "test2";
+    
+    lua.set_function("get_default_commands", [&]() -> std::map<std::string, std::string> & 
+    { 
+        return d_cmds; 
+    });
+     
+    
+    //lua.script("a1 = a.new()");
+    lua.script("cmds = get_default_commands() \n print(#cmds) \n for k, v in pairs(cmds) do print(k) end ");
+    lua.script( "function test() print('executing test()') \n cmds = get_default_commands() \n print(#cmds) \n for k, v in pairs(cmds) do print(k) end  end");
+    // lua.script("function a1:process_command() \n print('Ok..') \n cmds = get_default_commands() \n for k, v in pairs(cmds) do print('this dont') end \n end");
+            
+}
+
+void break_crap()
+{
+    //sol::optional<sol::table> self = tdata->selfobj;
+    for( int x = 0; x < 1; x++ )
+    {
+        //sol::protected_function exec = self.value()["process_command"];
+        sol::protected_function exec = lua["test"];
+        auto result = exec();
+        if(result.valid()) {
+        }
+        //lua.script("cmds = get_default_commands() for k, v in pairs(cmds) do end");
+    }
+}
+
+
 
 
 void get_entity_str(EntityType etype, std::string& str)
@@ -664,6 +740,8 @@ bool entity_manager::load_player(std::string playername)
     {
         pplayer->cwd = "workspaces/" + lpname;
     }
+    
+    //pplayer->set_loggedIn(true);
    // if( pplayer->workspacePath.empty() )
   //  {
    //     pplayer->workspacePath = "workspaces/" + lpname;
@@ -1905,7 +1983,7 @@ void entity_manager::debug(std::string& msg)
 
 bool entity_manager::do_command(living_entity* e, const std::string cmd)
 {
-    
+
     if( auto pp = dynamic_cast<playerobj*>(e)  )
     {
         
@@ -1917,10 +1995,8 @@ bool entity_manager::do_command(living_entity* e, const std::string cmd)
         
         pt::ptime t2 = pt::second_clock::local_time();
         pt::time_duration diff = t2 - pp->get_referenceTickCount();
-        std::cout << diff.total_milliseconds() << std::endl;
-        if( diff.total_milliseconds() <= 1000 )
+        if( diff.total_milliseconds() <= 500 )
         {
-            //std::cout << diff.total_milliseconds() << std::endl;
             // we're within a window.. check for command count..
             if( pp->get_commandCount() == pp->get_maxCmdCount() )
             {
@@ -1941,7 +2017,8 @@ bool entity_manager::do_command(living_entity* e, const std::string cmd)
     std::unique_lock<std::mutex> lock(dispatch_queue_mutex_);
     dispatch_queue_.push_back(std::bind(&entity_manager::on_cmd, this, e, cmd));
     (*strand_).post(std::bind(&entity_manager::dispatch_queue, this));
-        
+    //on_cmd(e, cmd);
+
     return true;
    
 }
@@ -2197,16 +2274,23 @@ bool entity_manager::save_compiled_room_list()
     return true;
 }
 
+bool binit = false;
 void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
 {
    // std::cout << "ON CMD" << std::endl;
-    
     try
     {
-
-        
+       // if( !binit )
+       // {
+       //     init_crap();
+        //    binit = true;
+       // }
+      //  break_crap();
+       // return;
         bool bdoLogon = false;
-        if( auto pp = dynamic_cast<playerobj*>(e)  )
+        auto pp = dynamic_cast<playerobj*>(e);
+        
+        if( pp )
         {
             if( !pp->get_loggedIn() )
             {
@@ -2234,7 +2318,35 @@ void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
             if(self) {
                 sol::protected_function exec = self.value()["process_command"];
                 auto result = exec(self, e, cmd);
-                if(!result.valid()) {
+                
+                if(result.valid()) {
+                    bool bOk = true;
+                    bool bAuth = true;
+
+                    sol::tie(bOk, bAuth) = result;
+ 
+                    if( !bOk )
+                    {
+                        pp->disconnect_client();
+                    }
+                    else if( bAuth )
+                    {
+                        std::stringstream ss;
+                        auto log = spd::get("main");
+                        ss << "Player logged in successfully!";
+                        log->debug( ss.str() );
+                        e->debug(ss.str());
+                        
+                        pp->get_client()->associate_player(pp->GetPlayerName());
+                        playerobj * po = get_player(pp->GetPlayerName());
+                        po->set_loggedIn(true);
+                        std::string spath = pp->GetVirtualScriptPath();
+                        destroy_player( spath );
+                        garbage_collect();
+                    }
+                }
+                else
+                {
                     sol::error err = result;
                     auto log = spd::get("main");
                     std::stringstream ss;

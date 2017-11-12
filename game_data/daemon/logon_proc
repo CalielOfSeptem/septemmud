@@ -9,7 +9,7 @@ function d:process_command (o_orig, cmd )
 	
 	play = player_cast(o_orig);
 	if( play == nil ) then
-		return false;
+		return false, false -- first bool is whether they should remain logged in, second is if the auth succeeded
 	end
 	
 --	print('input = ' .. cmd )
@@ -19,7 +19,7 @@ function d:process_command (o_orig, cmd )
 		play:SendToEntity( 'Please visit septemmud.com to request an account.\r\n')
 		play._STATE_ = logonState.VERIFY_PLAYERNAME
 		
-		return true
+		return true, false
 	end
 	
 	if( play._STATE_ == logonState.VERIFY_PLAYERNAME ) then
@@ -28,21 +28,31 @@ function d:process_command (o_orig, cmd )
 			play._TMP_USER_ = cmd
 			play:SendToEntity('Please enter your password:\r\n')
 			play._STATE_ = logonState.VERIFY_PASSWORD
-			
-			return true
+			play._MAX_PASS_ATTEMPTS_ = 3
+			play._PASS_ATTEMPT_ = 0
+			return true, false
 			else
 			play:SendToEntity('Account does not exist.  Please re-enter your player name:\r\n')
 			play._STATE_ = logonState.VERIFY_PLAYERNAME
-			return true
+			return true, false
 		end
 	end
 	if( play._STATE_ == logonState.VERIFY_PASSWORD ) then
 		if( play:VerifyPassword( play._TMP_USER_:lower(), cmd) ) then
-			play:SendToEntity('SUCCESS\r\n')
-			return true
+			play:SetPlayerName( play._TMP_USER_:lower() )
+			--play:SendToEntity('SUCCESS\r\n')
+			return true, true
 		end
-		play:SendToEntity('FAIL\r\n')
-		return true
+		play._PASS_ATTEMPT_ = play._PASS_ATTEMPT_ + 1
+		if( play._PASS_ATTEMPT_+1 > play._MAX_PASS_ATTEMPTS_ ) then
+			return false, false -- log them out!
+		end
+		local r =  play._MAX_PASS_ATTEMPTS_ - play._PASS_ATTEMPT_
+		play:SendToEntity('Invalid password, ' .. r .. ' attempt(s) remain...\r\n')
+		play:SendToEntity('Please enter your password:\r\n')
+		play._STATE_ = logonState.VERIFY_PASSWORD
+		--play:SendToEntity('FAIL\r\n')
+		return true, false
 	end
 	
 	

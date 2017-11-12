@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include "json.hpp"
 #include "account.h"
-
+#include "server/client.hpp"
 #include "boost/date_time/posix_time/posix_time.hpp"
 namespace pt = boost::posix_time;
 
@@ -61,7 +61,7 @@ struct playerobj : living_entity
          return name;
      }
      
-     void set_playerName( std::string& aname )
+     void set_playerName( const std::string& aname )
      {
          name = aname;
          //_ac._playername = name;
@@ -135,6 +135,23 @@ struct playerobj : living_entity
         return maxCmdCnt;
     }
     
+    void set_client(client* c)
+    {
+        client_ = c;
+    }
+    
+    client* get_client()
+    {
+        return client_;
+    }
+    
+    
+    void disconnect_client()
+    {
+        if( client_ != NULL )
+            client_->disconnect();
+    }
+    
     
     virtual bool do_save() override;
     virtual bool do_load() override;
@@ -154,6 +171,7 @@ private:
     boost::posix_time::ptime tickReference;
     unsigned long commandCount;
     unsigned long maxCmdCnt;
+    client * client_;
 };
  
 #endif
