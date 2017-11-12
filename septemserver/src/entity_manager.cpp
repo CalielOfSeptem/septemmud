@@ -713,7 +713,7 @@ roomobj* entity_manager::get_void_room()
 }
 
 
-bool entity_manager::load_player(std::string playername)
+bool entity_manager::load_player(std::string playername, bool bloggedIn)
 {
     std::string lpname = boost::to_lower_copy(playername);
     
@@ -735,6 +735,11 @@ bool entity_manager::load_player(std::string playername)
     pplayer = get_player(lpname);
     
     assert( pplayer != NULL );
+    
+    if( bloggedIn )
+        pplayer->do_load();
+    else
+        return true;
     
     if( pplayer->cwd.empty() )
     {
@@ -2331,18 +2336,22 @@ void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
                     }
                     else if( bAuth )
                     {
-                        std::stringstream ss;
-                        auto log = spd::get("main");
-                        ss << "Player logged in successfully!";
-                        log->debug( ss.str() );
-                        e->debug(ss.str());
+
                         
-                        pp->get_client()->associate_player(pp->GetPlayerName());
+                        pp->get_client()->associate_player(pp->GetPlayerName(), true);
                         playerobj * po = get_player(pp->GetPlayerName());
                         po->set_loggedIn(true);
                         std::string spath = pp->GetVirtualScriptPath();
                         destroy_player( spath );
                         garbage_collect();
+                        
+                        std::stringstream ss;
+                        auto log = spd::get("main");
+                        ss << "Player " << pp->GetPlayerName() << " logged in successfully!";
+                        log->debug( ss.str() );
+                        e->debug(ss.str());
+                        
+                        //po->DoCommand(NULL, "look");
                     }
                 }
                 else

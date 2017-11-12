@@ -189,7 +189,10 @@ function FormatRoom(r, o)
 		s = s .. "Also here: "
 	
 		for i = 1, #players do
+			--print( 'Name: ' .. players[i]:GetName() )
 			local po = player_cast(players[i])
+			print(po)
+			
 			--print(po)
 			local pname = po:GetPlayerName()
 			--firstToUpper(pname)

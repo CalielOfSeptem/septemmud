@@ -123,7 +123,7 @@ struct _internal_command_wrapper_
      */
     bool compile_player(std::string playerName, std::string& reason);
     
-    bool load_player(std::string playername);
+    bool load_player(std::string playername, bool bloggedIn=false);
     
     roomobj* get_void_room();
     

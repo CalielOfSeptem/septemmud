@@ -127,7 +127,7 @@ class client::impl : public std::enable_shared_from_this<client::impl>
      //   send("\r\nTo request an account visit http://www.septemmud.com.");
       //  prompt();
         player_uid = random_string();
-        associate_player(player_uid);
+        associate_player(player_uid, false);
     }
     
     void on_output(const std::string& s)
@@ -140,9 +140,9 @@ class client::impl : public std::enable_shared_from_this<client::impl>
        send(s);
     }
     
-    void associate_player(const std::string& pname)
+    void associate_player(const std::string& pname, bool bloggedIn)
     {
-        entity_manager::Instance().load_player(pname);
+        entity_manager::Instance().load_player(pname, bloggedIn);
         
         playerobj * p = entity_manager::Instance().get_player(pname);
         p->onOutput = [this](std::string const& msg)->void { this->on_output(msg); };
@@ -361,7 +361,7 @@ void client::send(std::string const& data)
 {
     pimpl_->send(data);
 }
-void client::associate_player(const std::string& name)
+void client::associate_player(const std::string& name, bool bLoggedIn)
 {
-    pimpl_->associate_player(name);
+    pimpl_->associate_player(name, bLoggedIn);
 }

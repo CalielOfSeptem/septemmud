@@ -61,7 +61,7 @@ public :
     
     //void on_output(std::string& s);
     
-    void associate_player(const std::string& pname);
+    void associate_player(const std::string& pname, bool bloggedIn=false);
 
 private :
     class impl;

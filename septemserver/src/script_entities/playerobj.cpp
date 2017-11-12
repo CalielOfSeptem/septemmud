@@ -19,7 +19,7 @@ living_entity(ts, te, EntityType::PLAYER, name)
     this->set_entityStorageLocation( p );
     m_RightHand.set_entityStorageLocation(p);
     m_LeftHand.set_entityStorageLocation(p);
-    do_load();
+    //do_load();
 }
      
 
