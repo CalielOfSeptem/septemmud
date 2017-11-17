@@ -29,8 +29,8 @@ struct playerobj : living_entity
      
      void SendToEntity(const std::string& msg)  override
      {
-        if( GetName() == "caliel" )
-            std::cout << msg << std::endl;
+        //if( GetName() == "caliel" )
+        //    std::cout << msg << std::endl;
         if( this->onOutput )
             this->onOutput(msg);
         living_entity::SendToEntity(msg);

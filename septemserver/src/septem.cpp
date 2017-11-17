@@ -83,7 +83,7 @@ private :
       , std::weak_ptr<connection>  weak_connection
       , std::string const                   &terminal_type)
     {
-        printf("Terminal type is: \"%s\"\n", terminal_type.c_str());
+        //printf("Terminal type is: \"%s\"\n", terminal_type.c_str());
         
         auto socket =     weak_socket.lock();
         auto connection = weak_connection.lock();
@@ -158,6 +158,8 @@ private :
               , pending_connections_.end());
             pending_sizes_.erase(connection);
         }
+        
+        
     }
     
     void on_client_authorized( std::weak_ptr<connection> const &weak_connection )
@@ -179,6 +181,14 @@ private :
         
         if (cclient != NULL)
         {
+            playerobj * p = cclient.get()->get_player();
+            if( p )
+            {
+                std::string pname = p->GetName();
+                entity_manager::Instance().unload_player(pname);  
+            }
+   
+            
             context_->remove_client(cclient);
             /*
             context_->update_names();

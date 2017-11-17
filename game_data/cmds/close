@@ -112,7 +112,7 @@ function c:CloseItem(o, item_to_close, from_player_inventory)
 	item_to_find = item_cast(item_to_close)
 	
 	if( item_to_close:GetIsOpen() ~= true ) then
-		o:SendToEntity('The ' .. getNameWithDefArticle(item_to_close) .. ' is already closed.')
+		o:SendToEntity('The ' .. item_to_close:GetItemNoun() .. ' is already closed.')
 		return false
 	end
 	

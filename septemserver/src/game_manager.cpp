@@ -46,7 +46,7 @@ void game_manager::init()
     }
     
     ptime now = second_clock::local_time();
-    std::cout << now << std::endl;
+    //std::cout << now << std::endl;
     global_settings::Instance().SetSetting( DEFAULT_LAST_REBOOT, to_simple_string(now) );
     
     

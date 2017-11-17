@@ -5,9 +5,11 @@
 #include <memory>
 #include <vector>
 
+
 class world_context;
 class character;
 class connection;
+class playerobj;
     
 namespace boost { namespace asio {
     class io_service;
@@ -58,6 +60,8 @@ public :
     void send(std::string const &data);
     
     void send(char const * text);
+    
+    playerobj * get_player();
     
     //void on_output(std::string& s);
     

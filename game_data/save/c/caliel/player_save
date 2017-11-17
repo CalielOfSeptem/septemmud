@@ -1,9 +1,13 @@
 {
-    "cwd": "workspaces/caliel",
+    "cwd": "workspaces/caliel/entities/",
     "gender": "unknown",
     "inventory": {},
-    "leftHand": 0,
-    "rightHand": 0,
-    "roomID": 0,
+    "leftHand": {
+        "Hzo9tjDUkMP8lX8": "workspaces/caliel/entities/simple arrow"
+    },
+    "rightHand": {
+        "TL9ESdC1PLxPhoE": "workspaces/caliel/entities/simple arrow"
+    },
+    "roomID": 1,
     "roomPath": "workspaces/caliel/workroom"
 }

@@ -125,6 +125,8 @@ struct _internal_command_wrapper_
     
     bool load_player(std::string playername, bool bloggedIn=false);
     
+    bool unload_player(const std::string& playername);
+    
     roomobj* get_void_room();
     
     

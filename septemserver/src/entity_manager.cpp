@@ -455,7 +455,7 @@ bool entity_manager::reload_all_item_instances(std::string& relative_script_path
                 }
                 for( auto i : t->GetItems() )
                 {
-                    std::cout << "Adding item to destroy " << i->GetVirtualScriptPath()<< std::endl;
+                    //std::cout << "Adding item to destroy " << i->GetVirtualScriptPath()<< std::endl;
                     _item_ i_temp;
                     i_temp.script_path = i->GetPhysicalScriptPath();
                     i_temp.uid = i->get_uid();
@@ -737,9 +737,12 @@ bool entity_manager::load_player(std::string playername, bool bloggedIn)
     assert( pplayer != NULL );
     
     if( bloggedIn )
-        pplayer->do_load();
+    {
+        pplayer->set_loggedIn(true); // not sure if I want to do this here.. but oh well
+        pplayer->do_load();    
+    }
     else
-        return true;
+        return true; // this stops a temp user that has yet to log in from appearing in game
     
     if( pplayer->cwd.empty() )
     {
@@ -754,6 +757,11 @@ bool entity_manager::load_player(std::string playername, bool bloggedIn)
     
     if( pplayer->roomPath.empty() )
     {
+        auto log = spd::get("main");
+        std::stringstream ss;
+        ss << "Moving player " << playername  << " to the void.";
+        log->debug( ss.str() );
+        
         // TODO: Put them into the default room.. or some place else.
         roomobj * r = this->get_void_room();
         assert(r != NULL);
@@ -761,12 +769,18 @@ bool entity_manager::load_player(std::string playername, bool bloggedIn)
         {
             auto log = spd::get("main");
             std::stringstream ss;
-            ss << "Unable to move " << playername << std::endl;
+            ss << "Unable to move " << playername;
+            log->debug( ss.str() );
             return false;
         }
     }
     else
     {
+        auto log = spd::get("main");
+        std::stringstream ss;
+        ss << "Moving player " << playername  << " to " <<  pplayer->roomPath;
+        log->debug( ss.str() );
+        
         roomobj * r = GetRoomByScriptPath(pplayer->roomPath, pplayer->roomID);
         //assert(r != NULL);
         if( r == NULL )
@@ -777,7 +791,8 @@ bool entity_manager::load_player(std::string playername, bool bloggedIn)
             {
                 auto log = spd::get("main");
                 std::stringstream ss;
-                ss << "Unable to move " << playername << std::endl;
+                ss << "Unable to move " << playername;
+                log->debug( ss.str() );
                 return false;
             }
         }
@@ -785,7 +800,8 @@ bool entity_manager::load_player(std::string playername, bool bloggedIn)
         {
             auto log = spd::get("main");
             std::stringstream ss;
-            ss << "Unable to move " << playername << std::endl;
+            ss << "Unable to move " << playername;
+            log->debug( ss.str() );
             return false;
         }
     }
@@ -1058,6 +1074,21 @@ bool entity_manager::get_room_by_script(std::string& script_path, std::unordered
 }
 */
 
+bool entity_manager::unload_player(const std::string& playername)
+{
+    playerobj * po = get_player(playername);
+    if( po == NULL )
+    {
+        return false;
+    }
+    std::string ppath = po->GetVirtualScriptPath();
+    
+    bool b = destroy_player(ppath);
+    lua.collect_garbage();
+
+    return b;
+}
+
 bool entity_manager::destroy_player(std::string& script_path)
 {
     //sol::state& lua = (*m_state);
@@ -1067,7 +1098,14 @@ bool entity_manager::destroy_player(std::string& script_path)
         if(search == m_player_objs.end()) {
             return false;
         }
-
+        
+        script_entity * e = search->second->script_ent->GetEnvironment();
+        if( e )
+        {
+            auto * pp = dynamic_cast< playerobj* >(search->second->script_ent);
+            pp->GetRoom()->RemoveEntityFromInventory(pp);
+        }
+        
         sol::environment env;
         std::string name;
         get_parent_env_of_entity(script_path, env, name);
@@ -2000,7 +2038,7 @@ bool entity_manager::do_command(living_entity* e, const std::string cmd)
         
         pt::ptime t2 = pt::second_clock::local_time();
         pt::time_duration diff = t2 - pp->get_referenceTickCount();
-        if( diff.total_milliseconds() <= 500 )
+        if( diff.total_milliseconds() <= 1000 )
         {
             // we're within a window.. check for command count..
             if( pp->get_commandCount() == pp->get_maxCmdCount() )
@@ -2351,7 +2389,7 @@ void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
                         log->debug( ss.str() );
                         e->debug(ss.str());
                         
-                        //po->DoCommand(NULL, "look");
+                        po->DoCommand(NULL, "look");
                     }
                 }
                 else

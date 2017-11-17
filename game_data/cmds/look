@@ -191,9 +191,7 @@ function FormatRoom(r, o)
 		for i = 1, #players do
 			--print( 'Name: ' .. players[i]:GetName() )
 			local po = player_cast(players[i])
-			print(po)
-			
-			--print(po)
+
 			local pname = po:GetPlayerName()
 			--firstToUpper(pname)
 			pname = string.gsub(pname, "(%a)([%w_']*)", titleCase)

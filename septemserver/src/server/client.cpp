@@ -120,6 +120,11 @@ class client::impl : public std::enable_shared_from_this<client::impl>
         send("\r\n> ");
     }
     
+    playerobj * get_player()
+    {
+        return m_player;
+    }
+    
     void display_welcome()
     {
         send(logo_data);
@@ -195,6 +200,7 @@ class client::impl : public std::enable_shared_from_this<client::impl>
     void on_connection_death(std::function<void ()> const &callback)
     {
         connection_->on_socket_death(callback);
+
     }
     
     void send(std::string const& data)
@@ -255,7 +261,7 @@ private :
     // ======================================================================
     void on_command(std::string const &input)
     {
-        puts(input.c_str());
+        //puts(input.c_str());
         std::string cmd = input;//to_lower_copy(input);
         trim(cmd);
         entity_manager::Instance().do_command(this->m_player, cmd);
@@ -351,7 +357,7 @@ void client::on_connection_death(std::function<void ()> const &callback)
 // ======================================================================
 void client::data(std::string const &data)
 {
-    std::cout << data << std::endl;
+    //std::cout << data << std::endl;
 }
 void client::send(char const* text)
 {
@@ -364,4 +370,8 @@ void client::send(std::string const& data)
 void client::associate_player(const std::string& name, bool bLoggedIn)
 {
     pimpl_->associate_player(name, bLoggedIn);
+}
+playerobj* client::get_player()
+{
+     return pimpl_->get_player();
 }
