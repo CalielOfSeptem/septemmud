@@ -104,7 +104,7 @@ struct _internal_command_wrapper_
     bool move_living(script_entity* target, const std::string& roomid);
     bool move_entity(script_entity* target, script_entity* dest);
     
-    bool do_command(living_entity * e, const std::string cmd);
+    bool do_command(living_entity * e, const std::string cmd, bool antiFlood=false);
     bool do_goto(std::string& entitypath, playerobj* p );
     bool do_tp(std::string& entitypath, playerobj* p_targ, playerobj * p_caller );
     
@@ -218,6 +218,8 @@ private:
     std::mutex                              dispatch_queue_mutex_;
     std::deque<std::function<void ()>>      dispatch_queue_;
     
+    std::mutex                              lua_mutex_;
+    
     void on_cmd(living_entity* e, std::string const &cmd);
     
 
@@ -328,7 +330,6 @@ private:
             fn = dispatch_queue_.front();
             dispatch_queue_.pop_front();
             lock.unlock();
-            //std::cout << "KAPOW!" << std::endl;
             fn();
 
             lock.lock();

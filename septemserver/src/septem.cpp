@@ -162,11 +162,6 @@ private :
         
     }
     
-    void on_client_authorized( std::weak_ptr<connection> const &weak_connection )
-    {
-        
-    }
-    
     // ======================================================================
     // ON_CLIENT_DEATH
     // ======================================================================

@@ -33,85 +33,6 @@ namespace spd = spdlog;
 
 namespace fs = boost::filesystem;
 
-
-std::shared_ptr< _sol_userdata_ > tdata;
-    struct a
-    {
-        a()
-        {
-            
-        }
-        a(sol::this_state ts, sol::this_environment te)
-        {
-            lua_State* L = ts;
-            tdata = std::shared_ptr<_sol_userdata_>(new _sol_userdata_);
-            tdata->selfobj = sol::userdata(L, -2);
-        }
-        
-        sol::object get_property_lua(const char* name, sol::this_state s)
-        {
-                return props[name];
-        }
-
-        void set_property_lua(const char* name, sol::stack_object object)
-        {
-                props[name] = object.as<sol::object>();
-        }
-       std::unordered_map<std::string, sol::object> props;
-       
-    };
-    
-sol::state lua;
-void init_crap()
-{
-        lua.open_libraries(sol::lib::base,
-                       sol::lib::string,
-                       sol::lib::math,
-                       sol::lib::table,
-                       sol::lib::package,
-                       sol::lib::debug);
-                 /*      
-    lua.new_usertype<a>("a",
-      sol::constructors<a(sol::this_state, sol::this_environment)>(),
-                                  sol::meta_function::new_index,
-                            &a::set_property_lua,
-                            sol::meta_function::index,
-                            &a::get_property_lua);
-                       */
-    std::map<std::string, std::string> d_cmds;
-    d_cmds["test"] = "test";
-    d_cmds["test2"] = "test2";
-    
-    lua.set_function("get_default_commands", [&]() -> std::map<std::string, std::string> & 
-    { 
-        return d_cmds; 
-    });
-     
-    
-    //lua.script("a1 = a.new()");
-    lua.script("cmds = get_default_commands() \n print(#cmds) \n for k, v in pairs(cmds) do print(k) end ");
-    lua.script( "function test() print('executing test()') \n cmds = get_default_commands() \n print(#cmds) \n for k, v in pairs(cmds) do print(k) end  end");
-    // lua.script("function a1:process_command() \n print('Ok..') \n cmds = get_default_commands() \n for k, v in pairs(cmds) do print('this dont') end \n end");
-            
-}
-
-void break_crap()
-{
-    //sol::optional<sol::table> self = tdata->selfobj;
-    for( int x = 0; x < 1; x++ )
-    {
-        //sol::protected_function exec = self.value()["process_command"];
-        sol::protected_function exec = lua["test"];
-        auto result = exec();
-        if(result.valid()) {
-        }
-        //lua.script("cmds = get_default_commands() for k, v in pairs(cmds) do end");
-    }
-}
-
-
-
-
 void get_entity_str(EntityType etype, std::string& str)
 {
 
@@ -1084,7 +1005,7 @@ bool entity_manager::unload_player(const std::string& playername)
     std::string ppath = po->GetVirtualScriptPath();
     
     bool b = destroy_player(ppath);
-    lua.collect_garbage();
+    garbage_collect();
 
     return b;
 }
@@ -2024,39 +1945,43 @@ void entity_manager::debug(std::string& msg)
     //LOG_DEBUG << msg;
 }
 
-bool entity_manager::do_command(living_entity* e, const std::string cmd)
+bool entity_manager::do_command(living_entity* e, const std::string cmd, bool antiFlood)
 {
 
-    if( auto pp = dynamic_cast<playerobj*>(e)  )
+    if( antiFlood )
     {
-        
-        // here is the pattern:
-        
-        // check it see if 1s has passed since the last tick, this essentially
-        // allows for more commands to be received.  If we are in a new command window time
-        // then accept N commands up to the max commands
-        
-        pt::ptime t2 = pt::second_clock::local_time();
-        pt::time_duration diff = t2 - pp->get_referenceTickCount();
-        if( diff.total_milliseconds() <= 1000 )
+        if ( auto pp = dynamic_cast<playerobj*>(e) )
         {
-            // we're within a window.. check for command count..
-            if( pp->get_commandCount() == pp->get_maxCmdCount() )
+             // here is the pattern:
+            
+            // check it see if 1s has passed since the last tick, this essentially
+            // allows for more commands to be received.  If we are in a new command window time
+            // then accept N commands up to the max commands
+            
+            pt::ptime t2 = pt::second_clock::local_time();
+            pt::time_duration diff = t2 - pp->get_referenceTickCount();
+            if( diff.total_milliseconds() <= 1000 )
             {
-                pp->SendToEntity("You have exceeded the maximum number of type-ahead commands... please wait..");
-                pp->set_referenceTickCount(); // anti flood protection.  Every time we hit this condition we continue to block more commands.
-                return false;
-            } 
-            pp->incrementCmdCount(); 
+                // we're within a window.. check for command count..
+                if( pp->get_commandCount() == pp->get_maxCmdCount() )
+                {
+                    pp->SendToEntity("You have exceeded the maximum number of type-ahead commands... please wait..\r\n");
+                    pp->set_referenceTickCount(); // anti flood protection.  Every time we hit this condition we continue to block more commands.
+                    return false;
+                } 
+                pp->incrementCmdCount(); 
+            }
+            else
+            {
+                // reset the window..
+                pp->set_referenceTickCount();
+                pp->resetCmdCount();
+            }           
         }
-        else
-        {
-            // reset the window..
-            pp->set_referenceTickCount();
-            pp->resetCmdCount();
-        }
+
     }
- 
+    
+    //e->SendToEntity("OK..");
     std::unique_lock<std::mutex> lock(dispatch_queue_mutex_);
     dispatch_queue_.push_back(std::bind(&entity_manager::on_cmd, this, e, cmd));
     (*strand_).post(std::bind(&entity_manager::dispatch_queue, this));
@@ -2318,18 +2243,19 @@ bool entity_manager::save_compiled_room_list()
 }
 
 bool binit = false;
+
+/**
+ *  Only call the following method from the dispather function to ensure
+ * the lua state remains uncorrupted
+ */
 void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
 {
-   // std::cout << "ON CMD" << std::endl;
+
+    std::unique_lock<std::mutex> lock(lua_mutex_);
+
     try
     {
-       // if( !binit )
-       // {
-       //     init_crap();
-        //    binit = true;
-       // }
-      //  break_crap();
-       // return;
+
         bool bdoLogon = false;
         auto pp = dynamic_cast<playerobj*>(e);
         
@@ -2374,8 +2300,6 @@ void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
                     }
                     else if( bAuth )
                     {
-
-                        
                         pp->get_client()->associate_player(pp->GetPlayerName(), true);
                         playerobj * po = get_player(pp->GetPlayerName());
                         po->set_loggedIn(true);
@@ -2425,9 +2349,7 @@ void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
             return;
         }
 
-        sol::optional<sol::table> self =
-            dobj->m_userdata->selfobj; // ew_daemon->env_obj.value()[ew_daemon->script_obj_name];//(*lua_primary)[entity_env[0]][entity_env[1]][ew_daemon->script_obj_name];
-                           // //(*ew_daemon->script_state)[ew_daemon->script_obj_name];
+        sol::optional<sol::table> self = dobj->m_userdata->selfobj; 
 
         if(self) {
             sol::protected_function exec = self.value()["process_command"];
@@ -2440,6 +2362,10 @@ void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
                 log->debug( ss.str() );
                 e->debug(ss.str());
                 
+            }
+            else
+            {
+                e->SendToEntity("\r\n> ");
             }
             return;
         } else {

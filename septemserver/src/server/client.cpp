@@ -94,7 +94,7 @@ class client::impl : public std::enable_shared_from_this<client::impl>
                 //cout << "Command Received! : " << input_buffer.c_str() << endl;
                 on_input_entered(input_buffer);
                 
-                prompt();
+                //prompt();
                 input_buffer = "";
                 
             }
@@ -264,7 +264,7 @@ private :
         //puts(input.c_str());
         std::string cmd = input;//to_lower_copy(input);
         trim(cmd);
-        entity_manager::Instance().do_command(this->m_player, cmd);
+        entity_manager::Instance().do_command(this->m_player, cmd, true);
     }
     
     
