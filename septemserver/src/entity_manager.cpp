@@ -996,12 +996,25 @@ bool entity_manager::get_room_by_script(std::string& script_path, std::unordered
 */
 
 bool entity_manager::unload_player(const std::string& playername)
-{
+{   
+ //   std::unique_lock<std::mutex> lock(lua_mutex_);
+   
     playerobj * po = get_player(playername);
-    if( po == NULL )
+    
+    if( po )
+    {
+        // Make sure we remove any outstanding elements in the queue.
+        // otherwise we can have a crash
+        std::unique_lock<std::mutex> lock(dispatch_queue_mutex_);
+        dispatch_queue_.remove_if([](auto& i) { return i.ent; });
+    }
+    else
     {
         return false;
     }
+ 
+    std::unique_lock<std::mutex> lock(lua_mutex_);  
+
     std::string ppath = po->GetVirtualScriptPath();
     
     bool b = destroy_player(ppath);
@@ -1015,6 +1028,8 @@ bool entity_manager::destroy_player(std::string& script_path)
     //sol::state& lua = (*m_state);
 
     {
+       // 
+       
         auto search = m_player_objs.find(script_path);
         if(search == m_player_objs.end()) {
             return false;
@@ -1983,7 +1998,10 @@ bool entity_manager::do_command(living_entity* e, const std::string cmd, bool an
     
     //e->SendToEntity("OK..");
     std::unique_lock<std::mutex> lock(dispatch_queue_mutex_);
-    dispatch_queue_.push_back(std::bind(&entity_manager::on_cmd, this, e, cmd));
+    _internal_queue_wrapper_ iqw;
+    iqw.f = std::bind(&entity_manager::on_cmd, this, e, cmd);
+    iqw.ent = e;
+    dispatch_queue_.push_back(iqw);
     (*strand_).post(std::bind(&entity_manager::dispatch_queue, this));
     //on_cmd(e, cmd);
 
@@ -2250,7 +2268,9 @@ bool binit = false;
  */
 void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
 {
-
+    if( e == NULL )
+        return;
+ 
     std::unique_lock<std::mutex> lock(lua_mutex_);
 
     try
@@ -2365,7 +2385,7 @@ void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
             }
             else
             {
-                e->SendToEntity("\r\n> ");
+                e->SendToEntity("\r\n>\r\n");
             }
             return;
         } else {

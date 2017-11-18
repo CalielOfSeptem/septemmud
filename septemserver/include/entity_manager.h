@@ -4,6 +4,7 @@
 //#include <unordered_map>
 #include <map>
 #include <queue>
+#include <list>
 //#include <unordered_set>
 #include <set>
 #include <mutex>
@@ -39,6 +40,13 @@ struct _internal_command_wrapper_
     std::string cmd;
     
 };
+
+struct _internal_queue_wrapper_
+{
+    living_entity * ent;
+    std::function<void ()> f;
+};
+
 
     static entity_manager & Instance()
     {
@@ -215,8 +223,10 @@ private:
     // for processing any command that may effect the lua stack
     ba::io_service * io_serv;
     boost::shared_ptr<boost::asio::strand> strand_;
+    
     std::mutex                              dispatch_queue_mutex_;
-    std::deque<std::function<void ()>>      dispatch_queue_;
+
+    std::list<_internal_queue_wrapper_>      dispatch_queue_;
     
     std::mutex                              lua_mutex_;
     
@@ -327,11 +337,10 @@ private:
 
         while (!dispatch_queue_.empty())
         {
-            fn = dispatch_queue_.front();
+            fn = dispatch_queue_.front().f;
             dispatch_queue_.pop_front();
             lock.unlock();
             fn();
-
             lock.lock();
         }
     }
