@@ -291,6 +291,7 @@ end
 
 
 function c:ExecuteCommand ( o, cmd )
+
 	--print(inspect(_ENV))
 	--print('Look command called..')
 	--p = player_cast(o)

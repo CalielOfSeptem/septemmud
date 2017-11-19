@@ -346,6 +346,11 @@ private:
             lock.lock();
         }
     }
+      
+    // ======================================================================
+    // Installs a hook to prevent infinite looping within lua functions
+    // ======================================================================
+    void register_hook(script_entity * hook_entity);
 };
 
 #endif

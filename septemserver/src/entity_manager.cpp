@@ -2376,6 +2376,7 @@ void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
 
         if(self) {
             sol::protected_function exec = self.value()["process_command"];
+            register_hook(e);
             auto result = exec(self, e, cmd);
             if(!result.valid()) {
                 sol::error err = result;
@@ -2384,11 +2385,12 @@ void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
                 ss << "Error calling process_command, entity = " << e->GetName() << ", error = " << err.what();
                 log->debug( ss.str() );
                 e->debug(ss.str());
-                
+                register_hook(NULL); // clear the hook
             }
             else
             {
                 e->SendToEntity("\r\n>\r\n");
+                register_hook(NULL); // clear the hook
             }
             return;
         } else {
@@ -2407,6 +2409,69 @@ void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
         ss << "Error attempting to execute command proc " << ex.what();
         log->debug( ss.str() );
     }
+}
+
+void entity_manager::register_hook(script_entity * hook_entity)
+{
+    if( hook_entity == NULL )
+    {
+        this->m_state->script("debug.sethook ()");
+        return;
+    }
+        
+        try {
+
+           this->m_state->set_function("debug_hook", [this, hook_entity](sol::object o) -> void {
+               // sol::optional<std::string> spath = kv.second.script_path; // lua_state["_INTERNAL_SCRIPT_PATH_"];
+              //  sol::optional<std::string> sent = kv.second.etype; // lua_state["_INTERNAL_ENTITY_TYPE_"];
+              //  script_entity* se = NULL;
+              //  if(sent && boost::to_lower_copy(sent.value()) == "room") {
+              //      roomobj* re = entity_manager::Instance().GetRoomByScriptPath(spath.value(), 0);
+              //      se = re;
+               // }
+
+                sol::optional<std::string> err = o.as<std::string>();
+                if(err && err.value() == "count") {
+                    std::string s = "Infinite loop detected. Operation terminated.";
+                    if(hook_entity) {
+                        // sol::this_state sta;
+                        /// sta.L = kv.second.lua_state.lua_state();
+                       // hook_entity->debug(s);
+                    }
+                    lua_pushstring(m_state->lua_state(), s.c_str());
+                    lua_error(m_state->lua_state());
+                } else {
+                    std::string s = "Error. Reason = " + err.value();
+                    if(hook_entity) {
+                       // hook_entity->debug(s);
+                    }
+                    lua_pushstring(m_state->lua_state(), s.c_str());
+                    lua_error(m_state->lua_state());
+                }
+
+            });
+
+            m_state->script("debug.sethook (debug_hook, '', 10000)");
+            
+            /*
+            auto result = kv.second.pf();
+            if(!result.valid()) {
+                sol::error err = result;
+                auto log = spd::get("main");
+                std::stringstream ss;
+                ss << "Error setting debug hook: " << err.what();
+                log->error( ss.str() );
+                //std::cout << err.what() << std::endl;
+            }
+            kv.second.lua_state.script("debug.sethook ()");
+            */
+        } catch(std::exception& ex) {
+            auto log = spd::get("main");
+            std::stringstream ss;
+            ss << "Error setting debug hook: " << ex.what();
+            log->error( ss.str() );
+            //std::cout << ex.what();
+        }
 }
 /*
 bool entity_manager::compile_lib(std::string& script_or_path, std::string& reason)
