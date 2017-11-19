@@ -81,6 +81,7 @@ struct handobj : public container_base, public script_entity
      handobj()
      {
          m_type = EntityType::HAND;
+         //env = NULL;
          
      }
      virtual bool AddEntityToInventory(script_entity * se) override
@@ -154,6 +155,7 @@ struct living_entity : public script_entity, public container_base
     {
         m_RightHand.m_livingEntity = this;
         m_LeftHand.m_livingEntity = this;
+        //env = NULL;
     }
 
     living_entity(sol::this_state ts, sol::this_environment te, EntityType et, std::string name)
@@ -161,6 +163,7 @@ struct living_entity : public script_entity, public container_base
     {
         m_RightHand.m_livingEntity = this;
         m_LeftHand.m_livingEntity = this;
+      //  env = NULL;
     }
     
     ~living_entity()
@@ -248,6 +251,9 @@ struct living_entity : public script_entity, public container_base
     
     
     
+    void unload_inventory_from_game();
+    
+
     
     
 private:
@@ -257,6 +263,8 @@ private:
     bool is_stunned;
     
     std::map < InventorySlot, std::shared_ptr<inventory_slot>> m_inventory_slots;
+    
+    void recursive_unload( script_entity* se );
 
 };
 #endif

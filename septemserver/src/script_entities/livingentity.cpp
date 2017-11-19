@@ -141,8 +141,7 @@ std::vector<itemobj*> living_entity::GetItems()
 {
     std::vector<itemobj*> t_items;
     for(auto i : this->GetInventory()) {
-        if( auto i_maybe = dynamic_cast<itemobj*>(i) )
-        {
+        if(auto i_maybe = dynamic_cast<itemobj*>(i)) {
             t_items.push_back(i_maybe);
         }
     }
@@ -172,21 +171,17 @@ std::vector<inventory_slot*> living_entity::GetInventorySlots()
                 {
                     s->incrementItemCount();
                 }
-                
+
             }
         }
     }
      */
     auto items = GetItems();
-    
-     
-    for(auto kvp : m_inventory_slots) 
-    {
+
+    for(auto kvp : m_inventory_slots) {
         kvp.second.get()->set_itemCount(0);
-        for( auto i : items )
-        {
-            if( i->get_inventorySlot() & kvp.first )
-            {
+        for(auto i : items) {
+            if(i->get_inventorySlot() & kvp.first) {
                 kvp.second.get()->incrementItemCount();
             }
         }
@@ -199,10 +194,8 @@ std::vector<itemobj*> living_entity::GetItemsInInventorySlot(InventorySlot s)
 {
     auto items = GetItems();
     std::vector<itemobj*> found;
-    for( auto i : items )
-    {
-        if( i->get_inventorySlot() & s )
-        {
+    for(auto i : items) {
+        if(i->get_inventorySlot() & s) {
             found.push_back(i);
         }
     }
@@ -213,25 +206,42 @@ InventorySlotError living_entity::SafeAddItemToInventory(itemobj* io)
 {
 
     auto inv_slots = GetInventorySlots();
-    for (auto s : inv_slots )
-    {
-        //if( se->
-        if(  s->get_inventorySlot() & io->get_inventorySlot() )
-        {
-            if( s->get_itemCount() >= s->get_maxItems() )
-            {
+    for(auto s : inv_slots) {
+        // if( se->
+        if(s->get_inventorySlot() & io->get_inventorySlot()) {
+            if(s->get_itemCount() >= s->get_maxItems()) {
                 return InventorySlotError::ITEM_COUNT_EXCEEDED;
-            }
-            else if(  s->get_maxItemSize() < io->get_size() )
-            {
+            } else if(s->get_maxItemSize() < io->get_size()) {
                 return InventorySlotError::ITEM_SIZE_EXCEEDED;
-            }
-            else
-            {
-                AddEntityToInventory( static_cast<script_entity*>(io) );
+            } else {
+                AddEntityToInventory(static_cast<script_entity*>(io));
                 return InventorySlotError::SLOT_OK;
             }
         }
     }
     return InventorySlotError::NO_SLOT;
+}
+
+void living_entity::unload_inventory_from_game()
+{
+    // std::vector<itemobj*> items = this->GetItems();
+    for(auto i : this->GetInventory()) {
+        recursive_unload(i);
+    }
+    recursive_unload( dynamic_cast<script_entity*>(&m_RightHand) );
+    recursive_unload( dynamic_cast<script_entity*>(&m_LeftHand) );
+}
+
+void living_entity::recursive_unload(script_entity* se)
+{
+    if(container_base* cb = dynamic_cast<container_base*>(se)) {
+        //cb->RemoveEntityFromInventory(se);
+        auto inv = cb->GetInventory();
+        for ( auto i : inv )
+        {
+            recursive_unload(i);
+        }
+    }
+    std::string s = se->GetVirtualScriptPath();
+    entity_manager::Instance().destroy_item(s);
 }

@@ -159,7 +159,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 					o_orig:SendToEntity( 'You try and stuff it in, but that won\'t fit in your ' .. found_item_dest:GetItemNoun() .. '.' )
 				end
 			end
-			--print('IN HAND SUCCESS!')
+			--FindItemInInv('IN HAND SUCCESS!')
 			return true
 		end
 	end

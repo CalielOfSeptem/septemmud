@@ -6,6 +6,6 @@
     "rightHand": {
         "wwF2qaWF6wOKfQe": "workspaces/caliel/entities/backpack"
     },
-    "roomID": 1,
+    "roomID": 0,
     "roomPath": "workspaces/caliel/workroom"
 }

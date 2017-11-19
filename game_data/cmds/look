@@ -24,6 +24,8 @@ function c:CheckHands( o, item_to_find )
 		----else
 			-- TODO: just show the item, its not a container.
 		--end
+		--print('FOUND IT IN THE LEFT HAND')
+		--o:SendToEntity('FOUND IT IN THE LEFT HAND')
 		return item
 	end
 	
@@ -34,12 +36,59 @@ function c:CheckHands( o, item_to_find )
 		--else
 			-- TODO: just show the item, its not a container.
 		--end
+		--print('FOUND IT IN THE RIGHT HAND')
+		--o:SendToEntity('FOUND IT IN THE RIGHT HAND')
 		return item
 	end
 	return nil
 end
 
 function c:FindItemInInv( o, item_to_find )
+--print(item_to_find)
+	local s_num = string.match(item_to_find, '%d+')
+	local skip_index = 1 -- don't skip by default
+	if( s_num ~= nil ) then
+		skip_index = s_num
+		item_to_find = string.match(item_to_find, '%a+')
+		--print(s1)
+	end
+	
+	local player = living_cast(o)
+	local items = player:GetItems()
+	
+	local r_hand = player:RightHand():GetItem()
+	if( r_hand ~= nil and ( r_hand:GetItemNoun():lower():starts(item_to_find)  or r_hand:GetItemPluralNoun():lower():starts(item_to_find) ) ) then
+			skip_index = skip_index - 1
+			
+			if ( skip_index == 0 ) then 
+				return r_hand
+			end
+	end
+		
+	local l_hand = player:LeftHand():GetItem()
+	if( l_hand ~= nil and ( l_hand:GetItemNoun():lower():starts(item_to_find)  or l_hand:GetItemPluralNoun():lower():starts(item_to_find) ) ) then
+		skip_index = skip_index - 1
+		
+		if ( skip_index == 0 ) then 
+			return l_hand
+		end
+	end
+	
+	for i = 1, #items do
+		if( items[i]:GetItemNoun():lower():starts(item_to_find) or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
+			skip_index = skip_index - 1
+			
+			if ( skip_index ~= 0 ) then goto continue end -- keep looking
+			
+			return items[i]
+		end
+		::continue::
+	end
+
+	return nil
+end
+
+function c:FindItemInInv2( o, item_to_find )
 	local s_num = string.match(item_to_find, '%d+')
 	local skip_index = 1 -- don't skip by default
 	if( s_num ~= nil ) then
@@ -263,11 +312,11 @@ function c:ExecuteCommand ( o, cmd )
 			--print (sm1)
 			local item_to_examine = myTable[3]
 
-			fitem = self:CheckHands( o, item_to_examine )
-
-			if( fitem == nil ) then
-				fitem = self:FindItemInInv( o, item_to_examine )
-			end
+			--fitem = self:CheckHands( o, item_to_examine )
+			--print(fitem)
+			--if( fitem == nil ) then
+			fitem = self:FindItemInInv( o, item_to_examine )
+			--end
 
 			if( fitem ) then
 				if( fitem.isContainer == false ) then
@@ -299,13 +348,13 @@ function c:ExecuteCommand ( o, cmd )
 			--if( self:CheckHands( o, item_to_examine ) ) then -- try hands..
 			--	return true
 			--end
-			if( fitem == nil ) then
-				fitem = self:CheckHands( o, item_to_examine )
-			end
+			--if( fitem == nil ) then
+			--	fitem = self:CheckHands( o, item_to_examine )
+			--end
 			
-			if( fitem == nil ) then
+			--if( fitem == nil ) then
 				fitem = self:FindItemInInv( o, item_to_examine )
-			end
+			--end
 			
 			if( fitem ) then
 				if( fitem.isContainer == false ) then
@@ -337,9 +386,9 @@ function c:ExecuteCommand ( o, cmd )
 				fitem = self:FindItemInLooks( o, item_to_examine )
 			end
 			
-			if( fitem == nil ) then
-				fitem = self:CheckHands( o, item_to_examine )
-			end
+			--if( fitem == nil ) then
+			--	fitem = self:CheckHands( o, item_to_examine )
+			--end
 			
 			if( fitem == nil ) then
 				fitem = self:FindItemInInv( o, item_to_examine )

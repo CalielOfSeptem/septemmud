@@ -70,7 +70,7 @@ function c:FindItemInInv( o, item_to_find )
 	end
 	
 	for i = 1, #items do
-		if( items[i]:GetItemNoun():lower():starts(item_to_find)  or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
+		if( items[i]:GetItemNoun():lower():starts(item_to_find) or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
 			skip_index = skip_index - 1
 			
 			if ( skip_index ~= 0 ) then goto continue end -- keep looking
@@ -82,6 +82,42 @@ function c:FindItemInInv( o, item_to_find )
 
 	return nil
 end
+
+function c:FindItemHands( o, item_to_find )
+--print(item_to_find)
+	local s_num = string.match(item_to_find, '%d+')
+	local skip_index = 1 -- don't skip by default
+	if( s_num ~= nil ) then
+		skip_index = s_num
+		item_to_find = string.match(item_to_find, '%a+')
+		--print(s1)
+	end
+	
+	local player = living_cast(o)
+	local items = player:GetItems()
+	
+	local r_hand = player:RightHand():GetItem()
+	if( r_hand ~= nil and ( r_hand:GetItemNoun():lower():starts(item_to_find)  or r_hand:GetItemPluralNoun():lower():starts(item_to_find) ) ) then
+			skip_index = skip_index - 1
+			
+			if ( skip_index == 0 ) then 
+				return r_hand
+			end
+	end
+		
+	local l_hand = player:LeftHand():GetItem()
+	if( l_hand ~= nil and ( l_hand:GetItemNoun():lower():starts(item_to_find)  or l_hand:GetItemPluralNoun():lower():starts(item_to_find) ) ) then
+		skip_index = skip_index - 1
+		
+		if ( skip_index == 0 ) then 
+			return l_hand
+		end
+	end
+
+	return nil
+end
+
+
 
 function c:ScanWearables(o, item_to_find)
 	local player = living_cast(o)
@@ -297,7 +333,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 				end
 			end
 			
-			local fitem = c:FindItemInInv( o, myt[2])
+			local fitem = c:FindItemInHands( o, myt[2])
 			if( fitem ~= nil ) then
 				if( fitem.isContainer == true and fitem.isOpen == false ) then
 					o_orig:SendToEntity('The ' .. fitem:GetItemNoun() .. ' is closed.')
@@ -332,9 +368,9 @@ function c:ExecuteCommand ( o_orig, cmd )
 	end
 	
 	found_item = self:FindItemInEnv( o, item_to_find )
-	if( found_item == nil ) then
-		found_item = self:FindItemInInv( o, item_to_find )
-	end
+	--if( found_item == nil ) then
+	--	found_item = self:FindItemHands( o, item_to_find )
+	--end
 	
 	if( found_item == nil ) then
 		found_item = self:ScanWearables( o, item_to_find )

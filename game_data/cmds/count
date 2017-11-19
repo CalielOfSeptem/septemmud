@@ -137,7 +137,7 @@ function c:CheckEnv( o_orig, s1 )
 	if( s_num ~= nil ) then
 		skip_index = s_num
 		s1 = string.match(s1, '%a+')
-		print(s1)
+		--print(s1)
 	end
 	--print (skip_index)
 	for i = 1, #items do

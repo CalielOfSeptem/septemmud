@@ -7,7 +7,7 @@ function c:PrintItemCountError( o_orig, item )
 		if( worn_items ) then
 			if( #worn_items == 1 ) then
 				o_orig:SendToPlayer('You try to put on ' .. item:GetName() .. ' but you are already wearing too many items of that type.') 
-				o_orig:SendToPlayer('Hint: You might consider REMoving some items like your ' .. worn_items[1]:GetItemNoun() .. ' to free up some space.')
+				o_orig:SendToPlayer('\r\nHint: You might consider REMoving some items like your ' .. worn_items[1]:GetItemNoun() .. ' to free up some space.')
 				return true
 			end
 			local s = ''
@@ -34,7 +34,7 @@ function c:PrintItemCountError( o_orig, item )
 			
 			--o_orig:SendToPlayer('You try to put on ' .. item:GetName() .. ' but you are already wearing ' .. s .. ' in that slot.')
 				o_orig:SendToPlayer('You try to put on ' .. item:GetName() .. ' but you are already wearing too many items of that type.') -- ' .. worn_items[1]:GetName() .. ' in that slot.')
-				o_orig:SendToPlayer('Hint: You might consider REMoving an item such as' .. s .. ' to free up some space.')
+				o_orig:SendToPlayer('\r\nHint: You might consider REMoving an item such as' .. s .. ' to free up some space.')
 			return true
 		end
 end

@@ -169,6 +169,8 @@ struct _internal_queue_wrapper_
     
     void garbage_collect();
     
+    bool destroy_item(std::string& script_path);
+    
     heartbeat_manager& get_heartbeat_manager()
     {
         return _heartbeat;
@@ -285,7 +287,7 @@ private:
     
     bool destroy_command(std::string& script_path);
     
-    bool destroy_item(std::string& script_path);
+    
     
     bool destroy_entity(std::shared_ptr<entity_wrapper>& ew);
     

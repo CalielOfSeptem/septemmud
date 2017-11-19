@@ -4,6 +4,6 @@
     "inventory": {},
     "leftHand": 0,
     "rightHand": 0,
-    "roomID": 1,
+    "roomID": 0,
     "roomPath": "workspaces/caliel/workroom"
 }

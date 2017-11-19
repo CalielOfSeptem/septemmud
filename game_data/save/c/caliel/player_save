@@ -1,12 +1,14 @@
 {
     "cwd": "workspaces/caliel/entities/",
     "gender": "unknown",
-    "inventory": {},
+    "inventory": {
+        "GjHYjKQB1GnXwZn": "workspaces/caliel/entities/backpack"
+    },
     "leftHand": {
-        "Hzo9tjDUkMP8lX8": "workspaces/caliel/entities/simple arrow"
+        "97mqGJgwr79Hf4u": "workspaces/caliel/entities/rock"
     },
     "rightHand": {
-        "TL9ESdC1PLxPhoE": "workspaces/caliel/entities/simple arrow"
+        "amYW5u7HzzWdoA0": "workspaces/caliel/entities/rock"
     },
     "roomID": 0,
     "roomPath": "workspaces/caliel/workroom"

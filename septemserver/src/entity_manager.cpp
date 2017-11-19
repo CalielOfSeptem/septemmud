@@ -1005,8 +1005,11 @@ bool entity_manager::unload_player(const std::string& playername)
     {
         // Make sure we remove any outstanding elements in the queue.
         // otherwise we can have a crash
-        std::unique_lock<std::mutex> lock(dispatch_queue_mutex_);
-        dispatch_queue_.remove_if([](auto& i) { return i.ent; });
+        {
+            std::unique_lock<std::mutex> lock(dispatch_queue_mutex_);
+            dispatch_queue_.remove_if([](auto& i) { return i.ent; });
+        }
+
     }
     else
     {
@@ -1014,7 +1017,7 @@ bool entity_manager::unload_player(const std::string& playername)
     }
  
     std::unique_lock<std::mutex> lock(lua_mutex_);  
-
+    po->unload_inventory_from_game(); // Make sure to kill all items..
     std::string ppath = po->GetVirtualScriptPath();
     
     bool b = destroy_player(ppath);
