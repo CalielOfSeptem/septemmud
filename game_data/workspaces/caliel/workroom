@@ -50,11 +50,7 @@ p1:Debug('Loaded room!')
 
 
 function p1:hb()
-	--p1:test()
-	--print('..')
-	--print( door )
-	--print( door:GetDoorPath() )
-	--p1:clone_items()
+
 end
 
 function p1:clone_items()

@@ -1,4 +1,5 @@
 #include "entity_manager.h"
+#include "security_context.hpp"
 #include "script_entities/script_entity.h"
 #include "script_entities/roomobj.h"
 #include "script_entities/livingentity.h"
@@ -2201,6 +2202,7 @@ void entity_manager::invoke_room_actions()
 {
     for( auto r : this->m_room_lookup )
     {
+        security_context::Instance().SetCurrentEntity(r.second);
         r.second->DoActions();
     }
 }
@@ -2275,6 +2277,8 @@ void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
         return;
  
     std::unique_lock<std::mutex> lock(lua_mutex_);
+    
+    security_context::Instance().SetCurrentEntity(e);
 
     try
     {
@@ -2376,6 +2380,7 @@ void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
 
         if(self) {
             sol::protected_function exec = self.value()["process_command"];
+            // Regsiter anti-infinite loop detector
             register_hook(e);
             auto result = exec(self, e, cmd);
             if(!result.valid()) {

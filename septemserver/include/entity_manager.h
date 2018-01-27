@@ -182,6 +182,14 @@ struct _internal_queue_wrapper_
         strand_ = boost::shared_ptr<boost::asio::strand>(new boost::asio::strand(*ioservice));
     }
 
+
+    // ======================================================================
+    // Installs a hook to prevent infinite looping within lua functions
+    // ======================================================================
+    void register_hook(script_entity * hook_entity);
+    
+    std::mutex*  GetLuaMutex() { return &lua_mutex_; };
+    
 protected:
     entity_manager()
     ;
@@ -213,7 +221,7 @@ private:
     std::shared_ptr < sol::state > m_state;
     std::shared_ptr<_internal_lua_> m_state_internal;
     // to enforce single-threaded access
-    std::mutex  lua_stack_mutex_;
+    //std::mutex  lua_stack_mutex_;
     heartbeat_manager _heartbeat;
     
     
@@ -347,10 +355,7 @@ private:
         }
     }
       
-    // ======================================================================
-    // Installs a hook to prevent infinite looping within lua functions
-    // ======================================================================
-    void register_hook(script_entity * hook_entity);
+
 };
 
 #endif

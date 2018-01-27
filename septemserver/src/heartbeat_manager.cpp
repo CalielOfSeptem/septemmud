@@ -3,11 +3,50 @@
 #include "entity_manager.h"
 #include "script_entities/roomobj.h"
 #include <boost/algorithm/string.hpp>
+#include "security_context.hpp"
 
 void heartbeat_manager::do_heartbeats()
 {
     for(auto& kv : bindings) {
         try {
+            
+            // the bound script path
+            sol::optional<std::string> spath = kv.second.script_path; // lua_state["_INTERNAL_SCRIPT_PATH_"];
+            // the entity type that registered for HBs
+            sol::optional<std::string> sent = kv.second.etype; // lua_state["_INTERNAL_ENTITY_TYPE_"];
+            script_entity* se = NULL;
+            // check if the entity is a room..
+            // TODO: add additional entity types such as items, NPCS, etc..
+            if(sent && boost::to_lower_copy(sent.value()) == "room") {
+                roomobj* re = entity_manager::Instance().GetRoomByScriptPath(spath.value(), 0);
+                se = re;
+            }
+            
+            if( se == NULL )
+            {
+                auto log = spd::get("main");
+                std::stringstream ss;
+                ss << "Error. Heartbeats are limited to room entities only at this time. Path = " << spath.value() << " type = " << sent.value();
+                log->debug( ss.str() );
+                break;
+            }
+            security_context::Instance().SetCurrentEntity(se);
+            entity_manager::Instance().register_hook(se); // register the debug hook to detect infinite loop
+            
+            auto result = kv.second.pf();
+            if(!result.valid()) {
+                sol::error err = result;
+                
+                auto log = spd::get("main");
+                std::stringstream ss;
+                ss << "Error attempting to perform hearbeat: " << err.what() << ", Path = " << spath.value() << " type = " << sent.value();
+                log->debug( ss.str() );
+                se->debug(ss.str());
+                //std::cout << err.what() << std::endl;
+            }
+            
+            entity_manager::Instance().register_hook(NULL); 
+            /*
 
             kv.second.lua_state.set_function("debug_hook", [&kv](sol::object o) -> void {
                 sol::optional<std::string> spath = kv.second.script_path; // lua_state["_INTERNAL_SCRIPT_PATH_"];
@@ -49,8 +88,13 @@ void heartbeat_manager::do_heartbeats()
                 std::cout << err.what() << std::endl;
             }
             kv.second.lua_state.script("debug.sethook ()");
+            */
         } catch(std::exception& ex) {
-            std::cout << ex.what();
+            //std::cout << ex.what();
+            auto log = spd::get("main");
+            std::stringstream ss;
+            ss << "Error attempting to perform heartbeats: " << ex.what();
+            log->debug( ss.str() );
         }
     }
 }

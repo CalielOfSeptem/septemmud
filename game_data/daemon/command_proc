@@ -12,6 +12,9 @@ function d:process_command (o_orig, cmd )
 	if( cmd:len() == 0 ) then
 		return false
 	end
+	
+
+		
 	--print('Processing command.  EntityType = ' .. o_orig:GetType() .. ', cmd = [' .. cmd .. ']' )
 	
 	s_type = o_orig:GetType()
@@ -48,12 +51,15 @@ function d:process_command (o_orig, cmd )
 				end
 			end
 		end					
-		move = get_move_command()
-		if move:ExecuteCommand(o_orig, cmd) then
-			return true
-		end
+
 				
 	end
+	
+	move = get_move_command()
+	if move:ExecuteCommand(o_orig, cmd) then
+		return true
+	end
+	
 	
 	o_orig:SendToEntity('I don\'t understand. Type \"help commands\" for more information.') 
 	return false

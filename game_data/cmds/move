@@ -54,6 +54,27 @@ function c:ExecuteCommand ( o_orig, cmd )
 			end
 		end
 	end
+	--print(cmd)
+	--print(cmd[0])
+	
+	
+	if( cmd:lower():starts('n') ) then
+		--print('here')
+		ob:SendToEntity('Go where? That exit does not exist.\r\n')
+		return true
+	end
+	if( cmd:lower():starts('e') ) then
+		ob:SendToEntity('Go where? That exit does not exist.\r\n')
+		return true
+	end
+	if( cmd:lower():starts('s') ) then
+		ob:SendToEntity('Go where? That exit does not exist.\r\n')
+		return true
+	end
+	if( cmd:lower():starts('w') ) then
+		ob:SendToEntity('Go where? That exit does not exist.\r\n')
+		return true
+	end
 	return false
 end
 

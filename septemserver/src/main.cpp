@@ -54,6 +54,7 @@ void TimerHandler(
        // entity_manager::Instance().invoke_heartbeat();
 		//std::cout << "[" << boost::this_thread::get_id()
 		//	<< "] TimerHandler " << std::endl;
+        std::unique_lock<std::mutex> lock(*entity_manager::Instance().GetLuaMutex());
         entity_manager::Instance().get_heartbeat_manager().do_heartbeats();
         entity_manager::Instance().invoke_room_actions();
 
