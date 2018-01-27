@@ -4,6 +4,7 @@
 #include "../../../json/src/json.hpp"
 #include "config.h"
 #include "entity_manager.h"
+#include "global_settings.h"
 
 // for convenience
 using json = nlohmann::json;
@@ -150,7 +151,7 @@ void default_resource_send(const HttpServer &server, const shared_ptr<HttpServer
         tmp_path = SplitFilename(tmp_path);
         j["text"] = tmp_path;//itr->path().string();
         j["type"] = "directory";
-        j["data"]["relativePath"] = std::regex_replace(dir_path.string(), std::regex("\\" + std::string(DEFAULT_GAME_DATA_PATH)), "");
+        j["data"]["relativePath"] = std::regex_replace(dir_path.string(), std::regex("\\" + global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH)), "");
         j["data"]["systemPath"] = dir_path.string();
        // cout << dir_path.string() << endl;
         //cout << tmp_path.c_str() << endl;
@@ -194,7 +195,7 @@ void default_resource_send(const HttpServer &server, const shared_ptr<HttpServer
         
             new_child["id"] = std::to_string( str_hash2 );
             new_child["text"] = itr->path().filename().string();//
-            new_child["data"]["relativePath"] = std::regex_replace(itr->path().string(), std::regex("\\" + std::string(DEFAULT_GAME_DATA_PATH)), "");
+            new_child["data"]["relativePath"] = std::regex_replace(itr->path().string(), std::regex("\\" + global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH)), "");
             new_child["data"]["systemPath"] = itr->path().string();
             new_child["icon"] = "jstree-file";
             new_child["type"] = "file";
@@ -321,7 +322,7 @@ int start_serv(int port) {
             j << request->content;
            // cout << j["relativePath"];
             
-            std::string path_to_save = DEFAULT_GAME_DATA_PATH;
+            std::string path_to_save = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);//DEFAULT_GAME_DATA_PATH;
             path_to_save += j["relativePath"];
             
             if( j["create"] && fs::exists(fs::path(path_to_save) ))
@@ -486,7 +487,7 @@ int start_serv(int port) {
             
             if( j["op"] == "mkdir")
             {
-                std::string game_path = DEFAULT_GAME_DATA_PATH;
+                std::string game_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);//DEFAULT_GAME_DATA_PATH;
                 
                 //std::string relpath = j["relativePath"];
 
@@ -504,7 +505,7 @@ int start_serv(int port) {
                 fs::create_directory( fs::path(fileA) );//rename( fs::path(fileA), fs::path(fileB) );
                 
                 json resp;
-                resp["relativePath"] =  std::regex_replace(fileA, std::regex("\\" + std::string(DEFAULT_GAME_DATA_PATH)), "");//j["relativePath"];
+                resp["relativePath"] =  std::regex_replace(fileA, std::regex("\\" + global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH)), "");//j["relativePath"];
                 std::size_t str_hash = std::hash<std::string>{}(fileA);
         
                 resp["id"] = std::to_string( str_hash );
@@ -514,7 +515,7 @@ int start_serv(int port) {
             }
             else if( j["op"] == "rm")
             {
-                std::string game_path = DEFAULT_GAME_DATA_PATH;
+                std::string game_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);//DEFAULT_GAME_DATA_PATH;
                 
                 std::string relpath = j["relativePath"];
                 
@@ -527,7 +528,7 @@ int start_serv(int port) {
                 fs::remove( fs::path(game_path) );//rename( fs::path(fileA), fs::path(fileB) );
                 
                 json resp;
-                resp["relativePath"] =  std::regex_replace(game_path, std::regex("\\" + std::string(DEFAULT_GAME_DATA_PATH)), "");//j["relativePath"];
+                resp["relativePath"] =  std::regex_replace(game_path, std::regex("\\" + global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH)), "");//j["relativePath"];
                 std::size_t str_hash = std::hash<std::string>{}(game_path);
         
                 resp["id"] = std::to_string( str_hash );
@@ -537,7 +538,7 @@ int start_serv(int port) {
             }
             else if( j["op"] == "rename")
             {
-                std::string game_path = DEFAULT_GAME_DATA_PATH;
+                std::string game_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);//DEFAULT_GAME_DATA_PATH;
                 
                 std::string relpath = j["relativePath"];
                 
@@ -560,7 +561,7 @@ int start_serv(int port) {
                 fs::rename( fs::path(fileA), fs::path(fileB) );
                 
                 json resp;
-                resp["relativePath"] =  std::regex_replace(fileB, std::regex("\\" + std::string(DEFAULT_GAME_DATA_PATH)), "");//j["relativePath"];
+                resp["relativePath"] =  std::regex_replace(fileB, std::regex("\\" + global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH)), "");//j["relativePath"];
                 std::size_t str_hash = std::hash<std::string>{}(fileB);
         
                 resp["id"] = std::to_string( str_hash );
@@ -572,7 +573,7 @@ int start_serv(int port) {
             }
             else if( j["op"] == "compile")
             {
-                std::string game_path = DEFAULT_GAME_DATA_PATH;
+                std::string game_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);//DEFAULT_GAME_DATA_PATH;
                 std::string fileA = j["fileA"];
                 fileA = game_path + fileA;
 
@@ -606,7 +607,7 @@ int start_serv(int port) {
             }
             else if( j["op"] == "move")
             {
-                std::string game_path = DEFAULT_GAME_DATA_PATH;
+                std::string game_path = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);//DEFAULT_GAME_DATA_PATH;
                 std::string fileA = j["fileA"];
                 fileA = game_path  + fileA;
                 std::string fileB = j["fileB"];
@@ -626,7 +627,7 @@ int start_serv(int port) {
                 fs::rename( fs::path(fileA), fs::path(new_file_path) );
                 
                 json resp;
-                resp["relativePath"] =  std::regex_replace(new_file_path, std::regex("\\" + std::string(DEFAULT_GAME_DATA_PATH)), "");//j["relativePath"];
+                resp["relativePath"] =  std::regex_replace(new_file_path, std::regex("\\" + global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH)), "");//j["relativePath"];
                 std::size_t str_hash = std::hash<std::string>{}(new_file_path);
         
                 resp["id"] = std::to_string( str_hash );
@@ -655,7 +656,7 @@ int start_serv(int port) {
     server.resource["^/list/([0-9]+)$"]["GET"]=[&server](shared_ptr<HttpServer::Response> response, shared_ptr<HttpServer::Request> request) {
 	
     json j1;
-    load_directory_map(DEFAULT_GAME_DATA_PATH, j1);
+    load_directory_map(global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH), j1);
     std::string test = j1.dump(4); 
     //cout << s << std::endl;
     //cout << "Servicing request.." << endl;
@@ -722,7 +723,8 @@ int start_serv(int port) {
     server.default_resource["GET"]=[&server](shared_ptr<HttpServer::Response> response, shared_ptr<HttpServer::Request> request) {
         try {
             //cout << "Servicing request.." << endl;
-            auto web_root_path=boost::filesystem::canonical(DEFAULT_GAME_DATA_PATH);
+            std::string s = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
+            auto web_root_path=boost::filesystem::canonical(global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH));
             auto path=boost::filesystem::canonical(web_root_path/request->path);
             //Check if path is within web_root_path
             if(distance(web_root_path.begin(), web_root_path.end())>distance(path.begin(), path.end()) ||
