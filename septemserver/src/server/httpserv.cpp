@@ -153,15 +153,16 @@ void default_resource_send(const HttpServer &server, const shared_ptr<HttpServer
         j["type"] = "directory";
         j["data"]["relativePath"] = std::regex_replace(dir_path.string(), std::regex("\\" + global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH)), "");
         j["data"]["systemPath"] = dir_path.string();
-       // cout << dir_path.string() << endl;
-        //cout << tmp_path.c_str() << endl;
+        
+
         std::size_t str_hash = std::hash<std::string>{}(dir_path.string());
         
         j["id"] = std::to_string( str_hash );
         
-        int cnt = std::count_if( fs::directory_iterator(dir_path), fs::directory_iterator(), static_cast<bool(*)(const fs::path&)>(fs::is_regular_file) );
+       // int cnt = std::count_if( fs::directory_iterator(dir_path), fs::directory_iterator(), static_cast<bool(*)(const fs::path&)>(fs::is_regular_file) );
+        bool bempty = boost::filesystem::is_empty(dir_path);
         
-        if( cnt > 0 )
+        if( !bempty )
         {
              //j["children"] = true;
              j["children"] = { };
@@ -660,7 +661,7 @@ int start_serv(int port) {
     std::string test = j1.dump(4); 
     //cout << s << std::endl;
     //cout << "Servicing request.." << endl;
-   // cout << test;
+    // cout << test;
         *response << "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\n"
         << "Content-Length: " << test.length() << "\r\n\r\n" << test;
     };
