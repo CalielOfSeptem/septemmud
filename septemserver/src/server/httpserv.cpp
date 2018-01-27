@@ -175,7 +175,7 @@ void default_resource_send(const HttpServer &server, const shared_ptr<HttpServer
 
 	  
 	  fs::directory_iterator end_itr; // default construction yields past-the-end
-	  for ( fs::directory_iterator itr( dir_path );
+      	  for ( fs::directory_iterator itr( dir_path );
 		itr != end_itr;
 		++itr )
 	  {
@@ -188,7 +188,12 @@ void default_resource_send(const HttpServer &server, const shared_ptr<HttpServer
             
 
 	    }
-	    else //if ( itr->leaf() == file_name ) // see below
+	  }
+	  for ( fs::directory_iterator itr( dir_path );
+		itr != end_itr;
+		++itr )
+	  {
+	    if ( !is_directory(itr->status()) )
 	    {
             json new_child;
             new_child["children"] = false;
@@ -203,12 +208,6 @@ void default_resource_send(const HttpServer &server, const shared_ptr<HttpServer
            // load_directory_map( itr->path(), new_child);
             j["children"].push_back(new_child);
             
-		//element e;
-		//e.is_directory = false;
-		//e.filename = itr->filename();
-		//fs_map.push_back(e);
-	      //path_found = itr->path();
-	     // return false;
 	    }
 	  }
 	  return false;
@@ -584,15 +583,16 @@ int start_serv(int port) {
                 }
 
                 //fs::rename( fs::path(fileA), fs::path(fileB) );
-                /*
+                
                 std::string reason;
-                if( entity_manager::Instance().compile_entity(fileA, reason) )
+                                                
+                if( entity_manager::Instance().compile_script_file(fileA, reason) )
                 {
                     json resp;
                     //std::size_t str_hash = std::hash<std::string>{}(fileA);
             
                     resp["result"] = "OK";
-                    resp["text"] = "Compiled " + std::regex_replace(fileA, std::regex("\\" + std::string(DEFAULT_GAME_DATA_PATH)), "");
+                    resp["text"] = "Compiled " + std::regex_replace(fileA, std::regex("\\" + global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH)), "");
                     std::string jsonstr = resp.dump();
                     
                     *response <<  "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nContent-Length: " << jsonstr.length() << "\r\n\r\n" << jsonstr;
@@ -601,7 +601,7 @@ int start_serv(int port) {
                 {
                     throw Exception(reason);
                 }
-                */
+                
 
                // fs::rename()
                 
