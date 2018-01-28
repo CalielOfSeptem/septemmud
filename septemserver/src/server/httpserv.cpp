@@ -5,6 +5,7 @@
 #include "config.h"
 #include "entity_manager.h"
 #include "global_settings.h"
+#include <boost/algorithm/string/replace.hpp>
 
 // for convenience
 using json = nlohmann::json;
@@ -724,9 +725,16 @@ int start_serv(int port) {
     server.default_resource["GET"]=[&server](shared_ptr<HttpServer::Response> response, shared_ptr<HttpServer::Request> request) {
         try {
             //cout << "Servicing request.." << endl;
+            std::string temp_path = request->path;
+            boost::replace_all(temp_path, "%20", " ");
+            
+           //cout << s1 << endl;
+            
             std::string s = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH);
             auto web_root_path=boost::filesystem::canonical(global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH));
-            auto path=boost::filesystem::canonical(web_root_path/request->path);
+            auto path=boost::filesystem::canonical(web_root_path/temp_path);
+            
+
             //Check if path is within web_root_path
             if(distance(web_root_path.begin(), web_root_path.end())>distance(path.begin(), path.end()) ||
                !equal(web_root_path.begin(), web_root_path.end(), path.begin()))

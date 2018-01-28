@@ -125,23 +125,11 @@ bool entity_manager::compile_entity(std::string& relative_script_path,
                                     std::string& script_text,
                                     std::string& reason)
 {
-    /*
-for( int x = 2; x < 1000; x++ )
-{
-
-    script_text += "p"+std::to_string(x) + " = room.new()\r\n";
-    script_text += "p"+std::to_string(x) + ":SetTitle('" + "ROOM" + std::to_string(x) + "')\r\n";
-    script_text += "function p" + std::to_string(x) +":test() print(p"+ std::to_string(x) +":GetTitle()) end\r\n";
-    script_text += "y = register_heartbeat(p"+std::to_string(x)+".test)\r\n";
-
-
-    script_text += "\r\n";
-}
-*/
-    // std::cout << script_text;
-
-    // First step get the correct collcetion..
-    //  std::unordered_map< std::string, entity_wrapper > & ent_ = m_room_objs; // just to initialize it
+    // get the lua stack lock...
+    //std::cout << "GETTING LOCK..." << std::endl;
+    std::unique_lock<std::mutex> lock(lua_mutex_);
+    //std::cout << "OK GOT LOCK..." << std::endl;
+    
     bool b = false;
     switch(etype) {
     case EntityType::ROOM: {
@@ -2276,9 +2264,7 @@ void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
     if( e == NULL )
         return;
  
-    std::unique_lock<std::mutex> lock(lua_mutex_);
-    
-    security_context::Instance().SetCurrentEntity(e);
+
 
     try
     {
@@ -2363,47 +2349,53 @@ void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
             }
         }
         
+        {
+            std::unique_lock<std::mutex> lock(lua_mutex_);
         
-        std::string command_proc_path = global_settings::Instance().GetSetting(DEFAULT_COMMAND_PROC);
-        unsigned int id = 0;
-        daemonobj* dobj = entity_manager::Instance().GetDaemonByScriptPath(command_proc_path, id);
-        if(dobj == NULL) {
-            auto log = spd::get("main");
-            std::stringstream ss;
-            ss << "Error attempting to retrieve command proc.";
-            log->debug( ss.str() );
-            
-            return;
-        }
-
-        sol::optional<sol::table> self = dobj->m_userdata->selfobj; 
-
-        if(self) {
-            sol::protected_function exec = self.value()["process_command"];
-            // Regsiter anti-infinite loop detector
-            register_hook(e);
-            auto result = exec(self, e, cmd);
-            if(!result.valid()) {
-                sol::error err = result;
+            security_context::Instance().SetCurrentEntity(e);
+        
+            std::string command_proc_path = global_settings::Instance().GetSetting(DEFAULT_COMMAND_PROC);
+            unsigned int id = 0;
+            daemonobj* dobj = entity_manager::Instance().GetDaemonByScriptPath(command_proc_path, id);
+            if(dobj == NULL) {
                 auto log = spd::get("main");
                 std::stringstream ss;
-                ss << "Error calling process_command, entity = " << e->GetName() << ", error = " << err.what();
+                ss << "Error attempting to retrieve command proc.";
                 log->debug( ss.str() );
-                e->debug(ss.str());
-                register_hook(NULL); // clear the hook
+                
+                return;
             }
-            else
-            {
-                e->SendToEntity("\r\n>\r\n");
-                register_hook(NULL); // clear the hook
+
+            sol::optional<sol::table> self = dobj->m_userdata->selfobj; 
+
+            if(self) {
+                sol::protected_function exec = self.value()["process_command"];
+                // Regsiter anti-infinite loop detector
+                register_hook(e);
+                auto result = exec(self, e, cmd);
+                if(!result.valid()) {
+                    sol::error err = result;
+                    auto log = spd::get("main");
+                    std::stringstream ss;
+                    ss << "Error calling process_command, entity = " << e->GetName() << ", error = " << err.what();
+                    log->debug( ss.str() );
+                    e->debug(ss.str());
+                    register_hook(NULL); // clear the hook
+                }
+                else
+                {
+                    e->SendToEntity("\r\n>\r\n");
+                    register_hook(NULL); // clear the hook
+                }
+                return;
+            } else {
+                auto log = spd::get("main");
+                std::stringstream ss;
+                ss << "Error attempting to retrieve command proc.";
+                log->debug( ss.str() );
+                return;
             }
-            return;
-        } else {
-            auto log = spd::get("main");
-            std::stringstream ss;
-            ss << "Error attempting to retrieve command proc.";
-            log->debug( ss.str() );
-            return;
+        
         }
 
     }
