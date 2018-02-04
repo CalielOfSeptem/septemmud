@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Septem Creator Alpha v0.1</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+	<script src="jstree/dist/jstree.min.js"></script>
+	<link rel="stylesheet" href="jstree/dist/themes/default-dark/style.min.css" /> 
+	<script src="/ace-builds/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+	
+	 <link rel="stylesheet" type="text/css" href="Semantic-UI/dist/components/loader.css">
+
+	<script type="text/javascript" src="Semantic-UI/dist/components/loader.js"></script>
+   
+	<style>
+	.vakata-context { 
+		 z-index:999 !important; 
+	} 
+	body .lm_content{
+	  overflow: scroll;
+	}
+	</style>
+<script type="text/javascript" src="bootbox/bootbox.js"></script>
+<script type="text/javascript" src="//golden-layout.com/files/latest/js/goldenlayout.min.js"></script>
+<link type="text/css" rel="stylesheet" href="//golden-layout.com/files/latest/css/goldenlayout-base.css" />
+<link type="text/css" rel="stylesheet" href="//golden-layout.com/files/latest/css/goldenlayout-dark-theme.css" />
+  <!--- Component CSS -->
+<link rel="stylesheet" type="text/css" href="Semantic-UI/dist/components/menu.css">
+
+  <!--- Component JS -->
+  <script type="text/javascript" src="Semantic-UI/dist/components/transition.js"></script>
+  <script type="text/javascript" src="Semantic-UI/dist/components/dropdown.js"></script>
+  
+
+
+
+  <!--- Site CSS -->
+  <link rel="stylesheet" type="text/css" href="Semantic-UI/dist/components/reset.css">
+  <link rel="stylesheet" type="text/css" href="Semantic-UI/dist/components/site.css">
+  <link rel="stylesheet" type="text/css" href="Semantic-UI/dist/components/grid.css">
+
+  <!--- Component CSS -->
+  <link rel="stylesheet" type="text/css" href="Semantic-UI/dist/components/menu.css">
+  <link rel="stylesheet" type="text/css" href="Semantic-UI/dist/components/input.css">
+  <link rel="stylesheet" type="text/css" href="Semantic-UI/dist/components/dropdown.css">
+  <link rel="stylesheet" type="text/css" href="Semantic-UI/dist/components/icon.css">
+  <link rel="stylesheet" type="text/css" href="Semantic-UI/dist/components/button.css">
+  <link rel="stylesheet" type="text/css" href="Semantic-UI/dist/components/transition.css">
+
+  <!--- Example Libs -->
+  <link rel="stylesheet" type="text/css" href="Semantic-UI/dist/components/popup.css">
+
+  <script src="Semantic-UI/examples/assets/library/iframe-content.js"></script>
+
+  <script type="text/javascript" src="Semantic-UI/dist/components/popup.js"></script>
+
+  <!--- Component JS -->
+  <script type="text/javascript" src="Semantic-UI/dist/components/transition.js"></script>
+  <script type="text/javascript" src="Semantic-UI/dist/components/dropdown.js"></script>
+  
+  
+  <script src="jquery.terminal/js/jquery.mousewheel-min.js"></script>
+  <script src="jquery.terminal/js/jquery.terminal.min.js"></script>
+  <link href="jquery.terminal/css/jquery.terminal.css" rel="stylesheet"/>
+
+  <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  
+<style>
+
+h2{
+  font: 14px Arial, sans-serif;
+  color:#fff;
+  padding: 10px;
+  text-align: center;
+}
+
+html, body{
+  height: 100%;
+}
+
+*{
+  margin: 0;
+  padding: 0;
+  list-style-type:none;
+}
+
+#wrapper{
+  height: 100%;
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+#menuContainer{
+  width: 20%;
+  height: 100%;
+  position:absolute;
+  top: 0;
+  left: 0;
+  background: #222;
+}
+
+#menuContainer li{
+  border-bottom: 1px solid #000;
+  border-top: 1px solid #333;
+  cursor: pointer;
+  padding: 10px 5px;
+  color: #BBB;
+  background: #1a1a1a;
+  font: 12px Arial, sans-serif;
+}
+
+#menuContainer li:hover{
+  background: #111;
+  color: #CCC;
+}
+
+#layoutContainer{
+  width: 100%;
+  height: 100%;
+  position:absolute;
+  top: 0;
+  left: 0%;
+}
+
+  <!--- Example CSS -->
+  <style>
+  body {
+    padding: 1em;
+  }
+  .ui.menu {
+    margin: 0em 0em;
+  }
+  .ui.menu:last-child {
+    margin-bottom: 0px;
+  }
+
+  </style>
+
+</style>
+
+  
+
+</head>
+<body>
+	<div id="editors">
+	</div>
+	<div id="terminals">
+	</div>
+	<div id="wrapper">
+	  <div id="layoutContainer">
+	  
+		<div class="ui inverted menu" data-inverted>
+			<div class="header item">Septem Creator</div>
+			<div id="connectedStatus" class="right header item">Offline</div>
+			<div id="btnSave" class="inverted ui button" data-value="easy">Save</div>
+		</div>
+	  </div>
+	  
+	</div>
+	<div id="tree" class="ui segment" style="width: 100%; height: 100%;"></div>
+	
+<!--- Example Javascript -->
+  <script>
+  $(document)
+  	.on("click", ".ui.button", function () {
+	print_to_debug_terminal("click");
+    switch ($(this).data("value")) {
+    case 'easy':
+       // $("#result").html("easy");
+       // $(".ui.modal").modal("hide");
+        break;
+    case 'normal':
+        //$("#result").html("normal");
+        //$(".ui.modal").modal("hide");
+        break;
+    case 'hard':
+       // $("#result").html("hard");
+       // $(".ui.modal").modal("hide");
+        break;
+    }
+	});
+  
+
+  </script>
+
+<script>
+	// data from callback
+	$('#tree')
+		.on("changed.jstree", function (e, data) {
+			if(data.selected.length) {
+			findActiveTab(myLayout.root);
+				//console.log('The selected node is: ' + data.instance.get_node(data.selected[0]).text);
+				//console.log('The selected node is: ' + data.instance.get_node(data.selected[0]).id);
+			}
+		})
+		.on("select_node.jstree",
+		 function(evt, data){
+		 		if( data.node.type === 'file')// && saveButton.disabled )
+				 {
+					//getDocumentContent(data.node);
+				 }
+			  //alert(data.node.text);
+		 }
+		)
+		.jstree({
+		'conditionalselect' : function (node) {
+			return true; //<something that determines condition> ? true : false;
+		},
+
+		'core' : {
+			'multiple' : false,
+			'check_callback' : function (operation, node, node_parent, node_position, more) {
+			//console.log(operation);
+			if( operation === 'move_node' )
+			{
+				//console.log(node_parent);
+				//console.log(more);
+				if( node.type == 'directory' )
+				{
+					return false;
+				}
+				else if( node_parent.type === "#" )
+				{
+					//console.log(node_parent);
+					if (more && more.core)
+						console.log("Dropping on root");
+					//moveSourceFiles( node, node_parent );
+					return true;
+				}
+				else if( node_parent.type != 'directory' )
+				{
+					//console.log("not a directory");
+					return false;
+				}
+				else
+				{
+					if (more && more.core)
+						return moveSourceFiles( node, node_parent );
+					return true;
+				}
+				//console.log(node_parent);
+			}
+			if( operation == 'rename_node' )
+			{
+				return true;
+			}
+			//return false;
+            // operation can be 'create_node', 'rename_node', 'delete_node', 'move_node', 'copy_node' or 'edit'
+            // in case of 'rename_node' node_position is filled with the new node name
+            return true;// === 'create_node' ? true : false;
+			},
+			"themes": {
+                "name": "default-dark",
+                "dots": true,
+                "icons": true
+            },
+			'data' : function (node, cb) {
+				if(node.id === "#") {
+					//httpGetAsync("http://127.0.0.1:8090/list/123", cb);
+					make_json_request('http://127.0.0.1:8090/list/123', cb, node);
+				}
+				else {
+					//httpGetAsync("http://127.0.0.1:8090/list/123", cb);//cb(["Child"]);
+				}
+			}
+			
+		},
+		'plugins' : ['contextmenu', 'types', 'dnd', 'conditionalselect', 'state'],
+			'types' : {
+				'#' : { "max_children" : 1 },
+				'file' : { "icon" : "jstree-file" },
+				'directory' : { "icon" : "jstree-folder" }
+				// etc...
+			},
+			'contextmenu' : {
+                    "items": customMenu
+					}
+	});
+
+	var config = {
+	    settings:{
+        hasHeaders: true,
+        constrainDragToContainer: true,
+        reorderEnabled: true,
+        selectionEnabled: false,
+        popoutWholeStack: false,
+        blockedPopoutsThrowError: true,
+        closePopoutsOnUnload: true,
+        showPopoutIcon: false,
+        showMaximiseIcon: false,
+        showCloseIcon: true
+		},
+		content: [{
+			type: 'row',
+			content:[{
+				title: 'Folders',
+				width: 20,
+				type: 'component',
+				content: [],
+				id: 'some id',
+				isClosable: false,
+				componentName: 'testComponent',
+				componentState: { label: 'A' }
+			},{
+				type: 'column',
+				content:[{
+					title: 'Test1',
+					type: 'component',
+					id : 'myID',
+					componentName: 'testComponent',
+					componentState: { label: 'B' }
+				},{
+					title: 'Console',
+					isClosable:false,
+					type: 'component',
+					componentName: 'testComponent',
+					componentState: { label: 'C' }
+				}]
+			}]
+		}]
+	};
+	
+	$(document).ready(function(){
+	//$("#content").load("tree.html");
+           // var k = $("#clbk")[0].innerHTML;
+           // alert(k);
+           // $("object")[0].innerHTML = "testing";
+		   $("#tree").on('dblclick','.jstree-anchor', function (e) {
+		   var instance = $.jstree.reference(this),
+				 node = instance.get_node(this);
+				 //console.log(node);
+				 if( node.type === 'file')// && saveButton.disabled )
+				 {
+					getDocumentContent(node);
+				 }
+			}).on("click", ".ui.button", function () {
+			switch ($(this).data("value")) {
+			case 'easy':
+				print_to_debug_terminal('easy');
+				//$("#result").html("easy");
+				//$(".ui.modal").modal("hide");
+				break;
+			case 'normal':
+				//$("#result").html("normal");
+				//$(".ui.modal").modal("hide");
+				break;
+			case 'hard':
+				//$("#result").html("hard");
+				//$(".ui.modal").modal("hide");
+				break;
+			}
+	});
+	window.onbeforeunload = function() {
+    return "Are you sure you want to leave?";
+	
+
+	}
+	
+	$.keepalive =     
+		setInterval(function() {
+		  // $.ajax({
+		//	  url: '/ping.html',
+		//	  cache: false
+		 //  });       
+			post_json_auth( 'http://127.0.0.1:8090/authenticate', 'user', 'password', function(resp)
+			{
+				if( resp )
+				{
+					change_status("Online");
+				}
+				else
+				{
+					change_status("Offline");
+				}
+				//nothing to do.
+			}
+			);
+		 
+		}, 5000);    
+
+	});
+	//var myLayout = new GoldenLayout( config );
+	var myLayout = new window.GoldenLayout( config, $('#layoutContainer') );
+	myLayout.registerComponent( 'testComponent', function( container, state ){
+		if( state.label === 'A' )
+		{
+			container.getElement().html( $('#tree') );
+		}
+		if( state.label === 'C' )
+		{
+			create_terminal_div("_debug");
+			container.getElement().html( $('#terminal_debug') );
+		}
+		
+		setTimeout(function(){
+			//console.log(container.parent.parent.header.controlsContainer);
+			container.parent.parent.header.controlsContainer.find( '.lm_maximise').hide();
+			container.parent.parent.header.controlsContainer.find( '.lm_close').hide();
+		//	debugger;
+		  }.bind(container));
+		
+	});
+
+
+	myLayout.init();
+	
+	$(window).resize(function(){
+		myLayout.updateSize();
+	})
+	
+
+
+	var findTab = function( layout, id ) {
+		for (i = 0; i < layout.contentItems.length; i++) { 
+			//stext += cars[i] + "<br>";
+			var items = layout.contentItems[i].getItemsById( id );
+			if( items.length > 0 )
+				return items[0];
+			return findTab( layout.contentItems[i], id );
+		}
+	}
+	
+	var findActiveTab = function( layout ) {
+		for (i = 0; i < layout.contentItems.length; i++) { 
+			//stext += cars[i] + "<br>";
+			//var items = layout.contentItems[i].getItemsById( id );
+			//if( items.length > 0 )
+			//	return items[0];
+			//console.log(layout.contentItems[i]);
+			var sts = layout.contentItems[i].getItemsByType('stack');
+			for (j = 0; j < sts.length; j++) { 
+				//console.log(sts[j]);
+			}
+			
+			if( layout.contentItems[i].isStack=== true )
+			{
+				//console.log("stack!");
+				var v = layout.contentItems[i].getActiveContentItem();
+				//if( v )
+					//console.log(v);
+			}
+
+			//return findTab( layout.contentItems[i]);
+		}
+	}
+	
+	var findSourceContainer = function( layout ) {
+			if( layout.contentItems[ 0 ].contentItems[1].isStack === true )
+			{
+				//console.log("1");
+				//myLayout.root.contentItems[ 0 ].contentItems[1].addChild( newItemConfig );
+				return layout.contentItems[ 0 ].contentItems[1];//.getItemsById('ace_'+node.id);
+			}
+			else if( layout.contentItems[ 0 ].contentItems[1].contentItems.length == 1 ) // situation where the console is the only window open
+			{
+				//console.log("2");
+				//myLayout.root.contentItems[ 0 ].contentItems[1].addChild( newItemConfig );
+				return layout.contentItems[ 0 ].contentItems[1];//getItemsById('ace_'+node.id);
+			}
+			else
+			{
+				//console.log("3");
+				//myLayout.root.contentItems[ 0 ].contentItems[1].contentItems[0].addChild( newItemConfig );
+				//console.log(myLayout.root.contentItems[ 0 ].contentItems[1].contentItems[0]);
+				return layout.contentItems[ 0 ].contentItems[1].contentItems[0];//.getItemsById('ace_'+node.id);//src_obj.data);
+			}
+	}
+	
+	var loadSrcEditor = function( node, src_obj ) {
+		tab = findTab( myLayout.root,  'ace_'+node.id);
+		if( tab )
+		{
+			//console.log("FOUND TAB!!");
+			//console.log(tab);
+			var d1  = findSourceContainer( myLayout.root).setActiveContentItem( 
+				tab
+			 );
+			return;
+		}
+
+
+
+		var newItemConfig = {
+			title: node.text,
+			caption: node.data.relativePath,
+			type: 'component',
+			id : 'ace_'+node.id,
+			extid : node.id,
+			componentName: 'testComponent',
+			componentState: { text: node.text }
+		};
+		
+
+		var v;
+		var t = findSourceContainer( myLayout.root );
+		if( t )
+		{
+			//console.log("found a tab..");
+			t.addChild(newItemConfig);
+			v = t.getItemsById('ace_'+node.id);
+		}
+
+
+		if( v[0] )
+		{
+			create_ace_div(node.id, node);
+			var ace2 = document.getElementById('ace'+node.id);
+			var editor = ace.edit(ace2);
+			editor.setValue(src_obj.text, -1);
+			newItemConfig.componentState.editor = editor;
+			
+			//console.log(node);
+			//console.log(src_obj);
+			
+			//var new_ace = $('#ace'+node.id);
+			//var ace2 = document.getElementById('ace'+node.id);
+			v[0].container.getElement().html( ace2 );//$('#ace'+node.id) );//$('#tree') );
+			editor.session.getUndoManager().markClean();
+			
+
+		}
+
+	};
+	myLayout.on( 'tabCreated', function( tab ){
+	tab
+		.closeElement
+		.off( 'click' ) //unbind the current click handler
+		.click(function(){
+			//add your own
+			//console.log(tab);
+			var ace2 = document.getElementById('ace'+tab.contentItem.config.extid);
+			var editor = ace.edit(ace2);
+			if( !editor.session.getUndoManager().isClean() )
+			{
+				if( confirm( 'Close this window?\r\nWarning, unsaved changes will be lost.' ) ) 
+					tab.contentItem.remove();
+			}
+			else
+			{
+				tab.contentItem.remove();
+			}
+		});
+		
+		myLayout.on( 'stackCreated', function( stack ){
+
+			/*
+			 * Listening for activeContentItemChanged. This happens initially
+			 * when the stack is created and everytime the user clicks a tab
+			 */
+			stack.on( 'activeContentItemChanged', function( contentItem ){
+				//console.log(contentItem);
+				// interact with the contentItem
+				var ace2 = document.getElementById('ace'+tab.contentItem.config.extid);
+				var editor = ace.edit(ace2);
+				//var sav = document.getElementById('btnSave');
+				//sav.setAttribute("disabled");
+				$('#btnSave').attr('disabled','');
+							/*
+							var btn = w2ui.layout.get('main').toolbar.get('savebtn');
+							var editor = ace.edit("ace_editor");
+							editor.session.getUndoManager().markClean();
+							btn.disabled = editor.session.getUndoManager().isClean()
+							w2ui.layout.get('main').toolbar.refresh();
+							*/
+			});
+
+			/*
+			 * Accessing the container and updating its state
+			 */
+			//stack.getActiveContentItem().container.extendState({color: '#faa'});
+		});
+	});
+	
+	
+	function create_terminal_div(id)
+	{
+	
+		var iDiv = document.getElementById('terminals');
+
+		var terminalDiv = document.createElement('div');
+		terminalDiv.id = 'terminal'+id;
+		terminalDiv.position = 'absolute';
+		terminalDiv.display = 'block';
+		terminalDiv.top = 0;
+		terminalDiv.bottom = 0;
+		terminalDiv.left = 0;
+		terminalDiv.right = 0;
+		terminalDiv.style = "height: 100%; width: 100%";
+		terminalDiv.className = 'block';
+		terminalDiv.visibility = 'visible';
+
+		iDiv.appendChild(terminalDiv);
+		
+		$('#terminal'+id).terminal(function(command, term) 
+		{
+			if (command == 'help') 
+			{
+				//term.echo("available commands are mysql, js, test");
+			}   
+			else 
+			{
+				term.echo("unknown command " + command);
+			}
+		}, 
+		{
+			greetings: "Septem Creator Debugger (c) 2017 Kenneth Thompson",
+			enabled: false,
+			onBlur: function() 
+			{
+				// prevent loosing focus
+				return true;
+			}
+		});
+		
+	}
+
+	function print_to_debug_terminal(text)
+	{
+		$('#terminal_debug').terminal().echo(text);
+		//$('#terminal').terminal().enabled = false;
+
+	}
+
+	function create_ace_div(id, node)
+	{
+
+		var iDiv = document.getElementById('editors');
+		//console.log("creating ace div for id: "+id);
+
+		var aceDiv = document.createElement('div');
+		aceDiv.id = 'ace'+id;
+		aceDiv.position = 'absolute';
+		aceDiv.display = 'block';
+		aceDiv.top = 0;
+		aceDiv.bottom = 0;
+		aceDiv.left = 0;
+		aceDiv.right = 0;
+		aceDiv.style = "height: 100%; width: 100%";
+		aceDiv.className = 'block';
+		aceDiv.visibility = 'visible';
+		aceDiv.filename = node.data.relativePath;
+
+		iDiv.appendChild(aceDiv);
+		var editor = ace.edit(aceDiv);
+		editor.setTheme("ace/theme/tomorrow_night");
+		editor.getSession().setMode("ace/mode/lua");
+		//editor.id = 0;
+		editor.commands.addCommand({
+        name: "showKeyboardShortcuts",
+        bindKey: {win: "Ctrl-s", mac: "Command-s"},
+        exec: function(editor) {
+			
+			print_to_debug_terminal('Saving '+ aceDiv.filename );
+			var f = { source: editor.getValue(), relativePath: aceDiv.filename, create:false };
+			
+			
+			post_json_save( 'http://127.0.0.1:8090/save', f, function(file, resp)
+			{
+				//nothing to do.
+			}
+			);
+           // ace.config.loadModule("ace/ext/keybinding_menu", function(module) {
+          //      module.init(editor);
+          //      editor.showKeyboardShortcuts()
+          // })
+        }
+		})
+    //editor.execCommand("showKeyboardShortcuts")
+	
+		editor.getSession().on('change', function(e) {
+    // e.type, etc
+			//console.log(e);
+		});
+
+		editor.getSession().selection.on('changeSelection', function(e, ed) {
+			//console.log(aceDiv.id);
+			//console.log(ed);
+			//console.log(aceDiv);
+			//console.log(aceDiv);
+		});
+		editor.on("input", function() {
+			
+			//if( !editor.session.getUndoManager().isClean() )
+			//{
+				//console.log("input!");
+				//tab = findTab( myLayout.root,  'ace_'+id);
+				//tab.config.title = tab.config.title;
+				//console.log(tab);
+			//}
+		});
+		//return aceDiv;
+	}
+	
+	function moveSourceFiles( node_orig, node_target )
+	{
+
+		tab = findTab( myLayout.root,  'ace_'+node_orig.id);
+		if( tab )
+		{
+			bootbox.alert({
+			message: "Please save changes and close the file before attempting to move it."
+			});
+			return false;
+		}
+		var f = { fileA: node_orig.data.relativePath, fileB: node_target.data.relativePath, 
+			op: "move", relativePath: "" };
+		post_json_fs_cmd( 'http://127.0.0.1:8090/fs', f, function(file, resp)
+		{
+			if( resp )
+			{
+				jQuery('#tree').jstree(true).refresh(true);
+			}
+			else
+			{
+				console.log("No response from server for node: " + node.id);
+				//nothing to do, fail.
+			}
+			
+		});
+		return true;
+	}
+	
+	function getDocumentContent( node )
+	{
+		tab = findTab( myLayout.root,  'ace_'+node.id);
+		if( tab )
+		{
+			var d1  = findSourceContainer( myLayout.root).setActiveContentItem( 
+				tab
+			 );
+			 
+			return;
+		}
+
+		console.log('Getting document from server..' + node.data.relativePath);
+		print_to_debug_terminal('Getting document from server..' + node.data.relativePath);
+		make_json_request('http://127.0.0.1:8090/' + node.data.relativePath, loadDocument, node);
+	}
+
+	function make_json_request(theUrl, cb, tag)
+	{
+		var xmlHttp = new XMLHttpRequest();
+		
+
+		xmlHttp.onreadystatechange = function() { 
+
+			if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+			{
+				//eval("var x = " + xmlHttp.responseText + ";");
+				var x = JSON.parse( xmlHttp.responseText);
+				cb( x, tag );
+			}
+		}
+		xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+		
+		xmlHttp.send(null);
+	}
+	
+
+	
+	// jstree conditional select node
+	(function ($, undefined) {
+	  "use strict";
+	  $.jstree.defaults.conditionalselect = function () { return true; };
+
+	  $.jstree.plugins.conditionalselect = function (options, parent) {
+		// own function
+		this.select_node = function (obj, supress_event, prevent_open) {
+		  if(this.settings.conditionalselect.call(this, this.get_node(obj))) {
+			parent.select_node.call(this, obj, supress_event, prevent_open);
+		  }
+		};
+	  };
+	})(jQuery);
+
+   
+	
+	function loadDocument( src, node )
+	{
+		loadSrcEditor( node, src );
+	}
+	
+	function customMenu(node)
+	{
+	    var tree = $('#tree').jstree(true);
+        var ID = $(node).attr('id');
+		/*
+		var items = {
+			'itemCopy' : {
+               "separator_before": false,
+                "separator_after": false,
+                "label": "Copy",
+                "action": function (obj) { 
+                    $node2 = $("#clbk").jstree('create_node', $node2);
+                    $("#clbk").jstree('edit', $node2);
+                }
+			},
+			'itemAdd' : {
+               "separator_before": false,
+                "separator_after": false,
+                "label": "Add new",
+                "action": function (obj) { 
+                    $node2 = $("#clbk").jstree('create_node', $node2);
+                    $("#clbk").jstree('edit', $node2);
+                }
+			},
+			'itemDelete' : {
+				'label' : 'Delete',
+				'action' : function () {  }
+			}
+		}
+		*/
+		var items = { // Could be a function that should return an object like this one
+            "create" : {
+                "separator_before"  : false,
+                "separator_after"   : true,
+                "label"             : "Create",
+                "action"            : false,
+                "submenu" :{
+                    "create_file" : {
+                        "seperator_before" : false,
+                        "seperator_after" : false,
+                        "label" : "File",
+                        action : function (obj) {
+						var id = jQuery("#tree").jstree("get_selected");
+						// TODO: add logic to prevent a new file having the name of an existing file!!
+						
+							var node = $('#tree').jstree(true).get_node(id);
+							//createNewNode( node );
+							//$("#tree").jstree("create", $("#somenode"), "inside", { "data":"new_node" }, false, true);
+						//	var CurrentNode = jQuery("#tree").jstree("get_selected");
+						//	var id = $("#tree").jstree('create_node', CurrentNode, '1', 'last');
+						bootbox.prompt("Please enter a file name:", function(result)
+						{ 
+							//console.log(result); 
+							if( result )
+							{
+								//console.log("Relative path of parent: " + node.data.relativePath );
+								//return;
+								//var g = guid();
+								var p = node.data.relativePath + "/" + result;
+								print_to_debug_terminal('Saving '+  p);
+								var f = { source: "", relativePath: p, create: true };
+								post_json_save( 'http://127.0.0.1:8090/save', f, function(file, resp)
+								{
+									if( resp )
+									{
+										$('#tree').jstree().create_node(id, {id: resp.id, text: result, type: 'file'}, 'last', function() {
+										//console.log(v);
+
+										});
+										var node = $('#tree').jstree(true).get_node(resp.id);
+										node.data = { relativePath: p};
+										$('#tree').jstree(true).deselect_all();
+										$('#tree').jstree(true).select_node(resp.id);
+									}
+									else
+									{
+										
+									}
+									//nothing to do.
+								}
+								);
+
+								//console.log(node);
+							}
+						});
+						
+
+					
+
+                        }
+                    },
+                    "create_folder" : {
+                        "seperator_before" : false,
+                        "seperator_after" : false,
+                        "label" : "Folder",
+                        action : function (obj) { 
+						//this.create(obj); 
+							
+							var id = jQuery("#tree").jstree("get_selected");
+
+							var node = $('#tree').jstree(true).get_node(id);
+
+							bootbox.prompt("Please enter a directory name:", function(result)
+							{ 
+								//console.log(result); 
+								if( result )
+								{
+									var specialChars = /[!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?]/gi;
+									var res = result.trim();
+									var allfound = res.match(specialChars);
+									//var count = (temp.match(///g) || []).length;
+									if( allfound )
+									{
+										bootbox.alert("Special characters are not allowed.");
+										return;
+									}
+									var p = node.data.relativePath + "/" + res;
+									print_to_debug_terminal('Creating directory '+  p);
+									
+									
+									var f = { fileA: p, fileB: "", op: "mkdir", relativePath: node.data.relativePath };
+									post_json_fs_cmd( 'http://127.0.0.1:8090/fs', f, function(file, resp)
+									{
+										if( resp )
+										{
+											$('#tree').jstree().create_node(id, {id: resp.id, text: result, type: 'directory'}, 'last', function() {
+											//console.log(v);
+
+											});
+											var node = $('#tree').jstree(true).get_node(resp.id);
+											node.data = { relativePath: p};
+											$('#tree').jstree(true).deselect_all();
+											$('#tree').jstree(true).select_node(resp.id);
+										}
+										else
+										{
+											console.log("No response from server for node: " + node.id);
+											//nothing to do, fail.
+										}
+										
+									});
+								}
+							});
+						}
+                    }
+                }
+            },
+			"edit" : {
+                "separator_before"  : false,
+                "separator_after"   : true,
+                "label"             : "Edit",
+                "action"            : false,
+                "submenu" :{
+                    "copy_node" : {
+                        "seperator_before" : false,
+                        "seperator_after" : false,
+                        "label" : "Copy",
+                        action : function (obj) {
+						//console.log(obj);
+                          //  this.create(obj);
+                        }
+                    },
+                    "paste_node" : {
+                        "seperator_before" : false,
+                        "seperator_after" : false,
+                        "label" : "Paste",
+                        action : function (obj) { 
+						//this.create(obj); 
+						}
+                    },
+					"delete_node" : {
+                        "seperator_before" : false,
+                        "seperator_after" : false,
+                        "label" : "Delete",
+                        action : function (obj) { 
+							//tree.delete_node([node]);
+						//this.create(obj); 
+							
+							
+							bootbox.confirm({
+									message: "This operation cannot be undone.  Delete this node permanently?",
+									buttons: {
+										confirm: {
+											label: 'Yes',
+											className: 'btn-danger'
+										},
+										cancel: {
+											label: 'No',
+											className: 'btn-success'
+										}
+									},
+									callback: function (result) {
+										//console.log('This was logged in the callback: ' + result);
+										if( !result )
+										{
+											return;
+										}
+										var f = { fileA: node.text, fileB: "", op: "rm", relativePath: node.data.relativePath };
+										post_json_fs_cmd( 'http://127.0.0.1:8090/fs', f, function(file, resp)
+										{
+											if( resp )
+											{
+												var tab = findTab( myLayout.root,  'ace_'+node.id);
+												if(tab) 
+													tab.container.close();
+												tree.delete_node([node]);
+												//tab.setActive(false);
+												
+											}
+											else
+											{
+												console.log("No response from server for node: " + node.id);
+												//nothing to do, fail.
+											}
+											
+										});
+									}
+							});
+							//console.log("Looking for " + node.id);
+							
+								
+
+						}
+                    },
+					"rename_node" : {
+                        "seperator_before" : false,
+                        "seperator_after" : false,
+                        "label" : "Rename",
+                        action : function (obj) { 
+							var id = jQuery("#tree").jstree("get_selected");
+							var node = $('#tree').jstree(true).get_node(id);
+							//console.log(node);
+						bootbox.prompt({
+						  title: "Enter a new file name:",
+						  value: node.text,
+						  callback: function(result) {
+							if( result && result != node.text )
+							{
+								//var temp = "This is a string.";
+								var specialChars = /[!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?]/gi;
+								var res = result.trim();
+								var allfound = res.match(specialChars);
+								//var count = (temp.match(///g) || []).length;
+								if( allfound )
+								{
+								
+									bootbox.alert("Special characters are not allowed.");
+								}
+								else
+								{
+									var f = { fileA: node.text, fileB: res, op: "rename", relativePath: node.data.relativePath };
+									post_json_fs_cmd( 'http://127.0.0.1:8090/fs', f, function(file, resp)
+									{
+										if( resp )
+										{
+											var tab = findTab( myLayout.root,  'ace_'+node.id);
+											console.log("Looking for " + node.id);
+											if( tab )
+											{
+												console.log(tab);
+												//console.log(tab);
+												//tab.id = 'ace_'+ resp.id;
+												//tab.addid( 'ace_'+ resp.id );
+												tab.setTitle(res);
+												tab.id = 'ace_'+ resp.id;
+												tab.config.id = 'ace_'+ resp.id;
+												var ace2 = document.getElementById('ace'+id);
+												ace2.filename = resp.relativePath;
+												ace2.id = 'ace'+ resp.id;
+												
+											}
+											console.log("Updating tree.. " + resp.id);
+											console.log(tab);
+											node.text = res;
+											node.data.relativePath = resp.relativePath;
+											node.id = resp.id;
+
+											jQuery('#tree').jstree(true).refresh(true);
+										}
+										else
+										{
+											console.log("No response from server for node: " + node.id);
+											//nothing to do, fail.
+										}
+										
+									}
+									);
+								}
+								//someString.replace(/\//g, "-");
+							}
+							// greet user
+						  }
+						});
+						//this.create(obj); 
+
+						}
+                    }
+                }
+            },
+
+			"compile" : {
+                "separator_before"  : false,
+                "separator_after"   : true,
+                "label"             : "Compile",
+                action : function (obj) { 
+							var f = { fileA: node.data.relativePath, fileB: "", op: "compile", relativePath: "" };
+							post_json_fs_cmd( 'http://127.0.0.1:8090/fs', f, function(file, resp)
+							{
+								if( resp )
+								{
+									//if( resp.result == "OK" 
+									print_to_debug_terminal(resp.text);
+								}
+								else
+								{
+									//console.log("No response from server for node: " + node.id);
+									//nothing to do, fail.
+								}
+								
+							}
+							);
+				}
+            }
+		}
+	
+		console.log(node.type);
+		if (node.parent === '#') {
+			delete items.edit;
+		} else if (node.type === 'file') {
+			delete items.edit.submenu.paste_node;
+			delete items.create;
+		} else if (node.type === 'directory') {
+			delete items.edit.submenu.copy_node;
+			delete items.compile;
+			delete items.save;
+		}
+		delete items.edit.submenu.copy_node;
+		delete items.edit.submenu.paste_node;
+		return items;
+	}
+
+	function post_json_auth(theUrl, username, password, cb)
+	{
+		var xmlHttp = new XMLHttpRequest();
+
+		xmlHttp.onreadystatechange = function() { 
+			//console.log( "state= " + xmlHttp.readyState + ", xmlHttp.status = " + xmlHttp.status);
+			if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+			{
+				//print_to_debug_terminal("Auth successful.");
+				cb('OK');	
+			}
+			else if( xmlHttp.status == 400 && xmlHttp.readyState == 4 )
+			{
+				//print_to_debug_terminal("Error during auth: " + xmlHttp.responseText);
+				cb();
+			}
+			else if ( xmlHttp.readyState == 4 && xmlHttp.status === 0  )
+			{
+				cb();
+			}
+		}
+		xmlHttp.open("POST", theUrl, true);
+		xmlHttp.setRequestHeader("Content-Type", "application/json");
+		xmlHttp.send(JSON.stringify({username: username, password: password}));	
+	}
+	
+	function post_json_save(theUrl, file, cb)
+	{
+		var xmlHttp = new XMLHttpRequest();
+
+		xmlHttp.onreadystatechange = function() { 
+			console.log( "state= " + xmlHttp.readyState + ", xmlHttp.status = " + xmlHttp.status);
+			if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+			{
+				//eval("var x = " + xmlHttp.responseText + ";");
+				var x = JSON.parse( xmlHttp.responseText);
+				//cb( x, tag );
+				dialog.modal('hide');
+				print_to_debug_terminal("Save successful: " + file.relativePath);
+				
+				cb(file, x);
+				
+			}
+			else if( xmlHttp.status == 400 && xmlHttp.readyState == 4 )
+			{
+				print_to_debug_terminal("Error during save: " + xmlHttp.responseText);
+				dialog.modal('hide');
+				bootbox.alert("Error during save: " + xmlHttp.responseText);
+				cb();
+			}
+			else if ( xmlHttp.readyState == 4 && xmlHttp.status === 0 )
+			{
+				print_to_debug_terminal("Server unavailable");
+				dialog.modal('hide');
+				bootbox.alert("Error: server unavailable.");
+				cb();
+			}
+		}
+		//print_to_debug_terminal("Sending file for save.."+theUrl);
+		
+		var dialog = bootbox.dialog({
+		message: '<p class="text-center">Saving file...</p>',
+		closeButton: false
+		});
+		
+		xmlHttp.open("POST", theUrl, true);
+		xmlHttp.setRequestHeader("Content-Type", "application/json");
+		//xmlHttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+		//print_to_debug_terminal(file.source);
+		xmlHttp.send(JSON.stringify({relativePath: file.relativePath, source:file.source, create: file.create}));	
+	}
+	function post_json_fs_cmd(theUrl, cmd, cb)
+	{
+		var xmlHttp = new XMLHttpRequest();
+
+		xmlHttp.onreadystatechange = function() { 
+			
+			if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+			{
+				//eval("var x = " + xmlHttp.responseText + ";");
+				var x = JSON.parse( xmlHttp.responseText);
+				//cb( x, tag );
+				dialog.modal('hide');
+				print_to_debug_terminal("Command successful.");
+				
+				cb(cmd, x);
+				
+			}
+			else if( xmlHttp.status == 400 && xmlHttp.readyState == 4 )
+			{
+				print_to_debug_terminal("Error during execution of command: " + xmlHttp.responseText);
+				dialog.modal('hide');
+				bootbox.alert("Error during execution of command was: " + xmlHttp.responseText);
+				cb();
+			}
+			else if ( xmlHttp.readyState == 4 && xmlHttp.status === 0  )
+			{
+				print_to_debug_terminal("Server unavailable.");
+				dialog.modal('hide');
+				bootbox.alert("Error: server unavailable.");
+				cb();
+			}
+		}
+		print_to_debug_terminal("Executing fs command: "+ cmd.op);
+		
+		var dialog = bootbox.dialog({
+		message: '<p class="text-center">Executing fs command...</p>',
+		closeButton: false
+		});
+		
+		xmlHttp.open("POST", theUrl, true);
+		xmlHttp.setRequestHeader("Content-Type", "application/json");
+		//xmlHttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+		//print_to_debug_terminal(file.source);
+		xmlHttp.send(JSON.stringify({relativePath: cmd.relativePath, fileA: cmd.fileA, fileB: cmd.fileB, op: cmd.op}));	
+	}
+	function change_status(status)
+	{
+		document.getElementById("connectedStatus").innerHTML = status;
+	}
+</script>
+
+</body>
+</html>

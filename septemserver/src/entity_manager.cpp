@@ -503,6 +503,11 @@ bool entity_manager::reload_all_item_instances(std::string& relative_script_path
 
 itemobj* entity_manager::clone_item(std::string& relative_script_path, script_entity* obj, std::string uid)
 {
+    std::stringstream ss;
+    ss << "Cloning entity " << relative_script_path << ", id = " << uid;
+    
+    
+    
     if( uid.size() == 0 )
         uid = random_string();
     std::string reason;
@@ -883,7 +888,6 @@ bool entity_manager::load_script_text(std::string& script_path,
         trim(token);
 
         if(token.compare("inherit lib") == 0) {
-            if(bFoundType) // bad. only one type per script
             if(bFoundType) // bad. only one type per script
             {
                 reason = "Multiple inherit directives detected. Only one entity type is allowed per script.";

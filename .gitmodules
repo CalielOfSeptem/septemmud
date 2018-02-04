@@ -19,3 +19,6 @@
 [submodule "cereal"]
 	path = cereal
 	url = https://github.com/USCiLab/cereal.git
+[submodule "unqlite"]
+	path = unqlite
+	url = https://github.com/symisc/unqlite.git
