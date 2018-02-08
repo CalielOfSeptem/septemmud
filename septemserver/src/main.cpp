@@ -14,6 +14,7 @@
 #include "game_manager.h"
 #include "script_entities/playerobj.h"
 #include "septem.hpp"
+#include "io/db_interface.h"
 
 #include "server/connectionsm.hpp"
 #include "server/httpserv.h"
@@ -82,8 +83,7 @@ int main(int argc, char **argv)
     }
     std::cout << pt.get<std::string>("options.port") << std::endl;
     
-    
-
+ 
     
     unsigned int port        = 4000;
     std::string  threads     = "";

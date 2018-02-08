@@ -24,7 +24,6 @@
     <File Name="src/heartbeat_manager.cpp"/>
     <VirtualDirectory Name="fs">
       <File Name="src/fs/fs_manager.cpp"/>
-      <File Name="src/fs/db_interface.cpp"/>
     </VirtualDirectory>
     <VirtualDirectory Name="net">
       <File Name="src/net/socket.cpp"/>
@@ -40,6 +39,9 @@
     <File Name="src/septem.cpp"/>
     <File Name="src/account.cpp"/>
     <File Name="src/account_manager.cpp"/>
+    <VirtualDirectory Name="io">
+      <File Name="src/io/db_interface.cpp"/>
+    </VirtualDirectory>
   </VirtualDirectory>
   <VirtualDirectory Name="include">
     <VirtualDirectory Name="script_entities">
@@ -116,13 +118,11 @@
         <IncludePath Value="../../json/src"/>
         <IncludePath Value="../telnetpp/include"/>
         <IncludePath Value="../terminalpp/include"/>
-        <IncludePath Value="../unqlite/src"/>
       </Compiler>
       <Linker Options="-lz;-ldl;-Wl,-export-dynamic" Required="yes">
         <LibraryPath Value="/home/ken/git-repos/lua-5.3.4/src"/>
         <LibraryPath Value="../telnetpp/Debug"/>
         <LibraryPath Value="../terminalpp/Debug"/>
-        <LibraryPath Value="../unqlite"/>
         <Library Value="boost_system"/>
         <Library Value="boost_program_options"/>
         <Library Value="boost_filesystem"/>
@@ -132,7 +132,6 @@
         <Library Value="telnetpp"/>
         <Library Value="terminalpp"/>
         <Library Value="cryptopp"/>
-        <Library Value="unqlite"/>
       </Linker>
       <ResourceCompiler Options="" Required="no"/>
       <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./Debug" Command="./$(ProjectName)" CommandArguments="-p 6666" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
