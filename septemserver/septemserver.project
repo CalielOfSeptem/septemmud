@@ -123,6 +123,7 @@
         <LibraryPath Value="/home/ken/git-repos/lua-5.3.4/src"/>
         <LibraryPath Value="../telnetpp/Debug"/>
         <LibraryPath Value="../terminalpp/Debug"/>
+        <LibraryPath Value="/usr/local/lib"/>
         <Library Value="boost_system"/>
         <Library Value="boost_program_options"/>
         <Library Value="boost_filesystem"/>

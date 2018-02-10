@@ -24,7 +24,7 @@ public:
     db_interface& operator=(db_interface const&) = delete;  // Copy assign
     db_interface& operator=(db_interface &&) = delete;      // Move assign
     
-    
+  
 
     
 protected:
