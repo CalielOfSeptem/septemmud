@@ -1009,7 +1009,7 @@ bool entity_manager::unload_player(const std::string& playername)
         return false;
     }
  
-    std::unique_lock<std::mutex> lock(lua_mutex_);  
+    std::unique_lock<std::recursive_mutex> lock(lua_mutex_);  
     po->unload_inventory_from_game(); // Make sure to kill all items..
     std::string ppath = po->GetVirtualScriptPath();
     
@@ -2268,10 +2268,11 @@ void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
     if( e == NULL )
         return;
  
-
+ 
 
     try
     {
+        std::unique_lock<std::recursive_mutex> lock(lua_mutex_);
 
         bool bdoLogon = false;
         auto pp = dynamic_cast<playerobj*>(e);
@@ -2287,6 +2288,7 @@ void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
         
         if( bdoLogon )
         {
+           // std::unique_lock<std::mutex> lock(lua_mutex_);
             std::string logon_proc_path = global_settings::Instance().GetSetting(DEFAULT_LOGON_PROC);
             unsigned int id = 0;
             daemonobj* dobj = entity_manager::Instance().GetDaemonByScriptPath(logon_proc_path, id);
@@ -2328,8 +2330,8 @@ void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
                         auto log = spd::get("main");
                         ss << "Player " << pp->GetPlayerName() << " logged in successfully!";
                         log->debug( ss.str() );
-                        e->debug(ss.str());
-                        
+                        //e->debug(ss.str());
+                        //lock.unlock();
                         po->DoCommand(NULL, "look");
                     }
                 }
@@ -2354,7 +2356,7 @@ void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
         }
         
         {
-            std::unique_lock<std::mutex> lock(lua_mutex_);
+           // std::unique_lock<std::mutex> lock(lua_mutex_);
         
             security_context::Instance().SetCurrentEntity(e);
         

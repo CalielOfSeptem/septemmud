@@ -8,6 +8,6 @@
         "vAZ8fAP19rkMwK6": "workspaces/caliel/entities/backpack"
     },
     "rightHand": 0,
-    "roomID": 1,
+    "roomID": 0,
     "roomPath": "workspaces/caliel/workroom"
 }

@@ -212,7 +212,7 @@ struct _internal_queue_wrapper_
     // ======================================================================
     void register_hook(script_entity * hook_entity);
     
-    std::mutex*  GetLuaMutex() { return &lua_mutex_; };
+    std::recursive_mutex*  GetLuaMutex() { return &lua_mutex_; };
     
 protected:
     entity_manager()
@@ -262,7 +262,7 @@ private:
 
     std::list<_internal_queue_wrapper_>      dispatch_queue_;
     
-    std::mutex                              lua_mutex_;
+    std::recursive_mutex                              lua_mutex_;
     
     void on_cmd(living_entity* e, std::string const &cmd);
     
@@ -374,6 +374,7 @@ private:
             fn = dispatch_queue_.front().f;
             dispatch_queue_.pop_front();
             lock.unlock();
+            //std::unique_lock<std::mutex> lock(lua_mutex_);
             fn();
             lock.lock();
         }
