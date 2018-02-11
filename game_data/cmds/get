@@ -1,3 +1,14 @@
+--[[get version:0.0.1]]-------------------------------
+--[[------------------------------------------------------
+	Get command allows players/NPCs to pickup items into their hands
+	
+	Copyright (C) 2018, by Caliel (kenthompson1@gmail.com)
+	All Rights Reserved.
+	
+	## 0.0.1 - 2018-02-10
+	###
+	- Initial release
+--]]------------------------------------------------------
 inherit command
 c = command.new('get')
 
@@ -39,7 +50,7 @@ function c:FindItemInEnv( o, item_to_find )
 end
 
 function c:FindItemInInv( o, item_to_find )
---print(item_to_find)
+	print('Item to find ' .. item_to_find)
 	local s_num = string.match(item_to_find, '%d+')
 	local skip_index = 1 -- don't skip by default
 	if( s_num ~= nil ) then
@@ -50,7 +61,7 @@ function c:FindItemInInv( o, item_to_find )
 	
 	local player = living_cast(o)
 	local items = player:GetItems()
-	
+	--print('Player items ' .. items)
 	local r_hand = player:RightHand():GetItem()
 	if( r_hand ~= nil and ( r_hand:GetItemNoun():lower():starts(item_to_find)  or r_hand:GetItemPluralNoun():lower():starts(item_to_find) ) ) then
 			skip_index = skip_index - 1
@@ -315,6 +326,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 			local myt = sm2:split( ' ' )
 			--print( myt[2] )
 			local fitem = c:FindItemInEnv( o, myt[2])
+			print(fitem)
 			if( fitem ~= nil ) then
 				if( fitem.isContainer == true and fitem.isOpen == false ) then
 					o_orig:SendToEntity('The ' .. fitem:GetItemNoun() .. ' is closed.')
@@ -333,7 +345,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 				end
 			end
 			
-			local fitem = c:FindItemInHands( o, myt[2])
+			local fitem = c:FindItemHands( o, myt[2])
 			if( fitem ~= nil ) then
 				if( fitem.isContainer == true and fitem.isOpen == false ) then
 					o_orig:SendToEntity('The ' .. fitem:GetItemNoun() .. ' is closed.')
@@ -344,6 +356,25 @@ function c:ExecuteCommand ( o_orig, cmd )
 					if( f ) then
 						-- found it..
 						c:GetInvItem( o, f, fitem, true  )
+						return true
+					end
+				else
+					o_orig:SendToEntity('You can\'t get anything from that!')
+					return true
+				end
+			end
+			
+			local fitem = c:FindItemInInv( o, myt[2])
+			if( fitem ~= nil ) then
+				if( fitem.isContainer == true and fitem.isOpen == false ) then
+					o_orig:SendToEntity('The ' .. fitem:GetItemNoun() .. ' is closed.')
+					return true;
+				end
+				if( fitem.isContainer == true ) then
+					f = c:FindItemInContainer( o, fitem, item_to_find )
+					if( f ) then
+						-- found it..
+						c:GetInvItem( o, f, fitem, true)
 						return true
 					end
 				else

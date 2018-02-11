@@ -1,3 +1,14 @@
+--[[split version:0.0.1]]-------------------------------
+--[[------------------------------------------------------
+	Split allows for stackable items to be seperated.
+	
+	Copyright (C) 2018, by Caliel (kenthompson1@gmail.com)
+	All Rights Reserved.
+	
+	## 0.0.1 - 2018-02-10
+	###
+	- Initial release
+--]]------------------------------------------------------
 inherit command
 c = command.new('split')
 -- hand is the hand the item should be split INTO, not from

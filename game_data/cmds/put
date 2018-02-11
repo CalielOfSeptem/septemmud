@@ -1,3 +1,13 @@
+--[[put version:0.0.1]]-------------------------------
+--[[------------------------------------------------------
+	Put command allows players/NPCs to put items into containers
+	Copyright (C) 2017, by Caliel (kenthompson1@gmail.com)
+	All Rights Reserved.
+	
+	## 0.0.1 - 2018-02-10
+	###
+	- Initial release
+--]]------------------------------------------------------
 inherit command
 c = command.new('put')
 
@@ -180,20 +190,23 @@ function c:ExecuteCommand ( o_orig, cmd )
 		end
 		::continue::
 	end
-	
+	local in_player_inv = false
 	if( found_item_dest == nil ) then
 	-- look in hands
 		local t_item = c:FindItemInHand( o:LeftHand(), item_to_find )
 		if( t_item ~= nil and t_item ~= found_item_targ ) then -- make sure its not the same object, like putting a pack in a pack..
 			found_item_dest = t_item
+			in_player_inv = true
 		end
 		t_item = c:FindItemInHand( o:RightHand(), item_to_find )
 		if( t_item ~= nil and t_item ~= found_item_targ ) then
 			found_item_dest = t_item
+			in_player_inv = true
 		end
 		t_item = c:FindItemInInv( o, item_to_find )
 		if( t_item ~= nil and t_item ~= found_item_targ ) then
 			found_item_dest = t_item
+			in_player_inv = true
 		end
 	end
 	
@@ -211,9 +224,17 @@ function c:ExecuteCommand ( o_orig, cmd )
 		return true
 	else
 		if( found_item_dest:AddToInventory(found_item_targ) ) then
-			o_orig:SendToEntity('You put ' .. found_item_targ:GetName() .. ' in the ' .. found_item_dest:GetItemNoun() .. '.' )
-			local pname = string.gsub(o_orig:GetName(), "(%a)([%w_']*)", titleCase)
-			o_orig:SendToRoom( pname .. ' puts ' .. found_item_targ:GetName() .. ' in the ' .. found_item_dest:GetItemNoun() .. '.' )
+			if( in_player_inv ) then
+				o_orig:SendToEntity('You put ' .. found_item_targ:GetName() .. ' in your ' .. found_item_dest:GetItemNoun() .. '.' )
+				local pname = string.gsub(o_orig:GetName(), "(%a)([%w_']*)", titleCase)
+				o_orig:SendToRoom( pname .. ' puts ' .. found_item_targ:GetName() .. ' in their ' .. found_item_dest:GetItemNoun() .. '.' )
+			else
+				o_orig:SendToEntity('You put ' .. found_item_targ:GetName() .. ' in the ' .. found_item_dest:GetItemNoun() .. '.' )
+				local pname = string.gsub(o_orig:GetName(), "(%a)([%w_']*)", titleCase)
+				o_orig:SendToRoom( pname .. ' puts ' .. found_item_targ:GetName() .. ' in the ' .. found_item_dest:GetItemNoun() .. '.' )
+			end
+			
+
 			if( o_orig:GetType():lower() == 'player' ) then
 				local player = player_cast(o_orig)
 				player:DoSave()

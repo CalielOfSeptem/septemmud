@@ -1,3 +1,14 @@
+--[[stand version:0.0.1]]-------------------------------
+--[[------------------------------------------------------
+	Stand command allows players/NPCs to rise from a prone/kneeling position to standing
+	
+	Copyright (C) 2018, by Caliel (kenthompson1@gmail.com)
+	All Rights Reserved.
+	
+	## 0.0.1 - 2018-02-10
+	###
+	- Initial release
+--]]------------------------------------------------------
 inherit command
 c = command.new('stand')
 

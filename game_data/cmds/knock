@@ -1,3 +1,14 @@
+--[[knock version:0.0.1]]-------------------------------
+--[[------------------------------------------------------
+	Knock command allows players/npcs to knock on doors, the other side will hear the knock
+	
+	Copyright (C) 2018, by Caliel (kenthompson1@gmail.com)
+	All Rights Reserved.
+	
+	## 0.0.1 - 2018-02-10
+	###
+	- Initial release
+--]]------------------------------------------------------
 inherit command
 c = command.new('knock')
 

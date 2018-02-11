@@ -207,43 +207,9 @@ int main(int argc, char **argv)
     global_settings::Instance().SetSetting( ACCOUNT_TYPE, "account_type");
     global_settings::Instance().SetSetting( ACCOUNT_LASTLOGON, "last_logon");
     global_settings::Instance().SetSetting( ACCOUNT_EMAIL, "email");
-    //chdir( global_settings::Instance().GetSetting( DEFAULT_GAME_DATA_PATH).c_str() );
+
     
-   // std::string roomLog = global_settings::Instance().GetSetting( DEFAULT_GAME_DATA_PATH ) + global_settings::Instance().GetSetting( DEFAULT_LOGS_PATH ) + global_settings::Instance().GetSetting( DEFAULT_ROOM_LOG_PATH );
-    
-    
-   // static plog::RollingFileAppender<plog::MyFormatter> fileAppender(roomLog.c_str(), 8000, 3);
-    
-   // static plog::ConsoleAppender<plog::MyFormatter> consoleAppenderA; // Create the 2nd appender.
-    //static plog::RollingFileAppender<plog::MyFormatter> fileAppender;
-    //fileAppend = plog::RollingFileAppender(const util::nchar* fileName, size_t maxFileSize = 0, int maxFiles = 0);
-    //plog::init(plog::debug, &fileAppender).addAppender(&consoleAppender); // Initialize the logger with the both appenders.
-   // plog::init<RoomLog>(plog::debug, &fileAppender).addAppender(&consoleAppenderA);
-    
-    /*
-	std::string test_room = "/home/ken/git-repos/septemmud/game_data/realms/void";
-    std::string reason;
-    entity_manager::Instance().compile_script(test_room, reason);
-    entity_manager::Instance().compile_script(test_room, reason);
-    */
-    /*
-    for ( int x = 0; x< 2; x++)
-    {
-        test_room = "/home/ken/git-repos/septemmud/game_data/realms/void";
-        entity_manager::Instance().compile_script(test_room, reason);
-        
-        test_room = "/home/ken/git-repos/septemmud/game_data/realms/test/room1";
-        entity_manager::Instance().compile_script(test_room, reason);
-        
-        test_room = "/home/ken/git-repos/septemmud/game_data/realms/test/room2";
-        entity_manager::Instance().compile_script(test_room, reason);
-    
-    }
-     * 
-     * 
-    */
-    
-    auto log = spd::get("main");//>info("loggers can be retrieved from a global registry using the spdlog::get(logger_name) function");
+    auto log = spd::get("main");
   
     if( !log )
     {
@@ -289,8 +255,6 @@ int main(int argc, char **argv)
             spdlog::register_logger(combined_logger);
             combined_logger->set_level( spdlog::level::debug );
             log = spd::get("main");
-            //combined_logger->info(msg);
-            //combined_logger->flush();
             
         }
         catch( std::exception & ex )
@@ -301,10 +265,6 @@ int main(int argc, char **argv)
        
    }
 
-    std::string blah;
-        // our pho-player for expirementation purposes
-    
-        
     game_manager gm;
     gm.start();
     
@@ -341,63 +301,28 @@ int main(int argc, char **argv)
     
     entity_manager::Instance().bind_io(&io_service);
 
+    std::string blah; // for console input
     while( true )
     {
-        if( entity_manager::Instance().get_player("caliel") != NULL )
-        {
-            playerobj * p = entity_manager::Instance().get_player("caliel");
-            std::cout<< "[/" << p->cwd << "] >";
-        }
-        else
-            std::cout<<">";
+        std::cout<<"SERVER [-h for help]>";
             
         std::getline(std::cin, blah);
         if( blah == "stop" )
         {
             gm.stop();
         }
-        else if ( blah == "test void" )
-        {
-            if( entity_manager::Instance().get_void_room() != NULL )
-            {
-                std::cout << "VOID TEST: OK." << std::endl;
-            }
-        }
         else if( blah == "start" )
         {
             gm.start();
             
         }
-        else if( blah == "login" )
-        {
-           // entity_manager::Instance().load_player("caliel");
-        }
-        else if( blah == "hb" )
+        if( blah == "hb" )
         {
             entity_manager::Instance().invoke_heartbeat();
         }
-        else
-        {
-            playerobj * p = entity_manager::Instance().get_player("caliel");
-            if( p == NULL )
-            {
-                entity_manager::Instance().load_player("caliel");
-                p = entity_manager::Instance().get_player("caliel");
-            }
-            assert( p != NULL );
-            gm.process_player_cmd(p, blah);
-            
-        }
         
     }
-    
 
-
-    
-    
-    
-    
-    
     for (auto &pthread : threadpool)
     {
         pthread.join();

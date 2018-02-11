@@ -1,6 +1,15 @@
-inherit command
-
+--[[look version:0.0.1]]-------------------------------
+--[[------------------------------------------------------
+	Look command allows players to look at/in objects and to look in their present room
 	
+	Copyright (C) 2018, by Caliel (kenthompson1@gmail.com)
+	All Rights Reserved.
+	
+	## 0.0.1 - 2018-02-10
+	###
+	- Initial release
+--]]------------------------------------------------------
+inherit command
 c = command.new('look') 
 c:SetAliases( { 'l' } )
 -- o is the base_entity from which the command originated.  Cmd is the command text.  Note that the verb

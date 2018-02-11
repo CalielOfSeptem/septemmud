@@ -1,3 +1,14 @@
+--[[move version:0.0.1]]-------------------------------
+--[[------------------------------------------------------
+	Move command allows players/NPCs to move between rooms
+	
+	Copyright (C) 2018, by Caliel (kenthompson1@gmail.com)
+	All Rights Reserved.
+	
+	## 0.0.1 - 2018-02-10
+	###
+	- Initial release
+--]]------------------------------------------------------
 inherit command
 c = command.new('move')
 --c:SetVerb("move")

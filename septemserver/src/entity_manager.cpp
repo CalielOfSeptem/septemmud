@@ -127,7 +127,7 @@ bool entity_manager::compile_entity(std::string& relative_script_path,
 {
     // get the lua stack lock...
     //std::cout << "GETTING LOCK..." << std::endl;
-    std::unique_lock<std::mutex> lock(lua_mutex_);
+   // std::unique_lock<std::mutex> lock(lua_mutex_);
     //std::cout << "OK GOT LOCK..." << std::endl;
     
     bool b = false;

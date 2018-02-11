@@ -3,8 +3,7 @@
     "defaultStackSize": 0,
     "inventory": {
         "IRvBVBVnTNkGhxm": "workspaces/caliel/entities/rock",
-        "kbIFdPG6PGghgP8": "workspaces/caliel/entities/rock",
-        "vAZ8fAP19rkMwK6": "workspaces/caliel/entities/backpack"
+        "kbIFdPG6PGghgP8": "workspaces/caliel/entities/rock"
     },
     "isContainer": true,
     "isLockable": false,
