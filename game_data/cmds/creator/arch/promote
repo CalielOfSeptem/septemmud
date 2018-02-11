@@ -1,3 +1,14 @@
+--[[promote version:0.0.1]]-------------------------------
+--[[------------------------------------------------------
+	Promote causes a player to be promoted to a creator, and a creator to be promoted to an arch
+	
+	Copyright (C) 2018, by Caliel (kenthompson1@gmail.com)
+	All Rights Reserved.
+	
+	## 0.0.1 - 2018-02-10
+	###
+	- Initial release
+--]]------------------------------------------------------
 inherit command
 c = command.new('promote', 0)
 

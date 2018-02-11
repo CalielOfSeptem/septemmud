@@ -1,3 +1,15 @@
+--[[tail version:0.0.1]]-------------------------------
+--[[------------------------------------------------------
+	Tail command prints out the last 100 lines of debug for a room/obj
+	TO BE IMPLEMENTED
+	
+	Copyright (C) 2018, by Caliel (kenthompson1@gmail.com)
+	All Rights Reserved.
+	
+	## 0.0.1 - 2018-02-10
+	###
+	- Initial release
+--]]------------------------------------------------------
 inherit command
 
 c = command.new('tail', 0) -- priority zero means that this command will win out over other similar commands, e.g., lo will resolve to look rather than locate.
