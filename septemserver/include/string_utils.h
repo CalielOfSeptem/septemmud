@@ -199,6 +199,18 @@ static inline std::string int_to_string(int value)
     }
     return ss.str();
 }
+
+static inline std::string GetPathFromFileLocation(const std::string& str)
+{
+  size_t found;
+  //cout << "Splitting: " << str << endl;
+  found=str.find_last_of("/\\");
+  //cout << " folder: " << str.substr(0,found) << endl;
+  //cout << " file: " << str.substr(found+1) << endl;
+  
+  return str.substr(0,found);
+}
+
 /*
 static bool is_email_valid(const std::string& email)
 {

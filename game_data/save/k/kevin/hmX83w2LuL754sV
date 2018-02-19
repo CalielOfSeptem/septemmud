@@ -1,0 +1,21 @@
+{
+    "currentStackCount": 1,
+    "defaultStackSize": 0,
+    "inventory": {},
+    "isContainer": true,
+    "isLockable": false,
+    "isLocked": false,
+    "isOpen": false,
+    "isStackable": false,
+    "isWearable": true,
+    "item_type": 0,
+    "look": "",
+    "name": "a backpack",
+    "physical_script_path": "workspaces/caliel/entities/backpack",
+    "pluralName": "",
+    "size": 4,
+    "uid": "hmX83w2LuL754sV",
+    "userProps": {},
+    "virtual_script_path": "workspaces/caliel/entities/backpack/hmX83w2LuL754sV",
+    "weight": 1.0
+}

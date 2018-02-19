@@ -188,6 +188,8 @@ int main(int argc, char **argv)
     global_settings::Instance().SetSetting( DEFAULT_VOID_ROOM, "realms/void");
     global_settings::Instance().SetSetting( DEFAULT_DAEMON_PATH, "daemon");
     global_settings::Instance().SetSetting( DEFAULT_COMMANDS_PATH, "cmds");
+    global_settings::Instance().SetSetting( DEFAULT_CREATOR_COMMANDS_PATH, "cmds/creator");
+    global_settings::Instance().SetSetting( DEFAULT_ARCH_COMMANDS_PATH, "cmds/arch");
     global_settings::Instance().SetSetting( DEFAULT_COMMAND_PROC, "daemon/command_proc");
     global_settings::Instance().SetSetting( DEFAULT_LOGON_PROC, "daemon/logon_proc");
     global_settings::Instance().SetSetting( DEFAULT_LIBS_PATH, "lib");

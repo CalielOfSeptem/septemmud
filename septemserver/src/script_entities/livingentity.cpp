@@ -1,5 +1,7 @@
 #include "script_entities/livingentity.h"
 #include "entity_manager.h"
+#include "global_settings.h"
+#include "config.h"
 
 roomobj* living_entity::GetRoom()
 {
@@ -235,7 +237,6 @@ void living_entity::unload_inventory_from_game()
 void living_entity::recursive_unload(script_entity* se)
 {
     if(container_base* cb = dynamic_cast<container_base*>(se)) {
-        //cb->RemoveEntityFromInventory(se);
         auto inv = cb->GetInventory();
         for ( auto i : inv )
         {
@@ -244,4 +245,10 @@ void living_entity::recursive_unload(script_entity* se)
     }
     std::string s = se->GetVirtualScriptPath();
     entity_manager::Instance().destroy_item(s);
+}
+
+void living_entity::load_default_command_directories()
+{
+    std::string command_path = global_settings::Instance().GetSetting(DEFAULT_COMMANDS_PATH);
+    m_command_directories.push_back(command_path);
 }

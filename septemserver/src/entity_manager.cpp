@@ -798,10 +798,33 @@ void entity_manager::init_lua()
 
     lua.set_function("get_default_commands", [&]() -> std::map<std::string, commandobj*> & 
     { 
-        return m_default_cmds; 
+        std::string command_path = global_settings::Instance().GetSetting(DEFAULT_COMMANDS_PATH);
+        return m_cmds_map[command_path]; 
+    });
+    
+    lua.set_function("get_commands", [&](living_entity * p) -> std::map<std::string, commandobj*> 
+    { 
+        std::vector<std::string> & cmds = p->GetCommandDirs();
+        std::map<std::string, commandobj*> player_cmds;
+        for( auto const& c : cmds )
+        {
+            auto search = m_cmds_map.find(c);
+            if(search != m_cmds_map.end()) {
+                for( auto const& x : search->second  )
+                {
+                   player_cmds[x.second->GetCommand()] = x.second;
+                }
+            }
+             
+        }
+        return player_cmds;
     });
 
-    lua.set_function("get_move_command", [&]() -> commandobj * & { return m_default_cmds.find("move")->second; });
+    lua.set_function("get_move_command", [&]() -> commandobj * & 
+    {
+        std::string command_path = global_settings::Instance().GetSetting(DEFAULT_COMMANDS_PATH);
+        return m_cmds_map[command_path].find("move")->second; 
+    });
 
     lua.set_function("get_room_list", [&]() -> std::map<std::string, roomobj*> & { return m_room_lookup; });
 
@@ -1245,33 +1268,50 @@ void entity_manager::invoke_heartbeat()
 void entity_manager::register_command(commandobj* cmd)
 {
     std::string verb = cmd->GetCommand();
+    std::string ptmp = GetPathFromFileLocation(cmd->GetPhysicalScriptPath());
     std::transform(verb.begin(), verb.end(), verb.begin(), ::tolower);
-    m_default_cmds[verb] = cmd;
+    m_cmds_map[ptmp][verb] = cmd;
     auto log = spd::get("main");
-  
     std::stringstream ss;
     ss << "Registered command, command = " << verb << ", script=" << cmd->GetVirtualScriptPath();
     log->debug( ss.str() );
-    
 }
 
 void entity_manager::deregister_command(commandobj* cmd)
 {
     std::string verb = cmd->GetCommand();
+    // get the script path so we can look it up in the map..
+    std::string tpath = GetPathFromFileLocation(cmd->GetPhysicalScriptPath());
+    
     std::transform(verb.begin(), verb.end(), verb.begin(), ::tolower);
-    auto search = m_default_cmds.find(verb);
-    if(search != m_default_cmds.end()) {
-        m_default_cmds.erase(search);
-        
-        auto log = spd::get("main");
-  
-        std::stringstream ss;
-        ss << "De-Registered command, command = " << verb << ", script=" << cmd->GetVirtualScriptPath();
-        log->debug( ss.str() );
-        
-      
-        // search->second.insert(ew);
+    
+    auto i = m_cmds_map.find(tpath);
+    if( i != m_cmds_map.end() )
+    {
+        auto search = m_cmds_map[tpath].find(verb);
+        if(search != m_cmds_map[tpath].end()) {
+            m_cmds_map[tpath].erase(search);
+            auto log = spd::get("main");
+            std::stringstream ss;
+            ss << "De-Registered command, command = " << verb << ", script=" << cmd->GetVirtualScriptPath();
+            log->debug( ss.str() );
+        }
+        else
+        {
+            auto log = spd::get("main");
+            std::stringstream ss;
+            ss << "Failed to De-Registered command, command = " << verb << ", script=" << cmd->GetVirtualScriptPath();
+            log->debug( ss.str() );
+        }
     }
+    else
+    {
+        auto log = spd::get("main");
+        std::stringstream ss;
+        ss << "Failed to De-Registered command, command = " << verb << ", script=" << cmd->GetVirtualScriptPath();
+        log->debug( ss.str() );
+    }
+    
 }
 
 void entity_manager::register_room(roomobj* room)
@@ -1570,7 +1610,7 @@ bool entity_manager::get_parent_env_of_entity(std::string& script_path, sol::env
 void entity_manager::reset()
 {
     this->m_daemon_lookup.clear();
-    this->m_default_cmds.clear();
+    this->m_cmds_map.clear();
     this->m_room_lookup.clear();
     this->m_item_lookup.clear();
 
@@ -2090,7 +2130,7 @@ bool entity_manager::do_goto(std::string& entitypath, playerobj* p )
     }
     else
     {
-        p->SendToEntity("Unable to goto location, room does not exist.");
+        p->SendToEntity("\r\nUnable to goto location, room does not exist.\r\n");
     }
 
     return false;
@@ -2119,7 +2159,7 @@ bool entity_manager::do_tp(std::string& entitypath, playerobj* p_targ, playerobj
     }
     else
     {
-        p_caller->SendToEntity("Unable to goto location, room does not exist.");
+        p_caller->SendToEntity("\r\nUnable to goto location, room does not exist.\r\n");
     }
 
     return false;
@@ -2368,7 +2408,6 @@ void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
                 std::stringstream ss;
                 ss << "Error attempting to retrieve command proc.";
                 log->debug( ss.str() );
-                
                 return;
             }
 
@@ -2390,7 +2429,25 @@ void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
                 }
                 else
                 {
-                    e->SendToEntity("\r\n>\r\n");
+                    /*
+                     * Prompt, todo: rethink this entirely
+                    */
+                            
+                    if( auto pp = dynamic_cast<playerobj*>(e) )
+                    {
+                        if( !pp->isCreator() )
+                        {
+                            e->SendToEntity("\r\n>\r\n");
+                        }
+                        else
+                        {
+                            std::stringstream ss;
+                            ss << "\r\n" << pp->cwd << ">\r\n";
+                            e->SendToEntity(ss.str());
+                        }
+                        
+                    }
+                    
                     register_hook(NULL); // clear the hook
                 }
                 return;

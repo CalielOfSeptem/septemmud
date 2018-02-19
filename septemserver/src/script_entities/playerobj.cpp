@@ -2,6 +2,8 @@
 #include "fs/fs_manager.h"
 #include <iomanip>
 #include "entity_manager.h"
+#include "config.h"
+#include "global_settings.h"
 
 using json = nlohmann::json;
 
@@ -101,6 +103,17 @@ bool playerobj::do_load()
 
         _ac._playername = GetPlayerName(); // maybe put this elsewhere.. undecided.
         _ac.do_load();
+        
+        if( _ac._accountType == AccountType::CREATOR )
+        {
+            m_command_directories.push_back(global_settings::Instance().GetSetting(DEFAULT_CREATOR_COMMANDS_PATH));
+        }
+        else if( _ac._accountType == AccountType::ARCH )
+        {
+            m_command_directories.push_back(global_settings::Instance().GetSetting(DEFAULT_CREATOR_COMMANDS_PATH));
+            m_command_directories.push_back(global_settings::Instance().GetSetting(DEFAULT_ARCH_COMMANDS_PATH));
+        }
+        
         std::ifstream i(this->get_entityStorageLocation() + "/player_save");
         json j;
         i >> j;

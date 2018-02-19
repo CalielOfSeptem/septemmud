@@ -237,7 +237,9 @@ private:
     
     // default commands is a lookup map, register/deregister updates it based on
     // objects being added/removed
-    std::map< std::string, commandobj * > m_default_cmds; // commands everyone has access to
+    //std::map< std::string, commandobj * > m_default_cmds; // commands everyone has access to
+    std::map< std::string, std::map<std::string, commandobj *> > m_cmds_map; // commands organized by type
+    
     std::map< std::string, roomobj * > m_room_lookup;
     std::map< std::string, daemonobj * > m_daemon_lookup;
     std::map< std::string, itemobj * > m_item_lookup;

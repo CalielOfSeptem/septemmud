@@ -179,6 +179,7 @@ struct living_entity : public script_entity, public container_base
     {
         m_RightHand.m_livingEntity = this;
         m_LeftHand.m_livingEntity = this;
+        load_default_command_directories();
         //env = NULL;
     }
 
@@ -187,6 +188,7 @@ struct living_entity : public script_entity, public container_base
     {
         m_RightHand.m_livingEntity = this;
         m_LeftHand.m_livingEntity = this;
+        load_default_command_directories();
       //  env = NULL;
     }
     
@@ -277,8 +279,7 @@ struct living_entity : public script_entity, public container_base
     
     void unload_inventory_from_game();
     
-
-    
+    std::vector<std::string>& GetCommandDirs() { return m_command_directories; }
     
 private:
     EntityGender m_gender = EntityGender::UNKNOWN;
@@ -289,6 +290,12 @@ private:
     std::map < InventorySlot, std::shared_ptr<inventory_slot>> m_inventory_slots;
     
     void recursive_unload( script_entity* se );
+    
+protected:
+    // Loads paths to default allowed commands.
+    virtual void load_default_command_directories();
+    
+    std::vector<std::string> m_command_directories;
 
 };
 #endif

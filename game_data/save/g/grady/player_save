@@ -1,8 +1,8 @@
 {
-    "cwd": "workspaces/kevin",
+    "cwd": "workspaces/grady",
     "gender": "unknown",
     "inventory": {
-        "hmX83w2LuL754sV": "workspaces/caliel/entities/backpack"
+        "vAZ8fAP19rkMwK6": "workspaces/caliel/entities/backpack"
     },
     "leftHand": 0,
     "rightHand": 0,

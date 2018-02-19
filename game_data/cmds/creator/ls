@@ -1,9 +1,13 @@
---[[ls version:0.0.1]]-------------------------------
+--[[ls version:0.0.2]]-------------------------------
 --[[------------------------------------------------------
 	ls command lists the contents of a directory
 	
 	Copyright (C) 2018, by Caliel (kenthompson1@gmail.com)
 	All Rights Reserved.
+	
+	## 0.0.2 - 2018-02-10
+	###
+	- Temporarily removed color to avoid a readability bug
 	
 	## 0.0.1 - 2018-02-10
 	###
@@ -59,7 +63,7 @@ function c:ExecuteCommand ( o, cmd )
 		fname = files[i].Name
 		if files[i].isDirectory then 
 			fname = fname .. '/'
-			s = s .. ansicolors('%{blue}' .. string.format( "%-32s", fname ).. '%{reset}')
+			s = s .. string.format( "%-32s", fname )--ansicolors('%{blue}' .. string.format( "%-32s", fname ).. '%{reset}')
 			--fname = fname .. '/'
 			--fname = ansicolors('%{blue}' .. fname .. '%{reset}')
 		else
