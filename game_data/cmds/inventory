@@ -19,13 +19,13 @@ function c:ShowInventory(o)
 	local s = ''
 	local items = o:GetItems()
 	if( #items == 0 ) then
-		o:SendToEntity('You are carrying nothing.')
+		o:SendToEntity('You are wearing nothing.')
 		return true
 	end
 	
 	if( #items > 0 ) then
 		--s = s .. "\r\n"
-		s = s .. "You are carrying "
+		s = s .. "You are wearing "
 	
 		for i = 1, #items do
 			local iname = items[i]:GetName()

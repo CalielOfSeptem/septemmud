@@ -161,6 +161,10 @@ bool entity_manager::compile_entity(std::string& relative_script_path,
         b = lua_safe_script(script_text, to_load, reason);
         if( !b )
         {
+            auto log = spd::get("main");
+            std::stringstream ss;
+            ss << "Error compiling script <<  " << relative_script_path << ", reason = " << reason;//Destroyed object, script path= " << virtual_script_path;
+            log->error(ss.str());
             // TODO: we have a problem, move players to void.. or shutdown server is void is borked too
         }
         else
@@ -274,6 +278,11 @@ itemobj * entity_manager::clone_item_to_hand(std::string& relative_script_path, 
 
 bool entity_manager::do_item_reload( std::string& entitypath, playerobj* p)
 {
+    if( !security_context::Instance().isArch() )
+    {
+         p->SendToEntity("Sorry, you lack the privileges to perform this command.");
+         return false;
+    }
     std::string temp = entitypath;
     std::string reason;
     if( !fs_manager::Instance().translate_path( temp, p, reason ) )
@@ -518,8 +527,18 @@ itemobj* entity_manager::clone_item(std::string& relative_script_path, script_en
     adl_lua += "\n_INTERNAL_UUID_ = '"+uid+"'"; //may need to rethink this
     if( !this->compile_and_clone( relative_script_path, vpath, tag, uid, adl_lua, reason ) )
     {
+
         if( obj != NULL )
             obj->debug(reason);
+        if( auto p = security_context::Instance().GetPlayerEntity() )
+        {
+            if( p->isCreator() )
+            {
+                std::stringstream ss;
+                ss << "Error cloning entity: " << relative_script_path << ", reason: " << reason;
+                p->SendToEntity(ss.str());
+            }
+        }
         return NULL;
     }
     else
@@ -545,25 +564,7 @@ itemobj* entity_manager::clone_item(std::string& relative_script_path, script_en
                 obj->debug("Error moving cloned object into inventory. Invalid cast.");
                 return NULL;
             }
-            /*
-            switch( obj->GetType() )
-            {
-                case EntityType::ROOM:
-                case EntityType::PLAYER:
-                case EntityType::NPC:
-                {
-
-                        
-                } break;
-                default:
-                    return false;
-                break;
-            }
-            std::cout << "Found it" << std::endl;
-            */
         }
-        // now find the item &..
-      //  get_daemons_from_path()
     }
     
     return NULL;
@@ -846,7 +847,14 @@ void entity_manager::init_lua()
      
     lua.set_function("do_tp", [&](std::string path, playerobj * p1, playerobj *p2) -> bool { return this->do_tp(path, p1, p2); });
     
-    lua.set_function("do_promote", [&](playerobj * p1, std::string p2) -> bool { return this->do_promote(p1, p2); });
+    lua.set_function("do_promote", [&](playerobj * p1, std::string p2) -> bool { 
+        if( !security_context::Instance().isArch() )
+        {
+             return false;
+        }
+        else return this->do_promote(p1, p2); 
+        
+    });
     
     lua.set_function("clone_item", [&](std::string path, script_entity * e) -> itemobj * { return this->clone_item(path, e); });
     
@@ -858,7 +866,15 @@ void entity_manager::init_lua()
     
     lua.set_function("get_account_exists", [&](std::string sname) -> bool { return account_manager::Instance().get_accountExists(sname); });
     
-    lua.set_function("create_new_account", [&](std::string aname, std::string pass, std::string email) -> bool { return account_manager::Instance().create_account(aname, pass, email); });
+    lua.set_function("create_new_account", [&](std::string aname, std::string pass, std::string email) -> bool 
+    {
+        if( !security_context::Instance().isArch() )
+        {
+             return false;
+        }
+        else
+            return account_manager::Instance().create_account(aname, pass, email); 
+    });
    // lua.set_function( "capture_input", [&](std::string path, script_entity * e) -> itemobj * { return this->clone_item(path, e); });
     
     
@@ -1629,6 +1645,8 @@ void entity_manager::reset()
     destroy_entities.clear();
 
     for(auto& e : m_player_objs) {
+        //playerobj * pe = dynamic_cast<playerobj*>(e.second->script_ent);
+        //pe->disconnect_client();
         destroy_entities.push_back(e.second->script_path);
     }
 

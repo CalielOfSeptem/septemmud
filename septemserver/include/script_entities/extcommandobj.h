@@ -1,5 +1,5 @@
 // ==========================================================================
-// commandobj.h
+// extcommandobj.h
 //
 // Copyright (C) 2018 Kenneth Thompson, All Rights Reserved.
 // This file is covered by the MIT Licence:
@@ -22,26 +22,35 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 // DEALINGS IN THE SOFTWARE.
 // ==========================================================================
-#ifndef COMMANDOBJ_H_
-#define COMMANDOBJ_H_
+#ifndef EXTCOMMANDOBJ_H_
+#define EXTCOMMANDOBJ_H_
+#define SOL_CHECK_ARGUMENTS
 #include "sol.hpp"
-#include <string>
-#include <vector>
-#include "script_entities/script_entity.h"
+#include "script_entities/livingentity.h"
 
-struct living_entity;
-
-struct commandobj : script_entity
+struct extcommandobj
 {
-    commandobj(sol::this_state ts, sol::this_environment te, std::string name);
-    
-    commandobj(sol::this_state ts, sol::this_environment te, std::string name, int priority);
-    
- 
-    ~commandobj();
+       /**
+     * @brief Constructor to allow commands to be instantiated by script entities
+     * @param func
+     * @param userData
+     * @return 
+     */
+    extcommandobj( sol::state_view lua_state, sol::protected_function func, const std::string& name, sol::object userData = sol::nil ) :
+    m_lua_state(lua_state)
+    {
+        this->func = func;
+        this->user_data = userData;
+        this->name = name;
+    }
     
 
-    void SetCommand(const std::string& name)
+    ~extcommandobj()
+    {
+        
+    }
+    
+   void SetCommand(const std::string& name)
     {
         this->name = name;
         
@@ -69,22 +78,29 @@ struct commandobj : script_entity
         return command_aliases;
     }
     
-    void SetPriority(int priority)
+    
+    // Following two functions are for when a command is instantiated by a
+    // script entity such as a room or item.
+    sol::protected_function GetFunc()
     {
-        this->priority = priority;
+        return func;
     }
     
-    int GetPriority() const
+    bool ExecuteFunc(living_entity * le, const std::string& cmd);
+    
+    sol::object GetUserData()
     {
-        return priority;
+        return user_data;
     }
     
 
-
+   
 private:
     std::vector<std::string> command_aliases;
-    int priority;
-
+    sol::protected_function func;
+    sol::object user_data;
+    std::string name;
+    sol::state_view m_lua_state;
 
 };
 

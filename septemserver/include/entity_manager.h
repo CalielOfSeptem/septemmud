@@ -151,7 +151,7 @@ struct _internal_queue_wrapper_
     sol::environment GetCurrentLoadingEnv() { return m_state_internal->_current_loading_env; }
     
     /**
-     * @brief Compils a player into the game world
+     * @brief Compiles a player into the game world
      */
     bool compile_player(std::string playerName, std::string& reason);
     

@@ -28,6 +28,7 @@
 #include <sol.hpp>
 
 #include <iostream>
+#include "state_wrapper.hpp"
 //#include <thread>
 //#include <future>
 //#include <signal.h>
@@ -42,18 +43,7 @@ struct heartbeat_manager
       
     }
     
-    struct state_wrapper
-    {
-        state_wrapper(sol::state_view lua_state, sol::protected_function pf, std::string script_path, std::string etype) :
-             lua_state(lua_state), pf(pf), script_path(script_path), etype(etype)
-            {
-                
-            }
-        sol::state_view lua_state;
-        sol::protected_function pf;
-        std::string script_path;
-        std::string etype;
-    };
+
     
     unsigned int register_heartbeat_func(sol::state_view lua_state, sol::protected_function pf)
     {

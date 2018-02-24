@@ -4,6 +4,7 @@
 #include "script_entities/playerobj.h"
 #include "script_entities/daemonobj.h"
 #include "script_entities/commandobj.h"
+#include "script_entities/extcommandobj.h"
 #include "script_entities/itemobj.h"
 #include "script_entities/doorobj.h"
 #include "fs/fs_manager.h"
@@ -30,6 +31,8 @@ void init_lua_state(sol::state& l)
             "SetUID", &script_entity::set_uid,
             "Debug", &script_entity::debug,
             "AddAction", &script_entity::AddAction,
+            "AddCommand", &script_entity::AddCommand,
+            "GetCommands", &script_entity::GetCommands,
             "destroy", sol::property(&script_entity::get_destroy, &script_entity::set_destroy)
             );
 
@@ -353,7 +356,8 @@ void init_lua_state(sol::state& l)
 
     lua.new_usertype<commandobj>(
         "command",
-        sol::constructors<commandobj(sol::this_state, sol::this_environment, std::string), commandobj(sol::this_state, sol::this_environment, std::string, int)>(),
+        sol::constructors<commandobj(sol::this_state, sol::this_environment, std::string), 
+            commandobj(sol::this_state, sol::this_environment, std::string, int)>(),
         sol::meta_function::new_index,
         &playerobj::set_property_lua,
         sol::meta_function::index,
@@ -375,6 +379,24 @@ void init_lua_state(sol::state& l)
         // "Debug", &script_entity::debug,
         sol::base_classes,
         sol::bases<script_entity>());
+        
+        
+        
+        
+        
+        lua.new_usertype<extcommandobj>(
+        "extcommand",
+        sol::constructors<extcommandobj(sol::state_view lua_state, sol::protected_function func, const std::string& name, sol::object userData)>(),
+        "GetCommand",
+        &extcommandobj::GetCommand,
+        "SetCommand",
+        &extcommandobj::SetCommand,
+        "GetAliases",
+        &extcommandobj::GetAliases,
+        "ExecuteCommand",
+        &extcommandobj::ExecuteFunc,
+        "SetAliases",
+        &extcommandobj::SetAliases);
         
 
 }

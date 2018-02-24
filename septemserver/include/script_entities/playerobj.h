@@ -44,6 +44,10 @@ struct playerobj : living_entity
     }
     playerobj(sol::this_state ts, sol::this_environment te, std::string name);
      
+    ~playerobj()
+    {
+        //disconnect_client();
+    }
     virtual void debug(const std::string& msg) override
     {
         if( this->isCreator() )
@@ -78,7 +82,17 @@ struct playerobj : living_entity
              
      }
      
-     
+     bool isArch()
+     {
+         if( _ac._accountType == AccountType::ARCH )
+         {
+             return true;
+         
+         }
+         else
+             return false;
+             
+     }     
      
      std::string& GetPlayerName()
      {

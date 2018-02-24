@@ -1,5 +1,5 @@
 {
-    "cwd": "workspaces/recluse",
+    "cwd": "workspaces/recluse/entities/",
     "gender": "unknown",
     "inventory": {},
     "leftHand": 0,

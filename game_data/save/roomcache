@@ -1,9 +1,6 @@
 {
     "room_cache": [
         "realms/void",
-        "workspaces/caliel/workroom",
-        "workspaces/caliel/workroomc",
-        "workspaces/caliel/workroomd",
-        "workspaces/recluse/workroom"
+        "workspaces/caliel/workroom"
     ]
 }

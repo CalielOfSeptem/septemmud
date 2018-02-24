@@ -34,6 +34,9 @@
 #include "loghelper.h"
 #include "script_entities/actionobj.h"
 
+
+struct extcommandobj;
+
 enum class EntityType { UNKNOWN, ROOM, ITEM, NPC, PLAYER, COMMAND, DAEMON, LIB, HAND };
 enum class EnvironmentChangeEvent { ADDED, REMOVED };
 enum class LogLevel { INFO, DEBUG, ERROR, CRITICAL };
@@ -46,6 +49,7 @@ struct _sol_userdata_
     }
     sol::userdata selfobj;
 };
+
 
 struct script_entity {
     
@@ -214,7 +218,7 @@ struct script_entity {
             return true;
         }
         
-        actionobj * AddAction(sol::protected_function func, unsigned int interval, sol::object userData = sol::nil)
+        actionobj * AddAction( sol::protected_function func, unsigned int interval, sol::object userData = sol::nil)
         {
             actions.push_back(std::shared_ptr<actionobj>( new actionobj(func, interval, userData) ) );
             return actions[actions.size()-1].get();
@@ -226,6 +230,12 @@ struct script_entity {
             return actions;
         }
         
+        std::vector<std::shared_ptr<extcommandobj>>& GetCommands()
+        {
+            return commands;
+        }
+        
+        
         void DoActions()
         {
             for( auto r : GetActions() )
@@ -233,6 +243,10 @@ struct script_entity {
                 r->DoAction();
             }
         }
+        
+        
+        extcommandobj * AddCommand(sol::this_state ts, sol::protected_function func, const sol::as_table_t<std::vector<std::string> >& aliases, sol::object userData = sol::nil)
+        ;
         
 
 private:
@@ -253,6 +267,7 @@ protected:
         std::string name;
         std::string uid;
         std::vector<std::shared_ptr<actionobj>> actions;
+        std::vector<std::shared_ptr<extcommandobj>> commands;
 };
 
 

@@ -18,5 +18,16 @@ i.isContainer = false
 i.isStackable = false
 i:SetPluralName('a pile of rocks')
 
+-- o is the caller of the command, cmd is the text of the command.  
+-- return true to indicate to the command processor that a command was found
+function i:FooCommand(o, cmd)
+	--print(o)
+	--print('PROCESSING COMMAND '.. cmd )
+	o:SendToEntity('PET ROCK!!!! ' .. cmd)
+	return true
+end
+
+i:AddCommand( i.FooCommand, {'foo'}, nil )
+
 
 

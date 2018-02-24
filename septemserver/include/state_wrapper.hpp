@@ -1,5 +1,5 @@
 // ==========================================================================
-// commandobj.h
+// state_wrapper.hpp
 //
 // Copyright (C) 2018 Kenneth Thompson, All Rights Reserved.
 // This file is covered by the MIT Licence:
@@ -22,70 +22,22 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 // DEALINGS IN THE SOFTWARE.
 // ==========================================================================
-#ifndef COMMANDOBJ_H_
-#define COMMANDOBJ_H_
-#include "sol.hpp"
-#include <string>
-#include <vector>
-#include "script_entities/script_entity.h"
+#ifndef STATE_WRAPPER_HPP
+#define STATE_WRAPPER_HPP
 
-struct living_entity;
-
-struct commandobj : script_entity
+#include <sol.hpp>
+    
+struct state_wrapper
 {
-    commandobj(sol::this_state ts, sol::this_environment te, std::string name);
-    
-    commandobj(sol::this_state ts, sol::this_environment te, std::string name, int priority);
-    
- 
-    ~commandobj();
-    
-
-    void SetCommand(const std::string& name)
-    {
-        this->name = name;
-        
-    }
-    const std::string& GetCommand()
-    {
-        return name;
-    }
-    
-    void SetAliases(const sol::as_table_t<std::vector<std::string> >& aliases)
-    {
-        const auto& vex = aliases.source;
-        for(auto& s : vex) {
-            this->command_aliases.push_back(s);
+    state_wrapper(sol::state_view lua_state, sol::protected_function pf, std::string script_path, std::string etype) :
+         lua_state(lua_state), pf(pf), script_path(script_path), etype(etype)
+        {
+            
         }
-    }
-    
-    void AddAlias(const std::string& alias)
-    {
-        this->command_aliases.push_back(alias);
-    }
-    
-    const std::vector<std::string>& GetAliases()
-    {
-        return command_aliases;
-    }
-    
-    void SetPriority(int priority)
-    {
-        this->priority = priority;
-    }
-    
-    int GetPriority() const
-    {
-        return priority;
-    }
-    
-
-
-private:
-    std::vector<std::string> command_aliases;
-    int priority;
-
-
+    sol::state_view lua_state;
+    sol::protected_function pf;
+    std::string script_path;
+    std::string etype;
 };
 
 #endif

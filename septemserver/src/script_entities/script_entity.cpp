@@ -7,7 +7,8 @@
 #include "config.h"
 #include "spdlog/spdlog.h"
 #include <spdlog/sinks/stdout_sinks.h>
-
+#include "script_entities/extcommandobj.h"
+#include "loghelper.h"
 namespace spd = spdlog;
 
 script_entity::script_entity(sol::this_state ts, sol::this_environment te, EntityType myType, std::string name)
@@ -16,26 +17,26 @@ script_entity::script_entity(sol::this_state ts, sol::this_environment te, Entit
     , name(name)
 {
     lua_State* L = ts;
-    
-        if (!te) {
-                std::cout << "function does not have an environment: exiting function early" << std::endl;
-                return;
-        }
-    sol::environment& env = te;      
+
+    if(!te) {
+        std::cout << "function does not have an environment: exiting function early" << std::endl;
+        return;
+    }
+    sol::environment& env = te;
     sol::optional<std::string> sp = env["_INTERNAL_SCRIPT_PATH_"];
-    
-    assert( sp );
-    this->SetVirtualScriptPath( sp.value() );
-    
+
+    assert(sp);
+    this->SetVirtualScriptPath(sp.value());
+
     sol::optional<std::string> spv = env["_INTERNAL_PHYSICAL_SCRIPT_PATH_"];
-    
-    assert( spv );
-    this->SetPhysicalScriptPath( spv.value() );
-    
-   // sol::optional<std::string> sp2 = env["_INTERNAL_SCRIPT_PATH_BASE_"];
-    //assert( sp2 );
-   // if( sp2 )
-   //     this->SetBaseScriptPath( sp2.value() );
+
+    assert(spv);
+    this->SetPhysicalScriptPath(spv.value());
+
+    // sol::optional<std::string> sp2 = env["_INTERNAL_SCRIPT_PATH_BASE_"];
+    // assert( sp2 );
+    // if( sp2 )
+    //     this->SetBaseScriptPath( sp2.value() );
     // references the object that called this function
     // in constructors:
 
@@ -55,14 +56,13 @@ script_entity::script_entity(sol::this_state ts, sol::this_environment te, Entit
 script_entity::~script_entity()
 {
 
-    if ( virtual_script_path.size() > 0 )
-    {
+    if(virtual_script_path.size() > 0) {
         auto log = spd::get("main");
         std::stringstream ss;
         ss << "Destroyed object, script path= " << virtual_script_path;
         log->info(ss.str());
     }
-    
+
     entity_manager::Instance().deregister_entity(this, m_type);
 }
 /*
@@ -79,13 +79,14 @@ void script_entity::debug(const std::string& msg)
     //                   global_settings::Instance().GetSetting(DEFAULT_ROOM_LOG_PATH);
     // m_log.reset(new entity_log( entityLog, m_type ));
    // auto rotating_logger = spd::rotating_logger_mt(s, entityLog, 1048576 * 5, 3);
-   
-    auto log = spd::get(strip_path_copy(script_path));//>info("loggers can be retrieved from a global registry using the spdlog::get(logger_name) function");
-  
-   
+
+    auto log = spd::get(strip_path_copy(script_path));//>info("loggers can be retrieved from a global registry using the
+spdlog::get(logger_name) function");
+
+
     if( !log )
     {
-        
+
         std::string entityLog = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH) +
                             global_settings::Instance().GetSetting(DEFAULT_LOGS_PATH);
 
@@ -96,16 +97,17 @@ void script_entity::debug(const std::string& msg)
         {
             std::vector<spdlog::sink_ptr> sinks;
             //auto rotating_logger = spd::rotating_logger_mt(s, entityLog, 1048576 * 5, 3);
-            auto rotating = std::make_shared<spdlog::sinks::rotating_file_sink_mt> (entityLog, "log", 1024*1024, 5, true);
+            auto rotating = std::make_shared<spdlog::sinks::rotating_file_sink_mt> (entityLog, "log", 1024*1024, 5,
+true);
             auto stdout_sink = spdlog::sinks::stdout_sink_mt::instance();
-            
+
             //auto color_sink = std::make_shared<spdlog::sinks::ansicolor_sink>(stdout_sink);
-            
+
            // auto stdout_sink = spdlog::sinks::stdout_sink_mt::instance();
            // auto color_sink = std::make_shared<spdlog::sinks::ansicolor_sink>(stdout_sink);
             sinks.push_back(stdout_sink);
             sinks.push_back(rotating);
-            
+
             auto combined_logger = std::make_shared<spdlog::logger>(s, begin(sinks), end(sinks));
             combined_logger->set_pattern("[%x %H:%M:%S:%e] %v");
             combined_logger->set_level( spdlog::level::debug );
@@ -113,13 +115,13 @@ void script_entity::debug(const std::string& msg)
 
             combined_logger->debug( "[" + this->GetInstancePath() + "] "+ msg);
             combined_logger->flush();
-            
+
         }
         catch( std::exception& )
         {
-            
+
         }
-       
+
    }
    else
    {
@@ -141,87 +143,92 @@ void script_entity::debug(const std::string& msg)
 
 void script_entity::debug(const std::string& msg)
 {
-
-   
+    auto log = spd::get("main");
+    std::stringstream ss;
+    ss << msg;//"Destroyed object, script path= " << virtual_script_path;
+    log->info(ss.str());
+    return;
+    /*
     auto log = spd::get(strip_path_copy(virtual_script_path));
-    
-    if( !log )
-    {
-        
+
+    if(!log) {
+
         std::string entityLog = global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH) +
-                            global_settings::Instance().GetSetting(DEFAULT_LOGS_PATH);
+                                global_settings::Instance().GetSetting(DEFAULT_LOGS_PATH);
 
         std::string s = strip_path_copy(virtual_script_path);
 
         entityLog += s;
-        try
-        {
+        try {
+            
+            
+            spd::set_pattern("[%x %H:%M:%S:%e] %v");
+            
+            
             std::vector<spdlog::sink_ptr> sinks;
 
-            auto rotating = std::make_shared<spdlog::sinks::rotating_file_sink_mt> (entityLog, "log", 1024*1024, 5, true);
+            auto rotating =
+                std::make_shared<spdlog::sinks::rotating_file_sink_mt>(entityLog, "log", 1024 * 1024, 5, true);
             auto stdout_sink = spdlog::sinks::stdout_sink_mt::instance();
             
+            //auto s_tmp = my_sink();
+
             sinks.push_back(stdout_sink);
             sinks.push_back(rotating);
-            
+            //sinks.push_back(s_tmp);
+
             auto combined_logger = std::make_shared<spdlog::logger>(s, begin(sinks), end(sinks));
-            combined_logger->set_pattern("[%x %H:%M:%S:%e] %v");
-            combined_logger->set_level( spdlog::level::debug );
+          //  combined_logger->set_pattern("[%x %H:%M:%S:%e] %v");
+           // spdlog::set_pattern("[%x %H:%M:%S:%e] %v");
+            combined_logger->set_level(spdlog::level::debug);
             spdlog::register_logger(combined_logger);
 
-            combined_logger->debug( "[" + this->GetInstancePath() + "] "+ msg);
+            combined_logger->debug("[" + this->GetInstancePath() + "] " + msg);
             combined_logger->flush();
-            
-        }
-        catch( std::exception& )
-        {
-            
-        }
-       
-   }
-   else
-   {
-       /*
-       switch( ll )
-       {
-           case LogLevel::CRITICAL:
-           {
-               log->critical( "[" + this->GetInstancePath() + "] "+ msg);
-           }
-           break;
-           case LogLevel::ERROR:
-           {
-               log->error( "[" + this->GetInstancePath() + "] "+ msg);
-           }
-           break;
-           case LogLevel::DEBUG:
-           {
-               log->debug( "[" + this->GetInstancePath() + "] "+ msg);
-           }
-           break;
-           case LogLevel::INFO:
-           {
-               log->info( "[" + this->GetInstancePath() + "] "+ msg);
-           }
-           break;
-           default:
-           break;
-       }
-        */
-       log->debug( "[" + this->GetInstancePath() + "] "+ msg);
-       log->flush();
-   }
 
+        } catch(std::exception&) {
+        }
+
+    } else {
+
+        log->debug("[" + this->GetInstancePath() + "] " + msg);
+        log->flush();
+    }
+    */
 }
 
 void script_entity::SetVirtualScriptPath(std::string& path)
 {
     virtual_script_path = path;
-
-    
 }
 
 void script_entity::SetPhysicalScriptPath(std::string& path)
 {
     physical_script_path = path;
+}
+
+extcommandobj* script_entity::AddCommand(sol::this_state ts, sol::protected_function func,
+                                      const sol::as_table_t<std::vector<std::string> >& aliases,
+                                      sol::object userData)
+{
+    lua_State* L = ts;
+    //lua_stacktrace_ex(L);
+    const auto& vex = aliases.source;
+
+    std::vector<std::string> al;
+    for(auto ex : vex) {
+        al.push_back(ex);
+    }
+
+    if(al.empty())
+        return NULL;
+
+    std::shared_ptr<extcommandobj> co = std::shared_ptr<extcommandobj>(new extcommandobj(L, func, vex[0], userData));
+    al.erase(al.begin());
+    for(auto s : al) {
+        co->AddAlias(s);
+    }
+
+    commands.push_back(co);
+    return commands[commands.size() - 1].get();
 }

@@ -17,6 +17,7 @@
       <File Name="src/script_entities/playerobj.cpp"/>
       <File Name="src/script_entities/actionobj.cpp"/>
       <File Name="src/script_entities/doorobj.cpp"/>
+      <File Name="src/script_entities/extcommandobj.cpp"/>
     </VirtualDirectory>
     <File Name="src/game_manager.cpp"/>
     <File Name="src/entity_manager.cpp"/>
@@ -34,7 +35,6 @@
       <File Name="src/server/connection.cpp"/>
       <File Name="src/server/client.cpp"/>
       <File Name="src/server/httpserv.cpp"/>
-      <File Name="src/luatypes.cpp"/>
     </VirtualDirectory>
     <File Name="src/septem.cpp"/>
     <File Name="src/account.cpp"/>
@@ -42,6 +42,9 @@
     <VirtualDirectory Name="io">
       <File Name="src/io/db_interface.cpp"/>
     </VirtualDirectory>
+    <File Name="src/security_context.cpp"/>
+    <File Name="src/luatypes.cpp"/>
+    <File Name="src/loghelper.cpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="include">
     <VirtualDirectory Name="script_entities">
@@ -57,6 +60,7 @@
       <File Name="include/script_entities/actionobj.h"/>
       <File Name="include/script_entities/lookobj.h"/>
       <File Name="include/script_entities/exitobj.h"/>
+      <File Name="include/script_entities/extcommandobj.h"/>
     </VirtualDirectory>
     <File Name="include/global_settings.h"/>
     <File Name="include/string_utils.h"/>
@@ -93,6 +97,7 @@
     <File Name="include/account.h"/>
     <File Name="include/account_manager.h"/>
     <File Name="include/security_context.hpp"/>
+    <File Name="include/state_wrapper.hpp"/>
   </VirtualDirectory>
   <Description/>
   <Dependencies/>
