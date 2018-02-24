@@ -34,7 +34,7 @@ function d:check_player_items( o_orig, cmd )
 	if( r_hand ~= nil ) then
 		 found = d:do_hand( r_hand, o_orig, cmd )
 	end
-	if( found ~= true ) then
+	if( found ~= true and l_hand ~= nil ) then
 		found = d:do_hand( l_hand, o_orig, cmd )
 	end
 	return found

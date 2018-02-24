@@ -4,10 +4,10 @@
     "inventory": {
         "GjHYjKQB1GnXwZn": "workspaces/caliel/entities/backpack"
     },
-    "leftHand": {
+    "leftHand": 0,
+    "rightHand": {
         "ULdr7dX9xgdnZNL": "workspaces/caliel/entities/rock"
     },
-    "rightHand": 0,
     "roomID": 0,
     "roomPath": "workspaces/caliel/workroom"
 }
