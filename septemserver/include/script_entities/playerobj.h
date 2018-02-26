@@ -46,7 +46,7 @@ struct playerobj : living_entity
      
     ~playerobj()
     {
-        //disconnect_client();
+        disconnect_client();
     }
     virtual void debug(const std::string& msg) override
     {

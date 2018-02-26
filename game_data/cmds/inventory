@@ -26,7 +26,7 @@ function c:ShowHands(o, cmd)
 	end	
 	
 	if( o:RightHand():IsEmpty() and o:LeftHand():IsEmpty() ) then
-		o:SendToEntity('You glance down at your empty hands.')
+		o:SendToEntity('You are carrying nothing in your hands.')
 		return true;
 	end
 	

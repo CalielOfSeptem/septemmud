@@ -831,6 +831,10 @@ void entity_manager::init_lua()
 
     lua.set_function("get_entity_by_name", [&](std::string ename) -> playerobj * { return this->get_player(ename); });
     
+    lua.set_function("get_daemon", [&](std::string patha, unsigned int instanceid) -> daemonobj * { 
+        return this->GetDaemonByScriptPath(patha, instanceid); 
+    });
+    
     lua.set_function("get_setting", [&](std::string sname) -> std::string { return global_settings::Instance().GetSetting(sname); });
     
     lua.set_function("get_dir_list", [&](std::string dir) -> std::vector<file_entity> { return fs_manager::Instance().get_dir_list(dir); });
@@ -2035,7 +2039,7 @@ bool entity_manager::do_command(living_entity* e, const std::string cmd, bool an
                 if( pp->get_commandCount() == pp->get_maxCmdCount() )
                 {
                     pp->SendToEntity("You have exceeded the maximum number of type-ahead commands... please wait..\r\n");
-                    pp->set_referenceTickCount(); // anti flood protection.  Every time we hit this condition we continue to block more commands.
+                    //pp->set_referenceTickCount(); // anti flood protection.  Every time we hit this condition we continue to block more commands.
                     return false;
                 } 
                 pp->incrementCmdCount(); 
@@ -2378,6 +2382,7 @@ void entity_manager::on_cmd(living_entity * e, std::string const &cmd)
                     else if( bAuth )
                     {
                         pp->get_client()->associate_player(pp->GetPlayerName(), true);
+                        pp->set_client(NULL);
                         playerobj * po = get_player(pp->GetPlayerName());
                         po->set_loggedIn(true);
                         std::string spath = pp->GetVirtualScriptPath();

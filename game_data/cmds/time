@@ -1,0 +1,36 @@
+--[[time version:0.0.1]]-------------------------------
+--[[------------------------------------------------------
+	Time simply outputs the current time in game
+	
+	Copyright (C) 2018, by Caliel (kenthompson1@gmail.com)
+	All Rights Reserved.
+	
+	## 0.0.1 - 2018-02-10
+	###
+	- Initial release
+--]]------------------------------------------------------
+inherit command
+c = command.new('time')
+-- It appears to be early morning on the 3rd day of <Month Name> in the year 600, and it is currently winter.
+-- It has been 600 years, 300 days since the birth of Ness and the receding of the Tide of Fire and Ash. 
+function c:ExecuteCommand ( o_orig, cmd )
+	s_type = o_orig:GetType()
+	local time_daemon = get_daemon('daemon/time', 0)
+	local p = player_cast(o_orig)
+	if( s_type == 'player' and p:IsCreator() ) then
+		o_orig:SendToEntity( 'YEAR: ' .. time_daemon:system_time().year .. '\r\n' )
+		o_orig:SendToEntity( 'DAY OF YEAR: ' .. time_daemon:system_time().dayofyear .. '\r\n')
+		o_orig:SendToEntity( 'MONTH: ' .. time_daemon:system_time().month .. '\r\n')
+		o_orig:SendToEntity( 'DAY: ' .. time_daemon:system_time().day .. '\r\n' )
+		o_orig:SendToEntity( 'HOUR: ' .. time_daemon:system_time().hour .. '\r\n')
+		o_orig:SendToEntity( 'MINUTE: ' .. time_daemon:system_time().minute .. '\r\n')
+		o_orig:SendToEntity( 'SECOND: ' .. time_daemon:system_time().second .. '\r\n')
+	end
+	local out = string.format('It appears to be <early morning> on the %s day of <Month Name> in the year %d, and it is currently <winter>\r\n',
+		ordinal_numbers(time_daemon:system_time().dayofyear), time_daemon:system_time().year)
+	
+	o_orig:SendToEntity(out)
+	
+	return false
+end
+

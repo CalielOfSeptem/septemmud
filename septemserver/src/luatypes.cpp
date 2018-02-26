@@ -13,6 +13,7 @@ void init_lua_state(sol::state& l)
     sol::state& lua = l;
     //m_state_internal.reset(new _internal_lua_);
     lua.open_libraries(sol::lib::base,
+                       sol::lib::os,
                        sol::lib::string,
                        sol::lib::math,
                        sol::lib::table,
@@ -246,13 +247,6 @@ void init_lua_state(sol::state& l)
                                 &daemonobj::set_property_lua,
                                 sol::meta_function::index,
                                 &daemonobj::get_property_lua,
-                                "GetName",
-                                &daemonobj::GetName,
-                                "SetName",
-                                &daemonobj::SetName,
-                                "GetType",
-                                &script_entity::GetEntityTypeString,
-                                //  "Debug", &script_entity::debug,
                                 sol::base_classes,
                                 sol::bases<script_entity>());
 
@@ -278,8 +272,10 @@ void init_lua_state(sol::state& l)
                                 &playerobj::SendToEnvironment,
                                 "GetRoom",
                                 &playerobj::GetRoom,
-                                "GetType",
-                                &script_entity::GetEntityTypeString,
+                                "IsArch",
+                                &playerobj::isArch,
+                                "IsCreator",
+                                &playerobj::isCreator,
                                 "GetAccountType",
                                 &playerobj::get_accountType,
                                 "cwd", sol::readonly(&playerobj::cwd),
@@ -287,8 +283,6 @@ void init_lua_state(sol::state& l)
                                 // "Debug", &script_entity::debug,
                                 "GetWorkspacePath",
                                 &playerobj::get_workspacePath,
-                                "GetName",
-                                &script_entity::GetName,
                                 "DoCommand",
                                 &living_entity::DoCommand,
                                 "DoSave",
@@ -374,8 +368,6 @@ void init_lua_state(sol::state& l)
         &commandobj::SetPriority,
         "GetPriority",
         &commandobj::GetPriority,
-        "GetType",
-        &script_entity::GetEntityTypeString,
         // "Debug", &script_entity::debug,
         sol::base_classes,
         sol::bases<script_entity>());
