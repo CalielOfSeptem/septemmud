@@ -26,7 +26,7 @@
 #define SEPTEM_HPP_
 
 #include <boost/asio/io_service.hpp>
-#include <memory>
+
 
 //* =========================================================================
 /// \brief A class that implements the main engine for the Se7en server.

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "script_entities/daemonobj.h"
 #include "entity_manager.h"
 

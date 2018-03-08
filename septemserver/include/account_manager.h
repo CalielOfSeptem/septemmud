@@ -25,15 +25,8 @@
 #ifndef ACCOUNT_MANAGER_H_
 #define ACCOUNT_MANAGER_H_
 
-#include "spdlog/spdlog.h"
-#include <spdlog/sinks/stdout_sinks.h>
 #include "account.h"
-namespace spd = spdlog;
 
-#include "json.hpp"
-
-
-using json = nlohmann::json;
 
 class account_manager
 {

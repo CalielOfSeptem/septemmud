@@ -25,9 +25,8 @@
 #ifndef _INPUT_DATASTREAM_H_
 #define _INPUT_DATASTREAM_H_
 
-#include <boost/optional.hpp>
-#include <functional>
-#include <vector>
+
+
 
 namespace io {
 

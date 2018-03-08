@@ -1,15 +1,14 @@
+#include "stdafx.h"
 #include "septem.hpp"
 #include "server/client.hpp"
 #include "server/context_impl.hpp"
 #include "server/connection.hpp"
 #include "net/server.hpp"
 #include "net/socket.hpp"
-#include <boost/asio/io_service.hpp>
-#include <boost/asio/placeholders.hpp>
-#include <map>
-#include <utility>
+//#include <boost/asio/io_service.hpp>
+//#include <boost/asio/placeholders.hpp>
 #include <entity_manager.h>
-
+#include "script_entities/playerobj.h"
 
 
 struct septem::impl

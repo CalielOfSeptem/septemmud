@@ -24,12 +24,7 @@
 // ==========================================================================
 #ifndef _LOGHELPER_H_
 #define _LOGHELPER_H_
-#include "spdlog/spdlog.h"
-#include <spdlog/sinks/sink.h>
 
-#include <list>
-
-namespace spd = spdlog;
 
 struct script_entity;
 

@@ -24,9 +24,7 @@
 // ==========================================================================
 #ifndef COMMANDOBJ_H_
 #define COMMANDOBJ_H_
-#include "sol.hpp"
-#include <string>
-#include <vector>
+
 #include "script_entities/script_entity.h"
 
 struct living_entity;

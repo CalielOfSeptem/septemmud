@@ -25,16 +25,9 @@
 #ifndef HEARTBEAT_MANAGER_H_
 #define HEARTBEAT_MANAGER_H_
 
-#include <sol.hpp>
 
-#include <iostream>
 #include "state_wrapper.hpp"
-//#include <thread>
-//#include <future>
-//#include <signal.h>
-//#include <boost/thread.hpp>
-//#include <boost/thread/future.hpp>
-//#include <boost/chrono/chrono.hpp>
+
 
 struct heartbeat_manager
 {

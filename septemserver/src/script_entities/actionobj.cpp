@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "script_entities/actionobj.h"
 
 #include <sys/time.h>

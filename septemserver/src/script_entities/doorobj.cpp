@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "script_entities/doorobj.h"
 #include "script_entities/roomobj.h"
 #include "entity_manager.h"

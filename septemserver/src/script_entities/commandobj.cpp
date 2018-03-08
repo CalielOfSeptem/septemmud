@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "script_entities/commandobj.h"
 #include "entity_manager.h"
 #include "security_context.hpp"

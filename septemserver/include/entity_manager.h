@@ -25,25 +25,19 @@
 #ifndef ENTITY_MANAGER_H_
 #define ENTITY_MANAGER_H_
 
-//#include <unordered_map>
-#include <map>
-#include <queue>
-#include <list>
-//#include <unordered_set>
-#include <set>
-#include <mutex>
-
-#include "entity_wrapper.h"
-#include "script_entities/roomobj.h"
-#include "script_entities/daemonobj.h"
-#include "script_entities/commandobj.h"
-#include "script_entities/playerobj.h"
-#include "script_entities/itemobj.h"
-#include "heartbeat_manager.h"
-#include <memory.h> //for shared_ptr
-
-#include <boost/asio.hpp>
-#include <boost/asio/strand.hpp>
+struct script_entity;
+struct living_entity;
+struct playerobj;
+//enum class EntityType;
+struct itemobj;
+struct commandobj;
+struct roomobj;
+struct daemonobj;
+struct handobj;
+struct entity_wrapper;
+//
+//#include <boost/asio.hpp>
+//#include <boost/asio/strand.hpp>
 namespace ba = boost::asio;
 
 class entity_manager

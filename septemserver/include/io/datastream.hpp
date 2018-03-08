@@ -28,7 +28,7 @@
 #include "io/input_datastream.hpp"
 #include "io/output_datastream.hpp"
 
-#include <boost/cstdint.hpp>
+
 typedef boost::int8_t  s8;
 typedef boost::uint8_t  u8;
 

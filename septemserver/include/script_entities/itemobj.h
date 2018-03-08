@@ -25,54 +25,16 @@
 #ifndef ITEM_OBJ_H_
 #define ITEM_OBJ_H_
  
-#include <memory>
+#include "entity_constants.h"
 #include "script_entities/script_entity.h"
 #include "script_entities/container_base.h"
-#include <stdio.h>
-#include "string_utils.h"
-#include <boost/algorithm/string.hpp>
 
-
-#include "json.hpp"
-
-using json = nlohmann::json;
-
-// These match the lua defines, do not change without also updating defines..
+    // These match the lua defines, do not change without also updating defines..
 enum class ItemSize { FINE=0, DIMINUTIVE, TINY, SMALL, MEDIUM, LARGE, ENORMOUS, GARGANTUAN, COLOSSAL };
 enum class ItemType { DEFAULT=0, ARMOR, PLANT, INSTRUMENT, TOOL, MELEE, RANGED, THROWN, SKIN, AMMO, WEARABLE };
 enum class ItemMaterial { UNKNOWN=0, METAL, WOOD, FIBER, CLOTH, STONE };
 
-
-enum InventorySlot {
-        NONE                        = 0,
-        BODY                        = 1<<0,
-        BACK                        = 1<<1,
-        WAIST                       = 1<<2,
-        LIKE_HEAD_ARMOR             = 1<<3,
-        OVER_SHOULDER               = 1<<4,
-        LIKE_PANTS                  = 1<<5,
-        LIKE_SHIRT                  = 1<<6,
-        ON_WRIST                    = 1<<7,
-        ON_FINGER                   = 1<<8,
-        ON_FEET                     = 1<<9,
-        NECK                        = 1<<10,
-        BELT                        = 1<<11,
-        LIKE_ARM_ARMOR              = 1<<12,
-        LIKE_LEG_ARMOR              = 1<<13,
-        ON_AN_EAR                   = 1<<14,
-        ON_BOTH_EARS                = 1<<15,
-        ANKLE                       = 1<<16,
-        HANDS                       = 1<<17,
-        TAIL                        = 1<<18,
-        THIGH                       = 1<<19,
-        UPPER_ARM                   = 1<<20,
-        NOSE                        = 1<<21,
-        OVER_LEFT_EYE               = 1<<22,
-        OVER_RIGHT_EYE              = 1<<23,
-        ON_HAIR                     = 1<<24,
-        IN_HAIR                     = 1<<25,
-        HEAD                        = 1<<26
-    };
+using json = nlohmann::json;
 
 
 struct itemobj : public script_entity, public container_base
@@ -114,14 +76,10 @@ struct itemobj : public script_entity, public container_base
     }
      
     virtual bool get_isWearable()
-    {
-        return (m_slot_mask==InventorySlot::NONE)?false:true;
-    }
+    ;
      
     virtual bool get_isStackable()
-    {
-        return (m_defaultStackSize==0)?false:true;
-    }
+    ;
         
     virtual bool get_isContainer()
     {
@@ -216,15 +174,10 @@ struct itemobj : public script_entity, public container_base
     }
     
     virtual ItemType get_itemType()
-    {
-        return m_type;
-    }
+    ;
      
     virtual void set_itemType(ItemType t)
-    {
-        m_type = t;
-        do_save();
-    }
+    ;
     
     virtual std::string get_itemAdjectives()
     {

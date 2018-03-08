@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "entity_manager.h"
 #include "security_context.hpp"
 #include "script_entities/script_entity.h"
@@ -7,28 +8,22 @@
 #include "script_entities/daemonobj.h"
 #include "script_entities/commandobj.h"
 #include "script_entities/itemobj.h"
+#include "script_entities/doorobj.h"
 
-#include "luatypes.h"
+#include "entity_wrapper.h"
+#include "heartbeat_manager.h"
 
-#include "string_utils.h"
-#include "global_settings.h"
 #include "account_manager.h"
 #include "fs/fs_manager.h"
-#include "config.h"
 
-#include <iostream>
-#include <fstream>
-#include <regex>
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/fstream.hpp>
-#include <boost/algorithm/string.hpp>
-#include <unordered_set>
 
-#include <random>
-#include <algorithm>
-#include <iterator>
-#include "spdlog/spdlog.h"
+//#include <boost/filesystem/operations.hpp>
+//#include <boost/filesystem/path.hpp>
+//#include <boost/filesystem/fstream.hpp>
+//#include <boost/algorithm/string.hpp>
+
+
+
 
 namespace spd = spdlog;
 

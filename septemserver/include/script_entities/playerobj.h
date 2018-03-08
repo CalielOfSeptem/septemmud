@@ -25,14 +25,13 @@
 #ifndef PLAYER_OBJ_H_
 #define PLAYER_OBJ_H_
  
-#include <memory>
+
 #include "script_entities/livingentity.h"
 #include "script_entities/container_base.h"
-#include <stdio.h>
-#include "json.hpp"
+
 #include "account.h"
 #include "server/client.hpp"
-#include "boost/date_time/posix_time/posix_time.hpp"
+
 namespace pt = boost::posix_time;
 
 

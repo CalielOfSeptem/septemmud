@@ -1,31 +1,28 @@
+#include "stdafx.h"
 #include "server/httpserv.h"
 #include "../../../Simple-Web-Server/server_http.hpp"
 #include "../../../Simple-Web-Server/client_http.hpp"
-#include "../../../json/src/json.hpp"
-#include "config.h"
-#include "entity_manager.h"
-#include "global_settings.h"
-#include <boost/algorithm/string/replace.hpp>
 
-// for convenience
-using json = nlohmann::json;
+
+#include "entity_manager.h"
+
+//#include <boost/algorithm/string/replace.hpp>
+
+#include "json.hpp"
 //Added for the json-example
 #define BOOST_SPIRIT_THREADSAFE
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
+//#include <boost/property_tree/ptree.hpp>
+//#include <boost/property_tree/json_parser.hpp>
 
-//Added for the default_resource example
-#include <fstream>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/fstream.hpp>
-#include <boost/lambda/bind.hpp>
-#include <boost/array.hpp>
 
-#include <vector>
-#include <iostream>
-#include <algorithm>
+//#include <boost/filesystem.hpp>
+//#include <boost/filesystem/operations.hpp>
+//#include <boost/filesystem/path.hpp>
+//#include <boost/filesystem/fstream.hpp>
+//#include <boost/lambda/bind.hpp>
+//#include <boost/array.hpp>
+using json = nlohmann::json;
+
 #ifdef HAVE_OPENSSL
 #include "crypto.hpp"
 #endif

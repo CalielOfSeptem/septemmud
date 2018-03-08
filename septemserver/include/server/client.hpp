@@ -25,9 +25,7 @@
 #ifndef _CLIENT_HPP_
 #define _CLIENT_HPP_
 
-#include <functional>
-#include <memory>
-#include <vector>
+
 
 
 class world_context;

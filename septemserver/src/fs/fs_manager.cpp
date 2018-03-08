@@ -1,20 +1,15 @@
+#include "stdafx.h"
 #include "fs/fs_manager.h"
-#include <iostream>
-#include <algorithm>
+/*
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/format.hpp>
-#include <iomanip>
-#include <fstream>
-#include <iostream>
-#include <regex>
-#include <memory>
-#include <boost/filesystem.hpp>
-#include "config.h"
-#include "global_settings.h"
 
+#include <boost/filesystem.hpp>
+
+*/
 namespace fs = boost::filesystem;
 
 bool myfunction (file_entity a, file_entity b) { return a.isDirectory; }

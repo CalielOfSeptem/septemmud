@@ -24,9 +24,10 @@
 //             OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 //             SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ==========================================================================
+#include "stdafx.h"
 #include "net/socket.hpp"
-#include <boost/asio.hpp>
-#include <deque>
+//#include <boost/asio.hpp>
+//#include <deque>
 
 namespace net {
 

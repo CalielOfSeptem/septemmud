@@ -25,8 +25,6 @@
 #ifndef _OUTPUT_DATASTREAM_H_
 #define _OUTPUT_DATASTREAM_H_
 
-#include <functional>
-#include <vector>
 
 namespace io {
 

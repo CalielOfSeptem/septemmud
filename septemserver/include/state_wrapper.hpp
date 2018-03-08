@@ -25,7 +25,6 @@
 #ifndef STATE_WRAPPER_HPP
 #define STATE_WRAPPER_HPP
 
-#include <sol.hpp>
     
 struct state_wrapper
 {

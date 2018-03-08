@@ -25,14 +25,8 @@
 #ifndef _SECURITY_CONTEXT_HPP_
 #define _SECURITY_CONTEXT_HPP_
 
-#include "spdlog/spdlog.h"
-#include <spdlog/sinks/stdout_sinks.h>
 #include "script_entities/script_entity.h"
-namespace spd = spdlog;
 
-#include "json.hpp"
-
-using json = nlohmann::json;
 
 struct playerobj;
 

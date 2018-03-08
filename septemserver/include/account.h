@@ -24,14 +24,6 @@
 // ==========================================================================
 #ifndef ACCOUNT_HPP
 #define ACCOUNT_HPP
-//#include <cereal/archives/xml.hpp>
-//#include <cereal/types/string.hpp>
-#include <string.h>
-//#include <cereal/types/vector.hpp>
-#include "json.hpp"
-
-using json = nlohmann::json;
-
 
 enum AccountType { UNKNOWN_TYPE, PLAYER, CREATOR, ARCH };
 

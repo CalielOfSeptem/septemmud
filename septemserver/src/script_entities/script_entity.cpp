@@ -1,15 +1,9 @@
+#include "stdafx.h"
 #include "script_entities/script_entity.h"
 #include "entity_manager.h"
-#include <memory>
-#include "global_settings.h"
-#include "config.h"
-#include "string_utils.h"
-#include "config.h"
-#include "spdlog/spdlog.h"
-#include <spdlog/sinks/stdout_sinks.h>
+#include "script_entities/actionobj.h"
 #include "script_entities/extcommandobj.h"
 #include "loghelper.h"
-namespace spd = spdlog;
 
 script_entity::script_entity(sol::this_state ts, sol::this_environment te, EntityType myType, std::string name)
     : m_type(myType)
@@ -145,7 +139,7 @@ void script_entity::debug(const std::string& msg)
 {
     auto log = spd::get("main");
     std::stringstream ss;
-    ss << msg;//"Destroyed object, script path= " << virtual_script_path;
+    ss << msg; //"Destroyed object, script path= " << virtual_script_path;
     log->info(ss.str());
     return;
     /*
@@ -160,17 +154,17 @@ void script_entity::debug(const std::string& msg)
 
         entityLog += s;
         try {
-            
-            
+
+
             spd::set_pattern("[%x %H:%M:%S:%e] %v");
-            
-            
+
+
             std::vector<spdlog::sink_ptr> sinks;
 
             auto rotating =
                 std::make_shared<spdlog::sinks::rotating_file_sink_mt>(entityLog, "log", 1024 * 1024, 5, true);
             auto stdout_sink = spdlog::sinks::stdout_sink_mt::instance();
-            
+
             //auto s_tmp = my_sink();
 
             sinks.push_back(stdout_sink);
@@ -207,12 +201,13 @@ void script_entity::SetPhysicalScriptPath(std::string& path)
     physical_script_path = path;
 }
 
-extcommandobj* script_entity::AddCommand(sol::this_state ts, sol::protected_function func,
-                                      const sol::as_table_t<std::vector<std::string> >& aliases,
-                                      sol::object userData)
+extcommandobj* script_entity::AddCommand(sol::this_state ts,
+                                         sol::protected_function func,
+                                         const sol::as_table_t<std::vector<std::string> >& aliases,
+                                         sol::object userData)
 {
     lua_State* L = ts;
-    //lua_stacktrace_ex(L);
+    // lua_stacktrace_ex(L);
     const auto& vex = aliases.source;
 
     std::vector<std::string> al;
@@ -231,4 +226,17 @@ extcommandobj* script_entity::AddCommand(sol::this_state ts, sol::protected_func
 
     commands.push_back(co);
     return commands[commands.size() - 1].get();
+}
+
+actionobj* script_entity::AddAction(sol::protected_function func, unsigned int interval, sol::object userData)
+{
+    actions.push_back(std::shared_ptr<actionobj>(new actionobj(func, interval, userData)));
+    return actions[actions.size() - 1].get();
+}
+
+void script_entity::DoActions()
+{
+    for(auto r : GetActions()) {
+        r->DoAction();
+    }
 }

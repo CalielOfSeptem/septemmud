@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "luatypes.h"
 #include "script_entities/roomobj.h"
 #include "script_entities/livingentity.h"
@@ -7,6 +8,10 @@
 #include "script_entities/extcommandobj.h"
 #include "script_entities/itemobj.h"
 #include "script_entities/doorobj.h"
+#include "script_entities/actionobj.h"
+#include "script_entities/lookobj.h"
+#include "script_entities/exitobj.h"
+
 #include "fs/fs_manager.h"
 void init_lua_state(sol::state& l)
 {

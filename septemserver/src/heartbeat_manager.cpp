@@ -1,8 +1,9 @@
+#include "stdafx.h"
 #include "heartbeat_manager.h"
 #include "entity_wrapper.h"
 #include "entity_manager.h"
 #include "script_entities/roomobj.h"
-#include <boost/algorithm/string.hpp>
+
 #include "security_context.hpp"
 
 void heartbeat_manager::do_heartbeats()

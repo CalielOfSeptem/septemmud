@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "loghelper.h"
 #include "security_context.hpp"
 #include "script_entities/itemobj.h"

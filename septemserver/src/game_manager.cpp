@@ -1,16 +1,9 @@
+#include "stdafx.h"
 #include "game_manager.h"
-#include "config.h"
-#include <sstream>
-#include "global_settings.h"
+
 #include "entity_manager.h"
+#include "script_entities/playerobj.h"
 
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/fstream.hpp>
-#include <boost/algorithm/string.hpp>
-
-#include "boost/date_time/posix_time/posix_time.hpp"
-#include "boost/date_time/gregorian/gregorian.hpp"
 
 namespace dt = boost::date_time;
 

@@ -24,8 +24,7 @@
 // ==========================================================================
 #ifndef ACTIONOBJ_H_
 #define ACTIONOBJ_H_
-#define SOL_CHECK_ARGUMENTS
-#include "sol.hpp"
+
 
 #include "boost/date_time/posix_time/posix_time.hpp"
 namespace pt = boost::posix_time;

@@ -24,6 +24,7 @@
 //             OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 //             SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ==========================================================================
+#include "stdafx.h"
 #include "server/connection.hpp"
 #include "net/socket.hpp"
 #include <telnetpp/telnetpp.hpp>
@@ -36,11 +37,11 @@
 #include <telnetpp/options/naws/client.hpp>
 #include <telnetpp/options/suppress_ga/server.hpp>
 #include <telnetpp/options/terminal_type/client.hpp>
-#include <boost/asio/deadline_timer.hpp>
-#include <boost/asio/placeholders.hpp>
-#include <deque>
-#include <string>
-#include <utility>
+
+//#include <boost/asio/placeholders.hpp>
+//#include <deque>
+//#include <string>
+//#include <utility>
 #include "account.h"
 
 using namespace std;

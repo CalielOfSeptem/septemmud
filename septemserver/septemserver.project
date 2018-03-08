@@ -6,7 +6,9 @@
     </Plugin>
   </Plugins>
   <VirtualDirectory Name="src">
+    <File Name="src/global_settings.cpp"/>
     <VirtualDirectory Name="script_entities">
+      <File Name="src/script_entities/handobj.cpp"/>
       <File Name="src/script_entities/script_entity.cpp"/>
       <File Name="src/script_entities/commandobj.cpp"/>
       <File Name="src/script_entities/roomobj.cpp"/>
@@ -47,7 +49,11 @@
     <File Name="src/loghelper.cpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="include">
+    <File Name="include/entity_constants.h"/>
+    <File Name="include/stdafx.h"/>
     <VirtualDirectory Name="script_entities">
+      <File Name="include/script_entities/handobj.h"/>
+      <File Name="include/script_entities/inventory_slot.h"/>
       <File Name="include/script_entities/script_entity.h"/>
       <File Name="include/script_entities/roomobj.h"/>
       <File Name="include/script_entities/playerobj.h"/>
@@ -114,7 +120,7 @@
       <ResourceCompiler Options=""/>
     </GlobalSettings>
     <Configuration Name="Debug" CompilerType="GCC" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
-      <Compiler Options="-g;-O0;-std=c++14;-Wall;-ftemplate-depth=10000;-ftemplate-backtrace-limit=0" C_Options="-g;-O0;-Wall" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+      <Compiler Options="-g;-O0;-std=c++14;-Wall;-ftemplate-depth=10000;-ftemplate-backtrace-limit=0" C_Options="-g;-O0;-Wall" Assembler="" Required="yes" PreCompiledHeader="./include/stdafx.h" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="1">
         <IncludePath Value="."/>
         <IncludePath Value="include/"/>
         <IncludePath Value="../sol2"/>
@@ -123,6 +129,7 @@
         <IncludePath Value="../../json/src"/>
         <IncludePath Value="../telnetpp/include"/>
         <IncludePath Value="../terminalpp/include"/>
+        <IncludePath Value="/home/ken/git-repos/septemmud/sol2"/>
       </Compiler>
       <Linker Options="-lz;-ldl;-Wl,-export-dynamic" Required="yes">
         <LibraryPath Value="/home/ken/git-repos/lua-5.3.4/src"/>

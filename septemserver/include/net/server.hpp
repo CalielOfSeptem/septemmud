@@ -27,9 +27,7 @@
 #ifndef _SERVER_HPP_
 #define _SERVER_HPP_
 
-#include <boost/cstdint.hpp>
-#include <functional>
-#include <memory>
+
 
 namespace boost { namespace asio {
     class io_service;

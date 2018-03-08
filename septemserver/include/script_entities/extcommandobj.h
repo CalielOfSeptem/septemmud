@@ -24,8 +24,7 @@
 // ==========================================================================
 #ifndef EXTCOMMANDOBJ_H_
 #define EXTCOMMANDOBJ_H_
-#define SOL_CHECK_ARGUMENTS
-#include "sol.hpp"
+
 #include "script_entities/livingentity.h"
 
 struct extcommandobj

@@ -25,8 +25,6 @@
 #ifndef FS_MANAGER_H_
 #define FS_MANAGER_H_
 
-#include <vector>
-#include <string>
 #include "script_entities/playerobj.h"
 
 struct file_entity

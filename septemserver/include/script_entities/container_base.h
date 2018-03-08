@@ -25,10 +25,7 @@
  #ifndef CONTAINER_BASE_H_
  #define CONTAINER_BASE_H_
  
- #include <string>
- #include <vector>
- #include <memory>
- #include <set>
+
  #include "entity_wrapper.h"
  
 

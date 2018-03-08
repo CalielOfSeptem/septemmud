@@ -26,20 +26,14 @@
 #define SCRIPT_ENTITY_H_
 
 
-#include <unordered_map>
-#define SOL_CHECK_ARGUMENTS
-#include <sol.hpp>
-#include <cassert>
-#include <iostream>
 #include "loghelper.h"
-#include "script_entities/actionobj.h"
+
 
 
 struct extcommandobj;
+struct actionobj;
 
-enum class EntityType { UNKNOWN, ROOM, ITEM, NPC, PLAYER, COMMAND, DAEMON, LIB, HAND };
-enum class EnvironmentChangeEvent { ADDED, REMOVED };
-enum class LogLevel { INFO, DEBUG, ERROR, CRITICAL };
+
  
 struct _sol_userdata_
 {
@@ -219,10 +213,7 @@ struct script_entity {
         }
         
         actionobj * AddAction( sol::protected_function func, unsigned int interval, sol::object userData = sol::nil)
-        {
-            actions.push_back(std::shared_ptr<actionobj>( new actionobj(func, interval, userData) ) );
-            return actions[actions.size()-1].get();
-        }
+        ;
         
         
         std::vector<std::shared_ptr<actionobj>>& GetActions()
@@ -237,12 +228,7 @@ struct script_entity {
         
         
         void DoActions()
-        {
-            for( auto r : GetActions() )
-            {
-                r->DoAction();
-            }
-        }
+        ;
         
         
         extcommandobj * AddCommand(sol::this_state ts, sol::protected_function func, const sol::as_table_t<std::vector<std::string> >& aliases, sol::object userData = sol::nil)

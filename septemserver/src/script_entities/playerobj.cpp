@@ -1,9 +1,9 @@
+#include "stdafx.h"
 #include "script_entities/playerobj.h"
 #include "fs/fs_manager.h"
-#include <iomanip>
+
 #include "entity_manager.h"
-#include "config.h"
-#include "global_settings.h"
+
 
 using json = nlohmann::json;
 

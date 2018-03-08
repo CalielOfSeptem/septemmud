@@ -1,16 +1,7 @@
-#include <iostream>
-#include <string>
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
-#include <boost/program_options.hpp>
-#include <thread>
-#include <boost/format.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/ini_parser.hpp>
+#include "stdafx.h"
 
 #include "entity_manager.h"
-#include "global_settings.h"
-#include "config.h"
+
 #include "game_manager.h"
 #include "script_entities/playerobj.h"
 #include "septem.hpp"
@@ -18,12 +9,6 @@
 
 #include "server/connectionsm.hpp"
 #include "server/httpserv.h"
-#include <boost/asio.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/bind.hpp>
-#include <boost/filesystem.hpp>
 
 namespace ba = boost::asio;
 namespace po = boost::program_options;

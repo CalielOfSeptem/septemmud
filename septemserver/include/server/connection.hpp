@@ -26,14 +26,9 @@
 // ==========================================================================
 #ifndef _CONNECTION_HPP_
 #define _CONNECTION_HPP_
-#include <boost/cstdint.hpp>
+
 #include "server/connectionsm.hpp"
-#include <memory>
-#include <string>
-#include <utility>
 
-
-#include <vector>
 
 namespace net {
     class socket;

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "script_entities/container_base.h"
 #include "script_entities/itemobj.h"
 #include "entity_manager.h"

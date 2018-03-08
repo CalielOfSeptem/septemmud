@@ -25,9 +25,7 @@
  #ifndef ENTITY_WRAPPER_H_
  #define ENTITY_WRAPPER_H_
  
- #include <string>
- #include <vector>
- #include <boost/shared_ptr.hpp>
+
  #include "script_entities/script_entity.h"
 
 

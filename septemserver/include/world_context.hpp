@@ -25,8 +25,6 @@
 #ifndef _WORLD_CONTEXT_HPP_
 #define _WORLD_CONTEXT_HPP_
 
-#include <memory>
-#include <vector>
 
 
 //class account;

@@ -3,7 +3,7 @@
 
 //#include "paradice/context.hpp"
 #include "net/server.hpp"
-#include <boost/asio/io_service.hpp>
+
 #include "world_context.hpp"
 
 // ==========================================================================
