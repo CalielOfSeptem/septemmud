@@ -6,47 +6,25 @@
 struct itemobj;
 struct handobj : public container_base, public script_entity
 {
-     handobj()
-     {
-         m_type = EntityType::HAND;
-         //env = NULL;
-         
-     }
-     virtual bool AddEntityToInventory(script_entity * se) override
-     {
-         bool b = container_base::AddEntityToInventory(se);
-         do_save();
-         return b;
-     }
+     handobj();
+     virtual bool AddEntityToInventory(script_entity * se) override;
      
-     virtual bool RemoveEntityFromInventoryByID( const std::string& id  ) override
-     {
-         return container_base::RemoveEntityFromInventoryByID(id);
-     }
+     virtual bool RemoveEntityFromInventoryByID( const std::string& id  ) override;
      
-    virtual bool RemoveEntityFromInventory( script_entity * se ) override
-    {
-        return container_base::RemoveEntityFromInventory(se);
-    }
+    virtual bool RemoveEntityFromInventory( script_entity * se ) override;
     
-    virtual bool AddItem(itemobj * i)
-    ;
+    virtual bool AddItem(itemobj * i);
 
-    virtual bool RemoveItem( itemobj * i )
-    ;
+    virtual bool RemoveItem( itemobj * i );
     
     
-    bool IsEmpty()
-    ;
+    bool IsEmpty();
     
-    itemobj * GetItem()
-    ;
+    itemobj * GetItem();
     
-    virtual script_entity * GetOwner() override
-    ;
+    virtual script_entity * GetOwner() override;
     
-    virtual bool do_save() override
-    ;
+    virtual bool do_save() override;
     
     
     script_entity * m_livingEntity = NULL;

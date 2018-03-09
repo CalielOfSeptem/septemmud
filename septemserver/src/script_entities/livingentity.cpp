@@ -263,7 +263,7 @@ living_entity::living_entity()
 }
 
 living_entity::living_entity(sol::this_state ts, sol::this_environment te, EntityType et, std::string name)
- : script_entity(ts, te, et, name)
+    : script_entity(ts, te, et, name)
 {
     m_RightHand.m_livingEntity = this;
     m_LeftHand.m_livingEntity = this;
@@ -296,3 +296,24 @@ void living_entity::set_body_position(EntityBodyPosition g)
     m_bodyPosition = g;
 }
 
+void living_entity::SendToEntity(const std::string& msg)
+{
+}
+
+handobj* living_entity::GetRightHand()
+{
+    return &m_RightHand;
+}
+
+handobj* living_entity::GetLeftHand()
+{
+    return &m_LeftHand;
+}
+
+void living_entity::on_environment_change(EnvironmentChangeEvent evt, script_entity* env)
+{
+}
+
+void living_entity::debug(const std::string& msg)
+{
+}

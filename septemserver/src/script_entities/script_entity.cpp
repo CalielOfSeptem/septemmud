@@ -5,10 +5,29 @@
 #include "script_entities/extcommandobj.h"
 #include "loghelper.h"
 
-script_entity::script_entity(sol::this_state ts, sol::this_environment te, EntityType myType, std::string name)
-    : m_type(myType)
-    , environment_(NULL)
+script_entity::script_entity(EntityType myType, std::string name)
+    : environment_(NULL)
+    , m_type(myType)
     , name(name)
+    
+
+{
+}
+
+script_entity::script_entity()
+    : environment_(NULL)
+    , m_type(EntityType::UNKNOWN)
+    , name("")
+    
+
+{
+}
+
+script_entity::script_entity(sol::this_state ts, sol::this_environment te, EntityType myType, std::string name)
+    : environment_(NULL)
+    , m_type(myType)
+    , name(name)
+    
 {
     lua_State* L = ts;
 
@@ -239,4 +258,140 @@ void script_entity::DoActions()
     for(auto r : GetActions()) {
         r->DoAction();
     }
+}
+
+sol::object script_entity::get_property_lua(const char* name, sol::this_state s)
+{
+    return props[name];
+}
+
+void script_entity::set_property_lua(const char* name, sol::stack_object object)
+{
+    props[name] = object.as<sol::object>();
+}
+
+void script_entity::clear_props()
+{
+    m_userdata.reset();
+    props.clear();
+}
+
+script_entity* script_entity::GetEnvironment()
+{
+    return environment_; //.value();
+}
+
+void script_entity::SetEnvironment(script_entity* be)
+{
+    environment_ = be;
+}
+
+EntityType& script_entity::GetType()
+{
+    return m_type;
+}
+
+std::string script_entity::GetEntityTypeString()
+{
+    switch(m_type) {
+    case EntityType::UNKNOWN:
+        return "unknown";
+    case EntityType::ROOM:
+        return "room";
+    case EntityType::ITEM:
+        return "item";
+    case EntityType::NPC:
+        return "npc";
+    case EntityType::PLAYER:
+        return "player";
+    default:
+        return "unknown";
+        break;
+    }
+}
+
+std::string script_entity::GetInstancePath()
+{
+    return virtual_script_path + ":id=" + std::to_string(instanceID);
+}
+
+const std::string& script_entity::GetName()
+{
+    return name;
+}
+
+void script_entity::SetName(const std::string& name)
+{
+    this->name = name;
+}
+
+const std::string& script_entity::GetLook()
+{
+    return look;
+}
+
+void script_entity::SetLook(const std::string& look)
+{
+    this->look = look;
+}
+
+const bool script_entity::get_destroy()
+{
+    return m_destroy;
+}
+
+void script_entity::set_destroy(bool destroy)
+{
+    m_destroy = destroy;
+    if(destroy)
+        clear_props();
+}
+
+std::string script_entity::get_uid()
+{
+    return uid;
+}
+
+void script_entity::set_uid(std::string id)
+{
+    uid = id;
+}
+
+std::string script_entity::get_entityStorageLocation()
+{
+    return entity_storage_location;
+}
+
+void script_entity::set_entityStorageLocation(std::string& str)
+{
+    entity_storage_location = str;
+}
+
+bool script_entity::do_save()
+{
+    return true;
+}
+
+void script_entity::on_environment_change(EnvironmentChangeEvent evt, script_entity* env)
+{
+}
+
+bool script_entity::do_load()
+{
+    return true;
+}
+
+bool script_entity::do_json_load(std::string& j)
+{
+    return true;
+}
+
+std::vector<std::shared_ptr<actionobj>>& script_entity::GetActions()
+{
+    return actions;
+}
+
+std::vector<std::shared_ptr<extcommandobj>>& script_entity::GetCommands()
+{
+    return commands;
 }

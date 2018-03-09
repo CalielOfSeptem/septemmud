@@ -39,55 +39,30 @@ struct inventory_slot
 {
     
     inventory_slot()
-    {
-        
-    }
+    ;
 
-    inventory_slot( InventorySlot slot, unsigned int maxItems,  ItemSize maxItemSize ) :
-        m_slot(slot), m_maxItems(maxItems), m_maxSize(maxItemSize)
-    {
-        
-    }
+    inventory_slot( InventorySlot slot, unsigned int maxItems,  ItemSize maxItemSize );
     
-    virtual ~inventory_slot()
-    {
-        
-    }
-
     InventorySlot get_inventorySlot()
-    {
-        return m_slot;
-    }
+    ;
     
     unsigned int get_maxItems()
-    {
-        return m_maxItems;
-    }
+    ;
     
     ItemSize get_maxItemSize()
-    {
-        return m_maxSize;
-    }
+    ;
     
     void set_maxItems( unsigned int i )
-    {
-        m_maxItems = i;
-    }
+    ;
     
     void set_itemCount( unsigned int i )
-    {
-        m_itemCount = i;
-    }
+    ;
     
     unsigned int get_itemCount()
-    {
-        return m_itemCount;
-    }
+    ;
     
     void incrementItemCount()
-    {
-        m_itemCount++;
-    }
+    ;
     
 private:
     InventorySlot m_slot;

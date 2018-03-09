@@ -1,9 +1,8 @@
 #include "stdafx.h"
 #include "script_entities/playerobj.h"
 #include "fs/fs_manager.h"
-
+#include "server/client.hpp"
 #include "entity_manager.h"
-
 
 using json = nlohmann::json;
 
@@ -22,6 +21,11 @@ playerobj::playerobj(sol::this_state ts, sol::this_environment te, std::string n
     m_RightHand.set_entityStorageLocation(p);
     m_LeftHand.set_entityStorageLocation(p);
     // do_load();
+}
+
+playerobj::~playerobj()
+{
+    disconnect_client();
 }
 
 bool playerobj::do_save()
@@ -103,17 +107,14 @@ bool playerobj::do_load()
 
         _ac._playername = GetPlayerName(); // maybe put this elsewhere.. undecided.
         _ac.do_load();
-        
-        if( _ac._accountType == AccountType::CREATOR )
-        {
+
+        if(_ac._accountType == AccountType::CREATOR) {
             m_command_directories.push_back(global_settings::Instance().GetSetting(DEFAULT_CREATOR_COMMANDS_PATH));
-        }
-        else if( _ac._accountType == AccountType::ARCH )
-        {
+        } else if(_ac._accountType == AccountType::ARCH) {
             m_command_directories.push_back(global_settings::Instance().GetSetting(DEFAULT_CREATOR_COMMANDS_PATH));
             m_command_directories.push_back(global_settings::Instance().GetSetting(DEFAULT_ARCH_COMMANDS_PATH));
         }
-        
+
         std::ifstream i(this->get_entityStorageLocation() + "/player_save");
         json j;
         i >> j;
@@ -177,6 +178,138 @@ bool playerobj::verify_password(const std::string& aname, const std::string& may
     } else {
         return false;
     }
+}
+
+void playerobj::debug(const std::string& msg)
+{
+    if(this->isCreator())
+        SendToEntity(msg);
+}
+
+void playerobj::SendToEntity(const std::string& msg)
+{
+    // if( GetName() == "caliel" )
+    //    std::cout << msg << std::endl;
+    if(this->onOutput)
+        this->onOutput(msg);
+    living_entity::SendToEntity(msg);
+}
+
+void playerobj::SendToEnvironment(const std::string& msg)
+{
+    // TODO: implement this
+    living_entity::SendToEnvironment(msg);
+}
+
+bool playerobj::isCreator()
+{
+    if(_ac._accountType == AccountType::CREATOR || _ac._accountType == AccountType::ARCH) {
+        return true;
+
+    } else
+        return false;
+}
+
+bool playerobj::isArch()
+{
+    if(_ac._accountType == AccountType::ARCH) {
+        return true;
+
+    } else
+        return false;
+}
+
+std::string& playerobj::GetPlayerName()
+{
+    return name;
+}
+
+void playerobj::set_playerName(const std::string& aname)
+{
+    name = aname;
+    //_ac._playername = name;
+}
+
+void playerobj::on_environment_change(EnvironmentChangeEvent evt, script_entity* env)
+{
+    if(evt == EnvironmentChangeEvent::ADDED) {
+        this->do_save();
+    }
+}
+
+AccountType playerobj::get_accountType()
+{
+    return _ac._accountType;
+}
+
+void playerobj::set_accountType(AccountType atype)
+{
+    _ac._accountType = atype;
+}
+
+std::string playerobj::get_workspacePath()
+{
+    return _ac._workspacePath;
+}
+
+bool playerobj::get_loggedIn()
+{
+    return blogged_in;
+}
+
+void playerobj::set_loggedIn(bool b)
+{
+    blogged_in = b;
+}
+
+boost::posix_time::ptime playerobj::get_referenceTickCount()
+{
+    return tickReference;
+}
+
+void playerobj::set_referenceTickCount()
+{
+    tickReference = boost::posix_time::second_clock::local_time();
+}
+
+void playerobj::incrementCmdCount()
+{
+    commandCount++;
+}
+
+void playerobj::resetCmdCount()
+{
+    commandCount = 0;
+}
+
+unsigned long playerobj::get_commandCount()
+{
+    return commandCount;
+}
+
+void playerobj::set_client(client* c)
+{
+    client_ = c;
+}
+
+client* playerobj::get_client()
+{
+    return client_;
+}
+
+void playerobj::disconnect_client()
+{
+    if(client_ != NULL)
+        client_->disconnect();
+}
+
+unsigned long playerobj::get_maxCmdCount()
+{
+    return maxCmdCnt;
+}
+
+playerobj::playerobj()
+{
 }
 
 /*

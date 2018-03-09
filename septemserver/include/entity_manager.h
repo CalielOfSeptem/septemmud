@@ -190,15 +190,9 @@ struct _internal_queue_wrapper_
     bool destroy_item(std::string& script_path);
     
     heartbeat_manager& get_heartbeat_manager()
-    {
-        return _heartbeat;
-    }
+    ;
     
-    void bind_io(ba::io_service* ioservice)
-    {
-        io_serv = ioservice;
-        strand_ = boost::shared_ptr<boost::asio::strand>(new boost::asio::strand(*ioservice));
-    }
+    void bind_io(ba::io_service* ioservice);
 
 
     // ======================================================================
@@ -209,8 +203,7 @@ struct _internal_queue_wrapper_
     std::recursive_mutex*  GetLuaMutex() { return &lua_mutex_; };
     
 protected:
-    entity_manager()
-    ;
+    entity_manager();
 
     ~entity_manager()
     {
@@ -360,21 +353,7 @@ private:
     // DISPATCH_QUEUE
     // ======================================================================
     void dispatch_queue()
-    {
-        std::function<void ()> fn;
-
-        std::unique_lock<std::mutex> lock(dispatch_queue_mutex_);
-
-        while (!dispatch_queue_.empty())
-        {
-            fn = dispatch_queue_.front().f;
-            dispatch_queue_.pop_front();
-            lock.unlock();
-            //std::unique_lock<std::mutex> lock(lua_mutex_);
-            fn();
-            lock.lock();
-        }
-    }
+    ;
       
 
 };

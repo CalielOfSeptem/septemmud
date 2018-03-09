@@ -42,11 +42,9 @@ public:
     
     ~roomobj();
 
-    exitobj * AddExit(sol::as_table_t<std::vector<std::string>> exit, const std::string& exit_path, bool obvious)
-    ;
+    exitobj * AddExit(sol::as_table_t<std::vector<std::string>> exit, const std::string& exit_path, bool obvious);
     
-    lookobj * AddLook(sol::as_table_t<std::vector<std::string>> look, const std::string& description)
-    ;
+    lookobj * AddLook(sol::as_table_t<std::vector<std::string>> look, const std::string& description);
     
     doorobj * AddDoor(const std::string& door_name, const std::string& door_path, const unsigned int door_id, bool open=true, bool locked=false);
     

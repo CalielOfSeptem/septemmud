@@ -40,3 +40,26 @@ bool handobj::do_save()
         return m_livingEntity->do_save();
     return false;
 }
+
+bool handobj::AddEntityToInventory(script_entity* se)
+{
+    bool b = container_base::AddEntityToInventory(se);
+    do_save();
+    return b;
+}
+
+handobj::handobj()
+{
+    m_type = EntityType::HAND;
+    // env = NULL;
+}
+
+bool handobj::RemoveEntityFromInventoryByID(const std::string& id)
+{
+    return container_base::RemoveEntityFromInventoryByID(id);
+}
+
+bool handobj::RemoveEntityFromInventory(script_entity* se)
+{
+    return container_base::RemoveEntityFromInventory(se);
+}

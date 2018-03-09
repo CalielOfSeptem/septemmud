@@ -44,19 +44,8 @@ struct living_entity : public script_entity, public container_base
 
     living_entity(sol::this_state ts, sol::this_environment te, EntityType et, std::string name);
     
-    ~living_entity()
-    {
-        /*
-        for( auto kvp : m_inventory_slots )
-        {
-            delete (kvp.second);
-        }
-        */
-    }
 
-    virtual void SendToEntity(const std::string& msg)
-    {
-    }
+    virtual void SendToEntity(const std::string& msg);
 
     virtual void SendToEnvironment(const std::string& msg);
     
@@ -64,50 +53,33 @@ struct living_entity : public script_entity, public container_base
     
     roomobj* GetRoom();
     
-    handobj * GetRightHand()
-    {
-        return &m_RightHand;
-    }
+    handobj * GetRightHand();
     
-    handobj * GetLeftHand()
-    {
-        return &m_LeftHand;
-    }
+    handobj * GetLeftHand();
     
     virtual InventorySlotError SafeAddItemToInventory( itemobj* io );
     
     virtual bool AddEntityToInventory(script_entity * se) override;
     virtual bool RemoveEntityFromInventory(script_entity * se) override;
     
-    virtual script_entity * GetOwner() override
-    ;
+    virtual script_entity * GetOwner() override;
     
     std::vector< itemobj *> GetItems();
     handobj m_RightHand;
     handobj m_LeftHand;
     
     
-    EntityGender get_gender()
-    ;
+    EntityGender get_gender();
     
-    void set_gender( EntityGender g )
-    ;
+    void set_gender( EntityGender g );
     
-    EntityBodyPosition get_body_position()
-    ;
+    EntityBodyPosition get_body_position();
     
-    void set_body_position( EntityBodyPosition g )
-    ;
+    void set_body_position( EntityBodyPosition g );
     
-    virtual void on_environment_change(EnvironmentChangeEvent evt, script_entity * env) override
-    {
-        
-    }
+    virtual void on_environment_change(EnvironmentChangeEvent evt, script_entity * env) override;
     
-    virtual void debug(const std::string& msg) override
-    {
-        
-    }
+    virtual void debug(const std::string& msg) override;
     
     bool AddInventorySlot( InventorySlot slot, unsigned int maxItems=1, ItemSize maxItemSize = ItemSize::COLOSSAL );
     

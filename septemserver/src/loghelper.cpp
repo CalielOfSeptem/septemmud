@@ -54,3 +54,8 @@ void my_sink::log(const spd::details::log_msg& msg)
     }
     m_events.push_back(msg.formatted.str());
 }
+
+void my_sink::flush()
+{
+    // std::cout << std::flush;
+}

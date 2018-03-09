@@ -39,43 +39,18 @@ struct commandobj : script_entity
     ~commandobj();
     
 
-    void SetCommand(const std::string& name)
-    {
-        this->name = name;
-        
-    }
-    const std::string& GetCommand()
-    {
-        return name;
-    }
+    void SetCommand(const std::string& name);
+    const std::string& GetCommand();
     
-    void SetAliases(const sol::as_table_t<std::vector<std::string> >& aliases)
-    {
-        const auto& vex = aliases.source;
-        for(auto& s : vex) {
-            this->command_aliases.push_back(s);
-        }
-    }
+    void SetAliases(const sol::as_table_t<std::vector<std::string> >& aliases);
     
-    void AddAlias(const std::string& alias)
-    {
-        this->command_aliases.push_back(alias);
-    }
+    void AddAlias(const std::string& alias);
     
-    const std::vector<std::string>& GetAliases()
-    {
-        return command_aliases;
-    }
+    const std::vector<std::string>& GetAliases();
     
-    void SetPriority(int priority)
-    {
-        this->priority = priority;
-    }
+    void SetPriority(int priority);
     
-    int GetPriority() const
-    {
-        return priority;
-    }
+    int GetPriority() const;
     
 
 

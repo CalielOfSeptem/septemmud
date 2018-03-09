@@ -8,6 +8,9 @@
   <VirtualDirectory Name="src">
     <File Name="src/global_settings.cpp"/>
     <VirtualDirectory Name="script_entities">
+      <File Name="src/script_entities/lookobj.cpp"/>
+      <File Name="src/script_entities/inventory_slot.cpp"/>
+      <File Name="src/script_entities/exitobj.cpp"/>
       <File Name="src/script_entities/handobj.cpp"/>
       <File Name="src/script_entities/script_entity.cpp"/>
       <File Name="src/script_entities/commandobj.cpp"/>

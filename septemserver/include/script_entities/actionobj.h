@@ -31,32 +31,14 @@ namespace pt = boost::posix_time;
 
 struct actionobj
 {
-    actionobj( sol::protected_function func, unsigned int interval, sol::object userData = sol::nil )
-    {
-        this->func = func;
-        this->interval = interval;
-        this->user_data = userData;
-        lastTick = pt::second_clock::local_time();
-    }
-    ~actionobj()
-    {
-        
-    }
+    actionobj( sol::protected_function func, unsigned int interval, sol::object userData = sol::nil );
     
-    const unsigned int& GetInterval()
-    {
-        return interval;
-    }
     
-    sol::protected_function GetFunc()
-    {
-        return func;
-    }
+    const unsigned int& GetInterval();
     
-    sol::object GetUserData()
-    {
-        return user_data;
-    }
+    sol::protected_function GetFunc();
+    
+    sol::object GetUserData();
     
     void DoAction();
 

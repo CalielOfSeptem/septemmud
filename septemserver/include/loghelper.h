@@ -32,16 +32,11 @@ class my_sink : public spd::sinks::sink
 {
 public:
     
-    void log(const spd::details::log_msg& msg) override
-    ;
+    void log(const spd::details::log_msg& msg) override;
     
-    void SendToEntity(const spd::details::log_msg& msg, script_entity* se)
-    ;
+    void SendToEntity(const spd::details::log_msg& msg, script_entity* se);
 
-    void flush() 
-    {
-        //std::cout << std::flush;
-    }
+    void flush() ;
 
     std::list< std::string > m_events;
 };

@@ -25,7 +25,8 @@
 #ifndef EXTCOMMANDOBJ_H_
 #define EXTCOMMANDOBJ_H_
 
-#include "script_entities/livingentity.h"
+//#include "script_entities/livingentity.h"
+struct living_entity;
 
 struct extcommandobj
 {
@@ -35,62 +36,26 @@ struct extcommandobj
      * @param userData
      * @return 
      */
-    extcommandobj( sol::state_view lua_state, sol::protected_function func, const std::string& name, sol::object userData = sol::nil ) :
-    m_lua_state(lua_state)
-    {
-        this->func = func;
-        this->user_data = userData;
-        this->name = name;
-    }
+    extcommandobj( sol::state_view lua_state, sol::protected_function func, const std::string& name, sol::object userData = sol::nil );
+    ~extcommandobj();
     
-
-    ~extcommandobj()
-    {
-        
-    }
+   void SetCommand(const std::string& name);
+   
+    const std::string& GetCommand();
     
-   void SetCommand(const std::string& name)
-    {
-        this->name = name;
-        
-    }
-    const std::string& GetCommand()
-    {
-        return name;
-    }
+    void SetAliases(const sol::as_table_t<std::vector<std::string> >& aliases);
     
-    void SetAliases(const sol::as_table_t<std::vector<std::string> >& aliases)
-    {
-        const auto& vex = aliases.source;
-        for(auto& s : vex) {
-            this->command_aliases.push_back(s);
-        }
-    }
+    void AddAlias(const std::string& alias);
     
-    void AddAlias(const std::string& alias)
-    {
-        this->command_aliases.push_back(alias);
-    }
-    
-    const std::vector<std::string>& GetAliases()
-    {
-        return command_aliases;
-    }
-    
+    const std::vector<std::string>& GetAliases();
     
     // Following two functions are for when a command is instantiated by a
     // script entity such as a room or item.
-    sol::protected_function GetFunc()
-    {
-        return func;
-    }
+    sol::protected_function GetFunc();
     
     bool ExecuteFunc(living_entity * le, const std::string& cmd);
     
-    sol::object GetUserData()
-    {
-        return user_data;
-    }
+    sol::object GetUserData();
     
 
    

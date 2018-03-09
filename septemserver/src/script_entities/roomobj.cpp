@@ -91,7 +91,7 @@ doorobj* roomobj::AddDoor(const std::string& door_name,
 
         } else {
             // add it in.
-            doorobj* tdoor = maybe_otherside->AddDoor(door_name, this->GetInstancePath(), door_id, open, locked);
+            maybe_otherside->AddDoor(door_name, this->GetInstancePath(), door_id, open, locked);
         }
 
         // maybe_otherside->set_otherSide(new_door); // first door intantiated wins!
