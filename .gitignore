@@ -50,3 +50,4 @@ game_data/accounts
 game_data/logs
 *.gch
 *.h.gch
+stdafx.h.gch
