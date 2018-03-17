@@ -25,6 +25,28 @@
 #ifndef ENTITY_MANAGER_H_
 #define ENTITY_MANAGER_H_
 
+#include "security_context.hpp"
+#include "script_entities/script_entity.h"
+#include "script_entities/roomobj.h"
+#include "script_entities/livingentity.h"
+#include "script_entities/playerobj.h"
+#include "script_entities/daemonobj.h"
+#include "script_entities/commandobj.h"
+#include "script_entities/itemobj.h"
+#include "script_entities/doorobj.h"
+#include "script_entities/handobj.h"
+
+#include "string_utils.h"
+
+#include "entity_wrapper.h"
+#include "heartbeat_manager.h"
+
+#include "server/client.hpp"
+
+#include "account_manager.h"
+#include "account.h"
+#include "fs/fs_manager.h"
+/*
 struct script_entity;
 struct living_entity;
 struct playerobj;
@@ -35,9 +57,9 @@ struct roomobj;
 struct daemonobj;
 struct handobj;
 struct entity_wrapper;
+*/
 //
-//#include <boost/asio.hpp>
-//#include <boost/asio/strand.hpp>
+
 namespace ba = boost::asio;
 
 class entity_manager
@@ -109,7 +131,7 @@ struct _internal_queue_wrapper_
     
     void invoke_heartbeat();
     
-    void invoke_room_actions();
+    void invoke_actions();
     
     void register_command( commandobj * cmd );
     void deregister_command( commandobj * cmd );

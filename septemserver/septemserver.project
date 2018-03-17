@@ -6,6 +6,7 @@
     </Plugin>
   </Plugins>
   <VirtualDirectory Name="src">
+    <File Name="src/entity_wrapper.cpp"/>
     <File Name="src/global_settings.cpp"/>
     <VirtualDirectory Name="script_entities">
       <File Name="src/script_entities/lookobj.cpp"/>

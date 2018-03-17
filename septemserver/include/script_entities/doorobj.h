@@ -26,8 +26,6 @@
 #define DOOROBJ_H_
 
 #include "script_entities/itemobj.h"
-//#include "script_entities/roomobj.h"
-
 struct roomobj;
 
 struct doorobj : public itemobj

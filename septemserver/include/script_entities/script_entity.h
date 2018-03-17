@@ -29,7 +29,6 @@
 #include "loghelper.h"
 
 
-
 class get_uid;
 struct extcommandobj;
 struct actionobj;
@@ -118,6 +117,8 @@ struct script_entity {
         virtual bool do_json_load( std::string& j );
         
         actionobj * AddAction( sol::protected_function func, unsigned int interval, sol::object userData = sol::nil);
+        
+        void RemoveAction(actionobj * a);
         
         std::vector<std::shared_ptr<actionobj>>& GetActions();
         

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "script_entities/extcommandobj.h"
+#include "script_entities/livingentity.h"
 #include "security_context.hpp"
 #include "script_entities/playerobj.h"
 

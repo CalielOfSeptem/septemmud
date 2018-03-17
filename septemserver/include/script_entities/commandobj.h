@@ -27,7 +27,7 @@
 
 #include "script_entities/script_entity.h"
 
-struct living_entity;
+//struct living_entity;
 
 struct commandobj : script_entity
 {

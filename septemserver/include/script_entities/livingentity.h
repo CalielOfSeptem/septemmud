@@ -27,13 +27,13 @@
 #include "entity_constants.h"
 #include "script_entities/script_entity.h"
 #include "script_entities/container_base.h"
-#include "script_entities/handobj.h"
 #include "script_entities/inventory_slot.h"
-#include "script_entities/itemobj.h"
-
+#include "script_entities/handobj.h"
 class roomobj;
 struct living_entity;
 struct itemobj;
+//struct handobj;
+
 
 enum class EntityGender { MALE, FEMALE, UNKNOWN };
 enum class EntityBodyPosition { PRONE, SITTING, KNEELING, STANDING };

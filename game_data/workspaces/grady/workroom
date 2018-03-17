@@ -1,5 +1,5 @@
 inherit room
-r1 = room.new()
+r1 = room.new(roomTypes.indoor)
 
 r1:SetTitle('Grady\'s Workroom')
 r1:SetDescription("")
@@ -8,7 +8,7 @@ function r1:timed_action()
 	r1:SendToRoom('This is example timed output..')
 end
 
-r1:AddAction( r1.timed_action, 900, nil )
+--r1:AddAction( r1.timed_action, 900, nil )
 
 r1:AddLook( { 'desk', 'oaken desk', 'massive oaken desk' }, 'Nothing is atop the desk.')
 

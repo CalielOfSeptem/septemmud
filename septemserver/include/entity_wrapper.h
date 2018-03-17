@@ -22,12 +22,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 // DEALINGS IN THE SOFTWARE.
 // ==========================================================================
+
  #ifndef ENTITY_WRAPPER_H_
  #define ENTITY_WRAPPER_H_
  
-
  #include "script_entities/script_entity.h"
-
+ 
+ //struct script_entity;
 
  struct entity_wrapper
  {
@@ -57,16 +58,10 @@
      }
      
      std::string get_object_uid()
-     {
-         // example: /home/ken/git-repos/septem/game_data/realms/void:obj=room1:id=0
-         return script_ent->GetInstancePath(); //script_path + ":id=" + std::to_string(instance_id);
-     }
+     ;
      
      void clear()
-     {
-         script_ent->clear_props();
-         script_ent = NULL;
-     }
+     ;
      
      std::string script_path;
      script_entity* script_ent;

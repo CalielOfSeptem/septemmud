@@ -27,18 +27,17 @@
 #include "script_entity.h"
 #include "script_entities/container_base.h"
 
-
-struct itemobj;
 struct exitobj;
 struct lookobj;
 struct doorobj;
+struct itemobj;
 
-
+enum RoomType : int { INDOOR=0, OUTDOOR };
 
 class roomobj : public script_entity, public container_base
 {
 public:
-    roomobj(sol::this_state ts, sol::this_environment te);
+    roomobj(sol::this_state ts, sol::this_environment te, int rt);
     
     ~roomobj();
 
@@ -86,7 +85,7 @@ public:
     virtual void debug( const std::string& msg ) override;
     
         
-
+    bool GetIsOutdoor();
 
     
 private:
@@ -98,7 +97,7 @@ private:
     std::vector<std::shared_ptr<lookobj>> looks;
     std::vector<std::shared_ptr<doorobj>> doors;
     
-
+    RoomType room_type;
 };
 
 #endif

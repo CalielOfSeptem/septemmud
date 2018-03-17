@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "script_entities/container_base.h"
 #include "script_entities/handobj.h"
 #include "script_entities/itemobj.h"
 

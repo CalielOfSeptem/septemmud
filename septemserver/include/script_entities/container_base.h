@@ -26,10 +26,7 @@
  #define CONTAINER_BASE_H_
  
 
- #include "entity_wrapper.h"
- 
-
- 
+ struct script_entity;
  struct container_base
  {
      virtual script_entity * GetOwner() = 0;

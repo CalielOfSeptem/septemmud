@@ -42,7 +42,7 @@ void TimerHandler(
 		//	<< "] TimerHandler " << std::endl;
         std::unique_lock<std::recursive_mutex> lock(*entity_manager::Instance().GetLuaMutex());
         entity_manager::Instance().get_heartbeat_manager().do_heartbeats();
-        entity_manager::Instance().invoke_room_actions();
+        entity_manager::Instance().invoke_actions();
 
 		timer->expires_from_now( boost::posix_time::seconds( 1 ) );
 		timer->async_wait( 

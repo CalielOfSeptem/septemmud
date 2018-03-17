@@ -7,10 +7,10 @@
 #include "script_entities/doorobj.h"
 #include "script_entities/lookobj.h"
 #include "script_entities/exitobj.h"
-
-roomobj::roomobj(sol::this_state ts, sol::this_environment te)
+roomobj::roomobj(sol::this_state ts, sol::this_environment te, int rt)
     : script_entity(ts, te, EntityType::ROOM, "")
-{
+    {
+    room_type = static_cast<RoomType>(rt);
     entity_manager::Instance().register_room(this);
 }
 
@@ -199,4 +199,13 @@ bool roomobj::RemoveEntityFromInventory( script_entity * se )
 {
     //se->SetEnvironment(NULL);
     return container_base::RemoveEntityFromInventory(se);
+}
+
+bool roomobj::GetIsOutdoor()
+{
+    if( room_type == RoomType::OUTDOOR )
+    {
+        return true;
+    }
+    else return false;
 }

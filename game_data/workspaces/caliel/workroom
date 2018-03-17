@@ -1,5 +1,5 @@
 inherit room
-p1 = room.new()
+p1 = room.new(roomTypes.indoor)
 --init_room(p1)
 p1:SetTitle('Caliel\'s Workroom')
 
@@ -26,7 +26,7 @@ function p1:timed_action()
 	end
 end
 
-p1:AddAction( p1.timed_action, 900, nil )
+--p1:AddAction( p1.timed_action, 900, nil )
 
 p1:AddLook( { 'table', 'oaken table', 'massive oaken table' }, 'Atop the table you see several stacks of books and scrolls.')
 
@@ -81,7 +81,7 @@ end
 
 p1:test_something()
 
-p2 = room.new()
+p2 = room.new(roomTypes.indoor)
 --init_room(p2)
 p2:SetTitle('Castle Foyer')
 p2:SetDescription('A castle foyer that includes a plush red carpet and lavish draperies.')

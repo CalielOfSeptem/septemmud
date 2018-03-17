@@ -1,7 +1,10 @@
 #include "stdafx.h"
 #include "script_entities/container_base.h"
-#include "script_entities/itemobj.h"
-#include "entity_manager.h"
+
+ #include "script_entities/script_entity.h"
+ #include "entity_wrapper.h"
+ #include "script_entities/itemobj.h"
+ #include "entity_manager.h"
 
 bool container_base::AddEntityToInventory(script_entity* se)
 {

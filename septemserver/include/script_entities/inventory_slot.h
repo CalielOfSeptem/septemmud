@@ -1,7 +1,7 @@
 #ifndef INVENTORY_SLOT_H_
 #define INVENTORY_SLOT_H_
-#include "script_entities/itemobj.h"
 
+#include "script_entities/itemobj.h"
 enum InventorySlot {
         NONE                        = 0,
         BODY                        = 1<<0,

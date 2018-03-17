@@ -26,9 +26,9 @@
 #define _SECURITY_CONTEXT_HPP_
 
 #include "script_entities/script_entity.h"
+#include "script_entities/playerobj.h"
 
-
-struct playerobj;
+//struct playerobj;
 
 class security_context
 {

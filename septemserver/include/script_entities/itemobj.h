@@ -29,6 +29,9 @@
 #include "script_entities/script_entity.h"
 #include "script_entities/container_base.h"
 
+
+//struct script_entity;
+//struct container_base;
     // These match the lua defines, do not change without also updating defines..
 enum class ItemSize { FINE=0, DIMINUTIVE, TINY, SMALL, MEDIUM, LARGE, ENORMOUS, GARGANTUAN, COLOSSAL };
 enum class ItemType { DEFAULT=0, ARMOR, PLANT, INSTRUMENT, TOOL, MELEE, RANGED, THROWN, SKIN, AMMO, WEARABLE };

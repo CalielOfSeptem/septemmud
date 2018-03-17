@@ -38,6 +38,7 @@ void init_lua_state(sol::state& l)
             "Debug", &script_entity::debug,
             "AddAction", &script_entity::AddAction,
             "AddCommand", &script_entity::AddCommand,
+            "RemoveAction", &script_entity::RemoveAction,
             "GetCommands", &script_entity::GetCommands,
             "destroy", sol::property(&script_entity::get_destroy, &script_entity::set_destroy)
             );
@@ -175,7 +176,7 @@ void init_lua_state(sol::state& l)
     // bool bisContainer;
     
     lua.new_usertype<roomobj>("room",
-                              sol::constructors<roomobj(sol::this_state, sol::this_environment)>(),
+                              sol::constructors<roomobj(sol::this_state, sol::this_environment, int)>(),
                               sol::meta_function::new_index,
                               &roomobj::set_property_lua,
                               sol::meta_function::index,
@@ -220,6 +221,8 @@ void init_lua_state(sol::state& l)
                               &roomobj::GetLooks,
                               "SendToRoom",
                               &roomobj::SendToRoom,
+                              "IsOutdoors",
+                              &roomobj::GetIsOutdoor,
                               sol::base_classes,
                               sol::bases<script_entity, container_base>());
                               

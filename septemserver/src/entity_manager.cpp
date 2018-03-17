@@ -1,24 +1,7 @@
 #include "stdafx.h"
+
+
 #include "entity_manager.h"
-#include "security_context.hpp"
-#include "script_entities/script_entity.h"
-#include "script_entities/roomobj.h"
-#include "script_entities/livingentity.h"
-#include "script_entities/playerobj.h"
-#include "script_entities/daemonobj.h"
-#include "script_entities/commandobj.h"
-#include "script_entities/itemobj.h"
-#include "script_entities/doorobj.h"
-
-#include "entity_wrapper.h"
-#include "heartbeat_manager.h"
-
-#include "server/client.hpp"
-
-#include "account_manager.h"
-#include "account.h"
-#include "fs/fs_manager.h"
-
 //#include <boost/filesystem/operations.hpp>
 //#include <boost/filesystem/path.hpp>
 //#include <boost/filesystem/fstream.hpp>
@@ -153,6 +136,12 @@ bool entity_manager::compile_entity(std::string& relative_script_path,
             ss << "Error compiling script <<  " << relative_script_path
                << ", reason = " << reason; // Destroyed object, script path= " << virtual_script_path;
             log->error(ss.str());
+            if(auto p = security_context::Instance().GetPlayerEntity()) {
+                if(p->isCreator()) {
+                    p->SendToEntity(ss.str());
+                }
+            }
+            //p->SendToEntity(std::string("Error: ") + reason);
             // TODO: we have a problem, move players to void.. or shutdown server is void is borked too
         } else {
             rooms.clear();
@@ -830,6 +819,18 @@ void entity_manager::init_lua()
     */
 }
 
+std::string get_str_between(const std::string &s,
+        const std::string &start_delim,
+        const std::string &stop_delim)
+{
+    unsigned first_delim_pos = s.find(start_delim);
+    unsigned end_pos_of_first_delim = first_delim_pos + start_delim.length();
+    unsigned last_delim_pos = s.find(stop_delim);
+
+    return s.substr(end_pos_of_first_delim,
+            last_delim_pos - end_pos_of_first_delim);
+}
+
 bool entity_manager::load_script_text(std::string& script_path,
                                       std::string& script_text,
                                       EntityType& obj_type,
@@ -841,11 +842,37 @@ bool entity_manager::load_script_text(std::string& script_path,
 
     std::string token;
     std::vector<std::string> file_tokens;
-
+    std::vector<std::string> include_tokens;
+    // PRE-PROCESSOR STUFF
     bool bFoundType = false;
     while(std::getline(buffer, token, '\n')) {
         trim(token);
-
+        if( boost::starts_with(token, "#include" ) )
+        {
+            std::string d1 = "<";
+            std::string d2 = ">";
+            std::string d3 = "\"";
+            std::string tinclude = get_str_between(token, d1, d2 );
+            bool ifound = false;
+            if( !tinclude.empty() )
+            {
+                include_tokens.push_back(tinclude);
+                ifound = true;
+            }
+            tinclude = get_str_between(token, d3, d3 );
+            if( !tinclude.empty() )
+            {
+                include_tokens.push_back(tinclude);
+                ifound = true;
+            }
+            if( !ifound )
+            {
+                reason = "Include directive is empty or malformed.";
+                return false;
+            }
+            token = "--" + token + "\r\n";
+            file_tokens.push_back(token);
+        }
         if(token.compare("inherit lib") == 0) {
             if(bFoundType) // bad. only one type per script
             {
@@ -853,7 +880,7 @@ bool entity_manager::load_script_text(std::string& script_path,
                 return false;
             }
             obj_type = EntityType::LIB;
-            token = "";
+            token = "--" + token + "\r\n";
             file_tokens.push_back(token);
 
             bFoundType = true;
@@ -864,7 +891,7 @@ bool entity_manager::load_script_text(std::string& script_path,
                 return false;
             }
             obj_type = EntityType::DAEMON;
-            token = "";
+            token = "--" + token + "\r\n";
             file_tokens.push_back(token);
 
             bFoundType = true;
@@ -875,7 +902,7 @@ bool entity_manager::load_script_text(std::string& script_path,
                 return false;
             }
             obj_type = EntityType::ROOM;
-            token = "";
+            token = "--" + token + "\r\n";
             file_tokens.push_back(token);
 
             bFoundType = true;
@@ -886,7 +913,7 @@ bool entity_manager::load_script_text(std::string& script_path,
                 return false;
             }
             obj_type = EntityType::PLAYER;
-            token = "";
+            token = "--" + token + "\r\n";
             file_tokens.push_back(token);
             bFoundType = true;
         } else if(token.compare("inherit item") == 0) {
@@ -896,7 +923,7 @@ bool entity_manager::load_script_text(std::string& script_path,
                 return false;
             }
             obj_type = EntityType::ITEM;
-            token = "";
+            token = "--" + token + "\r\n";
             file_tokens.push_back(token);
             bFoundType = true;
         } else if(token.compare("inherit npc") == 0) {
@@ -906,7 +933,7 @@ bool entity_manager::load_script_text(std::string& script_path,
                 return false;
             }
             obj_type = EntityType::NPC;
-            token = "";
+            token = "--" + token + "\r\n";
             file_tokens.push_back(token);
 
             bFoundType = true;
@@ -917,7 +944,7 @@ bool entity_manager::load_script_text(std::string& script_path,
                 return false;
             }
             obj_type = EntityType::COMMAND;
-            token = "";
+            token = "--" + token + "\r\n";
             file_tokens.push_back(token);
 
             bFoundType = true;
@@ -1997,7 +2024,7 @@ bool entity_manager::do_update(std::string& entitypath, playerobj* p)
 
     // std::string reason;
     if(!compile_script_file(temp, reason)) {
-        p->SendToEntity(std::string("Error: ") + reason);
+        //p->SendToEntity(std::string("Error: ") + reason);
         return false;
     }
 
@@ -2115,9 +2142,17 @@ bool entity_manager::do_promote(playerobj* a, std::string b)
     return false;
 }
 
-void entity_manager::invoke_room_actions()
+void entity_manager::invoke_actions()
 {
     for(auto r : this->m_room_lookup) {
+        security_context::Instance().SetCurrentEntity(r.second);
+        r.second->DoActions();
+    }
+    for(auto r : this->m_item_lookup) {
+        security_context::Instance().SetCurrentEntity(r.second);
+        r.second->DoActions();
+    }
+    for(auto r : this->m_daemon_lookup) {
         security_context::Instance().SetCurrentEntity(r.second);
         r.second->DoActions();
     }

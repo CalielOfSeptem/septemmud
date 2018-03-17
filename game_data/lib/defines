@@ -12,6 +12,11 @@ direction.southwest = { 'southwest', 'sw' }
 settings = {}
 settings.DEFAULT_GAME_DATA_PATH = "DEFAULT_GAME_DATA_PATH"
 
+--enum class RoomType { INDOOR=0, OUTDOOR };
+roomTypes = {}
+roomTypes.indoor = 0
+roomTypes.outdoor = 1
+
 -- The following match C++ defines, do not change without also updating C++ defines..
 --enum class ItemSize { FINE=0, DIMINUTIVE, TINY, SMALL, MEDIUM, LARGE, ENORMOUS, GARGANTUAN, COLOSSAL };
 itemSize = {}
@@ -164,3 +169,18 @@ accountType.unknown		= 0
 accountType.player		= 1
 accountType.creator		= 2
 accountType.arch		= 3
+
+--	Months
+months				= {}
+months.sorrel 		= 0
+months.avium 		= 1
+months.larix 		= 2
+months.querod 		= 3
+months.frax_querod 	= 4
+months.tahrod 		= 5
+months.buhnrod 		= 6
+months.spirwol 		= 7
+months.tox_tomn 	= 8
+months.lox_tomn 	= 9
+months.musrod 		= 10
+months.nes_sorrel 	= 11

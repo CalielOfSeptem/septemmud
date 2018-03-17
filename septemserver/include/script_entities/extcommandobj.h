@@ -25,7 +25,7 @@
 #ifndef EXTCOMMANDOBJ_H_
 #define EXTCOMMANDOBJ_H_
 
-//#include "script_entities/livingentity.h"
+
 struct living_entity;
 
 struct extcommandobj

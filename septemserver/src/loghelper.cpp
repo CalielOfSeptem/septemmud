@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "loghelper.h"
+
 #include "security_context.hpp"
 #include "script_entities/itemobj.h"
 #include "script_entities/livingentity.h"
 #include "script_entities/playerobj.h"
 #include "script_entities/roomobj.h"
 #include "script_entities/script_entity.h"
-
 void my_sink::SendToEntity(const spd::details::log_msg& msg, script_entity* se)
 {
 

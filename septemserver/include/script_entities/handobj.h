@@ -3,6 +3,8 @@
 
 #include "script_entities/script_entity.h"
 #include "script_entities/container_base.h"
+
+
 struct itemobj;
 struct handobj : public container_base, public script_entity
 {
@@ -25,7 +27,6 @@ struct handobj : public container_base, public script_entity
     virtual script_entity * GetOwner() override;
     
     virtual bool do_save() override;
-    
     
     script_entity * m_livingEntity = NULL;
     

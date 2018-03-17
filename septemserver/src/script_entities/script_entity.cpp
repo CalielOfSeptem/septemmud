@@ -1,9 +1,10 @@
 #include "stdafx.h"
 #include "script_entities/script_entity.h"
+
+
 #include "entity_manager.h"
 #include "script_entities/actionobj.h"
 #include "script_entities/extcommandobj.h"
-#include "loghelper.h"
 
 script_entity::script_entity(EntityType myType, std::string name)
     : environment_(NULL)
@@ -394,4 +395,22 @@ std::vector<std::shared_ptr<actionobj>>& script_entity::GetActions()
 std::vector<std::shared_ptr<extcommandobj>>& script_entity::GetCommands()
 {
     return commands;
+}
+void script_entity::RemoveAction(actionobj * a)
+{
+    actions.erase(std::remove_if(actions.begin(), actions.end(),
+                          [a](const std::shared_ptr<actionobj> & i){ return &(*i) == a; }),
+           actions.end());
+           
+         /*  
+    for( std::shared_ptr<actionobj> ai : actions )
+    {
+        if( &(*ai) == a )
+        {
+            actions.erase(ai);
+            return;
+        }
+    }
+     */
+    
 }

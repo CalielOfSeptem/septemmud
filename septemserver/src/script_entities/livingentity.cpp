@@ -1,5 +1,9 @@
 #include "stdafx.h"
 #include "script_entities/livingentity.h"
+
+
+#include "script_entities/itemobj.h"
+
 #include "script_entities/playerobj.h"
 #include "script_entities/roomobj.h"
 #include "script_entities/itemobj.h"

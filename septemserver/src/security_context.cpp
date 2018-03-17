@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "security_context.hpp"
-#include "script_entities/playerobj.h"
+
 
 bool security_context::isArch()
 {

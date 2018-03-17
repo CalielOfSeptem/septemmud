@@ -25,8 +25,8 @@
 #ifndef _LOGHELPER_H_
 #define _LOGHELPER_H_
 
-
 struct script_entity;
+
 
 class my_sink : public spd::sinks::sink
 {
