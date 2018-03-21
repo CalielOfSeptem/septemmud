@@ -11,6 +11,7 @@
 #include "script_entities/actionobj.h"
 #include "script_entities/lookobj.h"
 #include "script_entities/exitobj.h"
+#include "script_entities/npcobj.h"
 
 #include "fs/fs_manager.h"
 void init_lua_state(sol::state& l)
@@ -217,6 +218,8 @@ void init_lua_state(sol::state& l)
                               &roomobj::GetPlayers,
                               "GetItems",
                               &roomobj::GetItems,
+                              "GetNPCs",
+                              &roomobj::GetNPCs,
                               "GetLooks",
                               &roomobj::GetLooks,
                               "SendToRoom",
@@ -258,6 +261,27 @@ void init_lua_state(sol::state& l)
                                 sol::base_classes,
                                 sol::bases<script_entity>());
 
+    lua.new_usertype<npcobj>("npc",
+                                sol::constructors<npcobj(sol::this_state, sol::this_environment, std::string)>(),
+                                sol::meta_function::new_index,
+                                &npcobj::set_property_lua,
+                                sol::meta_function::index,
+                                &npcobj::get_property_lua,
+                                "SendToEntity",
+                                &npcobj::SendToEntity,
+                                "SendToPlayer",
+                                &npcobj::SendToEntity,
+                                "GetEnvironment",
+                                &npcobj::GetEnvironment,
+                                "SetEnvironment",
+                                &npcobj::SetEnvironment,
+                                "SendToRoom",
+                                &npcobj::SendToEnvironment,
+                                "GetRoom",
+                                &npcobj::GetRoom,
+                                sol::base_classes,
+                                sol::bases<living_entity, script_entity>());
+                                
     lua.new_usertype<playerobj>("player",
                                 sol::constructors<playerobj(sol::this_state, sol::this_environment, std::string)>(),
                                 sol::meta_function::new_index,

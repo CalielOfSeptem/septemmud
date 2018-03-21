@@ -1,5 +1,5 @@
 // ==========================================================================
-// containerbase.h
+// npcobj.h
 //
 // Copyright (C) 2018 Kenneth Thompson, All Rights Reserved.
 // This file is covered by the MIT Licence:
@@ -22,24 +22,55 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 // DEALINGS IN THE SOFTWARE.
 // ==========================================================================
- #ifndef CONTAINER_BASE_H_
- #define CONTAINER_BASE_H_
+#ifndef NPC_OBJ_H_
+#define NPC_OBJ_H_
  
 
- struct script_entity;
- struct container_base
- {
-     virtual script_entity * GetOwner() = 0;
-     virtual bool AddEntityToInventory(script_entity * se);
+#include "script_entities/livingentity.h"
+#include "script_entities/container_base.h"
+
+
+struct npcobj : living_entity 
+{
+    npcobj();
+    npcobj(sol::this_state ts, sol::this_environment te, std::string name);
      
-     virtual bool RemoveEntityFromInventoryByID( const std::string& id  );
-     
-     virtual bool RemoveEntityFromInventory( script_entity * se );
-     
-     virtual const std::vector< script_entity*  >& GetInventory();
-     virtual void ClearInventory();
-     protected:
-     std::vector< script_entity* > inventory;
+    ~npcobj();
     
- };
- #endif
+    virtual void debug(const std::string& msg) override;
+    
+    void SendToEntity(const std::string& msg) override;
+     
+    void SendToEnvironment(const std::string& msg) override;
+     
+    virtual void on_environment_change(EnvironmentChangeEvent evt, script_entity * env) override;
+    
+    std::function<void(const std::string&)> onOutput;
+    
+    virtual std::string get_npcArticle();
+     
+    virtual void set_npcArticle(std::string article);
+    
+    virtual std::string get_npcNoun();
+     
+    virtual void set_npcNoun(std::string noun);
+    
+    virtual std::string get_npcAdjectives();
+     
+    virtual void set_npcAdjectives(std::string adjectives);
+    
+    virtual void SetName(const std::string& name) override;
+     
+    virtual const std::string& GetName() override;
+    //Output onOutput;
+
+    // TODO: move this stuff to living
+    std::string roomPath; // current room the npc is in
+    unsigned long roomID;  // current ID of the room the npc is in
+    
+    std::string npcNoun;
+    std::string npcArticle;
+    std::string npcAdjectives;
+};
+ 
+#endif

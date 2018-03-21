@@ -234,12 +234,35 @@ function FormatRoom(r, o)
 			if i ~= #items then
 				str = str .. ', '
 
-			else
-				str = str .. '.' 
+			--else
+			--	str = str .. '.' 
 			end
 			s = s .. str
 		end
 	end
+	
+	local npcs = r:GetNPCs()
+	if( #npcs > 0 ) then
+		--s = s .. "\r\n"
+		if( #items == 0 ) then
+			s = s .. "You also see "
+			else
+			s = s .. ', '
+		end
+	
+		for i = 1, #npcs do
+			local iname = npcs[i]:GetName()
+			str = iname
+			if i ~= #npcs then
+				str = str .. ', '
+
+			--else
+			--	str = str .. '.' 
+			end
+			s = s .. str
+		end
+	end
+	s = s .. '.' 
 	
 	local players = r:GetPlayers(o:GetName())
 	if( #players > 0 ) then

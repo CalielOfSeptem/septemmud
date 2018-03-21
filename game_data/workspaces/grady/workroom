@@ -25,3 +25,4 @@ register_heartbeat(r1.hb) -- Here is the heartbeat registration.. the above func
 function r1:clone_items()
 	clone_item( 'workspaces/Grady/entities/rock', r1 ) -- example item 
 end
+

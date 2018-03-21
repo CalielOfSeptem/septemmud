@@ -31,6 +31,7 @@ struct exitobj;
 struct lookobj;
 struct doorobj;
 struct itemobj;
+struct npcobj;
 
 enum RoomType : int { INDOOR=0, OUTDOOR };
 
@@ -81,6 +82,8 @@ public:
     std::vector<script_entity*> GetPlayers(const std::string& name);
     
     std::vector<itemobj*> GetItems();
+    
+    std::vector<npcobj*> GetNPCs();
     
     virtual void debug( const std::string& msg ) override;
     

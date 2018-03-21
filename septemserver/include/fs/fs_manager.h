@@ -70,6 +70,8 @@ public:
      */
     bool translate_path( std::string& relative_path, playerobj* p, std::string& reason );
     
+    bool translate_path( std::string& relative_path, std::string& reason );
+    
     bool do_copy( std::string& patha, std::string& pathb, playerobj * p );
     
     bool do_remove( std::string& path, playerobj * p );

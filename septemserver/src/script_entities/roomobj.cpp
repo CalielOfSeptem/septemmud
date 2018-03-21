@@ -7,6 +7,7 @@
 #include "script_entities/doorobj.h"
 #include "script_entities/lookobj.h"
 #include "script_entities/exitobj.h"
+#include "script_entities/npcobj.h"
 roomobj::roomobj(sol::this_state ts, sol::this_environment te, int rt)
     : script_entity(ts, te, EntityType::ROOM, "")
     {
@@ -16,6 +17,7 @@ roomobj::roomobj(sol::this_state ts, sol::this_environment te, int rt)
 
 roomobj::~roomobj()
 {
+    //this->inventory.clear();
     // entity_manager::Instance().deregister_room(this);
 }
 
@@ -45,6 +47,20 @@ std::vector<itemobj*> roomobj::GetItems()
         }
     }
     return items;
+}
+
+std::vector<npcobj*> roomobj::GetNPCs()
+{
+    std::vector<npcobj*> npcs;
+    for(auto obj : GetInventory()) {
+        if(obj->GetType() == EntityType::NPC) {
+            // playerobj * p = dynamic_cast<playerobj*>(obj);
+            // if(boost::to_lower_copy(obj->GetName()) != boost::to_lower_copy(name)) {
+            npcs.push_back(static_cast<npcobj*>(obj));
+            // }
+        }
+    }
+    return npcs;
 }
 
 void roomobj::debug(const std::string& msg)

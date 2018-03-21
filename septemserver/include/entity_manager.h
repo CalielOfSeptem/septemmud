@@ -30,6 +30,7 @@
 #include "script_entities/roomobj.h"
 #include "script_entities/livingentity.h"
 #include "script_entities/playerobj.h"
+#include "script_entities/npcobj.h"
 #include "script_entities/daemonobj.h"
 #include "script_entities/commandobj.h"
 #include "script_entities/itemobj.h"
@@ -127,6 +128,9 @@ struct _internal_queue_wrapper_
     itemobj * clone_item ( std::string& relative_script_path, script_entity * obj, std::string uid="" );
     itemobj* clone_item_to_hand(std::string& relative_script_path, handobj* obj, std::string uid="" );
     
+    npcobj * clone_npc ( std::string& relative_script_path, roomobj * r, std::string uid="" );
+    npcobj* clone_npc_to_room(std::string& relative_script_path, roomobj* r, std::string uid="" );
+    
     bool reload_all_item_instances( std::string& relative_script_path );
     
     void invoke_heartbeat();
@@ -144,6 +148,9 @@ struct _internal_queue_wrapper_
     
     void register_item( itemobj * item );
     void deregister_item( itemobj * item );
+    
+    void register_npc( npcobj * npc );
+    void deregister_npc( npcobj * npc );
     
     void register_entity(script_entity *entityobj, std::string& sp, EntityType etype);
     void deregister_entity(script_entity *entityobj, EntityType etype);
@@ -191,6 +198,10 @@ struct _internal_queue_wrapper_
     roomobj * GetRoomByScriptPath(std::string & script_path, unsigned int instance_id);
     
     itemobj * GetItemByScriptPath(std::string & script_path, unsigned int instance_id);
+    
+    npcobj * GetNPCByScriptPath(std::string & script_path, unsigned int instance_id);
+    
+    npcobj * GetNPCByScriptPath(std::string & script_path);
     
     itemobj* GetItemByScriptPath(std::string& script_path);
     
@@ -241,6 +252,7 @@ private:
     std::map< std::string, std::set<std::shared_ptr<entity_wrapper>> > m_daemon_objs;
     std::map< std::string, std::set<std::shared_ptr<entity_wrapper>> > m_cmd_objs;
     std::map< std::string, std::set<std::shared_ptr<entity_wrapper>> > m_item_objs;
+    std::map< std::string, std::set<std::shared_ptr<entity_wrapper>> > m_npc_objs;
     std::map< std::string, std::shared_ptr<entity_wrapper> > m_player_objs;
     
     
@@ -252,6 +264,12 @@ private:
     std::map< std::string, roomobj * > m_room_lookup;
     std::map< std::string, daemonobj * > m_daemon_lookup;
     std::map< std::string, itemobj * > m_item_lookup;
+    std::map< std::string, npcobj * > m_npc_lookup;
+    
+    /*
+     * Holds entities scheduled for deletion...
+    */
+    std::vector<script_entity*> m_entity_cleanup;
     
     std::shared_ptr < sol::state > m_state;
     std::shared_ptr<_internal_lua_> m_state_internal;
@@ -330,7 +348,7 @@ private:
     
     bool destroy_command(std::string& script_path);
     
-    
+    bool destroy_npc(std::string& script_path);
     
     bool destroy_entity(std::shared_ptr<entity_wrapper>& ew);
     

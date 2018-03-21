@@ -161,6 +161,7 @@ bool entity_manager::compile_entity(std::string& relative_script_path,
         }
 
     } break;
+    case EntityType::NPC:
     case EntityType::PLAYER: {
         // TODO: logic that finds the player and reconnects them with their client object, if they have an object in the
         // world
@@ -244,6 +245,29 @@ itemobj* entity_manager::clone_item_to_hand(std::string& relative_script_path, h
     */
     return clone_item(relative_script_path, obj->GetOwner(), uid);
 }
+
+npcobj* entity_manager::clone_npc_to_room(std::string& relative_script_path, roomobj* r, std::string uid)
+{
+    
+    /*
+    std::string temp = relative_script_path;
+    std::string reason;
+    if( !fs_manager::Instance().translate_path( temp, reason ) )
+    {
+        //((playerobj*)obj->GetOwner())->SendToEntity(reason);
+        return NULL;
+    }
+    */
+    if( relative_script_path.empty() )
+        return NULL;
+    if( relative_script_path[0] == '/' )
+    {
+        relative_script_path.erase(0, 1);
+    }
+    
+    return clone_npc(relative_script_path, r, uid);
+}
+
 
 bool entity_manager::do_item_reload(std::string& entitypath, playerobj* p)
 {
@@ -483,6 +507,55 @@ itemobj* entity_manager::clone_item(std::string& relative_script_path, script_en
                 return i;
             } else {
                 obj->debug("Error moving cloned object into inventory. Invalid cast.");
+                return NULL;
+            }
+        }
+    }
+
+    return NULL;
+}
+
+npcobj* entity_manager::clone_npc(std::string& relative_script_path, roomobj* r, std::string uid)
+{
+    std::stringstream ss;
+    ss << "Cloning npc " << relative_script_path << ", id = " << uid;
+
+    if(uid.size() == 0)
+        uid = random_string();
+    std::string reason;
+    std::string tag = "";
+    std::string vpath = relative_script_path + "/" + uid;
+    std::string adl_lua = "\n_ENTITY_ENV_PATH_ = '" + r->GetInstancePath() + "'";
+    adl_lua += "\n_ENTITY_ENV_TYPE_ = '" + r->GetEntityTypeString() + "'";
+    adl_lua += "\n_INTERNAL_UUID_ = '" + uid + "'"; // may need to rethink this
+    if(!this->compile_and_clone(relative_script_path, vpath, tag, uid, adl_lua, reason)) {
+
+        if(r != NULL)
+            r->debug(reason);
+        if(auto p = security_context::Instance().GetPlayerEntity()) {
+            if(p->isCreator()) {
+                std::stringstream ss;
+                ss << "Error cloning npc: " << relative_script_path << ", reason: " << reason;
+                p->SendToEntity(ss.str());
+            }
+        }
+        return NULL;
+    } else {
+        npcobj* i = GetNPCByScriptPath(vpath);
+
+        if(i != NULL) {
+            // i->SetPhysicalScriptPath(relative_script_path);
+            i->set_uid(uid);
+            relative_script_path = vpath;
+
+            if(auto e = dynamic_cast<container_base*>(r)) {
+                e->AddEntityToInventory(i);
+                std::stringstream ss;
+                ss << "Moving NPC to destination .. " << relative_script_path << ", id = " << uid;
+                r->debug(ss.str());
+                return i;
+            } else {
+                r->debug("Error moving cloned npc into room. Invalid cast.");
                 return NULL;
             }
         }
@@ -771,6 +844,9 @@ void entity_manager::init_lua()
 
     lua.set_function("clone_item_to_hand",
                      [&](std::string path, handobj * e) -> itemobj * { return this->clone_item_to_hand(path, e); });
+                     
+    lua.set_function("clone_npc_to_room",
+                     [&](std::string path, roomobj * r) -> npcobj * { return this->clone_npc_to_room(path, r); });
 
     lua.set_function("do_translate_path",
                      [&](std::string path, playerobj* e) -> std::string { return this->do_translate_path(path, e); });
@@ -1121,6 +1197,33 @@ bool entity_manager::destroy_item(std::string& script_path)
     return true;
 }
 
+bool entity_manager::destroy_npc(std::string& script_path)
+{
+
+    // sol::state& lua = (*m_state);
+    {
+        auto search = m_npc_objs.find(script_path);
+        if(search == m_npc_objs.end()) {
+            return false;
+        }
+
+        sol::environment env;
+        std::string name;
+        get_parent_env_of_entity(script_path, env, name);
+
+        for(auto e : search->second) {
+            destroy_entity(e);
+        }
+
+        env[name] = sol::nil;
+        m_npc_objs.erase(search);
+    }
+
+    // lua.collect_garbage();
+
+    return true;
+}
+
 bool entity_manager::destroy_daemon(std::string& script_path)
 {
 
@@ -1286,7 +1389,39 @@ void entity_manager::deregister_room(roomobj* room)
     std::string room_path = room->GetInstancePath();
     auto search = m_room_lookup.find(room_path);
     if(search != m_room_lookup.end()) {
+        
+        //std::vector<script_entity*> found;
+        for( auto& i : search->second->GetInventory() )
+        {
+
+            if( i->GetType() == EntityType::NPC )
+            {
+                
+                i->SetEnvironment(NULL);
+                i->set_destroy(true);
+                //found.push_back(i);
+                
+                deregister_npc(dynamic_cast<npcobj*>(i));
+               // std::string t_path = i->GetInstancePath();
+                //destroy_npc(t_path);
+            }
+            else if( i->GetType() == EntityType::ITEM )
+            {
+                i->SetEnvironment(NULL);
+                i->set_destroy(true);
+              //  found.push_back(i);
+                
+                deregister_item(dynamic_cast<itemobj*>(i));
+            }
+
+        }
+
+        search->second->ClearInventory();
         m_room_lookup.erase(search);
+        
+        garbage_collect();
+        //sol::state& lua = (*m_state);
+        //lua.collect_garbage();
 
         auto log = spd::get("main");
 
@@ -1309,6 +1444,7 @@ void entity_manager::register_item(itemobj* item)
     log->debug(ss.str());
 }
 
+
 void entity_manager::deregister_item(itemobj* item)
 {
     std::string item_path = item->GetInstancePath();
@@ -1318,6 +1454,30 @@ void entity_manager::deregister_item(itemobj* item)
         auto log = spd::get("main");
         std::stringstream ss;
         ss << "De-Registered item from lookup table, item = " << item_path;
+        log->debug(ss.str());
+    }
+}
+
+void entity_manager::register_npc(npcobj* npc)
+{
+    std::string npc_path = npc->GetInstancePath();
+    m_npc_lookup[npc_path] = npc;
+    auto log = spd::get("main");
+
+    std::stringstream ss;
+    ss << "Registered npc into lookup table, npc = " << npc_path;
+    log->debug(ss.str());
+}
+
+void entity_manager::deregister_npc(npcobj* npc)
+{
+    std::string npc_path = npc->GetInstancePath();
+    auto search = m_npc_lookup.find(npc_path);
+    if(search != m_npc_lookup.end()) {
+        m_npc_lookup.erase(search);
+        auto log = spd::get("main");
+        std::stringstream ss;
+        ss << "De-Registered npc from lookup table, npc = " << npc_path;
         log->debug(ss.str());
     }
 }
@@ -1449,6 +1609,20 @@ void entity_manager::register_entity(script_entity* entityobj, std::string& sp, 
             log->debug(ss.str());
         }
     } break;
+    case EntityType::NPC: {
+        auto search = m_npc_objs.find(sp);
+        if(search != m_npc_objs.end()) {
+            search->second.insert(ew);
+        } else {
+            std::set<std::shared_ptr<entity_wrapper> > new_set;
+            new_set.insert(ew);
+            m_npc_objs.insert({ ew->script_path, new_set }); // new_set ); //new_set );get_entity_str()
+            std::string e_str;
+            get_entity_str(ew->entity_type, e_str);
+            ss << "Registered new entity, type = " << e_str << ", Path =" << ew->script_path;
+            log->debug(ss.str());
+        }
+    } break;
     case EntityType::ITEM: {
         auto search = m_item_objs.find(sp);
         if(search != m_item_objs.end()) {
@@ -1560,59 +1734,85 @@ void entity_manager::reset()
     this->m_cmds_map.clear();
     this->m_room_lookup.clear();
     this->m_item_lookup.clear();
+    this->m_npc_lookup.clear();
+    
+    
 
     _heartbeat.deregister_all_heartbeat_funcs();
-
-    std::vector<std::string> destroy_entities;
-    for(auto& e : m_room_objs) {
-        for(auto& ew : e.second) {
-            destroy_entities.push_back(ew->script_path);
+    
+    std::vector<std::string> destroy_entities; 
+    for(auto& cmd : m_npc_objs) {
+        for(auto& ew : cmd.second) {
+           // destroy_entities.push_back(ew->script_path);
+            m_entity_cleanup.push_back(ew->script_ent);
         }
     }
+   // garbage_collect();
+   // this->m_state_internal.reset();
+   // m_state.reset();
+    //for(auto& npcname : destroy_entities)
+    //    destroy_npc(npcname);
+    //    
+    //destroy_entities.clear();
 
-    for(auto& rname : destroy_entities)
-        destroy_room(rname);
+    
+    for(auto& e : m_room_objs) {
+        for(auto& ew : e.second) {
+            //destroy_entities.push_back(ew->script_path);
+            m_entity_cleanup.push_back(ew->script_ent);
+        }
+    }
+    
+    //garbage_collect();
+    //for(auto& rname : destroy_entities)
+    ////    destroy_room(rname);
 
-    destroy_entities.clear();
+    //destroy_entities.clear();
 
     for(auto& e : m_player_objs) {
         // playerobj * pe = dynamic_cast<playerobj*>(e.second->script_ent);
         // pe->disconnect_client();
-        destroy_entities.push_back(e.second->script_path);
+        //destroy_entities.push_back(e.second->script_path);
+        m_entity_cleanup.push_back(e.second->script_ent);
     }
 
-    for(auto& pname : destroy_entities)
-        destroy_player(pname);
+    //for(auto& pname : destroy_entities)
+    //    destroy_player(pname);
 
-    destroy_entities.clear();
+   // destroy_entities.clear();
     for(auto& d : m_daemon_objs) {
         for(auto& ew : d.second) {
-            destroy_entities.push_back(ew->script_path);
+          //  destroy_entities.push_back(ew->script_path);
+            m_entity_cleanup.push_back(ew->script_ent);
         }
     }
 
-    for(auto& dname : destroy_entities)
-        destroy_daemon(dname);
+    //for(auto& dname : destroy_entities)
+    //    destroy_daemon(dname);
+    //garbage_collect();
 
-    destroy_entities.clear();
+    //destroy_entities.clear();
     for(auto& cmd : m_cmd_objs) {
         for(auto& ew : cmd.second) {
-            destroy_entities.push_back(ew->script_path);
+            //destroy_entities.push_back(ew->script_path);
+            m_entity_cleanup.push_back(ew->script_ent);
         }
     }
 
-    for(auto& cmdname : destroy_entities)
-        destroy_command(cmdname);
+    ///for(auto& cmdname : destroy_entities)
+    //    destroy_command(cmdname);
 
-    destroy_entities.clear();
+    //destroy_entities.clear();
     for(auto& cmd : m_item_objs) {
         for(auto& ew : cmd.second) {
-            destroy_entities.push_back(ew->script_path);
+            //destroy_entities.push_back(ew->script_path);
+            m_entity_cleanup.push_back(ew->script_ent);
         }
     }
+    garbage_collect();
 
-    for(auto& itemname : destroy_entities)
-        destroy_item(itemname);
+    //for(auto& itemname : destroy_entities)
+    //    destroy_item(itemname);
 
     this->m_state_internal.reset();
     m_state.reset();
@@ -1627,6 +1827,48 @@ void entity_manager::garbage_collect()
     // this->m_item_lookup.clear();
 
     //_heartbeat.deregister_all_heartbeat_funcs();
+    
+    for( script_entity * i : m_entity_cleanup )
+    {
+        std::string entity_script_path = i->GetVirtualScriptPath();
+        switch( i->GetType() )
+        {
+            case EntityType::ITEM:
+            {
+                deregister_item( dynamic_cast<itemobj*>(i));
+                destroy_item( entity_script_path);
+            }break;
+            case EntityType::NPC:
+            {
+                deregister_npc( dynamic_cast<npcobj*>(i));
+                destroy_npc( entity_script_path );
+            }break;
+            case EntityType::COMMAND:
+            {
+                deregister_command( dynamic_cast<commandobj*>(i) );
+                destroy_command( entity_script_path );               
+            }break;
+            case EntityType::DAEMON:
+            {
+                deregister_daemon( dynamic_cast<daemonobj*>(i) );
+                destroy_daemon( entity_script_path );     
+            }break;
+            case EntityType::PLAYER:
+            {
+               // deregister_player( dynamic_cast<playerobj*>(i) );
+                destroy_player( entity_script_path);                   
+            }break;
+            case EntityType::ROOM:
+            {
+                deregister_room( dynamic_cast<roomobj*>(i) );
+                destroy_room( entity_script_path );   
+            }break;
+        }
+    }
+    
+    m_entity_cleanup.clear();
+    
+    /*
 
     std::vector<std::string> destroy_entities;
     for(auto& e : m_room_objs) {
@@ -1693,6 +1935,24 @@ void entity_manager::garbage_collect()
         destroy_item(itemname);
         // this->m_item_lookup.clear();
     }
+    
+
+
+    destroy_entities.clear();
+    for(auto& cmd : m_npc_objs) {
+        for(auto& ew : cmd.second) {
+            if(ew->script_ent->get_destroy()) {
+                destroy_entities.push_back(ew->script_path);
+                deregister_item(static_cast<itemobj*>(ew->script_ent));
+            }
+        }
+    }
+
+    for(auto& npcname : destroy_entities) {
+        destroy_npc(npcname);
+        // this->m_item_lookup.clear();
+    }
+    */
 
     sol::state& lua = (*m_state);
     lua.collect_garbage();
@@ -1724,6 +1984,31 @@ roomobj* entity_manager::GetRoomByScriptPath(std::string& script_path, unsigned 
         }
     }
     */
+
+    return NULL;
+}
+npcobj* entity_manager::GetNPCByScriptPath(std::string& script_path, unsigned int instance_id)
+{
+    std::string item_path = script_path + ":id=" + std::to_string(instance_id);
+    auto search = m_npc_lookup.find(script_path);
+    if(search != m_npc_lookup.end()) {
+        return search->second;
+    }
+    return NULL;
+}
+
+npcobj* entity_manager::GetNPCByScriptPath(std::string& script_path)
+{
+    // std::string room_path = script_path + ":id=" + std::to_string(instance_id);
+    std::string itempath = script_path;
+    std::size_t found = itempath.find(":id=");
+    if(found == std::string::npos) {
+        itempath += ":id=0";
+    }
+    auto search = m_npc_lookup.find(itempath);
+    if(search != m_npc_lookup.end()) {
+        return search->second;
+    }
 
     return NULL;
 }
@@ -2145,6 +2430,10 @@ bool entity_manager::do_promote(playerobj* a, std::string b)
 void entity_manager::invoke_actions()
 {
     for(auto r : this->m_room_lookup) {
+        security_context::Instance().SetCurrentEntity(r.second);
+        r.second->DoActions();
+    }
+    for(auto r : this->m_npc_lookup) {
         security_context::Instance().SetCurrentEntity(r.second);
         r.second->DoActions();
     }

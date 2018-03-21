@@ -9,6 +9,7 @@
     <File Name="src/entity_wrapper.cpp"/>
     <File Name="src/global_settings.cpp"/>
     <VirtualDirectory Name="script_entities">
+      <File Name="src/script_entities/npcobj.cpp"/>
       <File Name="src/script_entities/lookobj.cpp"/>
       <File Name="src/script_entities/inventory_slot.cpp"/>
       <File Name="src/script_entities/exitobj.cpp"/>
@@ -56,6 +57,7 @@
     <File Name="include/entity_constants.h"/>
     <File Name="include/stdafx.h"/>
     <VirtualDirectory Name="script_entities">
+      <File Name="include/script_entities/npcobj.h"/>
       <File Name="include/script_entities/handobj.h"/>
       <File Name="include/script_entities/inventory_slot.h"/>
       <File Name="include/script_entities/script_entity.h"/>

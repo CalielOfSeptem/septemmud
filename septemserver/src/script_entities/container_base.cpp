@@ -121,3 +121,8 @@ const std::vector<script_entity*>& container_base::GetInventory()
 {
     return inventory;
 }
+
+void container_base::ClearInventory()
+{
+    inventory.clear();
+}

@@ -26,6 +26,15 @@ function p1:timed_action()
 	end
 end
 
+function p1:add_burke()
+	local path = '/workspaces/caliel/entities/burke'
+	if( clone_npc_to_room( path, self) == nil ) then
+		print('ERROR CLONING NPC\r\n')
+		--o:SendToEntity('Error cloning item.')
+		return true
+	end
+end
+
 --p1:AddAction( p1.timed_action, 900, nil )
 
 p1:AddLook( { 'table', 'oaken table', 'massive oaken table' }, 'Atop the table you see several stacks of books and scrolls.')
@@ -53,7 +62,7 @@ function p1:FooCommand(o, cmd)
 end
 
 p1:AddCommand( p1.FooCommand, {'sneeze'}, nil )
-
+p1:add_burke()
 
 
 

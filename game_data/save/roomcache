@@ -1,7 +1,6 @@
 {
     "room_cache": [
         "realms/void",
-        "workspaces/caliel/workroom",
-        "workspaces/grady/workroom"
+        "workspaces/caliel/workroom"
     ]
 }
