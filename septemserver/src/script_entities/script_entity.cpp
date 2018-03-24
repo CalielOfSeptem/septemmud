@@ -69,7 +69,7 @@ script_entity::script_entity(sol::this_state ts, sol::this_environment te, Entit
 
 script_entity::~script_entity()
 {
-
+	actions.clear();
     if(virtual_script_path.size() > 0) {
         auto log = spd::get("main");
         std::stringstream ss;

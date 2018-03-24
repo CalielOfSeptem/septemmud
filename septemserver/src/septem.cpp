@@ -144,7 +144,7 @@ private :
     {
         auto log = spd::get("main");
         std::stringstream ss;
-        ss << "on_client_death";
+        ss << "on_connection_death";
         log->debug( ss.str() );
         auto connection = weak_connection.lock();
     

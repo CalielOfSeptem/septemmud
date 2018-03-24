@@ -131,14 +131,14 @@
         <IncludePath Value="include/"/>
         <IncludePath Value="../sol2"/>
         <IncludePath Value="../plog/include"/>
-        <IncludePath Value="/home/ken/git-repos/lua-5.3.4/src"/>
+        <IncludePath Value="/home/ken/lua-5.3.4/src"/>
         <IncludePath Value="../../json/src"/>
         <IncludePath Value="../telnetpp/include"/>
         <IncludePath Value="../terminalpp/include"/>
         <IncludePath Value="/home/ken/git-repos/septemmud/sol2"/>
       </Compiler>
       <Linker Options="-lz;-ldl;-Wl,-export-dynamic" Required="yes">
-        <LibraryPath Value="/home/ken/git-repos/lua-5.3.4/src"/>
+        <LibraryPath Value="/home/ken/lua-5.3.4/src"/>
         <LibraryPath Value="../telnetpp/Debug"/>
         <LibraryPath Value="../terminalpp/Debug"/>
         <LibraryPath Value="/usr/local/lib"/>

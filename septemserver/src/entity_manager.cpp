@@ -120,10 +120,22 @@ bool entity_manager::compile_entity(std::string& relative_script_path,
                     t->SetEnvironment(NULL);
                     _pents[rp->GetInstancePath()].push_back(t);
                 }
-                // TODO: destroy npcs and items in the room
+				else if(auto t = dynamic_cast<itemobj*>(pe)) {
+					t->SetEnvironment(NULL);
+					deregister_item(t);
+					m_entity_cleanup.push_back(t);
+				}
+				else if(auto t = dynamic_cast<npcobj*>(pe)) {
+					t->SetEnvironment(NULL);
+					deregister_npc(t);
+					m_entity_cleanup.push_back(t);
+				}				
+
             }
             deregister_room(rp);
+			//m_entity_cleanup.push_back(rp);
         }
+		//garbage_collect();
         if(rooms.size() > 0) {
             destroy_room(relative_script_path);
         }
@@ -1055,7 +1067,7 @@ bool entity_manager::get_room_by_script(std::string& script_path, std::unordered
 
 bool entity_manager::unload_player(const std::string& playername)
 {
-    //   std::unique_lock<std::mutex> lock(lua_mutex_);
+    std::unique_lock<std::recursive_mutex> lock(lua_mutex_);
 
     playerobj* po = get_player(playername);
 
@@ -1071,7 +1083,7 @@ bool entity_manager::unload_player(const std::string& playername)
         return false;
     }
 
-    std::unique_lock<std::recursive_mutex> lock(lua_mutex_);
+   // std::unique_lock<std::recursive_mutex> lock(lua_mutex_);
     po->unload_inventory_from_game(); // Make sure to kill all items..
     std::string ppath = po->GetVirtualScriptPath();
 
@@ -1131,6 +1143,7 @@ bool entity_manager::destroy_room(std::string& script_path)
         _heartbeat.clear_heartbeat_funcs(script_path);
 
         for(auto e : search->second) {
+			deregister_room(dynamic_cast<roomobj*>(e->script_ent));
             destroy_entity(e);
         }
 
@@ -1158,6 +1171,7 @@ bool entity_manager::destroy_command(std::string& script_path)
         get_parent_env_of_entity(script_path, env, name);
 
         for(auto e : search->second) {
+            deregister_command(dynamic_cast<commandobj*>(e->script_ent));
             destroy_entity(e);
         }
 
@@ -1185,6 +1199,7 @@ bool entity_manager::destroy_item(std::string& script_path)
         get_parent_env_of_entity(script_path, env, name);
 
         for(auto e : search->second) {
+			deregister_item(dynamic_cast<itemobj*>(e->script_ent));
             destroy_entity(e);
         }
 
@@ -1212,6 +1227,7 @@ bool entity_manager::destroy_npc(std::string& script_path)
         get_parent_env_of_entity(script_path, env, name);
 
         for(auto e : search->second) {
+			deregister_npc(dynamic_cast<npcobj*>(e->script_ent));
             destroy_entity(e);
         }
 
@@ -1239,6 +1255,7 @@ bool entity_manager::destroy_daemon(std::string& script_path)
         get_parent_env_of_entity(script_path, env, name);
 
         for(auto e : search->second) {
+			deregister_daemon(dynamic_cast<daemonobj*>(e->script_ent));
             destroy_entity(e);
         }
         // sol::environment en_ = (*m_state).globals(); // env[name];
@@ -1386,6 +1403,8 @@ void entity_manager::register_room(roomobj* room)
 
 void entity_manager::deregister_room(roomobj* room)
 {
+	if( room == NULL )
+		return;
     std::string room_path = room->GetInstancePath();
     auto search = m_room_lookup.find(room_path);
     if(search != m_room_lookup.end()) {
@@ -1419,7 +1438,7 @@ void entity_manager::deregister_room(roomobj* room)
         search->second->ClearInventory();
         m_room_lookup.erase(search);
         
-        garbage_collect();
+       // garbage_collect();
         //sol::state& lua = (*m_state);
         //lua.collect_garbage();
 
@@ -1831,6 +1850,7 @@ void entity_manager::garbage_collect()
     for( script_entity * i : m_entity_cleanup )
     {
         std::string entity_script_path = i->GetVirtualScriptPath();
+		i->set_destroy(true);
         switch( i->GetType() )
         {
             case EntityType::ITEM:
@@ -1867,6 +1887,7 @@ void entity_manager::garbage_collect()
     }
     
     m_entity_cleanup.clear();
+	//m_npc_lookup.clear();
     
     /*
 
@@ -2429,6 +2450,13 @@ bool entity_manager::do_promote(playerobj* a, std::string b)
 
 void entity_manager::invoke_actions()
 {
+	pt::ptime t2 = pt::second_clock::local_time();
+    pt::time_duration diff = t2 - garbage_tick_;
+	if(diff.total_milliseconds() / 1000 > 15) {
+        garbage_tick_ = t2;
+		garbage_collect();
+    }
+
     for(auto r : this->m_room_lookup) {
         security_context::Instance().SetCurrentEntity(r.second);
         r.second->DoActions();
@@ -2559,7 +2587,7 @@ void entity_manager::on_cmd(living_entity* e, std::string const& cmd)
                         po->set_loggedIn(true);
                         std::string spath = pp->GetVirtualScriptPath();
                         destroy_player(spath);
-                        garbage_collect();
+                        //garbage_collect();
 
                         std::stringstream ss;
                         auto log = spd::get("main");
@@ -2588,7 +2616,7 @@ void entity_manager::on_cmd(living_entity* e, std::string const& cmd)
         }
 
         {
-            // std::unique_lock<std::mutex> lock(lua_mutex_);
+             std::unique_lock<std::recursive_mutex> lock(lua_mutex_);
 
             security_context::Instance().SetCurrentEntity(e);
 

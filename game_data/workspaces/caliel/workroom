@@ -57,12 +57,13 @@ p1:Debug('Loaded room!')
 
 function p1:FooCommand(o, cmd)
 	o:SendToEntity('HAAACHOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO!')
+	for i=1,50 do p1:add_burke() end
 	
 	return true
 end
 
 p1:AddCommand( p1.FooCommand, {'sneeze'}, nil )
-p1:add_burke()
+
 
 
 

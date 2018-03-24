@@ -292,6 +292,8 @@ private:
     std::list<_internal_queue_wrapper_>      dispatch_queue_;
     
     std::recursive_mutex                              lua_mutex_;
+	
+	boost::posix_time::ptime garbage_tick_;
     
     void on_cmd(living_entity* e, std::string const &cmd);
     
