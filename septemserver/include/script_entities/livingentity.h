@@ -103,7 +103,7 @@ private:
     
     std::map < InventorySlot, std::shared_ptr<inventory_slot>> m_inventory_slots;
     
-    void recursive_unload( script_entity* se );
+    //void recursive_unload( script_entity* se );
     
 protected:
     // Loads paths to default allowed commands.

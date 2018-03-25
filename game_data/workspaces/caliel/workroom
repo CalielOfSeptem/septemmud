@@ -20,10 +20,11 @@ p1:SetDescription("Exquisitely carved shelves of mahogany run the length of a la
 					to lead to a second story balcony. ")
 					
 function p1:timed_action()
+--p1:add_burke()
 	--print('ACTION!')
-	if( math.random(100) > 50 ) then
-		p1:SendToRoom('A book dislodges from a nearby shelf and floats to a shelf across the room before squeezing into a vacant slot between dusty volumes.')
-	end
+	--if( math.random(100) > 50 ) then
+	--	p1:SendToRoom('A book dislodges from a nearby shelf and floats to a shelf across the room before squeezing into a vacant slot between dusty volumes.')
+	--end
 end
 
 function p1:add_burke()
@@ -35,7 +36,7 @@ function p1:add_burke()
 	end
 end
 
---p1:AddAction( p1.timed_action, 900, nil )
+p1:AddAction( p1.timed_action, 1, nil )
 
 p1:AddLook( { 'table', 'oaken table', 'massive oaken table' }, 'Atop the table you see several stacks of books and scrolls.')
 
@@ -57,13 +58,13 @@ p1:Debug('Loaded room!')
 
 function p1:FooCommand(o, cmd)
 	o:SendToEntity('HAAACHOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO!')
-	for i=1,50 do p1:add_burke() end
+	for i=1,10 do p1:add_burke() end
 	
 	return true
 end
 
 p1:AddCommand( p1.FooCommand, {'sneeze'}, nil )
-
+p1:add_burke()
 
 
 

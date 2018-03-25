@@ -127,6 +127,7 @@ struct _internal_queue_wrapper_
                             
     itemobj * clone_item ( std::string& relative_script_path, script_entity * obj, std::string uid="" );
     itemobj* clone_item_to_hand(std::string& relative_script_path, handobj* obj, std::string uid="" );
+	itemobj* clone_item_to_inventory(std::string& relative_script_path, script_entity* obj, std::string uid="" );
     
     npcobj * clone_npc ( std::string& relative_script_path, roomobj * r, std::string uid="" );
     npcobj* clone_npc_to_room(std::string& relative_script_path, roomobj* r, std::string uid="" );
@@ -151,9 +152,12 @@ struct _internal_queue_wrapper_
     
     void register_npc( npcobj * npc );
     void deregister_npc( npcobj * npc );
+	
+	// DANGEROUS: DELETES ENTITY!!!
+	bool do_delete(script_entity* se);
     
     void register_entity(script_entity *entityobj, std::string& sp, EntityType etype);
-    void deregister_entity(script_entity *entityobj, EntityType etype);
+    //void deregister_entity(script_entity *entityobj, EntityType etype);
     
     
     bool move_living(script_entity* target, const std::string& roomid);
@@ -166,6 +170,8 @@ struct _internal_queue_wrapper_
     bool do_promote( playerobj * a, std::string b);
     
     bool capture_input(sol::this_state ts, playerobj * p, sol::object f);
+	
+	void deregister_entity(script_entity * ent, bool bGarbageCollect=false);
     
     /**
      * @brief A bloody work around to link scripts with their instantiated objects
@@ -181,6 +187,8 @@ struct _internal_queue_wrapper_
     bool load_player(std::string playername, bool bloggedIn=false);
     
     bool unload_player(const std::string& playername);
+	
+	bool unload_npc(npcobj * npc);
     
     roomobj* get_void_room();
     
@@ -221,6 +229,7 @@ struct _internal_queue_wrapper_
     void garbage_collect();
     
     bool destroy_item(std::string& script_path);
+	bool destroy_item(script_entity* ent);
     
     heartbeat_manager& get_heartbeat_manager()
     ;
@@ -279,8 +288,8 @@ private:
     
     
     // queue to process player commands in a serial fashion
-    std::queue<_internal_command_wrapper_> m_cmd_queue;
-    std::mutex  cmd_queue_mutex_;
+    //std::queue<_internal_command_wrapper_> m_cmd_queue;
+    //std::mutex  cmd_queue_mutex_;
     
     
     // for processing any command that may effect the lua stack
@@ -331,6 +340,7 @@ private:
      * @return Returns false if the room does not exist
      */
     bool destroy_room(std::string& script_path);
+	bool destroy_room(script_entity* ent);
     
     /**
      * @brief Destroys player associated with a script
@@ -351,11 +361,11 @@ private:
     bool destroy_command(std::string& script_path);
     
     bool destroy_npc(std::string& script_path);
+	
+	bool destroy_npc(script_entity* ent);
     
     bool destroy_entity(std::shared_ptr<entity_wrapper>& ew);
-    
-   
-    
+
     
     /**
      * @brief Inits environments based on script_path

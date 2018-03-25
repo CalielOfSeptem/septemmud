@@ -17,6 +17,7 @@ roomobj::roomobj(sol::this_state ts, sol::this_environment te, int rt)
 
 roomobj::~roomobj()
 {
+	//_unload_inventory_();
     //this->inventory.clear();
     // entity_manager::Instance().deregister_room(this);
 }

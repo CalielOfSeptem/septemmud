@@ -6,6 +6,21 @@
  #include "script_entities/itemobj.h"
  #include "entity_manager.h"
 
+void container_base::recursive_unload(script_entity* se)
+{
+    if(container_base* cb = dynamic_cast<container_base*>(se)) {
+        auto inv = cb->GetInventory();
+        for(auto i : inv) {
+            recursive_unload(i);
+        }
+    }
+    std::string s = se->GetVirtualScriptPath();
+   // entity_manager::Instance().deregister_entity(se);
+	entity_manager::Instance().do_delete(se);
+	//se->set_destroy(true);
+	
+}
+
 bool container_base::AddEntityToInventory(script_entity* se)
 {
     if(se == NULL)
@@ -125,4 +140,8 @@ const std::vector<script_entity*>& container_base::GetInventory()
 void container_base::ClearInventory()
 {
     inventory.clear();
+}
+void container_base::_unload_inventory_()
+{
+	recursive_unload(GetOwner());
 }

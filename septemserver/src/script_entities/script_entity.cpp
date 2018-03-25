@@ -75,9 +75,10 @@ script_entity::~script_entity()
         std::stringstream ss;
         ss << "Destroyed object, script path= " << virtual_script_path;
         log->info(ss.str());
+		entity_manager::Instance().deregister_entity(this);
     }
 
-    entity_manager::Instance().deregister_entity(this, m_type);
+    
 }
 /*
 void script_entity::debug(const std::string& msg)

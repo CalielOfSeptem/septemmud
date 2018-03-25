@@ -29,6 +29,9 @@
  struct script_entity;
  struct container_base
  {
+	 void _unload_inventory_();
+	 void recursive_unload(script_entity* se);
+	 
      virtual script_entity * GetOwner() = 0;
      virtual bool AddEntityToInventory(script_entity * se);
      

@@ -11,7 +11,7 @@ npcobj::npcobj(sol::this_state ts, sol::this_environment te, std::string name)
 
 npcobj::~npcobj()
 {
-    
+    unload_inventory_from_game();
 }
 
 

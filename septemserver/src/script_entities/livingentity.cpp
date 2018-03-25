@@ -233,24 +233,17 @@ InventorySlotError living_entity::SafeAddItemToInventory(itemobj* io)
 void living_entity::unload_inventory_from_game()
 {
     // std::vector<itemobj*> items = this->GetItems();
-    for(auto i : this->GetInventory()) {
-        recursive_unload(i);
-    }
+   // for(auto i : this->GetInventory()) {
+   //     recursive_unload(i);
+   // }
+   _unload_inventory_();
+   //m_RightHand._unload_inventory_();
+   //m_LeftHand._unload_inventory_();
     recursive_unload(dynamic_cast<script_entity*>(&m_RightHand));
     recursive_unload(dynamic_cast<script_entity*>(&m_LeftHand));
 }
 
-void living_entity::recursive_unload(script_entity* se)
-{
-    if(container_base* cb = dynamic_cast<container_base*>(se)) {
-        auto inv = cb->GetInventory();
-        for(auto i : inv) {
-            recursive_unload(i);
-        }
-    }
-    std::string s = se->GetVirtualScriptPath();
-    entity_manager::Instance().destroy_item(s);
-}
+
 
 void living_entity::load_default_command_directories()
 {

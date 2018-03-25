@@ -42,6 +42,30 @@ void get_entity_str(EntityType etype, std::string& str)
     }
 }
 
+
+bool
+get_entity_path_from_id_string(const std::string& entity_id, std::string& entity_script_path, unsigned int& instanceid)
+{
+    unsigned int tmp = 0;
+    entity_script_path = boost::to_lower_copy(entity_id);
+    std::size_t found = entity_script_path.find("id=");
+
+    if(found != std::string::npos) {
+        // the id has a id= in it..
+
+        sscanf(entity_script_path.c_str(), "%*[^=]=%u", &tmp);
+        entity_script_path.erase(entity_script_path.begin() + found,
+                                 entity_script_path.end()); // remove it from the string
+    }
+    if(entity_script_path[entity_script_path.size() - 1] == '/' ||
+       entity_script_path[entity_script_path.size() - 1] == ':') // no need to have this.
+    {
+        entity_script_path.erase(entity_script_path.size() - 1);
+    }
+
+    return true;
+}
+
 entity_manager::entity_manager()
 {
     io_serv = NULL;
@@ -119,26 +143,35 @@ bool entity_manager::compile_entity(std::string& relative_script_path,
                 if(auto t = dynamic_cast<playerobj*>(pe)) {
                     t->SetEnvironment(NULL);
                     _pents[rp->GetInstancePath()].push_back(t);
+					rp->RemoveEntityFromInventory(t);
                 }
 				else if(auto t = dynamic_cast<itemobj*>(pe)) {
 					t->SetEnvironment(NULL);
-					deregister_item(t);
-					m_entity_cleanup.push_back(t);
+					t->_unload_inventory_();
+					//deregister_item(t);
+					destroy_item(t);
+					//m_entity_cleanup.push_back(t);
 				}
 				else if(auto t = dynamic_cast<npcobj*>(pe)) {
 					t->SetEnvironment(NULL);
-					deregister_npc(t);
-					m_entity_cleanup.push_back(t);
+					t->unload_inventory_from_game();
+					//t->set_destroy(true);
+					////deregister_npc(t);
+					destroy_npc(t);
+					////m_entity_cleanup.push_back(t);
 				}				
 
             }
-            deregister_room(rp);
+            //deregister_room(rp);
+			destroy_room(rp);
 			//m_entity_cleanup.push_back(rp);
         }
+		garbage_collect();
 		//garbage_collect();
-        if(rooms.size() > 0) {
-            destroy_room(relative_script_path);
-        }
+		//for ( auto )
+       // if(rooms.size() > 0) {
+        //    destroy_room(relative_script_path);
+        //}
         sol::environment to_load;
         _init_entity_env(relative_script_path, etype, to_load);
         b = lua_safe_script(script_text, to_load, reason);
@@ -246,30 +279,17 @@ bool entity_manager::compile_entity(std::string& relative_script_path,
 
 itemobj* entity_manager::clone_item_to_hand(std::string& relative_script_path, handobj* obj, std::string uid)
 {
-    /*
-    std::string temp = relative_script_path;
-    std::string reason;
-    if( !fs_manager::Instance().translate_path( temp, static_cast<playerobj*>(obj->GetOwner()), reason ) )
-    {
-        ((playerobj*)obj->GetOwner())->SendToEntity(reason);
-        return false;
-    }
-    */
     return clone_item(relative_script_path, obj->GetOwner(), uid);
+}
+
+itemobj* entity_manager::clone_item_to_inventory(std::string& relative_script_path, script_entity* obj, std::string uid)
+{
+    return clone_item(relative_script_path, obj, uid);
 }
 
 npcobj* entity_manager::clone_npc_to_room(std::string& relative_script_path, roomobj* r, std::string uid)
 {
     
-    /*
-    std::string temp = relative_script_path;
-    std::string reason;
-    if( !fs_manager::Instance().translate_path( temp, reason ) )
-    {
-        //((playerobj*)obj->GetOwner())->SendToEntity(reason);
-        return NULL;
-    }
-    */
     if( relative_script_path.empty() )
         return NULL;
     if( relative_script_path[0] == '/' )
@@ -279,7 +299,6 @@ npcobj* entity_manager::clone_npc_to_room(std::string& relative_script_path, roo
     
     return clone_npc(relative_script_path, r, uid);
 }
-
 
 bool entity_manager::do_item_reload(std::string& entitypath, playerobj* p)
 {
@@ -578,6 +597,7 @@ npcobj* entity_manager::clone_npc(std::string& relative_script_path, roomobj* r,
 
 bool entity_manager::compile_script_file(std::string& file_path, std::string& reason)
 {
+	std::unique_lock<std::recursive_mutex> lock(lua_mutex_);
     auto log = spd::get("main");
     std::stringstream ss;
     ss << "Compiling script: " << file_path;
@@ -856,9 +876,16 @@ void entity_manager::init_lua()
 
     lua.set_function("clone_item_to_hand",
                      [&](std::string path, handobj * e) -> itemobj * { return this->clone_item_to_hand(path, e); });
+					 
+    lua.set_function("clone_item_to_inventory",
+                     [&](std::string path, script_entity * e) -> itemobj * 
+					 { return this->clone_item_to_inventory(path, e); });
                      
     lua.set_function("clone_npc_to_room",
                      [&](std::string path, roomobj * r) -> npcobj * { return this->clone_npc_to_room(path, r); });
+					 
+	lua.set_function("unload_npc",
+                     [&](npcobj * n) -> void * { this->unload_npc(n); });
 
     lua.set_function("do_translate_path",
                      [&](std::string path, playerobj* e) -> std::string { return this->do_translate_path(path, e); });
@@ -1093,6 +1120,30 @@ bool entity_manager::unload_player(const std::string& playername)
     return b;
 }
 
+bool entity_manager::unload_npc(npcobj * npc)
+{
+    std::unique_lock<std::recursive_mutex> lock(lua_mutex_);
+
+	// Make sure we remove any outstanding elements in the queue.
+	// otherwise we can have a crash
+	{
+		std::unique_lock<std::mutex> lock(dispatch_queue_mutex_);
+		dispatch_queue_.remove_if([](auto& i) { return i.ent; });
+	}
+	
+    npc->unload_inventory_from_game(); // Make sure to kill all items..
+    std::string ppath = npc->GetVirtualScriptPath();
+	if( npc->GetEnvironment() )
+	{
+		dynamic_cast<container_base*>(npc->GetEnvironment())->RemoveEntityFromInventory(npc);
+	}
+	do_delete(npc);
+    garbage_collect();
+
+    return true;
+}
+
+
 bool entity_manager::destroy_player(std::string& script_path)
 {
     // sol::state& lua = (*m_state);
@@ -1126,6 +1177,23 @@ bool entity_manager::destroy_player(std::string& script_path)
     return true;
 }
 
+bool entity_manager::do_delete(script_entity* se)
+{
+	if( auto e = dynamic_cast<roomobj*>(se) )
+	{
+		destroy_room(se);
+	}
+	else if( auto e = dynamic_cast<npcobj*>(se) )
+	{
+		destroy_npc(se);
+	}
+	else if( auto e = dynamic_cast<itemobj*>(se) )
+	{
+		destroy_item(se);
+	}
+	return true;
+}
+
 bool entity_manager::destroy_room(std::string& script_path)
 {
 
@@ -1143,7 +1211,7 @@ bool entity_manager::destroy_room(std::string& script_path)
         _heartbeat.clear_heartbeat_funcs(script_path);
 
         for(auto e : search->second) {
-			deregister_room(dynamic_cast<roomobj*>(e->script_ent));
+			//deregister_room(dynamic_cast<roomobj*>(e->script_ent));
             destroy_entity(e);
         }
 
@@ -1152,6 +1220,62 @@ bool entity_manager::destroy_room(std::string& script_path)
     }
 
     // lua.collect_garbage();
+
+    return true;
+}
+
+bool entity_manager::destroy_room(script_entity* ent)
+{
+	std::string script_path = ent->GetVirtualScriptPath();
+	ent->set_destroy(true);
+	//std::string script_path="";
+	//unsigned int instance = 0;
+	//get_entity_path_from_id_string( ent->GetInstancePath(), script_path, instance);
+    {
+        auto search = m_room_objs.find(script_path);
+        if(search == m_room_objs.end()) {
+            return false;
+        }
+
+        sol::environment env;
+        std::string name;
+        get_parent_env_of_entity(script_path, env, name);
+
+		auto i = std::begin(search->second);
+
+		while (i != std::end(search->second)) {
+			if ((*i)->script_ent == ent )
+			{
+				std::shared_ptr<entity_wrapper> ew = *i;
+				destroy_entity(ew);
+				i = search->second.erase(i);
+			}
+			else
+				++i;
+		}
+		/*
+        for(auto e : search->second) {
+			if( e->script_ent == ent )
+			{
+				 destroy_entity(e);
+				 
+			}
+			//deregister_item(dynamic_cast<itemobj*>(e->script_ent));
+        }
+		*/
+		if( search->second.size() == 0 )
+		{
+			auto log = spd::get("main");
+            std::stringstream ss;
+            ss << "Destroyed environment " << script_path;
+            log->debug(ss.str());
+			env[name] = sol::nil;
+			//m_room_objs.erase(search);
+		
+		}
+    }
+
+    (*m_state).collect_garbage();
 
     return true;
 }
@@ -1186,6 +1310,7 @@ bool entity_manager::destroy_command(std::string& script_path)
 
 bool entity_manager::destroy_item(std::string& script_path)
 {
+	
 
     // sol::state& lua = (*m_state);
     {
@@ -1199,12 +1324,62 @@ bool entity_manager::destroy_item(std::string& script_path)
         get_parent_env_of_entity(script_path, env, name);
 
         for(auto e : search->second) {
-			deregister_item(dynamic_cast<itemobj*>(e->script_ent));
+			//deregister_item(dynamic_cast<itemobj*>(e->script_ent));
             destroy_entity(e);
         }
 
         env[name] = sol::nil;
         m_item_objs.erase(search);
+    }
+
+    // lua.collect_garbage();
+
+    return true;
+}
+
+bool entity_manager::destroy_item(script_entity* ent)
+{
+	std::string script_path = ent->GetVirtualScriptPath();
+	//unsigned int instance = 0;
+	//get_entity_path_from_id_string( ent->GetInstancePath(), script_path, instance);
+    {
+        auto search = m_item_objs.find(script_path);
+        if(search == m_item_objs.end()) {
+            return false;
+        }
+
+        sol::environment env;
+        std::string name;
+        get_parent_env_of_entity(script_path, env, name);
+
+		auto i = std::begin(search->second);
+
+		while (i != std::end(search->second)) {
+			if ((*i)->script_ent == ent )
+			{
+				std::shared_ptr<entity_wrapper> ew = *i;
+				destroy_entity(ew);
+				i = search->second.erase(i);
+			}
+			else
+				++i;
+		}
+		/*
+        for(auto e : search->second) {
+			if( e->script_ent == ent )
+			{
+				 destroy_entity(e);
+				 
+			}
+			//deregister_item(dynamic_cast<itemobj*>(e->script_ent));
+        }
+		*/
+		if( search->second.size() == 0 )
+		{
+			env[name] = sol::nil;
+			m_item_objs.erase(search);
+		
+		}
     }
 
     // lua.collect_garbage();
@@ -1239,6 +1414,61 @@ bool entity_manager::destroy_npc(std::string& script_path)
 
     return true;
 }
+
+bool entity_manager::destroy_npc(script_entity* ent)
+{
+	std::string script_path = ent->GetVirtualScriptPath();
+	//std::string script_path="";
+	//unsigned int instance = 0;
+	//get_entity_path_from_id_string( ent->GetInstancePath(), script_path, instance);
+    {
+        auto search = m_npc_objs.find(script_path);
+        if(search == m_npc_objs.end()) {
+            return false;
+        }
+
+        sol::environment env;
+        std::string name;
+        get_parent_env_of_entity(script_path, env, name);
+
+		auto i = std::begin(search->second);
+
+		while (i != std::end(search->second)) {
+			if ((*i)->script_ent == ent )
+			{
+				std::shared_ptr<entity_wrapper> ew = *i;
+				destroy_entity(ew);
+				i = search->second.erase(i);
+			}
+			else
+				++i;
+		}
+		/*
+        for(auto e : search->second) {
+			if( e->script_ent == ent )
+			{
+				 destroy_entity(e);
+				 
+			}
+			//deregister_item(dynamic_cast<itemobj*>(e->script_ent));
+        }
+		*/
+		if( search->second.size() == 0 )
+		{
+			auto log = spd::get("main");
+            std::stringstream ss;
+            ss << "Destroyed environment " << script_path;
+            log->debug(ss.str());
+			env[name] = sol::nil;
+		
+		}
+    }
+
+    (*m_state).collect_garbage();
+
+    return true;
+}
+
 
 bool entity_manager::destroy_daemon(std::string& script_path)
 {
@@ -1403,12 +1633,17 @@ void entity_manager::register_room(roomobj* room)
 
 void entity_manager::deregister_room(roomobj* room)
 {
-	if( room == NULL )
-		return;
-    std::string room_path = room->GetInstancePath();
+	assert(room);
+	std::string room_path = room->GetInstancePath();
+	//std::stringstream ss;
+  //  ss << "De-registered room from lookup table, room = " << room_path;
+  //  log->debug(ss.str());
+	
+	//room->set_destroy(true);
+    //std::string room_path = room->GetInstancePath();
     auto search = m_room_lookup.find(room_path);
     if(search != m_room_lookup.end()) {
-        
+        /*
         //std::vector<script_entity*> found;
         for( auto& i : search->second->GetInventory() )
         {
@@ -1417,7 +1652,7 @@ void entity_manager::deregister_room(roomobj* room)
             {
                 
                 i->SetEnvironment(NULL);
-                i->set_destroy(true);
+                //i->set_destroy(true);
                 //found.push_back(i);
                 
                 deregister_npc(dynamic_cast<npcobj*>(i));
@@ -1427,15 +1662,16 @@ void entity_manager::deregister_room(roomobj* room)
             else if( i->GetType() == EntityType::ITEM )
             {
                 i->SetEnvironment(NULL);
-                i->set_destroy(true);
+               // i->set_destroy(true);
               //  found.push_back(i);
                 
                 deregister_item(dynamic_cast<itemobj*>(i));
             }
 
         }
-
-        search->second->ClearInventory();
+		
+		*/
+        //search->second->ClearInventory();
         m_room_lookup.erase(search);
         
        // garbage_collect();
@@ -1466,7 +1702,16 @@ void entity_manager::register_item(itemobj* item)
 
 void entity_manager::deregister_item(itemobj* item)
 {
-    std::string item_path = item->GetInstancePath();
+
+	assert(item);
+	std::string item_path = item->GetInstancePath();
+	//std::stringstream ss;
+   // ss << "De-registered item from lookup table, room = " << item_path;
+   // log->debug(ss.str());
+	
+	
+	//item->set_destroy(true);
+    //std::string item_path = item->GetInstancePath();
     auto search = m_item_lookup.find(item_path);
     if(search != m_item_lookup.end()) {
         m_item_lookup.erase(search);
@@ -1479,6 +1724,8 @@ void entity_manager::deregister_item(itemobj* item)
 
 void entity_manager::register_npc(npcobj* npc)
 {
+
+	
     std::string npc_path = npc->GetInstancePath();
     m_npc_lookup[npc_path] = npc;
     auto log = spd::get("main");
@@ -1490,7 +1737,14 @@ void entity_manager::register_npc(npcobj* npc)
 
 void entity_manager::deregister_npc(npcobj* npc)
 {
-    std::string npc_path = npc->GetInstancePath();
+	assert(npc);
+	std::string npc_path = npc->GetInstancePath();
+	//std::stringstream ss;
+   // ss << "De-registered npc from lookup table, room = " << npc_path;
+   // log->debug(ss.str());
+	
+	//npc->set_destroy(true);
+    //std::string npc_path = npc->GetInstancePath();
     auto search = m_npc_lookup.find(npc_path);
     if(search != m_npc_lookup.end()) {
         m_npc_lookup.erase(search);
@@ -1677,34 +1931,7 @@ void entity_manager::register_entity(script_entity* entityobj, std::string& sp, 
     }
 }
 
-void entity_manager::deregister_entity(script_entity* entityobj, EntityType etype)
-{
-    return; // just for now
-    /*
-    switch( etype )
-    {
-        case EntityType::ROOM:
-        {
-            auto search = m_room_objs.find(entityobj.GetScriptPath());
-            if(search != m_room_objs.end())
-            {
-                m_room_objs.erase(search);
-            }
-        }
-        break;
-        case EntityType::PLAYER:
-        {
-            auto search = m_player_objs.find(entityobj.GetScriptPath());
-            if(search != m_player_objs.end())
-            {
-                m_player_objs.erase(search);
-            }
-        }
-        default:
-        break;
-    }
-    */
-}
+
 
 void entity_manager::get_rooms_from_path(std::string& script_path, std::set<std::shared_ptr<entity_wrapper> >& rooms)
 {
@@ -1824,7 +2051,7 @@ void entity_manager::reset()
     //destroy_entities.clear();
     for(auto& cmd : m_item_objs) {
         for(auto& ew : cmd.second) {
-            //destroy_entities.push_back(ew->script_path);
+            //destroy_entities.push_back(ewg->script_path);
             m_entity_cleanup.push_back(ew->script_ent);
         }
     }
@@ -1840,6 +2067,9 @@ void entity_manager::reset()
 
 void entity_manager::garbage_collect()
 {
+    sol::state& lua = (*m_state);
+    lua.collect_garbage();
+	return;
     // this->m_daemon_lookup.clear();
     // this->m_default_cmds.clear();
     // this->m_room_lookup.clear();
@@ -1849,38 +2079,40 @@ void entity_manager::garbage_collect()
     
     for( script_entity * i : m_entity_cleanup )
     {
+		if( i == NULL ) // handle a case where lua destroyed object before us..
+			continue;
         std::string entity_script_path = i->GetVirtualScriptPath();
-		i->set_destroy(true);
+		//i->set_destroy(true);
         switch( i->GetType() )
         {
             case EntityType::ITEM:
             {
-                deregister_item( dynamic_cast<itemobj*>(i));
+                //deregister_item( static_cast<itemobj*>(i));
                 destroy_item( entity_script_path);
             }break;
             case EntityType::NPC:
             {
-                deregister_npc( dynamic_cast<npcobj*>(i));
+                //deregister_npc( static_cast<npcobj*>(i));
                 destroy_npc( entity_script_path );
             }break;
             case EntityType::COMMAND:
             {
-                deregister_command( dynamic_cast<commandobj*>(i) );
+                //deregister_command( static_cast<commandobj*>(i) );
                 destroy_command( entity_script_path );               
             }break;
             case EntityType::DAEMON:
             {
-                deregister_daemon( dynamic_cast<daemonobj*>(i) );
+                //deregister_daemon( static_cast<daemonobj*>(i) );
                 destroy_daemon( entity_script_path );     
             }break;
             case EntityType::PLAYER:
             {
                // deregister_player( dynamic_cast<playerobj*>(i) );
-                destroy_player( entity_script_path);                   
+              //  destroy_player( entity_script_path);                   
             }break;
             case EntityType::ROOM:
             {
-                deregister_room( dynamic_cast<roomobj*>(i) );
+               // deregister_room( static_cast<roomobj*>(i) );
                 destroy_room( entity_script_path );   
             }break;
         }
@@ -1975,8 +2207,6 @@ void entity_manager::garbage_collect()
     }
     */
 
-    sol::state& lua = (*m_state);
-    lua.collect_garbage();
     // this->m_state_internal.reset();
     // m_state.reset();
     // m_room_objs.clear();
@@ -2142,28 +2372,6 @@ playerobj* entity_manager::get_player(const std::string& player_name)
     }
 }
 
-bool
-get_entity_path_from_id_string(const std::string& entity_id, std::string& entity_script_path, unsigned int& instanceid)
-{
-    unsigned int tmp = 0;
-    entity_script_path = boost::to_lower_copy(entity_id);
-    std::size_t found = entity_script_path.find("id=");
-
-    if(found != std::string::npos) {
-        // the id has a id= in it..
-
-        sscanf(entity_script_path.c_str(), "%*[^=]=%u", &tmp);
-        entity_script_path.erase(entity_script_path.begin() + found,
-                                 entity_script_path.end()); // remove it from the string
-    }
-    if(entity_script_path[entity_script_path.size() - 1] == '/' ||
-       entity_script_path[entity_script_path.size() - 1] == ':') // no need to have this.
-    {
-        entity_script_path.erase(entity_script_path.size() - 1);
-    }
-
-    return true;
-}
 
 bool entity_manager::move_living(script_entity* target, const std::string& roomid)
 {
@@ -2454,7 +2662,7 @@ void entity_manager::invoke_actions()
     pt::time_duration diff = t2 - garbage_tick_;
 	if(diff.total_milliseconds() / 1000 > 15) {
         garbage_tick_ = t2;
-		garbage_collect();
+		//garbage_collect();
     }
 
     for(auto r : this->m_room_lookup) {
@@ -2720,7 +2928,7 @@ void entity_manager::register_hook(script_entity* hook_entity)
 
         });
 
-        m_state->script("debug.sethook (debug_hook, '', 10000)");
+        m_state->script("debug.sethook (debug_hook, '', 100000)");
 
         /*
         auto result = kv.second.pf();
@@ -2764,10 +2972,102 @@ void entity_manager::dispatch_queue()
         fn = dispatch_queue_.front().f;
         dispatch_queue_.pop_front();
         lock.unlock();
-        // std::unique_lock<std::mutex> lock(lua_mutex_);
+        //std::unique_lock<std::recursive_mutex> lock(lua_mutex_);
         fn();
         lock.lock();
     }
+}
+
+// This function gets called by the destruction of each script element.
+// The intent here is to try and sync the lookup tables with lua tables
+void entity_manager::deregister_entity(script_entity* ent, bool bGarbageCollect)
+{
+	//return;
+	std::unique_lock<std::recursive_mutex> lock(lua_mutex_);
+	auto log = spd::get("main");
+	std::stringstream ss;
+	ss << "De-registering entity: " << ent->GetInstancePath();
+	log->info(ss.str());
+	
+	switch(ent->GetType())
+	{
+		case EntityType::COMMAND:
+		{
+			//commandobj * cmd = static_cast<commandobj*>(ent);
+			//deregister_command(cmd);
+			//m_entity_cleanup.push_back(ent);	
+		}
+		break;
+		case EntityType::DAEMON:
+		{
+			//daemonobj * d = static_cast<daemonobj*>(ent);
+			//deregister_daemon(d);
+			//m_entity_cleanup.push_back(ent);		
+		}
+		break;
+		case EntityType::HAND:
+		{
+			// gets destroyed with the npc/player.. no need to do anything here.
+		}
+		break;
+		case EntityType::ITEM:
+		{
+			itemobj * i = static_cast<itemobj*>(ent);
+			deregister_item(i);
+			//destroy_item(i);
+			// the following would have caused trouble in the living entity recursive unload routine..
+			// need to rethink how to remove the item from its environment on deletion.
+			// perhaps have a room that is a garbage heap that gets periodically burned??
+			//if( i->GetEnvironment() )
+			//{
+			//	dynamic_cast<container_base*>(i->GetEnvironment())->RemoveEntityFromInventory(ent);
+			//}
+			//deregister_item(i);
+			//m_entity_cleanup.push_back(ent);
+			
+		}
+		break;
+		case EntityType::LIB:
+		{
+			// nothing to do..
+		}
+		break;
+		case EntityType::NPC:
+		{
+			npcobj * npc = static_cast<npcobj*>(ent);
+			deregister_npc(npc);
+			//destroy_npc(npc);
+			//npcobj * npc = static_cast<npcobj*>(ent);
+
+			//deregister_npc(npc);
+			//m_entity_cleanup.push_back(ent);		
+		}
+		break;
+		case EntityType::PLAYER:
+		{
+			
+		}
+		break;
+		case EntityType::ROOM:
+		{
+			roomobj * r = static_cast<roomobj*>(ent);
+			deregister_room(r);
+			//m_entity_cleanup.push_back(ent);	
+		}
+		break;
+		case EntityType::UNKNOWN:
+		{
+			auto log = spd::get("main");
+            std::stringstream ss;
+            ss << "Error scheduling deletion of object, type is unknown. " << ent->GetInstancePath();
+            log->error(ss.str());
+		}
+		break;
+	}
+	if( bGarbageCollect)
+	{
+		garbage_collect();
+	}
 }
 /*
 bool entity_manager::compile_lib(std::string& script_or_path, std::string& reason)
