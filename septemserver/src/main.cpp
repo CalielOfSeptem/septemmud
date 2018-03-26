@@ -252,14 +252,17 @@ int main(int argc, char **argv)
        
    }
 
-    game_manager gm;
-    gm.start();
     
     boost::asio::io_service io_service;
     boost::shared_ptr< boost::asio::io_service::strand > strand(
 		new boost::asio::io_service::strand( io_service )
 	);
+	
+	entity_manager::Instance().bind_io(&io_service);
     
+    game_manager gm;
+    gm.start();
+	
     septem application(
         io_service
       , std::make_shared<boost::asio::io_service::work>(std::ref(io_service))
@@ -286,7 +289,7 @@ int main(int argc, char **argv)
     
     std::thread http_thread =  std::thread(start_serv, 8090);
     
-    entity_manager::Instance().bind_io(&io_service);
+    
 
     std::string blah; // for console input
     while( true )

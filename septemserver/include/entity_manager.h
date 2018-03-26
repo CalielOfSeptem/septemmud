@@ -278,7 +278,7 @@ private:
     /*
      * Holds entities scheduled for deletion...
     */
-    std::vector<script_entity*> m_entity_cleanup;
+    //std::vector<script_entity*> m_entity_cleanup;
     
     std::shared_ptr < sol::state > m_state;
     std::shared_ptr<_internal_lua_> m_state_internal;
@@ -357,8 +357,10 @@ private:
      * @return 
      */
     bool destroy_daemon(std::string& script_path);
+	bool destroy_daemon(script_entity* ent);
     
     bool destroy_command(std::string& script_path);
+	bool destroy_command(script_entity* ent);
     
     bool destroy_npc(std::string& script_path);
 	
@@ -388,6 +390,7 @@ private:
     
     void get_daemons_from_path(std::string& script_path, std::set< std::shared_ptr<entity_wrapper> >& daemons);
     
+	void get_cmds_from_path(std::string& script_path, std::set< std::shared_ptr<entity_wrapper> >& cmds);
     /**
      * @brief Gets the parent env for a given entity and also the name of the entity's env within the parent
      * @param script_path

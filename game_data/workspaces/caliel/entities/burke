@@ -3,6 +3,7 @@ i = npc.new('a busy clerk')
 clone_item_to_inventory( 'workspaces/caliel/entities/rock', i )
 backpack = clone_item_to_inventory( 'workspaces/caliel/entities/backpack', i )
 clone_item_to_inventory( 'workspaces/caliel/entities/rock', backpack )
+
 --function i:timed_action(l)
 	--print(i:SendToEnvironment)
 	--print(l)

@@ -219,15 +219,16 @@ bool entity_manager::compile_entity(std::string& relative_script_path,
         std::set<std::shared_ptr<entity_wrapper> > daemons;
         get_daemons_from_path(relative_script_path, daemons);
 
-        // for(auto& r : daemons) {
+		for(auto& r : daemons) {
+			destroy_daemon(r->script_ent);
         // script_entity& self = r->script_ent.value().selfobj.as<script_entity>();
         //*self = NULL;
         // r->script_ent.value().selfobj = NULL;
         // r->script_env.value() = sol::nil;
         //(*r->script_state).collect_garbage();
-        //}
-        if(daemons.size() > 0)
-            destroy_daemon(relative_script_path);
+        }
+        //if(daemons.size() > 0)
+         //   destroy_daemon(relative_script_path);
         sol::environment to_load;
         _init_entity_env(relative_script_path, etype, to_load);
         b = lua_safe_script(script_text, to_load, reason);
@@ -263,6 +264,13 @@ bool entity_manager::compile_entity(std::string& relative_script_path,
         */
     } break;
     case EntityType::COMMAND: {
+		std::set<std::shared_ptr<entity_wrapper> > cmds;
+        get_cmds_from_path(relative_script_path, cmds);
+
+		for(auto& r : cmds) {
+			destroy_command(r->script_ent);
+		}
+			
         sol::environment to_load;
         _init_entity_env(relative_script_path, etype, to_load);
         b = lua_safe_script(script_text, to_load, reason);
@@ -1191,6 +1199,14 @@ bool entity_manager::do_delete(script_entity* se)
 	{
 		destroy_item(se);
 	}
+	else if( auto e = dynamic_cast<commandobj*>(se) )
+	{
+		destroy_command(se);
+	}
+	else if( auto e = dynamic_cast<daemonobj*>(se) )
+	{
+		destroy_daemon(se);
+	}
 	return true;
 }
 
@@ -1295,7 +1311,7 @@ bool entity_manager::destroy_command(std::string& script_path)
         get_parent_env_of_entity(script_path, env, name);
 
         for(auto e : search->second) {
-            deregister_command(dynamic_cast<commandobj*>(e->script_ent));
+            //deregister_command(dynamic_cast<commandobj*>(e->script_ent));
             destroy_entity(e);
         }
 
@@ -1307,6 +1323,51 @@ bool entity_manager::destroy_command(std::string& script_path)
 
     return true;
 }
+
+bool entity_manager::destroy_command(script_entity* ent)
+{
+	std::string script_path = ent->GetVirtualScriptPath();
+	//unsigned int instance = 0;
+	//get_entity_path_from_id_string( ent->GetInstancePath(), script_path, instance);
+    {
+        auto search = m_cmd_objs.find(script_path);
+        if(search == m_cmd_objs.end()) {
+            return false;
+        }
+
+        sol::environment env;
+        std::string name;
+        get_parent_env_of_entity(script_path, env, name);
+
+		auto i = std::begin(search->second);
+
+		while (i != std::end(search->second)) {
+			if ((*i)->script_ent == ent )
+			{
+				std::shared_ptr<entity_wrapper> ew = *i;
+				destroy_entity(ew);
+				i = search->second.erase(i);
+			}
+			else
+				++i;
+		}
+
+		if( search->second.size() == 0 )
+		{
+			auto log = spd::get("main");
+            std::stringstream ss;
+            ss << "Destroyed environment " << script_path;
+            log->debug(ss.str());
+			env[name] = sol::nil;
+		}
+    }
+
+    // lua.collect_garbage();
+
+    return true;
+}
+
+
 
 bool entity_manager::destroy_item(std::string& script_path)
 {
@@ -1376,9 +1437,11 @@ bool entity_manager::destroy_item(script_entity* ent)
 		*/
 		if( search->second.size() == 0 )
 		{
+			auto log = spd::get("main");
+            std::stringstream ss;
+            ss << "Destroyed environment " << script_path;
+            log->debug(ss.str());
 			env[name] = sol::nil;
-			m_item_objs.erase(search);
-		
 		}
     }
 
@@ -1402,7 +1465,7 @@ bool entity_manager::destroy_npc(std::string& script_path)
         get_parent_env_of_entity(script_path, env, name);
 
         for(auto e : search->second) {
-			deregister_npc(dynamic_cast<npcobj*>(e->script_ent));
+			//deregister_npc(dynamic_cast<npcobj*>(e->script_ent));
             destroy_entity(e);
         }
 
@@ -1464,10 +1527,56 @@ bool entity_manager::destroy_npc(script_entity* ent)
 		}
     }
 
-    (*m_state).collect_garbage();
+   // (*m_state).collect_garbage();
 
     return true;
 }
+
+bool entity_manager::destroy_daemon(script_entity* ent)
+{
+	std::string script_path = ent->GetVirtualScriptPath();
+	//std::string script_path="";
+	//unsigned int instance = 0;
+	//get_entity_path_from_id_string( ent->GetInstancePath(), script_path, instance);
+    {
+        auto search = m_daemon_objs.find(script_path);
+        if(search == m_daemon_objs.end()) {
+            return false;
+        }
+
+        sol::environment env;
+        std::string name;
+        get_parent_env_of_entity(script_path, env, name);
+
+		auto i = std::begin(search->second);
+
+		while (i != std::end(search->second)) {
+			if ((*i)->script_ent == ent )
+			{
+				std::shared_ptr<entity_wrapper> ew = *i;
+				destroy_entity(ew);
+				i = search->second.erase(i);
+			}
+			else
+				++i;
+		}
+
+		if( search->second.size() == 0 )
+		{
+			auto log = spd::get("main");
+            std::stringstream ss;
+            ss << "Destroyed environment " << script_path;
+            log->debug(ss.str());
+			env[name] = sol::nil;
+		
+		}
+    }
+
+    //(*m_state).collect_garbage();
+
+    return true;
+}
+
 
 
 bool entity_manager::destroy_daemon(std::string& script_path)
@@ -1485,7 +1594,7 @@ bool entity_manager::destroy_daemon(std::string& script_path)
         get_parent_env_of_entity(script_path, env, name);
 
         for(auto e : search->second) {
-			deregister_daemon(dynamic_cast<daemonobj*>(e->script_ent));
+			//deregister_daemon(dynamic_cast<daemonobj*>(e->script_ent));
             destroy_entity(e);
         }
         // sol::environment en_ = (*m_state).globals(); // env[name];
@@ -1500,6 +1609,11 @@ bool entity_manager::destroy_daemon(std::string& script_path)
 
 bool entity_manager::destroy_entity(std::shared_ptr<entity_wrapper>& ew)
 {
+	auto log = spd::get("main");
+	std::stringstream ss;
+	ss << "Destroying entity " << ew->script_path;
+	log->debug(ss.str());
+			
     ew->script_ent->clear_props(); // = NULL;
     sol::environment genv = (*m_state).globals();
     genv.set_on(ew->_script_f_);
@@ -1590,6 +1704,20 @@ void entity_manager::register_command(commandobj* cmd)
 
 void entity_manager::deregister_command(commandobj* cmd)
 {
+	assert(cmd);
+	std::string room_path = cmd->GetInstancePath();
+
+    auto search = m_cmd_objs.find(room_path);
+    if(search != m_cmd_objs.end()) {
+
+        m_cmd_objs.erase(search);
+        auto log = spd::get("main");
+
+        std::stringstream ss;
+        ss << "De-Registered command from lookup table, command = " << room_path;
+        log->debug(ss.str());
+    }
+	/*
     std::string verb = cmd->GetCommand();
     // get the script path so we can look it up in the map..
     std::string tpath = GetPathFromFileLocation(cmd->GetPhysicalScriptPath());
@@ -1617,6 +1745,7 @@ void entity_manager::deregister_command(commandobj* cmd)
         ss << "Failed to De-Registered command, command = " << verb << ", script=" << cmd->GetVirtualScriptPath();
         log->debug(ss.str());
     }
+	*/
 }
 
 void entity_manager::register_room(roomobj* room)
@@ -1954,6 +2083,17 @@ void entity_manager::get_daemons_from_path(std::string& script_path,
     }
 }
 
+void entity_manager::get_cmds_from_path(std::string& script_path,
+                                           std::set<std::shared_ptr<entity_wrapper> >& cmds)
+{
+    auto search = m_cmd_objs.find(script_path);
+    if(search != m_cmd_objs.end()) {
+        for(auto& e : search->second) {
+            cmds.insert(e);
+        }
+    }
+}
+
 bool entity_manager::get_parent_env_of_entity(std::string& script_path, sol::environment& env, std::string& env_name)
 {
     sol::state& lua = (*m_state);
@@ -1989,76 +2129,82 @@ void entity_manager::reset()
     std::vector<std::string> destroy_entities; 
     for(auto& cmd : m_npc_objs) {
         for(auto& ew : cmd.second) {
-           // destroy_entities.push_back(ew->script_path);
-            m_entity_cleanup.push_back(ew->script_ent);
+            destroy_entities.push_back(ew->script_path);
+            //m_entity_cleanup.push_back(ew->script_ent);
+			//destroy_npc(ew->script_ent);
         }
     }
+	for(auto& npcname : destroy_entities)
+        destroy_npc(npcname);
    // garbage_collect();
    // this->m_state_internal.reset();
    // m_state.reset();
     //for(auto& npcname : destroy_entities)
     //    destroy_npc(npcname);
     //    
-    //destroy_entities.clear();
+    destroy_entities.clear();
 
     
     for(auto& e : m_room_objs) {
         for(auto& ew : e.second) {
-            //destroy_entities.push_back(ew->script_path);
-            m_entity_cleanup.push_back(ew->script_ent);
+            destroy_entities.push_back(ew->script_path);
+            //m_entity_cleanup.push_back(ew->script_ent);
         }
     }
     
     //garbage_collect();
-    //for(auto& rname : destroy_entities)
-    ////    destroy_room(rname);
+    for(auto& rname : destroy_entities)
+        destroy_room(rname);
 
-    //destroy_entities.clear();
+    destroy_entities.clear();
 
     for(auto& e : m_player_objs) {
-        // playerobj * pe = dynamic_cast<playerobj*>(e.second->script_ent);
-        // pe->disconnect_client();
-        //destroy_entities.push_back(e.second->script_path);
-        m_entity_cleanup.push_back(e.second->script_ent);
+         playerobj * pe = dynamic_cast<playerobj*>(e.second->script_ent);
+         pe->disconnect_client();
+        // destroy_entities.push_back(e.second->script_path);
+        //m_entity_cleanup.push_back(e.second->script_ent);
     }
 
-    //for(auto& pname : destroy_entities)
-    //    destroy_player(pname);
+    for(auto& pname : destroy_entities)
+        destroy_player(pname);
 
-   // destroy_entities.clear();
+    destroy_entities.clear();
+	
     for(auto& d : m_daemon_objs) {
         for(auto& ew : d.second) {
-          //  destroy_entities.push_back(ew->script_path);
-            m_entity_cleanup.push_back(ew->script_ent);
+            destroy_entities.push_back(ew->script_path);
+         //   m_entity_cleanup.push_back(ew->script_ent);
         }
     }
 
-    //for(auto& dname : destroy_entities)
-    //    destroy_daemon(dname);
+    for(auto& dname : destroy_entities)
+        destroy_daemon(dname);
     //garbage_collect();
 
-    //destroy_entities.clear();
+    destroy_entities.clear();
+	
     for(auto& cmd : m_cmd_objs) {
         for(auto& ew : cmd.second) {
-            //destroy_entities.push_back(ew->script_path);
-            m_entity_cleanup.push_back(ew->script_ent);
+            destroy_entities.push_back(ew->script_path);
+            //m_entity_cleanup.push_back(ew->script_ent);
         }
     }
 
-    ///for(auto& cmdname : destroy_entities)
-    //    destroy_command(cmdname);
+    for(auto& cmdname : destroy_entities)
+        destroy_command(cmdname);
 
-    //destroy_entities.clear();
-    for(auto& cmd : m_item_objs) {
+    destroy_entities.clear();
+    
+	for(auto& cmd : m_item_objs) {
         for(auto& ew : cmd.second) {
-            //destroy_entities.push_back(ewg->script_path);
-            m_entity_cleanup.push_back(ew->script_ent);
+            destroy_entities.push_back(ew->script_path);
+            //m_entity_cleanup.push_back(ew->script_ent);
         }
     }
     garbage_collect();
 
-    //for(auto& itemname : destroy_entities)
-    //    destroy_item(itemname);
+    for(auto& itemname : destroy_entities)
+        destroy_item(itemname);
 
     this->m_state_internal.reset();
     m_state.reset();
@@ -2070,6 +2216,7 @@ void entity_manager::garbage_collect()
     sol::state& lua = (*m_state);
     lua.collect_garbage();
 	return;
+	/*
     // this->m_daemon_lookup.clear();
     // this->m_default_cmds.clear();
     // this->m_room_lookup.clear();
@@ -2120,7 +2267,7 @@ void entity_manager::garbage_collect()
     
     m_entity_cleanup.clear();
 	//m_npc_lookup.clear();
-    
+    */
     /*
 
     std::vector<std::string> destroy_entities;
@@ -2482,6 +2629,7 @@ bool entity_manager::do_command(living_entity* e, const std::string cmd, bool an
     iqw.f = std::bind(&entity_manager::on_cmd, this, e, cmd);
     iqw.ent = e;
     dispatch_queue_.push_back(iqw);
+	assert(strand_);
     (*strand_).post(std::bind(&entity_manager::dispatch_queue, this));
     // on_cmd(e, cmd);
 
@@ -2993,15 +3141,15 @@ void entity_manager::deregister_entity(script_entity* ent, bool bGarbageCollect)
 	{
 		case EntityType::COMMAND:
 		{
-			//commandobj * cmd = static_cast<commandobj*>(ent);
-			//deregister_command(cmd);
+			commandobj * cmd = static_cast<commandobj*>(ent);
+			deregister_command(cmd);
 			//m_entity_cleanup.push_back(ent);	
 		}
 		break;
 		case EntityType::DAEMON:
 		{
-			//daemonobj * d = static_cast<daemonobj*>(ent);
-			//deregister_daemon(d);
+			daemonobj * d = static_cast<daemonobj*>(ent);
+			deregister_daemon(d);
 			//m_entity_cleanup.push_back(ent);		
 		}
 		break;

@@ -54,11 +54,11 @@ function c:ExecuteCommand ( o_orig, cmd )
 					return true
 				end
 				--print('Identified exit, exit = ' .. v1 .. ', path = ' .. v:GetExitPath() )
-				ob:SendToEntity('You go ' .. v:GetExit()[1] .. '. \r\n')
+				ob:SendToEntity('You go ' .. v:GetExit()[1] .. '.')
 				pname = string.gsub(ob:GetName(), "(%a)([%w_']*)", titleCase)
-				ob:SendToRoom(pname .. ' goes ' .. v:GetExit()[1] .. '. \r\n')
+				ob:SendToRoom(pname .. ' goes ' .. v:GetExit()[1] .. '.')
 				move_living( ob, v:GetExitPath() )
-				ob:SendToRoom(pname .. ' just arrived.\r\n')
+				ob:SendToRoom(pname .. ' just arrived.')
 				ob:DoCommand("look")
 
 				return true;
@@ -71,19 +71,19 @@ function c:ExecuteCommand ( o_orig, cmd )
 	
 	if( cmd:lower():starts('n') ) then
 		--print('here')
-		ob:SendToEntity('Go where? That exit does not exist.\r\n')
+		ob:SendToEntity('Go where? That exit does not exist.')
 		return true
 	end
 	if( cmd:lower():starts('e') ) then
-		ob:SendToEntity('Go where? That exit does not exist.\r\n')
+		ob:SendToEntity('Go where? That exit does not exist.')
 		return true
 	end
 	if( cmd:lower():starts('s') ) then
-		ob:SendToEntity('Go where? That exit does not exist.\r\n')
+		ob:SendToEntity('Go where? That exit does not exist.')
 		return true
 	end
 	if( cmd:lower():starts('w') ) then
-		ob:SendToEntity('Go where? That exit does not exist.\r\n')
+		ob:SendToEntity('Go where? That exit does not exist.')
 		return true
 	end
 	return false

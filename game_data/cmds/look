@@ -445,7 +445,7 @@ function c:ExecuteCommand ( o, cmd )
 			--p:SendToEntity('[' .. env:GetTitle() .. ']')
 			--p:SendToEntity('\r\n')
 			--print('in here..')
-			o:SendToEntity(s .. '\r\n')
+			o:SendToEntity(s)
 			--print('in here')
 		end	
 	end

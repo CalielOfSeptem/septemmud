@@ -191,8 +191,8 @@ void playerobj::SendToEntity(const std::string& msg)
     // if( GetName() == "caliel" )
     //    std::cout << msg << std::endl;
     if(this->onOutput)
-        this->onOutput(msg);
-    living_entity::SendToEntity(msg);
+        this->onOutput(msg + "\r\n");
+    living_entity::SendToEntity(msg + "\r\n");
 }
 
 void playerobj::SendToEnvironment(const std::string& msg)

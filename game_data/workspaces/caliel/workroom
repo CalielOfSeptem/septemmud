@@ -29,11 +29,15 @@ end
 
 function p1:add_burke()
 	local path = '/workspaces/caliel/entities/burke'
-	if( clone_npc_to_room( path, self) == nil ) then
+	local b = clone_npc_to_room( path, self)
+	if(  b == nil ) then
 		print('ERROR CLONING NPC\r\n')
 		--o:SendToEntity('Error cloning item.')
-		return true
+		return false
 	end
+	b:DoCommand('rem back')
+	b:DoCommand('drop back')
+	return true
 end
 
 p1:AddAction( p1.timed_action, 1, nil )
@@ -58,7 +62,7 @@ p1:Debug('Loaded room!')
 
 function p1:FooCommand(o, cmd)
 	o:SendToEntity('HAAACHOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO!')
-	for i=1,10 do p1:add_burke() end
+	for i=1,50 do p1:add_burke() end
 	
 	return true
 end
