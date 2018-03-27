@@ -2713,7 +2713,7 @@ bool entity_manager::do_goto(std::string& entitypath, playerobj* p)
     if(r != NULL) {
         return move_living(p, r->GetInstancePath());
     } else {
-        p->SendToEntity("\r\nUnable to goto location, room does not exist.\r\n");
+        p->SendToEntity("Unable to goto location, room does not exist.");
     }
 
     return false;
@@ -2738,7 +2738,7 @@ bool entity_manager::do_tp(std::string& entitypath, playerobj* p_targ, playerobj
     if(r != NULL) {
         return move_living(p_targ, r->GetInstancePath());
     } else {
-        p_caller->SendToEntity("\r\nUnable to goto location, room does not exist.\r\n");
+        p_caller->SendToEntity("Unable to goto location, room does not exist.");
     }
 
     return false;
@@ -3009,10 +3009,10 @@ void entity_manager::on_cmd(living_entity* e, std::string const& cmd)
 
                     if(auto pp = dynamic_cast<playerobj*>(e)) {
                         if(!pp->isCreator()) {
-                            e->SendToEntity("\r\n>\r\n");
+                            e->SendToEntity("\r\n>");
                         } else {
                             std::stringstream ss;
-                            ss << "\r\n" << pp->cwd << ">\r\n";
+                            ss << pp->cwd << ">";
                             e->SendToEntity(ss.str());
                         }
                     }

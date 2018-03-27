@@ -138,11 +138,13 @@ function c:FindItemInEnv( o, item_to_find )
 	local items = room:GetItems()
 	
 	for i = 1, #items do
-		if( items[i]:GetItemNoun():lower():starts(item_to_find)  or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
+	
+		if( items[i]:GetItemNoun():lower():starts(item_to_find) or items[i]:GetItemPluralNoun():lower():starts(item_to_find) ) then
+
 			skip_index = skip_index - 1
 			
 			if ( skip_index ~= 0 ) then goto continue end -- keep looking
-			
+
 			return items[i]
 		end
 		::continue::
@@ -165,14 +167,13 @@ function c:FindItemInLooks( o, item_to_find )
 	
 	local player = living_cast(o)
 	local room = player:GetRoom()
-	--print(room)
 	local looks = room:GetLooks()
 
 	for i = 1, #looks do
 		local look = looks[i]:GetLook()
-		--print( looks[i]:GetDescription() )
+
 		for j = 1, #look do
-			--print( look[j]:lower())
+
 			if( look[j]:lower():starts(item_to_find)) then
 				skip_index = skip_index - 1
 				
@@ -323,34 +324,20 @@ end
 
 
 function c:ExecuteCommand ( o, cmd )
-
-	--print(inspect(_ENV))
-	--print('Look command called..')
-	--p = player_cast(o)
 	o = living_cast(o)
 	if o ~= nil then
-		--tail( '/home/ken/git-repos/septemmud/game_data/logs/L-2017-03-17.log', 10000, true)
-		--if( o:GetType():lower() == "player" ) then
-		--	o = player_cast(o)
-		--end
 		-- lets see what room the player/npc is in..
 		-- there are two ways, through GetEnvironment, or through GetRoom
 		-- GetEnvironment requires a cast as its generic to all game items/players.
 		-- GetRoom does not as its already a room object ptr
 		-- example: env = room_cast(p:GetEnvironment())
+		
+		-- check to see if the 'my' operator was included..
 		local sm1 = string.match(cmd, "in my .+")
-		-- TODO, fix this stuff later..
 		if sm1 ~= nil then
 			local myTable = sm1:split( ' ' )
-			--print (sm1)
 			local item_to_examine = myTable[3]
-
-			--fitem = self:CheckHands( o, item_to_examine )
-			--print(fitem)
-			--if( fitem == nil ) then
 			fitem = self:FindItemInInv( o, item_to_examine )
-			--end
-
 			if( fitem ) then
 				if( fitem.isContainer == false ) then
 					o:SendToEntity('You can\'t look in that!')
@@ -366,28 +353,17 @@ function c:ExecuteCommand ( o, cmd )
 			o:SendToEntity('Look in what? No such object exists.')
 			return true
 		end
-		
+		-- now check if the in modifier was used..
 		local sm2 = string.match(cmd, "in .+")
 		if sm2 ~= nil then
 			local myTable = sm2:split( ' ' )
 			local item_to_examine = myTable[2]
 			
+			-- first, check the ground. 
 			fitem = self:FindItemInEnv( o, item_to_examine )
+			-- now check the player's inventory
+			if( fitem == nil ) then	fitem = self:FindItemInInv( o, item_to_examine ) end
 
-			--if( fitem ) then
-			--	self:ShowInventory( fitem, o )
-			---	return true
-			--end
-			--if( self:CheckHands( o, item_to_examine ) ) then -- try hands..
-			--	return true
-			--end
-			--if( fitem == nil ) then
-			--	fitem = self:CheckHands( o, item_to_examine )
-			--end
-			
-			--if( fitem == nil ) then
-				fitem = self:FindItemInInv( o, item_to_examine )
-			--end
 			
 			if( fitem ) then
 				if( fitem.isContainer == false ) then
