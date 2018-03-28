@@ -93,6 +93,9 @@ public :
     //* =====================================================================
     void async_get_terminal_type(
         std::function<void (std::string const &)> const &callback);
+	
+	unsigned int get_console_height();
+	unsigned int get_console_width();
 
 private :
     struct impl;

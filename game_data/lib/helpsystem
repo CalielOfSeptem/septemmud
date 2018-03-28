@@ -1,0 +1,9 @@
+inherit lib
+
+--[=====[
+	Displays multiline output and a menu system to allow a player
+	to advance output.
+--]=====]
+function display_multipage(str, current_pos, player)
+	player:SendToEntity('OK : ' .. str)
+end

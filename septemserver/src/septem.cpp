@@ -220,7 +220,7 @@ private :
         // the size so that it can be given to the client once the process
         // has completed.
         auto connection = weak_connection.lock();
-       // printf("on_window_size_changed, w=%d, h=%d\r\n", width, height);
+        //printf("on_window_size_changed, w=%d, h=%d\r\n", width, height);
         if (connection != NULL)
         {
             

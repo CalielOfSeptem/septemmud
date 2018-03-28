@@ -900,6 +900,9 @@ void entity_manager::init_lua()
 
     lua.set_function("get_account_exists",
                      [&](std::string sname) -> bool { return account_manager::Instance().get_accountExists(sname); });
+					 
+	lua.set_function("get_player",
+                     [&]() -> script_entity *  { return security_context::Instance().GetCurrentEntity(); });
 
     lua.set_function("create_new_account", [&](std::string aname, std::string pass, std::string email) -> bool {
         if(!security_context::Instance().isArch()) {

@@ -37,6 +37,7 @@ function p1:add_burke()
 	end
 	b:DoCommand('rem back')
 	b:DoCommand('drop back')
+	b:DoCommand('open back')
 	return true
 end
 

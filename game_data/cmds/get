@@ -50,7 +50,7 @@ function c:FindItemInEnv( o, item_to_find )
 end
 
 function c:FindItemInInv( o, item_to_find )
-	print('Item to find ' .. item_to_find)
+	--print('Item to find ' .. item_to_find)
 	local s_num = string.match(item_to_find, '%d+')
 	local skip_index = 1 -- don't skip by default
 	if( s_num ~= nil ) then
@@ -326,7 +326,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 			local myt = sm2:split( ' ' )
 			--print( myt[2] )
 			local fitem = c:FindItemInEnv( o, myt[2])
-			print(fitem)
+			--print(fitem)
 			if( fitem ~= nil ) then
 				if( fitem.isContainer == true and fitem.isOpen == false ) then
 					o_orig:SendToEntity('The ' .. fitem:GetItemNoun() .. ' is closed.')

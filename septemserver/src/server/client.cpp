@@ -2,27 +2,12 @@
 #include "server/client.hpp"
 #include "server/connection.hpp"
 #include "server/context_impl.hpp"
-//#include "utils/password_validator.hpp"
+
 #include <telnetpp/telnetpp.hpp>
 #include "terminalpp/encoder.hpp"
-//#include <boost/asio/strand.hpp>
-//#include <boost/format.hpp>
-//#include <boost/filesystem/operations.hpp>
-//#include <boost/filesystem/path.hpp>
-//#include <boost/algorithm/string.hpp>
+
 #include "welcome_screen.hpp"
-//#include <algorithm>
-//#include <cstdio>
-//#include <deque>
-//#include <mutex>
-//#include <string>
-//#include <vector>
 
-//#include <sstream>
-//#include <fstream>
-
-//#include "string_utils.h"
-//#include <iomanip>
 #include "server/connectionsm.hpp"
 #include "script_entities/playerobj.h"
 #include "entity_manager.h"
@@ -116,6 +101,16 @@ class client::impl : public std::enable_shared_from_this<client::impl>
         }
 
     }
+	
+	unsigned long get_console_height()
+	{
+		return connection_->get_console_height();
+	}
+	
+	unsigned long get_console_width()
+	{
+		return connection_->get_console_width();
+	}
     
     void prompt()
     {
@@ -149,9 +144,14 @@ class client::impl : public std::enable_shared_from_this<client::impl>
     
     void associate_player(const std::string& pname, bool bloggedIn)
     {
+		if( auto p = entity_manager::Instance().get_player(pname) )
+		{
+			p->disconnect_client();
+		}
         entity_manager::Instance().load_player(pname, bloggedIn);
         
         playerobj * p = entity_manager::Instance().get_player(pname);
+		 // disconnect previous instance
         p->onOutput = [this](std::string const& msg)->void { this->on_output(msg); };
         m_player = p;
         p->set_client(&self_);
@@ -376,4 +376,14 @@ void client::associate_player(const std::string& name, bool bLoggedIn)
 playerobj* client::get_player()
 {
      return pimpl_->get_player();
+}
+
+unsigned int client::get_console_height()
+{
+	return pimpl_->get_console_height();
+}
+
+unsigned int client::get_console_width()
+{
+	return pimpl_->get_console_width();
 }
