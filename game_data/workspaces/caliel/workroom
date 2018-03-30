@@ -27,6 +27,11 @@ function p1:timed_action()
 	--end
 end
 
+
+function p1:on_load()
+	print('ON LOAD')
+end
+
 function p1:add_burke()
 	local path = '/workspaces/caliel/entities/burke'
 	local b = clone_npc_to_room( path, self)

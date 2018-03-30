@@ -203,16 +203,36 @@ bool entity_manager::compile_entity(std::string& relative_script_path,
                     }
                 }
             }
+			for( auto& p : rooms )
+			{
+				p->script_ent->invoke_on_load();
+			}
         }
 
     } break;
     case EntityType::NPC:
+	{
+		sol::environment to_load;
+        _init_entity_env(relative_script_path, etype, to_load);
+        b = lua_safe_script(script_text, to_load, reason);
+		if(b)
+		{
+			std::set< std::shared_ptr<entity_wrapper> > npcs;
+			get_npcs_from_path(relative_script_path, npcs);
+			for( auto& n: npcs )
+			{
+				n->script_ent->invoke_on_load();
+			}
+		}
+		break;
+	}
     case EntityType::PLAYER: {
         // TODO: logic that finds the player and reconnects them with their client object, if they have an object in the
         // world
         sol::environment to_load;
         _init_entity_env(relative_script_path, etype, to_load);
         b = lua_safe_script(script_text, to_load, reason);
+		
     } break;
     case EntityType::DAEMON: {
 
@@ -232,11 +252,29 @@ bool entity_manager::compile_entity(std::string& relative_script_path,
         sol::environment to_load;
         _init_entity_env(relative_script_path, etype, to_load);
         b = lua_safe_script(script_text, to_load, reason);
+		if(b)
+		{
+			std::set< std::shared_ptr<entity_wrapper> > ds;
+			get_daemons_from_path(relative_script_path, ds);
+			for( auto& d: ds )
+			{
+				d->script_ent->invoke_on_load();
+			}
+		}
     } break;
     case EntityType::ITEM: {
         sol::environment to_load;
         _init_entity_env(relative_script_path, etype, to_load);
         b = lua_safe_script(script_text, to_load, reason);
+		if(b)
+		{
+			std::set< std::shared_ptr<entity_wrapper> > ds;
+			get_npcs_from_path(relative_script_path, ds);
+			for( auto& d: ds )
+			{
+				d->script_ent->invoke_on_load();
+			}
+		}
         /*
         // TODO.. fix updates to items so we recompile them..
         if( b )
@@ -1246,7 +1284,7 @@ bool entity_manager::destroy_room(std::string& script_path)
 bool entity_manager::destroy_room(script_entity* ent)
 {
 	std::string script_path = ent->GetVirtualScriptPath();
-	ent->set_destroy(true);
+	//ent->set_destroy(true);
 	//std::string script_path="";
 	//unsigned int instance = 0;
 	//get_entity_path_from_id_string( ent->GetInstancePath(), script_path, instance);
@@ -1616,7 +1654,7 @@ bool entity_manager::destroy_entity(std::shared_ptr<entity_wrapper>& ew)
 	std::stringstream ss;
 	ss << "Destroying entity " << ew->script_path;
 	log->debug(ss.str());
-			
+	ew->script_ent->invoke_on_destroy();
     ew->script_ent->clear_props(); // = NULL;
     sol::environment genv = (*m_state).globals();
     genv.set_on(ew->_script_f_);
@@ -2071,6 +2109,26 @@ void entity_manager::get_rooms_from_path(std::string& script_path, std::set<std:
     if(search != m_room_objs.end()) {
         for(auto& e : search->second) {
             rooms.insert(e);
+        }
+    }
+}
+
+void entity_manager::get_npcs_from_path(std::string& script_path, std::set<std::shared_ptr<entity_wrapper> >& npcs)
+{
+    auto search = m_npc_objs.find(script_path);
+    if(search != m_npc_objs.end()) {
+        for(auto& e : search->second) {
+            npcs.insert(e);
+        }
+    }
+}
+
+void entity_manager::get_items_from_path(std::string& script_path, std::set<std::shared_ptr<entity_wrapper> >& items)
+{
+    auto search = m_item_objs.find(script_path);
+    if(search != m_item_objs.end()) {
+        for(auto& e : search->second) {
+            items.insert(e);
         }
     }
 }
@@ -2572,7 +2630,7 @@ bool entity_manager::move_entity(script_entity* target, script_entity* dest)
             return false;
         }
         if(roomobj* r = dynamic_cast<roomobj*>(dest)) {
-            playerobj* p = dynamic_cast<playerobj*>(target);
+            living_entity* p = dynamic_cast<living_entity*>(target);
             if(p->GetEnvironment() != NULL)
                 p->GetRoom()->RemoveEntityFromInventory(target);
             r->AddEntityToInventory(target);

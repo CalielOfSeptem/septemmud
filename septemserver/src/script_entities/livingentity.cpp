@@ -11,7 +11,9 @@
 
 roomobj* living_entity::GetRoom()
 {
-    assert(GetEnvironment() != NULL);
+    //assert(GetEnvironment() != NULL);
+	//if( GetEnvironment() == NULL )
+	//	return NULL;
     return dynamic_cast<roomobj*>(GetEnvironment());
 }
 
@@ -309,6 +311,7 @@ handobj* living_entity::GetLeftHand()
 
 void living_entity::on_environment_change(EnvironmentChangeEvent evt, script_entity* env)
 {
+	script_entity::on_environment_change(evt, env);
 }
 
 void living_entity::debug(const std::string& msg)

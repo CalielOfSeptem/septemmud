@@ -37,7 +37,7 @@ void npcobj::SendToEnvironment(const std::string& msg)
 
 void npcobj::on_environment_change(EnvironmentChangeEvent evt, script_entity* env)
 {
-
+	script_entity::on_environment_change(evt, env);
 }
 
 npcobj::npcobj()

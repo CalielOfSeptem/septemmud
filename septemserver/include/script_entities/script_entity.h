@@ -130,7 +130,8 @@ struct script_entity {
         
         extcommandobj * AddCommand(sol::this_state ts, sol::protected_function func, const sol::as_table_t<std::vector<std::string> >& aliases, sol::object userData = sol::nil);
         
-
+		void invoke_on_load();
+		void invoke_on_destroy();
 private:
         std::string entity_storage_location; // used for persistence
         my_sink m_entityLog;
@@ -140,6 +141,8 @@ private:
         std::string virtual_script_path;
         bool m_destroy = false;
         
+		void invoke_on_environment_change();
+		
   
 protected:
         std::map<std::string, std::string> userProps;

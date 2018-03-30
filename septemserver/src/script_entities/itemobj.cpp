@@ -51,6 +51,7 @@ void itemobj::on_environment_change(EnvironmentChangeEvent evt, script_entity* e
 
         // do_save();
     }
+	script_entity::on_environment_change(evt, env);
 }
 
 bool itemobj::do_load()

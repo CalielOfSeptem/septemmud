@@ -391,6 +391,10 @@ private:
     void get_daemons_from_path(std::string& script_path, std::set< std::shared_ptr<entity_wrapper> >& daemons);
     
 	void get_cmds_from_path(std::string& script_path, std::set< std::shared_ptr<entity_wrapper> >& cmds);
+	
+	void get_npcs_from_path(std::string& script_path, std::set< std::shared_ptr<entity_wrapper> >& npcs);
+	
+	void get_items_from_path(std::string& script_path, std::set< std::shared_ptr<entity_wrapper> >& items);
     /**
      * @brief Gets the parent env for a given entity and also the name of the entity's env within the parent
      * @param script_path

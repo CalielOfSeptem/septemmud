@@ -65,6 +65,7 @@ script_entity::script_entity(sol::this_state ts, sol::this_environment te, Entit
     //    script_entity& self = selfobj.as<script_entity>();
     // assert(&self == this);
     entity_manager::Instance().register_entity(this, sp.value(), myType);
+	//invoke_on_load();
 }
 
 script_entity::~script_entity()
@@ -77,8 +78,7 @@ script_entity::~script_entity()
         log->info(ss.str());
 		entity_manager::Instance().deregister_entity(this);
     }
-
-    
+	
 }
 /*
 void script_entity::debug(const std::string& msg)
@@ -280,6 +280,8 @@ void script_entity::clear_props()
 
 script_entity* script_entity::GetEnvironment()
 {
+	if( environment_ == NULL )
+		return NULL;
     return environment_; //.value();
 }
 
@@ -376,6 +378,8 @@ bool script_entity::do_save()
 
 void script_entity::on_environment_change(EnvironmentChangeEvent evt, script_entity* env)
 {
+	if( evt == EnvironmentChangeEvent::ADDED )
+		this->invoke_on_environment_change();
 }
 
 bool script_entity::do_load()
@@ -414,4 +418,62 @@ void script_entity::RemoveAction(actionobj * a)
     }
      */
     
+}
+
+void script_entity::invoke_on_load()
+{
+	sol::optional<sol::table> self = m_userdata->selfobj;
+	if(self) {
+		sol::protected_function exec = self.value()["on_load"];
+		// Regsiter anti-infinite loop detector
+		entity_manager::Instance().register_hook(this);
+		auto result = exec(self);
+		if(!result.valid()) {
+			// its optional to implement this interface
+			//sol::error err = result;
+			//auto log = spd::get("main");
+			//std::stringstream ss;
+			//ss << "Error calling process_command, entity = " << e->GetName() << ", error = " << err.what();
+			//log->debug(ss.str());
+			//e->debug(ss.str());
+			entity_manager::Instance().register_hook(NULL); // clear the hook
+		} 
+	}
+        
+}
+
+void script_entity::invoke_on_environment_change()
+{
+	sol::optional<sol::table> self = m_userdata->selfobj;
+	if(self) {
+		sol::protected_function exec = self.value()["on_environment_change"];
+		// Regsiter anti-infinite loop detector
+		entity_manager::Instance().register_hook(this);
+		auto result = exec(self);
+		if(!result.valid()) {
+			// its optional to implement this interface
+			
+		} 
+		entity_manager::Instance().register_hook(NULL); // clear the hook
+	}
+        
+}
+
+void script_entity::invoke_on_destroy()
+{
+	if( !m_userdata )
+		return;
+	sol::optional<sol::table> self = m_userdata->selfobj;
+	if(self) {
+		sol::protected_function exec = self.value()["on_destroy"];
+		// Regsiter anti-infinite loop detector
+		entity_manager::Instance().register_hook(this);
+		auto result = exec(self);
+		if(!result.valid()) {
+			// its optional to implement this interface
+			
+		} 
+		entity_manager::Instance().register_hook(NULL); // clear the hook
+	}
+        
 }
