@@ -116,7 +116,7 @@ struct script_entity {
         
         virtual bool do_json_load( std::string& j );
         
-        actionobj * AddAction( sol::protected_function func, unsigned int interval, sol::object userData = sol::nil);
+        actionobj * AddAction( sol::this_state ts, sol::protected_function func, sol::object interval, sol::object userData = sol::nil);
         
         void RemoveAction(actionobj * a);
         

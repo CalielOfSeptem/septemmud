@@ -249,17 +249,37 @@ extcommandobj* script_entity::AddCommand(sol::this_state ts,
     return commands[commands.size() - 1].get();
 }
 
-actionobj* script_entity::AddAction(sol::protected_function func, unsigned int interval, sol::object userData)
+actionobj* script_entity::AddAction(sol::this_state ts, sol::protected_function func, sol::object interval, sol::object userData)
 {
-    actions.push_back(std::shared_ptr<actionobj>(new actionobj(func, interval, userData)));
-    return actions[actions.size() - 1].get();
+	sol::type t = interval.get_type();
+    switch(t) {
+	case sol::type::number:
+	{
+		sol::optional<int> i = interval.as<int>();
+		actions.push_back(std::shared_ptr<actionobj>(std::make_shared<actionobj>(func, i.value(), userData)));
+		return actions.back().get();
+		break;
+	}
+    default:
+
+        break;
+    }
+	return NULL;
 }
 
 void script_entity::DoActions()
 {
-    for(auto r : GetActions()) {
-        r->DoAction();
-    }
+	std::vector< std::shared_ptr<actionobj> > a2;
+
+	for( auto& r: GetActions() )
+	{
+		a2.push_back(r);
+	}
+	for( auto& r: a2 )
+	{
+		r->DoAction();
+	}
+
 }
 
 sol::object script_entity::get_property_lua(const char* name, sol::this_state s)
@@ -403,9 +423,12 @@ std::vector<std::shared_ptr<extcommandobj>>& script_entity::GetCommands()
 }
 void script_entity::RemoveAction(actionobj * a)
 {
+	if( a == NULL )
+		return;
     actions.erase(std::remove_if(actions.begin(), actions.end(),
                           [a](const std::shared_ptr<actionobj> & i){ return &(*i) == a; }),
            actions.end());
+	//std::cout << "ACTIONS = " << actions.size() << std::endl;
            
          /*  
     for( std::shared_ptr<actionobj> ai : actions )

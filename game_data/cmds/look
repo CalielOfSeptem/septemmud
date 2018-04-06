@@ -262,8 +262,9 @@ function FormatRoom(r, o)
 			end
 			s = s .. str
 		end
+		s = s .. '.' 
 	end
-	s = s .. '.' 
+	
 	
 	local players = r:GetPlayers(o:GetName())
 	if( #players > 0 ) then

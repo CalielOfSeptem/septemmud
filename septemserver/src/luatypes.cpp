@@ -14,9 +14,145 @@
 #include "script_entities/npcobj.h"
 
 #include "fs/fs_manager.h"
+
+#define SOL_CHECK_ARGUMENTS 1
+#include <sol.hpp>
+
+
+int my_exception_handler(lua_State* L, sol::optional<const std::exception&> maybe_exception, sol::string_view description) {
+	// L is the lua state, which you can wrap in a state_view if necessary
+	// maybe_exception will contain exception, if it exists
+	// description will either be the what() of the exception or a description saying that we hit the general-case catch(...)
+	std::cout << "An exception occurred in a function, here's what it says ";
+	if (maybe_exception) {
+		std::cout << "(straight from the exception): ";
+		const std::exception& ex = *maybe_exception;
+		std::cout << ex.what() << std::endl;
+	}
+	else {
+		std::cout << "(from the description parameter): ";
+		std::cout.write(description.data(), description.size());
+		std::cout << std::endl;
+	}
+
+	// you must push 1 element onto the stack to be 
+	// transported through as the error object in Lua
+	// note that Lua -- and 99.5% of all Lua users and libraries -- expects a string
+	// so we push a single string (in our case, the description of the error)
+	return sol::stack::push(L, description);
+}
+
+
+struct b
+{
+	b(sol::protected_function f)
+	{
+		func = f;
+	}
+	void do_action()
+	{
+        sol::protected_function_result result = func(this);
+        if(!result.valid()) {
+            sol::error err = result;
+        }
+	}
+	sol::protected_function func;
+};
+struct a
+{
+	b * add_action( sol::protected_function func )
+	{
+		actions.push_back(std::shared_ptr<b>(std::make_shared<b>(func)));
+		return actions.back().get();
+	}
+	
+	void remove_action( b * a )
+	{
+		actions.erase(std::remove_if(actions.begin(), actions.end(),
+					  [a](const std::shared_ptr<b> & i){ return &(*i) == a; }),
+		actions.end());
+	}
+	
+	void do_actions()
+	{
+		std::vector< std::shared_ptr<b> > a2;
+
+		for( auto& r: actions )
+		{
+			a2.push_back(r);
+		}
+		for( auto& r: a2 )
+		{
+			r->do_action();
+		}
+	}
+	
+	sol::object get_property_lua(const char* name, sol::this_state s)
+	{
+		return props[name];
+	}
+
+	void set_property_lua(const char* name, sol::stack_object object)
+	{
+		props[name] = object.as<sol::object>();
+	}
+	
+	std::vector< std::shared_ptr<b> > actions;
+	std::unordered_map<std::string, sol::object> props;
+};
+void lua_test()
+{
+	sol::state lua;
+	lua.open_libraries(sol::lib::base,
+				   sol::lib::os,
+				   sol::lib::string,
+				   sol::lib::math,
+				   sol::lib::table,
+				   sol::lib::package,
+				   sol::lib::debug);
+				   
+   lua.new_usertype<a>("a",
+		  sol::meta_function::new_index,
+		  &a::set_property_lua,
+		  sol::meta_function::index,
+		  &a::get_property_lua,
+		  "AddAction",
+		  &a::add_action,
+		  "DoActions",
+		  &a::do_actions,
+		  "RemoveAction",
+		  &a::remove_action);
+		  
+		lua.new_usertype<b>("b");
+		lua.safe_script(R"(
+		d1 = a.new()
+		
+		function sleep(n)
+		  os.execute("sleep " .. tonumber(n))
+		end
+
+		function d1:foo()
+			print('onfoo')
+			d1:AddAction(d1.foo)
+		end
+		d1:AddAction(d1.foo)
+		
+		while true do
+			d1:DoActions()
+			sleep(2)
+		end
+
+		)");
+		
+}
+
+
+
 void init_lua_state(sol::state& l)
 {
+	//lua_test();
     sol::state& lua = l;
+	
     //m_state_internal.reset(new _internal_lua_);
     lua.open_libraries(sol::lib::base,
                        sol::lib::os,
@@ -25,6 +161,8 @@ void init_lua_state(sol::state& l)
                        sol::lib::table,
                        sol::lib::package,
                        sol::lib::debug);
+					   
+	lua.set_exception_handler(&my_exception_handler);
 
     lua.new_usertype<script_entity>("script_entity", 
             "GetName",  &script_entity::GetName,

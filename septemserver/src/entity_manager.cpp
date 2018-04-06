@@ -868,6 +868,14 @@ void entity_manager::init_lua()
         return player_cmds;
     });
 
+    lua.set_function("get_players", [&]() -> std::vector<playerobj*> {
+        std::vector<playerobj*> players;
+        for(auto const& p : m_player_objs) {
+			players.push_back(dynamic_cast<playerobj*>(p.second->script_ent));
+		}
+        return players;
+    });
+
     lua.set_function("get_move_command", [&]() -> commandobj * & {
         std::string command_path = global_settings::Instance().GetSetting(DEFAULT_COMMANDS_PATH);
         return m_cmds_map[command_path].find("move")->second;
@@ -1152,7 +1160,7 @@ bool entity_manager::unload_player(const std::string& playername)
         // otherwise we can have a crash
         {
             std::unique_lock<std::mutex> lock(dispatch_queue_mutex_);
-            dispatch_queue_.remove_if([](auto& i) { return i.ent; });
+            dispatch_queue_.remove_if([po](auto& i) { return i.ent == po; });
         }
 
     } else {
@@ -1177,17 +1185,17 @@ bool entity_manager::unload_npc(npcobj * npc)
 	// otherwise we can have a crash
 	{
 		std::unique_lock<std::mutex> lock(dispatch_queue_mutex_);
-		dispatch_queue_.remove_if([](auto& i) { return i.ent; });
+		dispatch_queue_.remove_if([npc](auto& i) { return i.ent == npc; });
 	}
 	
-    npc->unload_inventory_from_game(); // Make sure to kill all items..
-    std::string ppath = npc->GetVirtualScriptPath();
-	if( npc->GetEnvironment() )
-	{
-		dynamic_cast<container_base*>(npc->GetEnvironment())->RemoveEntityFromInventory(npc);
-	}
-	do_delete(npc);
-    garbage_collect();
+   // npc->unload_inventory_from_game(); // Make sure to kill all items..
+   // std::string ppath = npc->GetVirtualScriptPath();
+	//if( npc->GetEnvironment() )
+	//{
+	//	dynamic_cast<container_base*>(npc->GetEnvironment())->RemoveEntityFromInventory(npc);
+	//}
+	//do_delete(npc);
+    //garbage_collect();
 
     return true;
 }
@@ -2962,6 +2970,7 @@ void entity_manager::on_cmd(living_entity* e, std::string const& cmd)
         std::unique_lock<std::recursive_mutex> lock(lua_mutex_);
 
         bool bdoLogon = false;
+		
         auto pp = dynamic_cast<playerobj*>(e);
 
         if(pp) {
@@ -3244,6 +3253,7 @@ void entity_manager::deregister_entity(script_entity* ent, bool bGarbageCollect)
 		case EntityType::NPC:
 		{
 			npcobj * npc = static_cast<npcobj*>(ent);
+			unload_npc(npc);
 			deregister_npc(npc);
 			//destroy_npc(npc);
 			//npcobj * npc = static_cast<npcobj*>(ent);

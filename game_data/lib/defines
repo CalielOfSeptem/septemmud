@@ -184,3 +184,12 @@ months.tox_tomn 	= 8
 months.lox_tomn 	= 9
 months.musrod 		= 10
 months.nes_sorrel 	= 11
+
+-- sun transitions
+sun = {}
+sun.rising 		= 0
+sun.climb 		= 1
+sun.zenith 		= 2
+sun.waning 		= 3
+sun.setting 	= 4
+sun.set 		= 5

@@ -10,7 +10,7 @@ void actionobj::DoAction()
 
     if(diff.total_milliseconds() / 1000 > interval) {
         lastTick = t2;
-        sol::protected_function_result result = func(user_data, user_data);
+        sol::protected_function_result result = func(this, user_data);
         if(!result.valid()) {
             sol::error err = result;
         }

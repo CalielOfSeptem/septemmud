@@ -33,11 +33,25 @@ for i=3,13 do _lpdays[i]=_days[i]+1 end
 		[months.lox_tomn]="Lox Tomn", 	[months.musrod]="Musrod",			[months.nes_sorrel]="Nes Sorrel"
 	}
 	
+	local sun_transitions = {
+		[sun.rising]=
+		{'The sun rises above the horizon ushering in a new day.'},
+		[sun.climb]=
+		{'The sun continues its slow climb.'},
+		[sun.zenith]=
+		{'The sun climbs to its apex.'},
+		[sun.waning]=
+		{'The sun begins its slow descent.'},
+		[sun.setting]=
+		{'The sun begins to drop blow the horizon casting long shadows about the land.'},
+		[sun.set]=
+		{'The sun disapears blow the horizon and darkness envelops the land.'}
+	}
 	
 	local sl_timeofday = {
 		[00]="shortly after midnight",
-		[01]="long before dawn",
-		[02]="at dawn\'s bloom",
+		[01]="in the early morning hours",
+		[02]="sometime before dawn",
 		[03]="dawn\'s unfolding",
 		[04]="dawn",
 		[05]="shortly after dawn",
@@ -75,8 +89,8 @@ for i=3,13 do _lpdays[i]=_days[i]+1 end
 	
 function d:get_season(t)
 
-	if( t >= 1 and t <= 3 ) then 
-		return sl_seasons[09]
+	if( t >= 0 and t <= 3 ) then 
+		return sl_seasons[07]
 	end
 	if ( t == 3 ) then 
 		return sl_seasons[00]
@@ -109,7 +123,7 @@ function d:get_month(t)
 end
 
 function d:get_time_of_day(t)
-	return sl_timeofday[t - 1]
+	return sl_timeofday[t]
 end
 
 
@@ -162,18 +176,6 @@ end
 -- It has been 600 years, 300 days since the birth of Ness and the receding of the Tide of Fire and Ash. 
 
 
---int weeks = seconds / 604800;
---int days = (seconds % 604800) / 86400
---int hours = ((seconds % 604800) % 86400) / 3600;
---int minutes = (((seconds % 604800) % 86400) % 3600) / 60;
---int seconds = (((seconds % 604800) % 86400) % 3600) % 60;
-
-
-  --  hours = string.format("%02.f", math.floor(seconds/3600));
-  --  mins = string.format("%02.f", math.floor(seconds/60 - (hours*60)));
-  --  secs = string.format("%02.f", math.floor(seconds - hours*3600 - mins *60));
-  --  return hours..":"..mins..":"..secs
-
 function d:get_ticks()
 	return os.time()
 end
@@ -183,26 +185,85 @@ function d:get_year()
 	return floor((os.time()) / 365.25 / 24 / 3600)
 end
 
---function d:get_day()
-	--return fix(1970 + os.time() / 365.25 / 24 / 3600)
---	return ((os.time()) - ((365.25 * 24 * 3600) * d:get_year())) / 24 / 3600 --fix((os.time()*12) / SECPERMIN / MINPERHOUR / HOURPERDAY)
---end
 
 function d:system_time()
 	return self:gametime(os.time()*12)
 end
+	local sun_transitions = {
+		[sun.rising]=
+		{'The sun rises above the horizon ushering in a new day.'},
+		[sun.climb]=
+		{'The sun continues its slow climb.'},
+		[sun.zenith]=
+		{'The sun climbs to its apex.'},
+		[sun.waning]=
+		{'The sun begins its slow descent.'},
+		[sun.setting]=
+		{'The sun begins to drop blow the horizon casting long shadows about the land.'},
+		[sun.set]=
+		{'The sun disapears blow the horizon and darkness envelops the land.'}
+	}
+	
+
+function d:get_sun_message(hour)
+	if( hour == 4 ) then -- dawn
+		return sun_transitions[sun.rising]
+	end
+	if( hour == 8 ) then -- mid morning 
+		return sun_transitions[sun.climb]
+	end
+	if( hour == 11 ) then -- midday
+		return sun_transitions[sun.zenith]
+	end
+	if( hour == 15 ) then -- early evening
+		return sun_transitions[sun.waning]
+	end
+	if( hour == 17 ) then -- late evening
+		return sun_transitions[sun.setting]
+	end
+	if( hour == 19 ) then -- night
+		return sun_transitions[sun.set]
+	end
+	return nil
+	
+end
+
+function d:is_day()
+	if( d:system_time().hour >= 0 and d:system_time().hour <= 19 ) then
+		return true
+	end
+	return false
+end
+
+function d:next_transition()
+	
+end
+
+function d:sun_transition()
+	if( d:is_day() ) then
+		--print('ITS DAY!!')
+		msg = d:get_sun_message( d:system_time().hour )
+		--print(msg[1])
+		if( msg ) then
+			local players = get_players()
+			for k, v in pairs(players) do
+				v:SendToPlayer(msg[1])
+			end
+		end
+	else
+		
+	end
+	
+	t_mins = d:system_time().minute
+	t_next_hour = 60 - d:system_time().minute
+	t_rl_next_hour = t_next_hour / 12
+	d:RemoveAction( sun_trans )
+	sun_trans = d:AddAction( d.sun_transition, t_rl_next_hour*60+1, nil )
+end
+
+sun_trans = d:AddAction( d.sun_transition, 2, nil ) -- just cause it to happen
 
 -- TODO: implement the weather daemon.  This will ensure that certain environment messaging accounts
 -- for cloud cover, etc.
-
-function d:heart_beat(user_data)
-	--print(user_data)
-	-- figure out what time it is, and present a message if appropriate.  Otherwise, set the timer
-	-- to elapse at the next scheduled time...
-end
-
-local ac = d:AddAction( d.heart_beat, 1, 1 )
---d:RemoveAction( ac )
---register_heartbeat(d.heart_beat)
 
 

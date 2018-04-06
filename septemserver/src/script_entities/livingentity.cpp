@@ -238,7 +238,7 @@ void living_entity::unload_inventory_from_game()
    // for(auto i : this->GetInventory()) {
    //     recursive_unload(i);
    // }
-   _unload_inventory_();
+   container_base::_unload_inventory_();
    //m_RightHand._unload_inventory_();
    //m_LeftHand._unload_inventory_();
     recursive_unload(dynamic_cast<script_entity*>(&m_RightHand));
