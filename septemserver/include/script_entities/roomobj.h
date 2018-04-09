@@ -34,11 +34,21 @@ struct itemobj;
 struct npcobj;
 
 enum RoomType : int { INDOOR=0, OUTDOOR };
+enum ZoneType : int {
+	ARCTIC = 0,
+	TEMPERATE = 1,
+	TROPICAL = 2,
+	ASH = 3,
+	DESERT = 4
+};
+
 
 class roomobj : public script_entity, public container_base
 {
 public:
-    roomobj(sol::this_state ts, sol::this_environment te, int rt);
+	roomobj(sol::this_state ts, sol::this_environment te);
+    roomobj(sol::this_state ts, sol::this_environment te, int rt );
+	roomobj(sol::this_state ts, sol::this_environment te, int rt, int zt);
     
     ~roomobj();
 
@@ -89,6 +99,14 @@ public:
     
         
     bool GetIsOutdoor();
+	
+	void SetZoneType(ZoneType zt);
+	
+	void SetRoomType(RoomType rt);
+	
+	RoomType GetRoomType();
+	
+	ZoneType GetZoneType();
 
     
 private:
@@ -101,6 +119,7 @@ private:
     std::vector<std::shared_ptr<doorobj>> doors;
     
     RoomType room_type;
+	ZoneType zone_type;
 };
 
 #endif

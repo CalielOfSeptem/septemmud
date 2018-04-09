@@ -1,0 +1,11 @@
+--[[weather daemon version:0.0.1]]-------------------------------
+--[[------------------------------------------------------
+	Copyright (C) 2018, by Caliel (kenthompson1@gmail.com)
+	All Rights Reserved.
+--]]------------------------------------------------------
+inherit daemon
+d = daemon.new('weather')
+
+function d:register_room(room)
+	print('registered room')
+end

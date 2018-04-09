@@ -243,6 +243,9 @@ struct _internal_queue_wrapper_
     void register_hook(script_entity * hook_entity);
     
     std::recursive_mutex*  GetLuaMutex() { return &lua_mutex_; };
+	
+	bool load_room_cache( std::vector<std::string>& cache, std::string& reason );
+    bool save_room_cache();
     
 protected:
     entity_manager();
@@ -404,15 +407,13 @@ private:
      */
     bool get_parent_env_of_entity( std::string& script_path, sol::environment& env, std::string& env_name );
     
-    
-    bool save_compiled_room_list();
+
   
   
       // ======================================================================
     // DISPATCH_QUEUE
     // ======================================================================
-    void dispatch_queue()
-    ;
+    void dispatch_queue();
       
 
 };

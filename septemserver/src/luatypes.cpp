@@ -43,49 +43,14 @@ int my_exception_handler(lua_State* L, sol::optional<const std::exception&> mayb
 }
 
 
-struct b
-{
-	b(sol::protected_function f)
-	{
-		func = f;
-	}
-	void do_action()
-	{
-        sol::protected_function_result result = func(this);
-        if(!result.valid()) {
-            sol::error err = result;
-        }
-	}
-	sol::protected_function func;
-};
+
 struct a
 {
-	b * add_action( sol::protected_function func )
+	a(sol::this_state ts, sol::this_environment te)
 	{
-		actions.push_back(std::shared_ptr<b>(std::make_shared<b>(func)));
-		return actions.back().get();
+		
 	}
 	
-	void remove_action( b * a )
-	{
-		actions.erase(std::remove_if(actions.begin(), actions.end(),
-					  [a](const std::shared_ptr<b> & i){ return &(*i) == a; }),
-		actions.end());
-	}
-	
-	void do_actions()
-	{
-		std::vector< std::shared_ptr<b> > a2;
-
-		for( auto& r: actions )
-		{
-			a2.push_back(r);
-		}
-		for( auto& r: a2 )
-		{
-			r->do_action();
-		}
-	}
 	
 	sol::object get_property_lua(const char* name, sol::this_state s)
 	{
@@ -96,10 +61,23 @@ struct a
 	{
 		props[name] = object.as<sol::object>();
 	}
-	
-	std::vector< std::shared_ptr<b> > actions;
+
 	std::unordered_map<std::string, sol::object> props;
 };
+
+struct b : public a
+{
+	b(sol::this_state ts, sol::this_environment te, int ab ) : a(ts, te)	
+	{
+		
+	}
+	
+	b(sol::this_state ts, sol::this_environment te, int ab, int bc ) : a(ts, te)
+	{
+		
+	}
+};
+
 void lua_test()
 {
 	sol::state lua;
@@ -111,37 +89,22 @@ void lua_test()
 				   sol::lib::package,
 				   sol::lib::debug);
 				   
-   lua.new_usertype<a>("a",
+   lua.new_usertype<b>("b",
+		sol::constructors<b(sol::this_state, sol::this_environment, int),
+		b(sol::this_state, sol::this_environment, int,  int)>(),
 		  sol::meta_function::new_index,
-		  &a::set_property_lua,
+		  &b::set_property_lua,
 		  sol::meta_function::index,
-		  &a::get_property_lua,
-		  "AddAction",
-		  &a::add_action,
-		  "DoActions",
-		  &a::do_actions,
-		  "RemoveAction",
-		  &a::remove_action);
+		  &b::get_property_lua,
+		sol::base_classes,
+		sol::bases<a>()
+		  );
 		  
 		lua.new_usertype<b>("b");
 		lua.safe_script(R"(
-		d1 = a.new()
-		
-		function sleep(n)
-		  os.execute("sleep " .. tonumber(n))
-		end
-
-		function d1:foo()
-			print('onfoo')
-			d1:AddAction(d1.foo)
-		end
-		d1:AddAction(d1.foo)
-		
-		while true do
-			d1:DoActions()
-			sleep(2)
-		end
-
+		roomTypes = {}
+		d1 = b.new(1)
+		print('ok')
 		)");
 		
 }
@@ -315,7 +278,9 @@ void init_lua_state(sol::state& l)
     // bool bisContainer;
     
     lua.new_usertype<roomobj>("room",
-                              sol::constructors<roomobj(sol::this_state, sol::this_environment, int)>(),
+                              sol::constructors<roomobj(sol::this_state, sol::this_environment),
+							  roomobj(sol::this_state, sol::this_environment, int),
+							  roomobj(sol::this_state, sol::this_environment, int, int)>(),
                               sol::meta_function::new_index,
                               &roomobj::set_property_lua,
                               sol::meta_function::index,
@@ -362,8 +327,16 @@ void init_lua_state(sol::state& l)
                               &roomobj::GetLooks,
                               "SendToRoom",
                               &roomobj::SendToRoom,
-                              "IsOutdoors",
+                              "IsOutdoor",
                               &roomobj::GetIsOutdoor,
+							  "GetZoneType",
+                              &roomobj::GetZoneType,
+							  "SetZoneType",
+                              &roomobj::SetZoneType,
+							  "GetRoomType",
+                              &roomobj::GetRoomType,
+							  "SetRoomType",
+                              &roomobj::SetRoomType,
                               sol::base_classes,
                               sol::bases<script_entity, container_base>());
                               

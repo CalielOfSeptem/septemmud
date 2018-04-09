@@ -1,5 +1,5 @@
 #include "stdafx.h"
-
+#include <algorithm>
 
 #include "entity_manager.h"
 //#include <boost/filesystem/operations.hpp>
@@ -1797,6 +1797,8 @@ void entity_manager::deregister_command(commandobj* cmd)
 	*/
 }
 
+
+
 void entity_manager::register_room(roomobj* room)
 {
     std::string room_path = room->GetInstancePath();
@@ -1806,7 +1808,7 @@ void entity_manager::register_room(roomobj* room)
     std::stringstream ss;
     ss << "Registered room into lookup table, room = " << room_path;
     log->debug(ss.str());
-    save_compiled_room_list(); // may need to rethink this approach
+    save_room_cache(); // may need to rethink this approach
 }
 
 void entity_manager::deregister_room(roomobj* room)
@@ -2917,15 +2919,64 @@ bool entity_manager::capture_input(sol::this_state ts, playerobj* p, sol::object
     }
 }
 
-bool entity_manager::save_compiled_room_list()
+bool entity_manager::load_room_cache(std::vector<std::string>& cache, std::string& reason)
+{
+    try {
+        json _j;
+        auto game_root_path =
+            boost::filesystem::canonical(global_settings::Instance().GetSetting(DEFAULT_GAME_DATA_PATH));
+        auto room_cache = global_settings::Instance().GetSetting(DEFAULT_ROOM_CACHE_PATH);
+
+        auto patha = boost::filesystem::weakly_canonical(game_root_path / room_cache);
+
+        std::ifstream i(patha.string() + "/roomcache");
+        i >> _j;
+
+        assert(!_j["room_cache"].is_null());
+        if(!_j["room_cache"].is_null()) {
+            cache = _j["room_cache"].get<std::vector<std::string> >();
+        }
+
+    } catch(std::exception& ex) {
+        auto log = spd::get("main");
+        std::stringstream ss;
+        ss << "Error when attempting to load account " << ex.what() << ".";
+        log->debug(ss.str());
+        reason = ss.str();
+        return false;
+    }
+    return true;
+}
+
+template <typename T>
+void remove_duplicates(std::vector<T>& vec)
+{
+  sort(vec.begin(), vec.end());
+  vec.erase(unique(vec.begin(), vec.end()), vec.end());
+}
+
+bool entity_manager::save_room_cache()
 {
     // TODO:  make this a lazy-write system, as more rooms are added this disk access could become very expensive
     // std::map< std::string, roomobj * > m_room_lookup;
+	
     std::vector<std::string> tmp;
     for(auto& k : m_room_objs) {
         std::cout << "Adding " << k.first << " to the list.." << std::endl;
         tmp.push_back(k.first);
     }
+	
+	std::vector<std::string> old_cache; // make sure we save all rooms including those that failed to compile
+	std::string reason;
+	if( load_room_cache( old_cache, reason ) )
+	{
+		for( auto rtmp : old_cache )
+		{
+			tmp.push_back(rtmp);
+		}
+	}
+	
+	remove_duplicates(tmp);
 
     json j;
 

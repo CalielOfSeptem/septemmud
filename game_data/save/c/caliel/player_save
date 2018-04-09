@@ -1,11 +1,11 @@
 {
-    "cwd": "cmds/",
+    "cwd": "workspaces/caliel/",
     "gender": "unknown",
     "inventory": {
         "GjHYjKQB1GnXwZn": "workspaces/caliel/entities/backpack"
     },
     "leftHand": 0,
     "rightHand": 0,
-    "roomID": 2,
+    "roomID": 0,
     "roomPath": "workspaces/caliel/workroom"
 }

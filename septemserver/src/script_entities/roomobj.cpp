@@ -8,12 +8,35 @@
 #include "script_entities/lookobj.h"
 #include "script_entities/exitobj.h"
 #include "script_entities/npcobj.h"
+
+roomobj::roomobj(sol::this_state ts, sol::this_environment te )
+    : script_entity(ts, te, EntityType::ROOM, "")
+    {
+    room_type = RoomType::INDOOR;
+	zone_type = ZoneType::ARCTIC;
+	
+    entity_manager::Instance().register_room(this);
+}
+
+
 roomobj::roomobj(sol::this_state ts, sol::this_environment te, int rt)
     : script_entity(ts, te, EntityType::ROOM, "")
     {
     room_type = static_cast<RoomType>(rt);
+	zone_type = ZoneType::ARCTIC;
+	
     entity_manager::Instance().register_room(this);
 }
+
+roomobj::roomobj(sol::this_state ts, sol::this_environment te, int rt, int zt)
+    : script_entity(ts, te, EntityType::ROOM, "")
+    {
+    room_type = static_cast<RoomType>(rt);
+	zone_type = static_cast<ZoneType>(zt);
+	
+    entity_manager::Instance().register_room(this);
+}
+
 
 roomobj::~roomobj()
 {
@@ -226,3 +249,24 @@ bool roomobj::GetIsOutdoor()
     }
     else return false;
 }
+
+void roomobj::SetZoneType(ZoneType zt)
+{
+	zone_type = zt;
+}
+	
+void roomobj::SetRoomType(RoomType rt)
+{
+	room_type = rt;
+}
+	
+RoomType roomobj::GetRoomType()
+{
+	return room_type;
+}
+	
+ZoneType roomobj::GetZoneType()
+{
+	return zone_type;
+}
+

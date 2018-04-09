@@ -54,7 +54,7 @@ struct game_manager
     
     bool process_player_cmd(playerobj* p, std::string& cmd);
     
-    bool load_room_cache( std::vector<std::string>& cache, std::string& reason );
+   
     
 private:
     gameState m_state;

@@ -193,3 +193,31 @@ sun.zenith 		= 2
 sun.waning 		= 3
 sun.setting 	= 4
 sun.set 		= 5
+
+-- clouds
+cloudCover 						= {}
+cloudCover.none 				= 0
+cloudCover.largePuffy			= 1
+cloudCover.overCast				= 2
+cloudCover.patchedClouds 		= 3
+cloudCover.threatening		 	= 4
+cloudCover.sheets	 			= 5
+
+-- sky color
+skyColor 					= {}
+skyColor.blue 				= 0
+skyColor.night				= 1
+skyColor.morning			= 2
+skyColor.ominous	 		= 3
+skyColor.likeFire		 	= 4
+
+-- zone types for weather-related messaging and behaviors
+zoneType				=	{}
+zoneType.arctic 		=	0
+zoneType.temperate 		= 	1
+zoneType.tropical		=	2
+zoneType.ash			=	3
+zoneType.desert			=	4
+
+
+
