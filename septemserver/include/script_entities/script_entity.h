@@ -27,7 +27,7 @@
 
 
 #include "loghelper.h"
-
+#include <boost/signals2.hpp>
 
 class get_uid;
 struct extcommandobj;
@@ -132,6 +132,8 @@ struct script_entity {
         
 		void invoke_on_load();
 		void invoke_on_destroy();
+		
+		boost::signals2::signal<void()> on_destroy;
 private:
         std::string entity_storage_location; // used for persistence
         my_sink m_entityLog;

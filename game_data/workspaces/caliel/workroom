@@ -1,10 +1,10 @@
 inherit room
-r = room.new(1, 1)
+r = room.new()
 r:SetTitle('Caliel\'s Workroom')
 
 r:SetDescription("Exquisitely carved shelves of mahogany run the length of a large, two-story study. \z
-					Ancient books, scrolls and oddities line the mahogany shelves. \z
-					The maw of an over-sized fireplace casts light from a crackling fire to light the room. \z
+					Ancient books, scrolls and oddities line the shelves. \z
+					An over-sized fireplace casts light from a crackling fire to light the room. \z
 					A carved wooden ceiling of raised septagonal prisms form a repeating \z
 					pattern overhead and seem to absorb firelight at their hollow centers and yawn soft undulating \z 
 					hues of gold, brown, and orange. \z
@@ -12,8 +12,51 @@ r:SetDescription("Exquisitely carved shelves of mahogany run the length of a lar
 					about the center of the study. Haphazard stacks of leather-bound \z
 					volumes extend from the oaken table and remain perilously vertical by some \z
 					unnatural force. A few gold-trimmed ancient scrolls lay outstretched \z
-					between stacks of the leather-bond volumes and remain taut by \z
-					sculpted jade figurines depicting wild beasts which anchor each end. \z
+					between stacks of the leather-bond volumes and anchored by \z
+					sculpted jade figurines depicting wild beasts. \z
 					An oaken door leads south. \z
 					A dog-leg staircase ascends to a half-landing before turning at a right angle and continuing upwards \z
 					to lead to a second story balcony. ")
+					
+r:AddExit( direction.south, 'workspaces/caliel/workroom:id=2', true)
+
+function r:timed_action()
+	local weather_daemon = get_daemon('daemon/weather', 0)
+	for i=1, 10 do
+		r1 = room.new(roomTypes.outdoor)
+		r1:SetTitle('Caliel\'s Outdoor Workroom ' .. tostring(cur_count))
+
+		r1:SetDescription("Exquisitely carved shelves of mahogany run the length of a large, two-story study. \z
+							Ancient books, scrolls and oddities line the mahogany shelves. \z
+							The maw of an over-sized fireplace casts light from a crackling fire to light the room. \z
+							A carved wooden ceiling of raised septagonal prisms form a repeating \z
+							pattern overhead and seem to absorb firelight at their hollow centers and yawn soft undulating \z 
+							hues of gold, brown, and orange. \z
+							A massive oaken table with ornately carved runes stands \z
+							about the center of the study. Haphazard stacks of leather-bound \z
+							volumes extend from the oaken table and remain perilously vertical by some \z
+							unnatural force. A few gold-trimmed ancient scrolls lay outstretched \z
+							between stacks of the leather-bond volumes and remain taut by \z
+							sculpted jade figurines depicting wild beasts which anchor each end. \z
+							An oaken door leads south. \z
+							A dog-leg staircase ascends to a half-landing before turning at a right angle and continuing upwards \z
+							to lead to a second story balcony. ")
+		r1:AddExit( direction.north, 'workspaces/caliel/workroom:id=' .. tostring(cur_count-1), true)
+		r1:AddExit( direction.south, 'workspaces/caliel/workroom:id=' .. tostring(cur_count+1), true)
+		cur_count = cur_count + 1
+		
+		
+		weather_daemon:register_room(entity_ptr.new(r1))
+	end
+end
+cur_count = 1
+--r:AddAction( r.timed_action, 5, nil )
+
+p3 = room.new(roomTypes.outdoor)
+--init_room(p2)
+p3:SetTitle('Outside Caliel\'s Workroom')
+p3:SetDescription('You are outside.')
+p3:AddExit( direction.north, 'workspaces/caliel/workroom:id=0', true)
+
+local weather_daemon = get_daemon('daemon/weather', 0)
+weather_daemon:register_room(entity_ptr.new(p3))

@@ -45,7 +45,7 @@ for i=3,13 do _lpdays[i]=_days[i]+1 end
 		[sun.setting]=
 		{'The sun begins to drop blow the horizon casting long shadows about the land.'},
 		[sun.set]=
-		{'The sun disapears blow the horizon and darkness envelops the land.'}
+		{'The sun disappears blow the horizon and darkness envelops the land.'}
 	}
 	
 	local sl_timeofday = {

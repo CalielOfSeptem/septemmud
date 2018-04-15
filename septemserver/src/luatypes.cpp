@@ -12,7 +12,7 @@
 #include "script_entities/lookobj.h"
 #include "script_entities/exitobj.h"
 #include "script_entities/npcobj.h"
-
+#include "script_entities/entity_ptr.h"
 #include "fs/fs_manager.h"
 
 #define SOL_CHECK_ARGUMENTS 1
@@ -103,7 +103,8 @@ void lua_test()
 		lua.new_usertype<b>("b");
 		lua.safe_script(R"(
 		roomTypes = {}
-		d1 = b.new(1)
+		roomTypes.indoor = 0
+		d1 = b.new(roomTypes.indoor)
 		print('ok')
 		)");
 		
@@ -159,7 +160,12 @@ void init_lua_state(sol::state& l)
                               "GetExit",
                               &exitobj::GetExit);
                               
-
+	lua.new_usertype<entity_ptr>("entity_ptr",
+							sol::constructors<entity_ptr(sol::this_state, script_entity*)>(),
+							"IsAlive",
+							&entity_ptr::get_alive,
+							"GetEntity",
+							&entity_ptr::get_entity);
 
     lua.new_usertype<handobj>("hand",
                             "GetInventory",
