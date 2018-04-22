@@ -32,6 +32,8 @@ for i=3,13 do _lpdays[i]=_days[i]+1 end
 		[months.buhnrod]="Buhnrod", 	[months.spirwol]="Spirwol",			[months.tox_tomn]="Tox Tomn",
 		[months.lox_tomn]="Lox Tomn", 	[months.musrod]="Musrod",			[months.nes_sorrel]="Nes Sorrel"
 	}
+
+
 	
 	local sun_transitions = {
 		[sun.rising]=
@@ -86,37 +88,40 @@ for i=3,13 do _lpdays[i]=_days[i]+1 end
 		[07]="winter"
 	}
 	
-	
 function d:get_season(t)
 
 	if( t >= 0 and t <= 3 ) then 
-		return sl_seasons[07]
+		return seasons.winter
 	end
 	if ( t == 3 ) then 
-		return sl_seasons[00]
+		return seasons.earlySpring
 	end
 	if ( t == 4 ) then 
-		return sl_seasons[01]
+		return seasons.spring
 	end
 	if ( t == 5 ) then 
-		return sl_seasons[02]
+		return seasons.lateSpring
 	end
 	if( t >= 6 and t <= 7 ) then 
-		return sl_seasons[3]
+		return seasons.summer
 	end
 	if ( t == 8 ) then 
-		return sl_seasons[4]
+		return seasons.lateSummer
 	end
 	if ( t == 9 ) then 
-		return sl_seasons[5]
+		return seasons.fall
 	end
 	if ( t == 10 ) then 
-		return sl_seasons[6]
+		return seasons.lateFall
 	end
 	if ( t > 10 ) then
-		return sl_seasons[7]
+		return seasons.winter
 	end
 
+end
+
+function d:get_season_name(t)
+	return sl_seasons[d:get_season(t)]
 end
 function d:get_month(t)
 	return sl_months[t - 1]

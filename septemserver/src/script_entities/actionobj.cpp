@@ -13,6 +13,11 @@ void actionobj::DoAction()
         sol::protected_function_result result = func(this, user_data);
         if(!result.valid()) {
             sol::error err = result;
+			// TODO: locate room or creator owner of this obj to send the message too
+			auto log = spd::get("main");
+			std::stringstream ss;
+			ss << "Error executing action: " << err.what();
+			log->debug(ss.str());
         }
     }
 }

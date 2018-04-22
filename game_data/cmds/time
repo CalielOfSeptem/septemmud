@@ -20,7 +20,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 	if( s_type == 'player' and p:IsCreator() ) then
 		o_orig:SendToEntity( 'YEAR: ' .. time_daemon:system_time().year )
 		o_orig:SendToEntity( 'DAY OF YEAR: ' .. time_daemon:system_time().dayofyear )
-		o_orig:SendToEntity( 'RL MONTH: ' .. time_daemon:system_time().month)
+		o_orig:SendToEntity( 'MONTH: ' .. time_daemon:system_time().month)
 		o_orig:SendToEntity( 'MONTH: ' .. time_daemon:get_month(time_daemon:system_time().month) )
 		o_orig:SendToEntity( 'DAY: ' .. time_daemon:system_time().day  )
 		o_orig:SendToEntity( 'HOUR: ' .. time_daemon:system_time().hour )
@@ -30,7 +30,7 @@ function c:ExecuteCommand ( o_orig, cmd )
 	local out = string.format('It appears to be %s on the %s day of %s in the year %d, and it is currently %s.\r\n',
 		 time_daemon:get_time_of_day(time_daemon:system_time().hour), ordinal_numbers(time_daemon:system_time().day),  
 		 time_daemon:get_month(time_daemon:system_time().month), time_daemon:system_time().year,
-		 time_daemon:get_season(time_daemon:system_time().month))
+		 time_daemon:get_season_name(time_daemon:system_time().month))
 	
 	o_orig:SendToEntity(out)
 	

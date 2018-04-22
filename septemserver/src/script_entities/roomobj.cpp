@@ -13,7 +13,7 @@ roomobj::roomobj(sol::this_state ts, sol::this_environment te )
     : script_entity(ts, te, EntityType::ROOM, "")
     {
     room_type = RoomType::INDOOR;
-	zone_type = ZoneType::ARCTIC;
+	biome_type = BiomeType::ZT_NONE;
 	
     entity_manager::Instance().register_room(this);
 }
@@ -23,7 +23,7 @@ roomobj::roomobj(sol::this_state ts, sol::this_environment te, int rt)
     : script_entity(ts, te, EntityType::ROOM, "")
     {
     room_type = static_cast<RoomType>(rt);
-	zone_type = ZoneType::ARCTIC;
+	biome_type = BiomeType::ZT_NONE;
 	
     entity_manager::Instance().register_room(this);
 }
@@ -32,7 +32,7 @@ roomobj::roomobj(sol::this_state ts, sol::this_environment te, int rt, int zt)
     : script_entity(ts, te, EntityType::ROOM, "")
     {
     room_type = static_cast<RoomType>(rt);
-	zone_type = static_cast<ZoneType>(zt);
+	biome_type = static_cast<BiomeType>(zt);
 	
     entity_manager::Instance().register_room(this);
 }
@@ -250,9 +250,9 @@ bool roomobj::GetIsOutdoor()
     else return false;
 }
 
-void roomobj::SetZoneType(ZoneType zt)
+void roomobj::SetBiomeType(BiomeType zt)
 {
-	zone_type = zt;
+	biome_type = zt;
 }
 	
 void roomobj::SetRoomType(RoomType rt)
@@ -265,8 +265,8 @@ RoomType roomobj::GetRoomType()
 	return room_type;
 }
 	
-ZoneType roomobj::GetZoneType()
+BiomeType roomobj::GetBiomeType()
 {
-	return zone_type;
+	return biome_type;
 }
 

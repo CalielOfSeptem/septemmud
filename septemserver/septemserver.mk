@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=Ken Thompson
-Date                   :=14/04/18
+Date                   :=22/04/18
 CodeLitePath           :=/home/ken/.codelite
 LinkerName             :=g++
 SharedObjectLinkerName :=g++ -shared -fPIC
@@ -60,9 +60,9 @@ AS       := as
 ## User defined environment variables
 ##
 CodeLiteDir:=/usr/share/codelite
-Objects0=$(IntermediateDirectory)/src_script_entities_entity_ptr.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_server_httpserv.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_server_client.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_net_server.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_net_socket.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_fs_fs_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_server_context_impl.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_doorobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_loghelper.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_server_connection.cpp$(ObjectSuffix) \
+Objects0=$(IntermediateDirectory)/src_server_httpserv.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_server_client.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_net_server.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_net_socket.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_fs_fs_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_extcommandobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_server_context_impl.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_doorobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_loghelper.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_server_connection.cpp$(ObjectSuffix) \
 	$(IntermediateDirectory)/src_script_entities_script_entity.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_game_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_global_settings.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_roomobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_actionobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_entity_wrapper.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_commandobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_heartbeat_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_npcobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_account_manager.cpp$(ObjectSuffix) \
-	$(IntermediateDirectory)/src_septem.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_extcommandobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_account.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_main.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_security_context.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_luatypes.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_io_db_interface.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_entity_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_exitobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_lookobj.cpp$(ObjectSuffix) \
+	$(IntermediateDirectory)/src_septem.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_account.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_main.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_security_context.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_luatypes.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_entity_ptr.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_io_db_interface.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_entity_manager.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_exitobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_lookobj.cpp$(ObjectSuffix) \
 	$(IntermediateDirectory)/src_script_entities_inventory_slot.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_handobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_daemonobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_livingentity.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_itemobj.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_container_base.cpp$(ObjectSuffix) $(IntermediateDirectory)/src_script_entities_playerobj.cpp$(ObjectSuffix) 
 
 
@@ -104,14 +104,6 @@ PreBuild:
 ##
 ## Objects
 ##
-$(IntermediateDirectory)/src_script_entities_entity_ptr.cpp$(ObjectSuffix): src/script_entities/entity_ptr.cpp $(IntermediateDirectory)/src_script_entities_entity_ptr.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/script_entities/entity_ptr.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_script_entities_entity_ptr.cpp$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/src_script_entities_entity_ptr.cpp$(DependSuffix): src/script_entities/entity_ptr.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/src_script_entities_entity_ptr.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/src_script_entities_entity_ptr.cpp$(DependSuffix) -MM src/script_entities/entity_ptr.cpp
-
-$(IntermediateDirectory)/src_script_entities_entity_ptr.cpp$(PreprocessSuffix): src/script_entities/entity_ptr.cpp
-	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_script_entities_entity_ptr.cpp$(PreprocessSuffix) src/script_entities/entity_ptr.cpp
-
 $(IntermediateDirectory)/src_server_httpserv.cpp$(ObjectSuffix): src/server/httpserv.cpp $(IntermediateDirectory)/src_server_httpserv.cpp$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/server/httpserv.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_server_httpserv.cpp$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/src_server_httpserv.cpp$(DependSuffix): src/server/httpserv.cpp
@@ -151,6 +143,14 @@ $(IntermediateDirectory)/src_fs_fs_manager.cpp$(DependSuffix): src/fs/fs_manager
 
 $(IntermediateDirectory)/src_fs_fs_manager.cpp$(PreprocessSuffix): src/fs/fs_manager.cpp
 	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_fs_fs_manager.cpp$(PreprocessSuffix) src/fs/fs_manager.cpp
+
+$(IntermediateDirectory)/src_script_entities_extcommandobj.cpp$(ObjectSuffix): src/script_entities/extcommandobj.cpp $(IntermediateDirectory)/src_script_entities_extcommandobj.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/script_entities/extcommandobj.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_script_entities_extcommandobj.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/src_script_entities_extcommandobj.cpp$(DependSuffix): src/script_entities/extcommandobj.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/src_script_entities_extcommandobj.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/src_script_entities_extcommandobj.cpp$(DependSuffix) -MM src/script_entities/extcommandobj.cpp
+
+$(IntermediateDirectory)/src_script_entities_extcommandobj.cpp$(PreprocessSuffix): src/script_entities/extcommandobj.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_script_entities_extcommandobj.cpp$(PreprocessSuffix) src/script_entities/extcommandobj.cpp
 
 $(IntermediateDirectory)/src_server_context_impl.cpp$(ObjectSuffix): src/server/context_impl.cpp $(IntermediateDirectory)/src_server_context_impl.cpp$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/server/context_impl.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_server_context_impl.cpp$(ObjectSuffix) $(IncludePath)
@@ -272,14 +272,6 @@ $(IntermediateDirectory)/src_septem.cpp$(DependSuffix): src/septem.cpp
 $(IntermediateDirectory)/src_septem.cpp$(PreprocessSuffix): src/septem.cpp
 	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_septem.cpp$(PreprocessSuffix) src/septem.cpp
 
-$(IntermediateDirectory)/src_script_entities_extcommandobj.cpp$(ObjectSuffix): src/script_entities/extcommandobj.cpp $(IntermediateDirectory)/src_script_entities_extcommandobj.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/script_entities/extcommandobj.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_script_entities_extcommandobj.cpp$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/src_script_entities_extcommandobj.cpp$(DependSuffix): src/script_entities/extcommandobj.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/src_script_entities_extcommandobj.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/src_script_entities_extcommandobj.cpp$(DependSuffix) -MM src/script_entities/extcommandobj.cpp
-
-$(IntermediateDirectory)/src_script_entities_extcommandobj.cpp$(PreprocessSuffix): src/script_entities/extcommandobj.cpp
-	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_script_entities_extcommandobj.cpp$(PreprocessSuffix) src/script_entities/extcommandobj.cpp
-
 $(IntermediateDirectory)/src_account.cpp$(ObjectSuffix): src/account.cpp $(IntermediateDirectory)/src_account.cpp$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/account.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_account.cpp$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/src_account.cpp$(DependSuffix): src/account.cpp
@@ -311,6 +303,14 @@ $(IntermediateDirectory)/src_luatypes.cpp$(DependSuffix): src/luatypes.cpp
 
 $(IntermediateDirectory)/src_luatypes.cpp$(PreprocessSuffix): src/luatypes.cpp
 	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_luatypes.cpp$(PreprocessSuffix) src/luatypes.cpp
+
+$(IntermediateDirectory)/src_script_entities_entity_ptr.cpp$(ObjectSuffix): src/script_entities/entity_ptr.cpp $(IntermediateDirectory)/src_script_entities_entity_ptr.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/script_entities/entity_ptr.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_script_entities_entity_ptr.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/src_script_entities_entity_ptr.cpp$(DependSuffix): src/script_entities/entity_ptr.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/src_script_entities_entity_ptr.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/src_script_entities_entity_ptr.cpp$(DependSuffix) -MM src/script_entities/entity_ptr.cpp
+
+$(IntermediateDirectory)/src_script_entities_entity_ptr.cpp$(PreprocessSuffix): src/script_entities/entity_ptr.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/src_script_entities_entity_ptr.cpp$(PreprocessSuffix) src/script_entities/entity_ptr.cpp
 
 $(IntermediateDirectory)/src_io_db_interface.cpp$(ObjectSuffix): src/io/db_interface.cpp $(IntermediateDirectory)/src_io_db_interface.cpp$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/ken/git-repos/septemmud/septemserver/src/io/db_interface.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/src_io_db_interface.cpp$(ObjectSuffix) $(IncludePath)

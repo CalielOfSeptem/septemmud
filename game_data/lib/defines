@@ -185,6 +185,17 @@ months.lox_tomn 	= 9
 months.musrod 		= 10
 months.nes_sorrel 	= 11
 
+-- Seasons
+seasons 			= {}
+seasons.earlySpring		= 0
+seasons.spring			= 1
+seasons.lateSpring		= 2
+seasons.summer			= 3
+seasons.lateSummer		= 4
+seasons.fall			= 5
+seasons.lateFall		= 6
+seasons.winter			= 7
+
 -- sun transitions
 sun = {}
 sun.rising 		= 0
@@ -201,7 +212,6 @@ cloudCover.largePuffy			= 1
 cloudCover.overCast				= 2
 cloudCover.patchedClouds 		= 3
 cloudCover.threatening		 	= 4
-cloudCover.sheets	 			= 5
 
 -- sky color
 skyColor 					= {}
@@ -212,12 +222,38 @@ skyColor.ominous	 		= 3
 skyColor.likeFire		 	= 4
 
 -- zone types for weather-related messaging and behaviors
-zoneType				=	{}
-zoneType.arctic 		=	0
-zoneType.temperate 		= 	1
-zoneType.tropical		=	2
-zoneType.ash			=	3
-zoneType.desert			=	4
+biomeType				=	{}
+biomeType.none			=	0 -- basically indoors to prevent messaging
+biomeType.arctic 		=	1
+biomeType.temperate 	= 	2
+biomeType.tropical		=	3
+biomeType.ash			=	4
+biomeType.desert		=	5
+
+-- temperature types
+temperature				=	{}
+temperature.deathlyCold =	0 -- essentially hell froze over.. talking surface of mars
+temperature.frozen		=	1
+temperature.cold		=	2
+temperature.chilly		=	3
+temperature.room		= 	4 -- basically the middle, not too cold and not too hot, i.e., room temperature
+temperature.warm		=	5
+temperature.hot			=	6
+temperature.sweltering	=	7
+temperature.hell		=	8 -- fires of hell... very bad.
 
 
+rainIntensity			=	{}
+rainIntensity.none		=	0
+rainIntensity.drizzle 	=	1
+rainIntensity.light		=	2
+rainIntensity.moderate 	= 	3
+rainIntensity.heavy		=	4
+
+snowIntensity			=	{}
+snowIntensity.none		=	0
+snowIntensity.flakes 	=	1
+snowIntensity.light		=	2
+snowIntensity.moderate 	= 	3
+snowIntensity.heavy		=	4
 

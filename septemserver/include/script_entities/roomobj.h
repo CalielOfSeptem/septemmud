@@ -33,13 +33,18 @@ struct doorobj;
 struct itemobj;
 struct npcobj;
 
+// These enums mirror the lua defines.. do not change them ..
 enum RoomType : int { INDOOR=0, OUTDOOR };
-enum ZoneType : int {
-	ARCTIC = 0,
-	TEMPERATE = 1,
-	TROPICAL = 2,
-	ASH = 3,
-	DESERT = 4
+enum BiomeType : int {
+	ZT_NONE = 0, /* basically indoors, no messaging */
+	ZT_ARCTIC = 1,
+	ZT_TEMPERATE = 2,
+	ZT_TROPICAL = 3,
+	ZT_ASH = 4,
+	ZT_DESERT = 5,
+	ZT_MARITIME = 6,
+	ZT_HEMIBOREAL = 7, // between arctice and temperate
+	ZT_MEDITERRANEAN = 8 // dry summers
 };
 
 
@@ -100,13 +105,13 @@ public:
         
     bool GetIsOutdoor();
 	
-	void SetZoneType(ZoneType zt);
+	void SetBiomeType(BiomeType zt);
 	
 	void SetRoomType(RoomType rt);
 	
 	RoomType GetRoomType();
 	
-	ZoneType GetZoneType();
+	BiomeType GetBiomeType();
 
     
 private:
@@ -119,7 +124,7 @@ private:
     std::vector<std::shared_ptr<doorobj>> doors;
     
     RoomType room_type;
-	ZoneType zone_type;
+	BiomeType biome_type;
 };
 
 #endif

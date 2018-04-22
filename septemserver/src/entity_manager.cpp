@@ -871,7 +871,30 @@ void entity_manager::init_lua()
     lua.set_function("get_players", [&]() -> std::vector<playerobj*> {
         std::vector<playerobj*> players;
         for(auto const& p : m_player_objs) {
-			players.push_back(dynamic_cast<playerobj*>(p.second->script_ent));
+			playerobj * p1 = dynamic_cast<playerobj*>(p.second->script_ent);
+			if( p1->get_loggedIn() )
+				players.push_back(p1);
+			//players.push_back(dynamic_cast<playerobj*>(p.second->script_ent));
+		}
+        return players;
+    });
+	
+	lua.set_function("get_players_by_biome", [&](int bt) -> std::vector<playerobj*> {
+        std::vector<playerobj*> players;
+        for(auto const& p : m_player_objs) {
+			playerobj * p1 = dynamic_cast<playerobj*>(p.second->script_ent);
+			if( p1->get_loggedIn() && p1->GetRoom()->GetBiomeType() == bt )
+				players.push_back(p1);
+		}
+        return players;
+    });
+	
+	lua.set_function("get_players_by_biome_debug", [&](int bt) -> std::vector<playerobj*> {
+        std::vector<playerobj*> players;
+        for(auto const& p : m_player_objs) {
+			playerobj * p1 = dynamic_cast<playerobj*>(p.second->script_ent);
+			if( p1->get_loggedIn() && p1->GetRoom()->GetBiomeType() == bt && p1->isCreator() )
+				players.push_back(p1);
 		}
         return players;
     });
@@ -1621,7 +1644,7 @@ bool entity_manager::destroy_daemon(script_entity* ent)
 		}
     }
 
-    //(*m_state).collect_garbage();
+    (*m_state).collect_garbage();
 
     return true;
 }
