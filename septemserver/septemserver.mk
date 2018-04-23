@@ -50,7 +50,7 @@ LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)/home/ken/lu
 AR       := ar rcus
 CXX      := g++
 CC       := gcc
-CXXFLAGS :=  -g -O0 -std=c++14 -Wall -ftemplate-depth=10000 -ftemplate-backtrace-limit=0 $(Preprocessors)
+CXXFLAGS :=  -g -O0 -std=c++14 -Wall -ftemplate-depth=10000 -ftemplate-backtrace-limit=0 -pipe $(Preprocessors)
 CFLAGS   :=  -g -O0 -Wall $(Preprocessors)
 ASFLAGS  := 
 AS       := as

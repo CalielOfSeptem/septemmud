@@ -69,18 +69,24 @@ struct b : public a
 {
 	b(sol::this_state ts, sol::this_environment te, int ab ) : a(ts, te)	
 	{
-		
+		std::cout << "IM ALIVE!" << std::endl;
 	}
 	
 	b(sol::this_state ts, sol::this_environment te, int ab, int bc ) : a(ts, te)
 	{
 		
 	}
+	~b()
+	{
+		std::cout << "IM MELTING.." << std::endl;
+	}
 };
 
+
+sol::state lua;
 void lua_test()
 {
-	sol::state lua;
+	
 	lua.open_libraries(sol::lib::base,
 				   sol::lib::os,
 				   sol::lib::string,
@@ -100,6 +106,26 @@ void lua_test()
 		sol::bases<a>()
 		  );
 		  
+	sol::environment current_env = lua.globals();
+	
+	sol::environment tmp = sol::environment(lua, sol::create, lua.globals()); // make an env
+    current_env["TEST"] = tmp;
+	lua.script("d1 = b.new(1)", tmp); // instantite an obj..
+	lua.script("d1 = nil", tmp); // destroy or new baby
+	current_env = sol::nil; // destroy or env
+	
+	
+
+		
+}
+void lua_test2()
+{
+	sol::environment current_env = lua.globals();
+	sol::environment tmp = sol::environment(lua, sol::create, lua.globals()); // make it again
+	current_env["TEST"] = tmp;
+	lua.script("d1 = b.new(1)", tmp); // instantite an obj..
+
+	/*
 		lua.new_usertype<b>("b");
 		lua.safe_script(R"(
 		roomTypes = {}
@@ -107,14 +133,34 @@ void lua_test()
 		d1 = b.new(roomTypes.indoor)
 		print('ok')
 		)");
-		
+	*/
+}
+
+void lua_test3()
+{
+		lua.safe_script(R"(
+		collectgarbage()
+		)");
+		sol::environment current_env = lua.globals();
+		b * b1 = current_env["TEST"]["d1"];
+		std::cout << "OK" << std::endl;
+
 }
 
 
 
 void init_lua_state(sol::state& l)
 {
-	//lua_test();
+	/*
+	lua_test();
+	lua_test2();
+	while( true )
+	{
+		//lua.collect_garbage();
+		lua_test3();
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	}
+	*/
     sol::state& lua = l;
 	
     //m_state_internal.reset(new _internal_lua_);

@@ -27,9 +27,9 @@ weatherIntensity.veryHigh		=	4
 -- each rain/snow transition can include multiple output lines.  The lines for some of the states relate to intensity.
 local rain_transitions = { -- Changes relative to severity...
 	[weatherTransitions.starting]=
-	{'A light rain begins to fall.', 'A steady rain begins to fall', 'The clouds let loose a barrage of rain drops.', 'The heavens part releasing a torrent of rain'},
+	{'A light rain begins to fall.', 'A steady rain begins to fall.', 'The clouds let loose a barrage of rain drops.', 'The heavens part releasing a torrent of rain.'},
 	[weatherTransitions.started]=
-	{'Rain continues to fall.', 'Rain continues to fall at a steady pace.', 'Rain continues to hammer down.', 'Sheets of rain continue to descend from the sky.'},
+	{'The rain continues to fall.', 'The rain continues to fall at a steady pace.', 'The rain continues to hammer down.', 'Sheets of rain continue to descend from the sky soaking everything.'},
 	[weatherTransitions.shiftUp]=
 	{'Rain begins to fall harder.'},
 	[weatherTransitions.shiftDown]=
@@ -44,7 +44,7 @@ local snow_transitions = {
 	[weatherTransitions.starting]=
 	{'Snow flakes begin to gently fall.', 'Large flakes of snow begin to fall.', 'Snow flakes fall at an ever increasing rate.', 'The heavens split open releasing a blizzard of snow.' },
 	[weatherTransitions.started]=
-	{'Snow flakes continue to gently fall.', 'Large flakes of snow continue to drift down from the sky.', 'Snow continues to fall at a steady rate.', 'The blizzard rages and snow continues to accumulate on the ground.' },
+	{'Snow flakes continue to gently fall.', 'Large flakes of snow continue to drift down from the sky.', 'Snow continues to fall at a steady rate.', 'Snow continues to fall severly limiting visibility.' },
 	[weatherTransitions.shiftUp]=
 	{'Snow falls at an ever increasing clip.'},
 	[weatherTransitions.shiftDown]=
@@ -291,14 +291,14 @@ temperate_state.chanceOfSnow = 10 --
 biomes[ #biomes + 1 ] = temperate_state
 
 function temperate_state:is_rainy_season()
-	if( self:get_temperate_temp() > temperature.cold ) then
+	if( self.currentTemp > temperature.cold ) then
 		return true
 	end
 	return false
 end
 
 function temperate_state:is_snowy_season()
-	if( self:get_temperate_temp() <= temperature.cold ) then
+	if( self.currentTemp <= temperature.cold ) then
 		return true
 	end
 	return false
@@ -310,11 +310,13 @@ function temperate_state:do_weather()
 	self:send_to_rooms_debug( 'self.rainSnowTimer == ' .. self.rainSnowTimer )
 	-- first, do a sanity check.  If its snowing, but its now sweltering.. need to stop that snow and turn to rain.
 	-- likewise, if its cold or hell hath frozen over while raining.. need to stop that rain and turn to snow
-	if( self:is_rainy_season() and self.isSnowing ) then
+	--print( 'SNOWY SEASON = ' .. tostring(self:is_snowy_season()) )
+	--print( 'RAINY SEASON = ' .. tostring(self:is_rainy_season()) )
+	if( self:is_rainy_season() == true and self.isSnowing ) then
 		self:transition_to_rain()
 		return
 	end
-	if( self:is_snowy_season() and self.isRaining ) then
+	if( self:is_snowy_season() == true and self.isRaining ) then
 		self:transition_to_snow()
 		return
 	end
@@ -322,18 +324,18 @@ function temperate_state:do_weather()
 	-- RAIN: temp must somewhere between chilly and sweltering
 	-- if its already raining.. figure out if we should stop
 	-- if its not already raining... figure out if we should start
-	if( self.isRaining and self.rainSnowTimer == 0 ) then
+	if( self.isRaining == true and self.rainSnowTimer == 0 ) then
 		-- determine if the timer has elapsed..
 		self:stop_rain()
 		return
 	end
-	if( self.isSnowing and self.rainSnowTimer == 0 ) then
+	if( self.isSnowing == true and self.rainSnowTimer == 0 ) then
 		self:stop_snow()
 		return
 	end
 	
 	-- If its not raining/snowing, maybe it should be, time to check.......
-	if( self:is_rainy_season() and self.isRaining ~= true ) then
+	if( self:is_rainy_season() == true and self.isRaining ~= true ) then
 		if( self:rain_check() == true ) then
 			-- start the RAIN!!!
 			self:start_rain()
@@ -341,7 +343,7 @@ function temperate_state:do_weather()
 		end
 	end
 	
-	if( self:is_snowy_season() and self.isSnowing ~= true) then
+	if( self:is_snowy_season() == true and self.isSnowing ~= true) then
 		if( self:snow_check() == true ) then
 			-- start the snow!!!
 			self:start_snow()
@@ -350,7 +352,7 @@ function temperate_state:do_weather()
 	end
 	
 	-- Otherwise, time to print out some messages to players are reminded that its raining/snowing
-	if( self:is_rainy_season() and self.isRaining == true ) then
+	if( self:is_rainy_season() == true and self.isRaining == true ) then
 		self.rainSnowTimer = self.rainSnowTimer - 1 -- decrement the counter
 		if( self.rainSnowTimer == 0 ) then
 			self:stopping_rain()
@@ -365,7 +367,7 @@ function temperate_state:do_weather()
 		end
 	end
 	
-	if( self:is_snowy_season() and self.isSnowing == true) then
+	if( self:is_snowy_season() == true and self.isSnowing == true) then
 		self.rainSnowTimer = self.rainSnowTimer - 1 -- decrement the counter
 		if( self.rainSnowTimer == 0 ) then
 			self:stopping_snow()
@@ -474,7 +476,6 @@ end
 
 d:AddAction( d.do_temperate_state, 1, nil )
 d:AddAction( d.do_weather, 1, nil )
-
 
 -- Start at the time of year, which will then set the current temperature
 -- Not sure what to do with temperature long term.. perhaps tie certain game mechanics to it.

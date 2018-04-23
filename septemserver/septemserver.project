@@ -128,7 +128,7 @@
       <ResourceCompiler Options=""/>
     </GlobalSettings>
     <Configuration Name="Debug" CompilerType="GCC" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
-      <Compiler Options="-g;-O0;-std=c++14;-Wall;-ftemplate-depth=10000;-ftemplate-backtrace-limit=0" C_Options="-g;-O0;-Wall" Assembler="" Required="yes" PreCompiledHeader="./include/stdafx.h" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="1">
+      <Compiler Options="-g;-O0;-std=c++14;-Wall;-ftemplate-depth=10000;-ftemplate-backtrace-limit=0;-pipe" C_Options="-g;-O0;-Wall" Assembler="" Required="yes" PreCompiledHeader="./include/stdafx.h" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="1">
         <IncludePath Value="."/>
         <IncludePath Value="include/"/>
         <IncludePath Value="../sol2"/>
