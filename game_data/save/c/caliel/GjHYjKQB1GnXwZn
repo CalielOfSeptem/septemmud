@@ -1,9 +1,7 @@
 {
     "currentStackCount": 1,
     "defaultStackSize": 0,
-    "inventory": {
-        "tsmaCnGcx3ICYnY": "workspaces/caliel/entities/backpack"
-    },
+    "inventory": {},
     "isContainer": true,
     "isLockable": false,
     "isLocked": false,

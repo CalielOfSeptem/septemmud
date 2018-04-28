@@ -100,7 +100,7 @@ function d:register_room(room)
 	--print('registered room')
 	-- if the room isn't outdoors then just return..
 
-	print(#room_list)
+	--print(#room_list)
 	
 	-- remove dead room objects..
 	local i=1
@@ -208,19 +208,30 @@ end
 
 -- messaging for rain that continues
 function biome_state:continue_rain()
-	print( 'CONT: ' .. self.rainSnowIntensity )
-	self:send_to_rooms( rain_transitions[weatherTransitions.started][self.rainSnowIntensity] )
+	--print( 'CONT: ' .. self.rainSnowIntensity )
+	if( biome_state:do_lightning() ~= true ) then -- do lightning, or just continue the normal rain messaging
+		self:send_to_rooms( rain_transitions[weatherTransitions.started][self.rainSnowIntensity] )
+	end
 end
 
 -- messaging for snow that continues
 function biome_state:continue_snow()
-print( 'CONT: ' .. self.rainSnowIntensity )
+--print( 'CONT: ' .. self.rainSnowIntensity )
 	self:send_to_rooms( snow_transitions[weatherTransitions.started][self.rainSnowIntensity] )
+end
+
+function biome_state:do_lightning()
+	local r = math.random(1, 100)
+	if( r == 1 ) then
+		self:send_to_rooms( 'Lightning flashes off in the distance and is followed by the low rumble of thunder.' )
+		return true
+	end
+	return false
 end
 
 function biome_state:change_rain_snow_intensity()
 	--math.randomseed( os.time() )
-	local r = math.random(1, 2)
+	local r = math.random(1, 3)
 	if ( math.random( 1, r ) == 1 ) then
 		-- here we decide if the intensity should change... now, which direction...
 		local dir = math.random(1, 2) -- 50/50
@@ -230,7 +241,7 @@ function biome_state:change_rain_snow_intensity()
 				return 0
 				else
 					self.rainSnowIntensity = self.rainSnowIntensity + 1
-					print( 'UP: ' .. self.rainSnowIntensity )
+					--print( 'UP: ' .. self.rainSnowIntensity )
 					return weatherTransitions.shiftUp
 			end
 			else -- down
@@ -239,7 +250,7 @@ function biome_state:change_rain_snow_intensity()
 				return 0
 				else
 					self.rainSnowIntensity = self.rainSnowIntensity - 1
-					print( 'DOWN: ' .. self.rainSnowIntensity )
+					--print( 'DOWN: ' .. self.rainSnowIntensity )
 					return weatherTransitions.shiftDown
 			end			
 		end
@@ -291,6 +302,8 @@ temperate_state.chanceOfSnow = 10 --
 biomes[ #biomes + 1 ] = temperate_state
 
 function temperate_state:is_rainy_season()
+	--print (self.currentTemp)
+	--print (temperature.cold)
 	if( self.currentTemp > temperature.cold ) then
 		return true
 	end
@@ -358,7 +371,7 @@ function temperate_state:do_weather()
 			self:stopping_rain()
 			else
 			local change = self:change_rain_snow_intensity()
-			print(change)
+			--print(change)
 			if( change ~= 0 ) then
 				self:send_to_rooms( rain_transitions[change][1] )
 				else
@@ -373,7 +386,7 @@ function temperate_state:do_weather()
 			self:stopping_snow()
 			else
 			local change = self:change_rain_snow_intensity()
-			print(change)
+			--print(change)
 			if( change ~= 0 ) then
 				self:send_to_rooms( snow_transitions[change][1] )
 				else
@@ -385,10 +398,11 @@ end
 
 
 function temperate_state:get_temperate_temp()
+	--print('-=-=-=-=-=-=- GETTING RANDOM SEASON .... -=-=-=-=-=-=-=-' )
 	math.randomseed( os.time() )
 	local time_daemon = get_daemon('daemon/time', 0)
 	local season = time_daemon:get_season(time_daemon:system_time().month)
-	--print('SEASON = ' .. season)
+	--print('-=-=-=-=-=-=-=- SEASON = ' .. season)
 	
 	if( season == seasons.earlySpring ) then
 		if( time_daemon:is_day() ~= true ) then
@@ -432,7 +446,7 @@ function temperate_state:get_temperate_temp()
 		else
 			return math.random(temperature.cold, temperature.chilly )
 		end
-	elseif( seasons == seasons.winter ) then 
+	elseif( season == seasons.winter ) then 
 		if( time_daemon:is_day() ~= true ) then
 			return math.random(temperature.frozen, temperature.cold )
 		else
@@ -448,7 +462,9 @@ function d:set_next_update(biome) -- generic function for updating biome state
 		if( biome.currentTemp == -1 or
 		biome.nextUpdate == time_daemon:system_time().hour ) then 
 			-- initial state..
+		--	print(' CALLING get_temperate_temp !!!!!!!!!!!!!!!!!! ' )
 			biome.currentTemp = biome:get_temperate_temp()
+		--	print( biome.currentTemp )
 			biome.nextUpdate = time_daemon:system_time().hour + math.random( 1, 6 )
 			if( biome.nextUpdate > 23 ) then biome.nextUpdate = 23 end
 			biome:send_to_rooms('Current hour ' .. time_daemon:system_time().hour .. ', next temp change: ' .. biome.nextUpdate )
@@ -462,7 +478,7 @@ function d:do_temperate_state()
 		
 		--biomes[i]:send_to_rooms_debug('d:do_temperate_state()')
 		d:set_next_update(biomes[i])
-		print('TEMP = ' .. d:get_temp_string( biomes[i].currentTemp )[1])
+		--print('TEMP = ' .. d:get_temp_string( biomes[i].currentTemp )[1])
 	end
 end
 
@@ -474,8 +490,8 @@ function d:do_weather()
 	end
 end
 
-d:AddAction( d.do_temperate_state, 1, nil )
-d:AddAction( d.do_weather, 1, nil )
+d:AddAction( d.do_temperate_state, 15, nil )
+d:AddAction( d.do_weather, 30, nil )
 
 -- Start at the time of year, which will then set the current temperature
 -- Not sure what to do with temperature long term.. perhaps tie certain game mechanics to it.

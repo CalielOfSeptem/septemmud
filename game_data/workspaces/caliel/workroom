@@ -23,11 +23,11 @@ r:SetDescription("Exquisitely carved shelves of mahogany run the length of a lar
 r:AddExit( direction.south, 'workspaces/caliel/workroom:id=2', true)
 
 function r:timed_action()
-	local weather_daemon = get_daemon('daemon/weather', 0)
+	--local weather_daemon = get_daemon('daemon/weather', 0)
 	--r:SendToRoom('TEMP : ' .. weather_daemon:get_temp_string(weather_daemon:get_temperate_temp())[1])
 	--r:SendToRoom('TEMP : ' .. weather_daemon:get_temp_string(weather_daemon:get_temperate_temp())[1])
 	
-	for i=1, 1 do
+	for i=1, 1000 do
 		--break
 		r1 = room.new(roomTypes.outdoor)
 		r1:SetTitle('Caliel\'s Outdoor Workroom ' .. tostring(cur_count))
@@ -56,7 +56,7 @@ function r:timed_action()
 	end
 end
 cur_count = 1
---r:AddAction( r.timed_action, 5, nil )
+r:AddAction( r.timed_action, 5, nil )
 
 --local weather_daemon = get_daemon('daemon/weather', 0)
 --r:SendToRoom('TEMP : ' .. weather_daemon:get_temperate_temp())

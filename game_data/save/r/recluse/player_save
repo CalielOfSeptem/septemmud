@@ -1,11 +1,13 @@
 {
     "cwd": "workspaces/recluse/entities/",
     "gender": "unknown",
-    "inventory": {},
-    "leftHand": 0,
-    "rightHand": {
+    "inventory": {
         "wwF2qaWF6wOKfQe": "workspaces/caliel/entities/backpack"
     },
+    "leftHand": {
+        "tsmaCnGcx3ICYnY": "workspaces/caliel/entities/backpack"
+    },
+    "rightHand": 0,
     "roomID": 0,
     "roomPath": "workspaces/caliel/workroom"
 }

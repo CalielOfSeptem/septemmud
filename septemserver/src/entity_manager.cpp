@@ -166,7 +166,7 @@ bool entity_manager::compile_entity(std::string& relative_script_path,
 			destroy_room(rp);
 			//m_entity_cleanup.push_back(rp);
         }
-		garbage_collect();
+		//agarbage_collect();
 		//garbage_collect();
 		//for ( auto )
        // if(rooms.size() > 0) {
@@ -883,7 +883,7 @@ void entity_manager::init_lua()
         std::vector<playerobj*> players;
         for(auto const& p : m_player_objs) {
 			playerobj * p1 = dynamic_cast<playerobj*>(p.second->script_ent);
-			if( p1->get_loggedIn() && p1->GetRoom()->GetBiomeType() == bt )
+			if( p1->get_loggedIn() && p1->GetRoom()->GetBiomeType() == bt and p1->GetRoom()->GetIsOutdoor())
 				players.push_back(p1);
 		}
         return players;
@@ -1363,7 +1363,8 @@ bool entity_manager::destroy_room(script_entity* ent)
 		}
     }
 
-    (*m_state).collect_garbage();
+    //(*m_state).collect_garbage();
+    //(*m_state).collect_garbage();
 
     return true;
 }
@@ -1845,7 +1846,7 @@ void entity_manager::deregister_room(roomobj* room)
 	//room->set_destroy(true);
     //std::string room_path = room->GetInstancePath();
     auto search = m_room_lookup.find(room_path);
-    if(search != m_room_lookup.end()) {
+    if(search != m_room_lookup.end() && room == search->second) {
         /*
         //std::vector<script_entity*> found;
         for( auto& i : search->second->GetInventory() )
