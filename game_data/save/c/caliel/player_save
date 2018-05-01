@@ -1,5 +1,5 @@
 {
-    "cwd": "workspaces/caliel/",
+    "cwd": "realms/lere/sannesa_port/",
     "gender": "unknown",
     "inventory": {
         "GjHYjKQB1GnXwZn": "workspaces/caliel/entities/backpack"
@@ -7,5 +7,5 @@
     "leftHand": 0,
     "rightHand": 0,
     "roomID": 0,
-    "roomPath": "workspaces/caliel/workroom"
+    "roomPath": "realms/lere/sannesa_port/docks"
 }

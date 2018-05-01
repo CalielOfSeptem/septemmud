@@ -163,9 +163,11 @@ bool entity_manager::compile_entity(std::string& relative_script_path,
 
             }
             //deregister_room(rp);
-			destroy_room(rp);
+			//destroy_room(rp);
 			//m_entity_cleanup.push_back(rp);
         }
+		
+		destroy_room(relative_script_path);
 		//agarbage_collect();
 		//garbage_collect();
 		//for ( auto )
@@ -1684,7 +1686,7 @@ bool entity_manager::destroy_entity(std::shared_ptr<entity_wrapper>& ew)
 {
 	auto log = spd::get("main");
 	std::stringstream ss;
-	ss << "Destroying entity " << ew->script_path;
+	ss << "Destroying script entity " << ew->script_ent->GetInstancePath();
 	log->debug(ss.str());
 	ew->script_ent->invoke_on_destroy();
     ew->script_ent->clear_props(); // = NULL;

@@ -1,6 +1,8 @@
 {
     "room_cache": [
+        "realms/lere/sannesa_port/docks",
         "realms/void",
+        "workspaces/caliel/biomes",
         "workspaces/caliel/workroom"
     ]
 }

@@ -147,12 +147,37 @@ doorobj* roomobj::AddDoor(const std::string& door_name,
     return new_door.get();
 }
 
-exitobj* roomobj::AddExit(sol::as_table_t<std::vector<std::string> > exit,
-                          const std::string& exit_path,
+exitobj* roomobj::AddExit( sol::this_state ts,
+						  sol::as_table_t<std::vector<std::string> > exit,
+                          sol::object exit_path,
                           bool obvious)
 {
+	lua_State* L = ts;
+   // lua_stacktrace_ex(L);
+    sol::type t = exit_path.get_type();
+	std::string ext = "";
+    unsigned int ret = -1;
+    switch(t) {
+    case sol::type::string: {
+		ext = exit_path.as<std::string>();
+    } break;
+    case sol::type::userdata: {
+		script_entity * se = exit_path.as<script_entity*>();
+		auto r_t = dynamic_cast<roomobj*>(se);
+		if(r_t)
+		{
+			ext = r_t->GetInstancePath();
+		}
+    } break;
+    default:
+        // std::cout << "";
+        break;
+    }
+	if(ext.empty())
+		return NULL;
+	
     // TODO: add in validation code
-    obvious_exits.push_back(std::shared_ptr<exitobj>(new exitobj(exit, exit_path, obvious)));
+    obvious_exits.push_back(std::shared_ptr<exitobj>(new exitobj(exit, ext, obvious)));
     return obvious_exits[obvious_exits.size() - 1].get();
 }
 
