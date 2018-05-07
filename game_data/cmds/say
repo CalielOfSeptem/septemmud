@@ -1,13 +1,18 @@
---[[say version:0.0.1]]-------------------------------
+--[[say version:0.0.2]]-------------------------------
 --[[------------------------------------------------------
 	Say command allows players/NPCs to speak
 	
 	Copyright (C) 2018, by Caliel (kenthompson1@gmail.com)
 	All Rights Reserved.
+		
+	## 0.0.2 - 2018-05-06
+	###
+	- Fixed messaging to account for questions, exclamations, and so on
 	
 	## 0.0.1 - 2018-02-10
 	###
 	- Initial release
+
 --]]------------------------------------------------------
 inherit command
 
@@ -18,14 +23,6 @@ function c:ExecuteCommand ( o, cmd )
 	
 	
 	if o ~= nil then
-		--if( o:GetType():lower() == "player" ) then
-		--	o = player_cast(o)
-		--end
-		-- lets see what room the player/npc is in..
-		-- there are two ways, through GetEnvironment, or through GetRoom
-		-- GetEnvironment requires a cast as its generic to all game items/players.
-		-- GetRoom does not as its already a room object ptr
-		-- example: env = room_cast(p:GetEnvironment())
 		env = o:GetRoom()
 
 		if env ~= nil then
@@ -38,11 +35,26 @@ function c:ExecuteCommand ( o, cmd )
 				   break
 				end
 			end
-
-			o:SendToPlayer('You say, "' .. cmd .. '."');
+			
+			--local end_char = ''
+			local statement_type = 'say'
+			local end_char = string.find( cmd:sub(-1), '[!?.]' )
+			
+			if( end_char ~= nil ) then -- an end char was provided
+				local c = cmd:sub(-1)
+				if( c == '!' ) then 
+					statement_type = 'exclaim'
+				end
+				if( c == '?' ) then 
+					statement_type = 'ask'
+				end
+			else
+				cmd = cmd .. '.'
+			end
+			o:SendToPlayer('You ' .. statement_type .. ', "' .. cmd .. '"' );
 			pname = string.gsub(o:GetName(), "(%a)([%w_']*)", titleCase)
-			o:SendToRoom( pname .. ' says "' .. cmd .. '."')
-			return true;
+			o:SendToRoom( pname .. ' ' .. statement_type .. 's' .. ' "' .. cmd .. '"')
+			return true
 		end	
 	end
 end

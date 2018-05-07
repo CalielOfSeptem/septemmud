@@ -20,6 +20,7 @@ r:SetDescription("Exquisitely carved shelves of mahogany run the length of a lar
 					to lead to a second story balcony. ")
 
 r:AddExit( direction.south, 'workspaces/caliel/biomes:id=0', true)
+local door = r:AddDoor( 'an oaken door', 'realms/lere/sannesa_port/docks:id=0', 1, false, false )
 
 function r:timed_action()
 	--local weather_daemon = get_daemon('daemon/weather', 0)

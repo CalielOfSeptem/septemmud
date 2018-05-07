@@ -1,13 +1,14 @@
 {
-    "cwd": "workspaces/recluse/entities/",
+    "cwd": "realms/lere/sannesa_port/",
     "gender": "unknown",
     "inventory": {
+        "2hfWHiEI1yFte0J": "workspaces/caliel/entities/torque",
         "wwF2qaWF6wOKfQe": "workspaces/caliel/entities/backpack"
     },
-    "leftHand": {
-        "tsmaCnGcx3ICYnY": "workspaces/caliel/entities/backpack"
+    "leftHand": 0,
+    "rightHand": {
+        "xC3jToVJ9gRm0CP": "workspaces/caliel/entities/rock"
     },
-    "rightHand": 0,
     "roomID": 0,
-    "roomPath": "workspaces/caliel/workroom"
+    "roomPath": "realms/lere/sannesa_port/docks"
 }
