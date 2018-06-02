@@ -1,14 +1,11 @@
 {
     "currentStackCount": 1,
     "defaultStackSize": 0,
-    "inventory": {
-        "IRvBVBVnTNkGhxm": "workspaces/caliel/entities/rock",
-        "kbIFdPG6PGghgP8": "workspaces/caliel/entities/rock"
-    },
+    "inventory": {},
     "isContainer": true,
     "isLockable": false,
     "isLocked": false,
-    "isOpen": true,
+    "isOpen": false,
     "isStackable": false,
     "isWearable": true,
     "item_type": 0,
@@ -17,8 +14,8 @@
     "physical_script_path": "workspaces/caliel/entities/backpack",
     "pluralName": "",
     "size": 4,
-    "uid": "tsmaCnGcx3ICYnY",
+    "uid": "hmX83w2LuL754sV",
     "userProps": {},
-    "virtual_script_path": "workspaces/caliel/entities/backpack/tsmaCnGcx3ICYnY",
+    "virtual_script_path": "workspaces/caliel/entities/backpack/hmX83w2LuL754sV",
     "weight": 1.0
 }

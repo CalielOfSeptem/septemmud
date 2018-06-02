@@ -1,89 +1,64 @@
 inherit room
-p1 = room.new()
---init_room(p1)
-p1:SetTitle('Caliel\'s Workroom')
+r = room.new()
+r:SetTitle('Caliel\'s Workroom')
 
-p1:SetDescription("Exquisitely carved shelves of mahogany run the length of a large, two-story study. \z
-					Ancient books, scrolls and oddities line the mahogany shelves. \z
-					The maw of an over-sized fireplace casts light from a crackling fire to light the room. \z
-					A hand-carved wooden ceiling of raised septagonal prisms form a repeating \z
-					pattern overhead and seem to absorb firelight at their hollow centers and yawn soft undulating \z 
+
+r:SetDescription("Exquisitely carved shelves of mahogany run the length of a large, two-story study. \z
+					Ancient books, scrolls and oddities line the shelves. \z
+					An over-sized fireplace casts light from a crackling fire to light the room. \z
+					A carved wooden ceiling of raised septagonal prisms form a repeating \z
+					pattern overhead and seem to absorb firelight at their hollow centers and yawn soft undulating \z
 					hues of gold, brown, and orange. \z
 					A massive oaken table with ornately carved runes stands \z
 					about the center of the study. Haphazard stacks of leather-bound \z
 					volumes extend from the oaken table and remain perilously vertical by some \z
 					unnatural force. A few gold-trimmed ancient scrolls lay outstretched \z
-					between stacks of the leather-bond volumes and remain taut by \z
-					sculpted jade figurines depicting wild beasts which anchor each end. \z
+					between stacks of the leather-bond volumes and anchored by \z
+					sculpted jade figurines depicting wild beasts. \z
 					An oaken door leads south. \z
 					A dog-leg staircase ascends to a half-landing before turning at a right angle and continuing upwards \z
 					to lead to a second story balcony. ")
-					
-function p1:timed_action()
-	--print('ACTION!')
-	if( math.random(100) > 50 ) then
-		p1:SendToRoom('A book dislodges from a nearby shelf and floats to a shelf across the room before squeezing into a vacant slot between dusty volumes.')
+
+r:AddExit( direction.south, 'workspaces/caliel/biomes:id=0', true)
+local door = r:AddDoor( 'an oaken door', 'realms/lere/sannesa_port/docks:id=0', 1, false, false )
+
+function r:timed_action()
+	--local weather_daemon = get_daemon('daemon/weather', 0)
+	--r:SendToRoom('TEMP : ' .. weather_daemon:get_temp_string(weather_daemon:get_temperate_temp())[1])
+	--r:SendToRoom('TEMP : ' .. weather_daemon:get_temp_string(weather_daemon:get_temperate_temp())[1])
+	
+	for i=1, 100 do
+		--break
+		r1 = room.new(roomTypes.outdoor)
+		r1:SetTitle('Caliel\'s Outdoor Workroom ' .. tostring(cur_count))
+
+		r1:SetDescription("Exquisitely carved shelves of mahogany run the length of a large, two-story study. \z
+							Ancient books, scrolls and oddities line the mahogany shelves. \z
+							The maw of an over-sized fireplace casts light from a crackling fire to light the room. \z
+							A carved wooden ceiling of raised septagonal prisms form a repeating \z
+							pattern overhead and seem to absorb firelight at their hollow centers and yawn soft undulating \z
+							hues of gold, brown, and orange. \z
+							A massive oaken table with ornately carved runes stands \z
+							about the center of the study. Haphazard stacks of leather-bound \z
+							volumes extend from the oaken table and remain perilously vertical by some \z
+							unnatural force. A few gold-trimmed ancient scrolls lay outstretched \z
+							between stacks of the leather-bond volumes and remain taut by \z
+							sculpted jade figurines depicting wild beasts which anchor each end. \z
+							An oaken door leads south. \z
+							A dog-leg staircase ascends to a half-landing before turning at a right angle and continuing upwards \z
+							to lead to a second story balcony. ")
+		r1:AddExit( direction.north, 'workspaces/caliel/workroom:id=' .. tostring(cur_count-1), true)
+		r1:AddExit( direction.south, 'workspaces/caliel/workroom:id=' .. tostring(cur_count+1), true)
+		cur_count = cur_count + 1
+
+
+		--weather_daemon:register_room(entity_ptr.new(r1))
 	end
 end
+cur_count = 1
+--r:AddAction( r.timed_action, 5, nil )
 
-p1:AddAction( p1.timed_action, 900, nil )
-
-p1:AddLook( { 'table', 'oaken table', 'massive oaken table' }, 'Atop the table you see several stacks of books and scrolls.')
-
-p1:AddLook( { 'computer', 'atari', 'xbox' }, 'This game is amazing.')
-
-p1:AddLook( { 'exquisitely carved shelves', 'carved shelves', 'shelves' }, 'The shelves stand like carved sentinals and extend from floor \z
-				to ceiling.  A vast collection of ancient tomes cram each shelf and occasionally lean against dusty bookends and \z
-				other oddly-shaped objects serving as involuntary bookends.')
-
-
---p1:AddExit( direction.north, '/realms/void', true)
---p1:AddExit( direction.south, '/workspaces/caliel/workroom:id=1', true)
---p1:AddExit( direction.east, 'workspaces/caliel/workroom:id=2', true)
-
-local door = p1:AddDoor( 'an oaken door', 'workspaces/caliel/workroom:id=1', 1, false, false ) -- path, opened?, locked?
-
-
-p1:Debug('Loaded room!')
-
-
-
-
-function p1:hb()
-
-end
-
-function p1:clone_items()
-	clone_item( 'workspaces/caliel/entities/rock', p1 )
-	back = clone_item( 'workspaces/caliel/entities/backpack', p1 )
-	--clone_item( 'workspaces/caliel/entities/arrow', p1 )
-	for i = 1, 10 do
-		if( back ~= nil ) then
-			clone_item( 'workspaces/caliel/entities/rock', back )
-			clone_item( 'workspaces/caliel/entities/simple arrow', back )
-		end
-		
-		--
-	end
-end
-
-function p1:test_something()
-	register_heartbeat(p1.hb)
-end 
-
-p1:test_something()
-
-p2 = room.new()
---init_room(p2)
-p2:SetTitle('Castle Foyer')
-p2:SetDescription('A castle foyer that includes a plush red carpet and lavish draperies.')
-p2:AddExit( direction.north, 'workspaces/caliel/workroom:id=0', true)
---p1:Debug('Loaded room!')
-local door = p2:AddDoor( 'an oaken door', 'workspaces/caliel/workroom:id=0', 1, false, false ) 
-function p2:hb()
-	--for i = 1, 100 do
-	--	clone_item( 'workspaces/caliel/entities/rock', p2 )
-	--end
-end
-
---register_heartbeat(p2.hb)
+--local weather_daemon = get_daemon('daemon/weather', 0)
+--r:SendToRoom('TEMP : ' .. weather_daemon:get_temperate_temp())
+	--local weather_daemon = get_daemon('daemon/weather', 0)
+	--r:SendToRoom('TEMP : ' .. weather_daemon:get_temp_string(weather_daemon:get_temperate_temp())[1])

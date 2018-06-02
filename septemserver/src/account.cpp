@@ -1,7 +1,7 @@
+#include "stdafx.h"
 #include "account.h"
 #include "fs/fs_manager.h"
-#include "global_settings.h"
-#include "config.h"
+
 
 std::string account::get_accountStorageLocation()
 {

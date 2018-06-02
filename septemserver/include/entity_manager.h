@@ -25,25 +25,42 @@
 #ifndef ENTITY_MANAGER_H_
 #define ENTITY_MANAGER_H_
 
-//#include <unordered_map>
-#include <map>
-#include <queue>
-#include <list>
-//#include <unordered_set>
-#include <set>
-#include <mutex>
-
-#include "entity_wrapper.h"
+#include "security_context.hpp"
+#include "script_entities/script_entity.h"
 #include "script_entities/roomobj.h"
+#include "script_entities/livingentity.h"
+#include "script_entities/playerobj.h"
+#include "script_entities/npcobj.h"
 #include "script_entities/daemonobj.h"
 #include "script_entities/commandobj.h"
-#include "script_entities/playerobj.h"
 #include "script_entities/itemobj.h"
-#include "heartbeat_manager.h"
-#include <memory.h> //for shared_ptr
+#include "script_entities/doorobj.h"
+#include "script_entities/handobj.h"
 
-#include <boost/asio.hpp>
-#include <boost/asio/strand.hpp>
+#include "string_utils.h"
+
+#include "entity_wrapper.h"
+#include "heartbeat_manager.h"
+
+#include "server/client.hpp"
+
+#include "account_manager.h"
+#include "account.h"
+#include "fs/fs_manager.h"
+/*
+struct script_entity;
+struct living_entity;
+struct playerobj;
+//enum class EntityType;
+struct itemobj;
+struct commandobj;
+struct roomobj;
+struct daemonobj;
+struct handobj;
+struct entity_wrapper;
+*/
+//
+
 namespace ba = boost::asio;
 
 class entity_manager
@@ -110,12 +127,16 @@ struct _internal_queue_wrapper_
                             
     itemobj * clone_item ( std::string& relative_script_path, script_entity * obj, std::string uid="" );
     itemobj* clone_item_to_hand(std::string& relative_script_path, handobj* obj, std::string uid="" );
+	itemobj* clone_item_to_inventory(std::string& relative_script_path, script_entity* obj, std::string uid="" );
+    
+    npcobj * clone_npc ( std::string& relative_script_path, roomobj * r, std::string uid="" );
+    npcobj* clone_npc_to_room(std::string& relative_script_path, roomobj* r, std::string uid="" );
     
     bool reload_all_item_instances( std::string& relative_script_path );
     
     void invoke_heartbeat();
     
-    void invoke_room_actions();
+    void invoke_actions();
     
     void register_command( commandobj * cmd );
     void deregister_command( commandobj * cmd );
@@ -129,8 +150,14 @@ struct _internal_queue_wrapper_
     void register_item( itemobj * item );
     void deregister_item( itemobj * item );
     
+    void register_npc( npcobj * npc );
+    void deregister_npc( npcobj * npc );
+	
+	// DANGEROUS: DELETES ENTITY!!!
+	bool do_delete(script_entity* se);
+    
     void register_entity(script_entity *entityobj, std::string& sp, EntityType etype);
-    void deregister_entity(script_entity *entityobj, EntityType etype);
+    //void deregister_entity(script_entity *entityobj, EntityType etype);
     
     
     bool move_living(script_entity* target, const std::string& roomid);
@@ -143,6 +170,8 @@ struct _internal_queue_wrapper_
     bool do_promote( playerobj * a, std::string b);
     
     bool capture_input(sol::this_state ts, playerobj * p, sol::object f);
+	
+	void deregister_entity(script_entity * ent, bool bGarbageCollect=false);
     
     /**
      * @brief A bloody work around to link scripts with their instantiated objects
@@ -151,13 +180,15 @@ struct _internal_queue_wrapper_
     sol::environment GetCurrentLoadingEnv() { return m_state_internal->_current_loading_env; }
     
     /**
-     * @brief Compils a player into the game world
+     * @brief Compiles a player into the game world
      */
     bool compile_player(std::string playerName, std::string& reason);
     
     bool load_player(std::string playername, bool bloggedIn=false);
     
     bool unload_player(const std::string& playername);
+	
+	bool unload_npc(npcobj * npc);
     
     roomobj* get_void_room();
     
@@ -175,6 +206,10 @@ struct _internal_queue_wrapper_
     roomobj * GetRoomByScriptPath(std::string & script_path, unsigned int instance_id);
     
     itemobj * GetItemByScriptPath(std::string & script_path, unsigned int instance_id);
+    
+    npcobj * GetNPCByScriptPath(std::string & script_path, unsigned int instance_id);
+    
+    npcobj * GetNPCByScriptPath(std::string & script_path);
     
     itemobj* GetItemByScriptPath(std::string& script_path);
     
@@ -194,17 +229,12 @@ struct _internal_queue_wrapper_
     void garbage_collect();
     
     bool destroy_item(std::string& script_path);
+	bool destroy_item(script_entity* ent);
     
     heartbeat_manager& get_heartbeat_manager()
-    {
-        return _heartbeat;
-    }
+    ;
     
-    void bind_io(ba::io_service* ioservice)
-    {
-        io_serv = ioservice;
-        strand_ = boost::shared_ptr<boost::asio::strand>(new boost::asio::strand(*ioservice));
-    }
+    void bind_io(ba::io_service* ioservice);
 
 
     // ======================================================================
@@ -213,10 +243,12 @@ struct _internal_queue_wrapper_
     void register_hook(script_entity * hook_entity);
     
     std::recursive_mutex*  GetLuaMutex() { return &lua_mutex_; };
+	
+	bool load_room_cache( std::vector<std::string>& cache, std::string& reason );
+    bool save_room_cache();
     
 protected:
-    entity_manager()
-    ;
+    entity_manager();
 
     ~entity_manager()
     {
@@ -232,15 +264,24 @@ private:
     std::map< std::string, std::set<std::shared_ptr<entity_wrapper>> > m_daemon_objs;
     std::map< std::string, std::set<std::shared_ptr<entity_wrapper>> > m_cmd_objs;
     std::map< std::string, std::set<std::shared_ptr<entity_wrapper>> > m_item_objs;
+    std::map< std::string, std::set<std::shared_ptr<entity_wrapper>> > m_npc_objs;
     std::map< std::string, std::shared_ptr<entity_wrapper> > m_player_objs;
     
     
     // default commands is a lookup map, register/deregister updates it based on
     // objects being added/removed
-    std::map< std::string, commandobj * > m_default_cmds; // commands everyone has access to
+    //std::map< std::string, commandobj * > m_default_cmds; // commands everyone has access to
+    std::map< std::string, std::map<std::string, commandobj *> > m_cmds_map; // commands organized by type
+    
     std::map< std::string, roomobj * > m_room_lookup;
     std::map< std::string, daemonobj * > m_daemon_lookup;
     std::map< std::string, itemobj * > m_item_lookup;
+    std::map< std::string, npcobj * > m_npc_lookup;
+    
+    /*
+     * Holds entities scheduled for deletion...
+    */
+    //std::vector<script_entity*> m_entity_cleanup;
     
     std::shared_ptr < sol::state > m_state;
     std::shared_ptr<_internal_lua_> m_state_internal;
@@ -250,8 +291,8 @@ private:
     
     
     // queue to process player commands in a serial fashion
-    std::queue<_internal_command_wrapper_> m_cmd_queue;
-    std::mutex  cmd_queue_mutex_;
+    //std::queue<_internal_command_wrapper_> m_cmd_queue;
+    //std::mutex  cmd_queue_mutex_;
     
     
     // for processing any command that may effect the lua stack
@@ -263,6 +304,8 @@ private:
     std::list<_internal_queue_wrapper_>      dispatch_queue_;
     
     std::recursive_mutex                              lua_mutex_;
+	
+	boost::posix_time::ptime garbage_tick_;
     
     void on_cmd(living_entity* e, std::string const &cmd);
     
@@ -300,6 +343,7 @@ private:
      * @return Returns false if the room does not exist
      */
     bool destroy_room(std::string& script_path);
+	bool destroy_room(script_entity* ent);
     
     /**
      * @brief Destroys player associated with a script
@@ -316,15 +360,17 @@ private:
      * @return 
      */
     bool destroy_daemon(std::string& script_path);
+	bool destroy_daemon(script_entity* ent);
     
     bool destroy_command(std::string& script_path);
+	bool destroy_command(script_entity* ent);
     
-    
+    bool destroy_npc(std::string& script_path);
+	
+	bool destroy_npc(script_entity* ent);
     
     bool destroy_entity(std::shared_ptr<entity_wrapper>& ew);
-    
-   
-    
+
     
     /**
      * @brief Inits environments based on script_path
@@ -347,6 +393,11 @@ private:
     
     void get_daemons_from_path(std::string& script_path, std::set< std::shared_ptr<entity_wrapper> >& daemons);
     
+	void get_cmds_from_path(std::string& script_path, std::set< std::shared_ptr<entity_wrapper> >& cmds);
+	
+	void get_npcs_from_path(std::string& script_path, std::set< std::shared_ptr<entity_wrapper> >& npcs);
+	
+	void get_items_from_path(std::string& script_path, std::set< std::shared_ptr<entity_wrapper> >& items);
     /**
      * @brief Gets the parent env for a given entity and also the name of the entity's env within the parent
      * @param script_path
@@ -356,29 +407,13 @@ private:
      */
     bool get_parent_env_of_entity( std::string& script_path, sol::environment& env, std::string& env_name );
     
-    
-    bool save_compiled_room_list();
+
   
   
       // ======================================================================
     // DISPATCH_QUEUE
     // ======================================================================
-    void dispatch_queue()
-    {
-        std::function<void ()> fn;
-
-        std::unique_lock<std::mutex> lock(dispatch_queue_mutex_);
-
-        while (!dispatch_queue_.empty())
-        {
-            fn = dispatch_queue_.front().f;
-            dispatch_queue_.pop_front();
-            lock.unlock();
-            //std::unique_lock<std::mutex> lock(lua_mutex_);
-            fn();
-            lock.lock();
-        }
-    }
+    void dispatch_queue();
       
 
 };

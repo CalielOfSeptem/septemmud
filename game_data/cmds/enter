@@ -60,11 +60,11 @@ function c:ExecuteCommand ( o_orig, cmd )
 				return true
 			end
 			
-			ob:SendToEntity('You go through the ' .. door_name .. '. \r\n')
+			ob:SendToEntity('You go through the ' .. door_name .. '.')
 			pname = string.gsub(ob:GetName(), "(%a)([%w_']*)", titleCase)
-			ob:SendToRoom(pname .. ' goes through the ' .. door_name .. '. \r\n')
+			ob:SendToRoom(pname .. ' goes through the ' .. door_name .. '.')
 			move_living( ob, doors[i]:GetDoorPath() )
-			ob:SendToRoom(pname .. ' just arrived.\r\n')
+			ob:SendToRoom(pname .. ' just arrived.')
 			ob:DoCommand("look")
 		end
 		::continue::

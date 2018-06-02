@@ -1,15 +1,14 @@
+#include "stdafx.h"
 #include "septem.hpp"
 #include "server/client.hpp"
 #include "server/context_impl.hpp"
 #include "server/connection.hpp"
 #include "net/server.hpp"
 #include "net/socket.hpp"
-#include <boost/asio/io_service.hpp>
-#include <boost/asio/placeholders.hpp>
-#include <map>
-#include <utility>
+//#include <boost/asio/io_service.hpp>
+//#include <boost/asio/placeholders.hpp>
 #include <entity_manager.h>
-
+#include "script_entities/playerobj.h"
 
 
 struct septem::impl
@@ -145,7 +144,7 @@ private :
     {
         auto log = spd::get("main");
         std::stringstream ss;
-        ss << "on_client_death";
+        ss << "on_connection_death";
         log->debug( ss.str() );
         auto connection = weak_connection.lock();
     
@@ -221,7 +220,7 @@ private :
         // the size so that it can be given to the client once the process
         // has completed.
         auto connection = weak_connection.lock();
-       // printf("on_window_size_changed, w=%d, h=%d\r\n", width, height);
+        //printf("on_window_size_changed, w=%d, h=%d\r\n", width, height);
         if (connection != NULL)
         {
             

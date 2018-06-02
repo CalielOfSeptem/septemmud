@@ -1,7 +1,7 @@
+#include "stdafx.h"
 #include "account_manager.h"
 #include "fs/fs_manager.h"
-#include "global_settings.h"
-#include "config.h"
+
 
 
 bool account_manager::get_accountExists(const std::string& name)

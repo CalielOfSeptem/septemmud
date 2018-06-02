@@ -4,8 +4,63 @@ d = daemon.new('command_proc')
 function f (x)
 	print('--- Calling f ---')
 	for k, v in pairs(x) do
-			print(k, v)
+		print(k, v)
 	end
+end
+
+function d:do_hand( hand, o_orig, cmd ) 
+	local cmds = hand:GetCommands()
+	for k, v in pairs(cmds) do
+		if cmd:lower():starts(v:GetCommand()) or cmd:lower() == v:GetCommand() then 
+			v:ExecuteCommand( o_orig, cmd )
+			return true
+		end
+	end
+	for k, v in pairs(cmds) do
+		for k1, v1 in ipairs(v:GetAliases()) do
+			if (cmd:lower():starts( v1:lower() ) or cmd:lower() == v1:lower()) then
+				v:ExecuteCommand( o_orig, cmd )
+				return true;
+			end
+		end
+	end
+	return false
+end
+
+function d:check_player_items( o_orig, cmd )
+	local r_hand = o_orig:RightHand():GetItem()
+	local l_hand = o_orig:LeftHand():GetItem()
+	local found = false
+	if( r_hand ~= nil ) then
+		 found = d:do_hand( r_hand, o_orig, cmd )
+	end
+	if( found ~= true and l_hand ~= nil ) then
+		found = d:do_hand( l_hand, o_orig, cmd )
+	end
+	return found
+end
+
+function d:check_environment( o_orig, cmd )
+	local env = o_orig:GetEnvironment()
+	if( env == nil ) then
+		return false
+	end
+	local cmds = env:GetCommands()
+	for k, v in pairs(cmds) do
+		if cmd:lower():starts(v:GetCommand()) or cmd:lower() == v:GetCommand() then 
+			v:ExecuteCommand( o_orig, cmd )
+			return true
+		end
+	end
+	for k, v in pairs(cmds) do
+		for k1, v1 in ipairs(v:GetAliases()) do
+			if (cmd:lower():starts( v1:lower() ) or cmd:lower() == v1:lower()) then
+				v:ExecuteCommand( o_orig, cmd )
+				return true;
+			end
+		end
+	end
+	return false
 end
 
 function d:process_command (o_orig, cmd )
@@ -30,7 +85,7 @@ function d:process_command (o_orig, cmd )
 	
 	if (s_type:lower() == "player" or s_type:lower() == "npc") then
 		-- first we search all known global/default commands like "look" and movement commands
-		cmds = get_default_commands()
+		cmds = get_commands(o_orig)
 		for k, v in pairs(cmds) do
 			--local b = cmd:starts(v:GetCommand():lower())
 			--print (  b)
@@ -55,11 +110,21 @@ function d:process_command (o_orig, cmd )
 				
 	end
 	
+	
+	-- check the player's hands for items that may enable custom commands...
+	if d:check_player_items(o_orig, cmd) then
+		return true
+	end
+	
+	-- check the environment of the users, i.e., their room, to see if the room defined a custom command...
+	if d:check_environment(o_orig, cmd) then
+		return true
+	end
+	
 	move = get_move_command()
 	if move:ExecuteCommand(o_orig, cmd) then
 		return true
 	end
-	
 	
 	o_orig:SendToEntity('I don\'t understand. Type \"help commands\" for more information.') 
 	return false

@@ -13,19 +13,49 @@ inherit command
 c = command.new('inventory')
 c:SetAliases( { 'inv', 'i' } )
 
+function c:ShowHands(o, cmd)
+	s_type = o:GetType()
+	
+	if (s_type:lower() ~= "player" and s_type:lower() ~= "npc") then
+		return true;
+	end
+	
+	o = living_cast(o)
+	if ( o == nil ) then 
+		return true 
+	end	
+	
+	if( o:RightHand():IsEmpty() and o:LeftHand():IsEmpty() ) then
+		o:SendToEntity('You are carrying nothing in your hands.')
+		return true;
+	end
+	
+	s_right = 'nothing'
+	if( o:RightHand():IsEmpty() ~= true ) then
+		s_right = o:RightHand():GetItem():GetName()
+	end
+	
+	s_left = 'nothing'
+	if( o:LeftHand():IsEmpty() ~= true ) then
+		s_left = o:LeftHand():GetItem():GetName()
+	end
+
+	o:SendToPlayer('You are also carrying ' .. s_right .. ' in your right hand, and ' .. s_left .. ' in your left hand.')
+end
+
 function c:ShowInventory(o)
 	--local s = "[" .. r:GetTitle() .. "]\r\n"
 	--s = s .. r:GetDescription() .. " "
 	local s = ''
 	local items = o:GetItems()
 	if( #items == 0 ) then
-		o:SendToEntity('You are carrying nothing.')
+		o:SendToEntity('You are wearing nothing.')
 		return true
 	end
 	
 	if( #items > 0 ) then
 		--s = s .. "\r\n"
-		s = s .. "You are carrying "
+		s = s .. "You are wearing "
 	
 		for i = 1, #items do
 			local iname = items[i]:GetName()
@@ -40,6 +70,7 @@ function c:ShowInventory(o)
 		end
 	end
 	o:SendToEntity(s)
+	
 	return true
 end
 
@@ -57,6 +88,8 @@ function c:ExecuteCommand ( o_orig, cmd )
 	end	
 	-- TODO: implement more inventory commands
 	self:ShowInventory(o)
+	o_orig:SendToEntity('\r\n')
+	self:ShowHands(o_orig, cmd)
 	return true
 end
 

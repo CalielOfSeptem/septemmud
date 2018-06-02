@@ -1,0 +1,274 @@
+--[[time daemon version:0.0.1]]-------------------------------
+--[[------------------------------------------------------
+	Copyright (C) 2018, by Caliel (kenthompson1@gmail.com)
+	All Rights Reserved.
+--]]------------------------------------------------------
+inherit daemon
+d = daemon.new('time')
+--[[ CONSTANTS ]]--
+-- based on http://www.ethernut.de/api/gmtime_8c_source.html and
+-- https://stackoverflow.com/questions/17872997/how-do-i-convert-seconds-since-epoch-to-current-date-and-time
+
+local floor=math.floor
+
+local DSEC=24*60*60 -- secs in a day
+local YSEC=365*DSEC -- secs in a year
+local LSEC=YSEC+DSEC    -- secs in a leap year
+local FSEC=4*YSEC+DSEC  -- secs in a 4-year interval
+local BASE_DOW=4    -- 1970-01-01 was a Thursday
+local BASE_YEAR=0    -- 1970 is the base year
+
+local _days={
+    -1, 30, 58, 89, 119, 150, 180, 211, 242, 272, 303, 333, 364
+}
+local _lpdays={}
+for i=1,2  do _lpdays[i]=_days[i]   end
+for i=3,13 do _lpdays[i]=_days[i]+1 end
+
+	local sl_meridian = {[-1]="AM", [1]="PM"}
+	local sl_months = {
+		[months.sorrel]="Sorrel",		[months.avium]="Avium",				[months.larix]="Larix",
+		[months.querod]="Querod",		[months.frax_querod]="Frax Querod", [months.tahrod]="Tahrod",
+		[months.buhnrod]="Buhnrod", 	[months.spirwol]="Spirwol",			[months.tox_tomn]="Tox Tomn",
+		[months.lox_tomn]="Lox Tomn", 	[months.musrod]="Musrod",			[months.nes_sorrel]="Nes Sorrel"
+	}
+
+
+	
+	local sun_transitions = {
+		[sun.rising]=
+		{'The sun rises above the horizon ushering in a new day.'},
+		[sun.climb]=
+		{'The sun continues its slow climb.'},
+		[sun.zenith]=
+		{'The sun climbs to its apex.'},
+		[sun.waning]=
+		{'The sun begins its slow descent.'},
+		[sun.setting]=
+		{'The sun begins to drop blow the horizon casting long shadows about the land.'},
+		[sun.set]=
+		{'The sun disappears blow the horizon and darkness envelops the land.'}
+	}
+	
+	local sl_timeofday = {
+		[00]="shortly after midnight",
+		[01]="in the early morning hours",
+		[02]="sometime before dawn",
+		[03]="dawn\'s unfolding",
+		[04]="dawn",
+		[05]="shortly after dawn",
+		[06]="early morning",
+		[07]="morning",
+		[08]="mid-morning",
+		[09]="late morning",
+		[10]="morning\'s peak",
+		[11]="midday",
+		[12]="shortly after midday",
+		[13]="early afternoon",
+		[14]="late afternoon",
+		[15]="early evening",
+		[16]="evening",
+		[17]="late evening",
+		[18]="dusk",
+		[19]="night",
+		[20]="long past sunset",
+		[21]="late into the night",
+		[22]="just before midnight",
+		[23]="midnight"
+	}
+	
+	local sl_seasons = {
+		[00]="early spring",
+		[01]="spring",
+		[02]="late spring",
+		[03]="summer",
+		[04]="late summer",
+		[05]="fall",
+		[06]="late fall",
+		[07]="winter"
+	}
+	
+function d:get_season(t)
+
+	if( t >= 0 and t <= 3 ) then 
+		return seasons.winter
+	end
+	if ( t == 3 ) then 
+		return seasons.earlySpring
+	end
+	if ( t == 4 ) then 
+		return seasons.spring
+	end
+	if ( t == 5 ) then 
+		return seasons.lateSpring
+	end
+	if( t >= 6 and t <= 7 ) then 
+		return seasons.summer
+	end
+	if ( t == 8 ) then 
+		return seasons.lateSummer
+	end
+	if ( t == 9 ) then 
+		return seasons.fall
+	end
+	if ( t == 10 ) then 
+		return seasons.lateFall
+	end
+	if ( t > 10 ) then
+		return seasons.winter
+	end
+
+end
+
+function d:get_season_name(t)
+	return sl_seasons[d:get_season(t)]
+end
+function d:get_month(t)
+	return sl_months[t - 1]
+end
+
+function d:get_time_of_day(t)
+	return sl_timeofday[t]
+end
+
+
+function d:gametime(t)
+--print(os.date("!\n%c\t%j",t),t)
+    local y,j,m,d,w,h,n,s
+    local mdays=_days
+    s=t
+    -- First calculate the number of four-year-interval, so calculation
+    -- of leap year will be simple. Btw, because 2000 IS a leap year and
+    -- 2100 is out of range, this formula is so simple.
+    y=floor(s/FSEC)
+    s=s-y*FSEC
+    y=y*4+BASE_YEAR         -- 1970, 1974, 1978, ...
+    if s>=YSEC then
+        y=y+1           -- 1971, 1975, 1979,...
+        s=s-YSEC
+        if s>=YSEC then
+            y=y+1       -- 1972, 1976, 1980,... (leap years!)
+            s=s-YSEC
+            if s>=LSEC then
+                y=y+1   -- 1971, 1975, 1979,...
+                s=s-LSEC
+            else        -- leap year
+                mdays=_lpdays
+            end
+        end
+    end
+    j=floor(s/DSEC)
+    s=s-j*DSEC
+    local m=1
+    while mdays[m]<j do m=m+1 end
+    m=m-1
+    local d=j-mdays[m]
+    -- Calculate day of week. Sunday is 0
+    w=(floor(t/DSEC)+BASE_DOW)%7
+    -- Calculate the time of day from the remaining seconds
+    h=floor(s/3600)
+    s=s-h*3600
+    n=floor(s/60)
+    s=s-n*60
+	local _time = { year = y, dayofyear = j, month = m, day = d, week = w, hour = h, minute = n, second = s }
+    --print("y","j","m","d","w","h","n","s")
+    --print(y,j+1,m,d,w,h,n,s)
+	return _time
+end
+
+
+-- It appears to be early morning on the 3rd day of the year 600, and it is currently winter.
+-- It has been 600 years, 300 days since the birth of Ness and the receding of the Tide of Fire and Ash. 
+
+
+function d:get_ticks()
+	return os.time()
+end
+
+function d:get_year()
+	--return fix(1970 + os.time() / 365.25 / 24 / 3600)
+	return floor((os.time()) / 365.25 / 24 / 3600)
+end
+
+
+function d:system_time()
+	return self:gametime(os.time()*12)
+end
+	local sun_transitions = {
+		[sun.rising]=
+		{'The sun rises above the horizon ushering in a new day.'},
+		[sun.climb]=
+		{'The sun continues its slow climb.'},
+		[sun.zenith]=
+		{'The sun climbs to its apex.'},
+		[sun.waning]=
+		{'The sun begins its slow descent.'},
+		[sun.setting]=
+		{'The sun begins to drop blow the horizon casting long shadows about the land.'},
+		[sun.set]=
+		{'The sun disapears blow the horizon and darkness envelops the land.'}
+	}
+	
+
+function d:get_sun_message(hour)
+	if( hour == 4 ) then -- dawn
+		return sun_transitions[sun.rising]
+	end
+	if( hour == 8 ) then -- mid morning 
+		return sun_transitions[sun.climb]
+	end
+	if( hour == 11 ) then -- midday
+		return sun_transitions[sun.zenith]
+	end
+	if( hour == 15 ) then -- early evening
+		return sun_transitions[sun.waning]
+	end
+	if( hour == 17 ) then -- late evening
+		return sun_transitions[sun.setting]
+	end
+	if( hour == 19 ) then -- night
+		return sun_transitions[sun.set]
+	end
+	return nil
+	
+end
+
+function d:is_day()
+	if( d:system_time().hour >= 0 and d:system_time().hour <= 19 ) then
+		return true
+	end
+	return false
+end
+
+function d:next_transition()
+	
+end
+
+function d:sun_transition()
+	if( d:is_day() ) then
+		--print('ITS DAY!!')
+		msg = d:get_sun_message( d:system_time().hour )
+		--print(msg[1])
+		if( msg ) then
+			local players = get_players()
+			for k, v in pairs(players) do
+				v:SendToPlayer(msg[1])
+			end
+		end
+	else
+		
+	end
+	
+	t_mins = d:system_time().minute
+	t_next_hour = 60 - d:system_time().minute
+	t_rl_next_hour = t_next_hour / 12
+	d:RemoveAction( sun_trans )
+	sun_trans = d:AddAction( d.sun_transition, t_rl_next_hour*60+1, nil )
+end
+
+sun_trans = d:AddAction( d.sun_transition, 2, nil ) -- just cause it to happen
+
+-- TODO: implement the weather daemon.  This will ensure that certain environment messaging accounts
+-- for cloud cover, etc.
+
+

@@ -26,13 +26,6 @@
 #ifndef STRING_UTILS_HPP__
 #define STRING_UTILS_HPP__
 
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <vector>
-#include <fstream>
-
-
 #include <crypto++/cryptlib.h>
 #include <crypto++/sha.h>
 #include <crypto++/filters.h>
@@ -199,6 +192,31 @@ static inline std::string int_to_string(int value)
     }
     return ss.str();
 }
+
+static inline std::string GetPathFromFileLocation(const std::string& str)
+{
+  size_t found;
+  //cout << "Splitting: " << str << endl;
+  found=str.find_last_of("/\\");
+  //cout << " folder: " << str.substr(0,found) << endl;
+  //cout << " file: " << str.substr(found+1) << endl;
+  
+  return str.substr(0,found);
+}
+
+static inline std::string get_str_between_two_str(const std::string &s,
+        const std::string &start_delim,
+        const std::string &stop_delim)
+{
+    unsigned first_delim_pos = s.find(start_delim);
+    unsigned end_pos_of_first_delim = first_delim_pos + start_delim.length();
+    unsigned last_delim_pos = s.find(stop_delim);
+
+    return s.substr(end_pos_of_first_delim,
+            last_delim_pos - end_pos_of_first_delim);
+}
+
+
 /*
 static bool is_email_valid(const std::string& email)
 {

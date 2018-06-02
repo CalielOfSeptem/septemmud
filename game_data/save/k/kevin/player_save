@@ -1,7 +1,9 @@
 {
     "cwd": "workspaces/kevin",
     "gender": "unknown",
-    "inventory": {},
+    "inventory": {
+        "hmX83w2LuL754sV": "workspaces/caliel/entities/backpack"
+    },
     "leftHand": 0,
     "rightHand": 0,
     "roomID": 0,

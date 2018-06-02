@@ -12,6 +12,11 @@ direction.southwest = { 'southwest', 'sw' }
 settings = {}
 settings.DEFAULT_GAME_DATA_PATH = "DEFAULT_GAME_DATA_PATH"
 
+--enum class RoomType { INDOOR=0, OUTDOOR };
+roomTypes = {}
+roomTypes.indoor = 0
+roomTypes.outdoor = 1
+
 -- The following match C++ defines, do not change without also updating C++ defines..
 --enum class ItemSize { FINE=0, DIMINUTIVE, TINY, SMALL, MEDIUM, LARGE, ENORMOUS, GARGANTUAN, COLOSSAL };
 itemSize = {}
@@ -164,3 +169,91 @@ accountType.unknown		= 0
 accountType.player		= 1
 accountType.creator		= 2
 accountType.arch		= 3
+
+--	Months
+months				= {}
+months.sorrel 		= 0
+months.avium 		= 1
+months.larix 		= 2
+months.querod 		= 3
+months.frax_querod 	= 4
+months.tahrod 		= 5
+months.buhnrod 		= 6
+months.spirwol 		= 7
+months.tox_tomn 	= 8
+months.lox_tomn 	= 9
+months.musrod 		= 10
+months.nes_sorrel 	= 11
+
+-- Seasons
+seasons 			= {}
+seasons.earlySpring		= 0
+seasons.spring			= 1
+seasons.lateSpring		= 2
+seasons.summer			= 3
+seasons.lateSummer		= 4
+seasons.fall			= 5
+seasons.lateFall		= 6
+seasons.winter			= 7
+
+-- sun transitions
+sun = {}
+sun.rising 		= 0
+sun.climb 		= 1
+sun.zenith 		= 2
+sun.waning 		= 3
+sun.setting 	= 4
+sun.set 		= 5
+
+-- clouds
+cloudCover 						= {}
+cloudCover.none 				= 0
+cloudCover.largePuffy			= 1
+cloudCover.overCast				= 2
+cloudCover.patchedClouds 		= 3
+cloudCover.threatening		 	= 4
+
+-- sky color
+skyColor 					= {}
+skyColor.blue 				= 0
+skyColor.night				= 1
+skyColor.morning			= 2
+skyColor.ominous	 		= 3
+skyColor.likeFire		 	= 4
+
+-- zone types for weather-related messaging and behaviors
+biomeType				=	{}
+biomeType.none			=	0 -- basically indoors to prevent messaging
+biomeType.arctic 		=	1
+biomeType.temperate 	= 	2
+biomeType.tropical		=	3
+biomeType.ash			=	4
+biomeType.desert		=	5
+
+-- temperature types
+temperature				=	{}
+temperature.deathlyCold =	0 -- essentially hell froze over.. talking surface of mars
+temperature.frozen		=	1
+temperature.cold		=	2
+temperature.chilly		=	3
+temperature.room		= 	4 -- basically the middle, not too cold and not too hot, i.e., room temperature
+temperature.warm		=	5
+temperature.hot			=	6
+temperature.sweltering	=	7
+temperature.hell		=	8 -- fires of hell... very bad.
+
+
+rainIntensity			=	{}
+rainIntensity.none		=	0
+rainIntensity.drizzle 	=	1
+rainIntensity.light		=	2
+rainIntensity.moderate 	= 	3
+rainIntensity.heavy		=	4
+
+snowIntensity			=	{}
+snowIntensity.none		=	0
+snowIntensity.flakes 	=	1
+snowIntensity.light		=	2
+snowIntensity.moderate 	= 	3
+snowIntensity.heavy		=	4
+

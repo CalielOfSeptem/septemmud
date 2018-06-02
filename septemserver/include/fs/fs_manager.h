@@ -25,8 +25,6 @@
 #ifndef FS_MANAGER_H_
 #define FS_MANAGER_H_
 
-#include <vector>
-#include <string>
 #include "script_entities/playerobj.h"
 
 struct file_entity
@@ -71,6 +69,8 @@ public:
      * @return 
      */
     bool translate_path( std::string& relative_path, playerobj* p, std::string& reason );
+    
+    bool translate_path( std::string& relative_path, std::string& reason );
     
     bool do_copy( std::string& patha, std::string& pathb, playerobj * p );
     

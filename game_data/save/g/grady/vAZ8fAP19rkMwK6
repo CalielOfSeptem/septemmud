@@ -2,7 +2,7 @@
     "currentStackCount": 1,
     "defaultStackSize": 0,
     "inventory": {
-        "tsmaCnGcx3ICYnY": "workspaces/caliel/entities/backpack"
+        "2R9WT7DwDKlXmBZ": "workspaces/caliel/entities/rock"
     },
     "isContainer": true,
     "isLockable": false,
@@ -16,8 +16,8 @@
     "physical_script_path": "workspaces/caliel/entities/backpack",
     "pluralName": "",
     "size": 4,
-    "uid": "GjHYjKQB1GnXwZn",
+    "uid": "vAZ8fAP19rkMwK6",
     "userProps": {},
-    "virtual_script_path": "workspaces/caliel/entities/backpack/GjHYjKQB1GnXwZn",
+    "virtual_script_path": "workspaces/caliel/entities/backpack/vAZ8fAP19rkMwK6",
     "weight": 1.0
 }

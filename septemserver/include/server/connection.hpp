@@ -26,14 +26,9 @@
 // ==========================================================================
 #ifndef _CONNECTION_HPP_
 #define _CONNECTION_HPP_
-#include <boost/cstdint.hpp>
+
 #include "server/connectionsm.hpp"
-#include <memory>
-#include <string>
-#include <utility>
 
-
-#include <vector>
 
 namespace net {
     class socket;
@@ -98,6 +93,9 @@ public :
     //* =====================================================================
     void async_get_terminal_type(
         std::function<void (std::string const &)> const &callback);
+	
+	unsigned int get_console_height();
+	unsigned int get_console_width();
 
 private :
     struct impl;

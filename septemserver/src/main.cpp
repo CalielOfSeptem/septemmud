@@ -1,16 +1,7 @@
-#include <iostream>
-#include <string>
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
-#include <boost/program_options.hpp>
-#include <thread>
-#include <boost/format.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/ini_parser.hpp>
+#include "stdafx.h"
 
 #include "entity_manager.h"
-#include "global_settings.h"
-#include "config.h"
+
 #include "game_manager.h"
 #include "script_entities/playerobj.h"
 #include "septem.hpp"
@@ -18,12 +9,6 @@
 
 #include "server/connectionsm.hpp"
 #include "server/httpserv.h"
-#include <boost/asio.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/bind.hpp>
-#include <boost/filesystem.hpp>
 
 namespace ba = boost::asio;
 namespace po = boost::program_options;
@@ -57,7 +42,7 @@ void TimerHandler(
 		//	<< "] TimerHandler " << std::endl;
         std::unique_lock<std::recursive_mutex> lock(*entity_manager::Instance().GetLuaMutex());
         entity_manager::Instance().get_heartbeat_manager().do_heartbeats();
-        entity_manager::Instance().invoke_room_actions();
+        entity_manager::Instance().invoke_actions();
 
 		timer->expires_from_now( boost::posix_time::seconds( 1 ) );
 		timer->async_wait( 
@@ -188,6 +173,8 @@ int main(int argc, char **argv)
     global_settings::Instance().SetSetting( DEFAULT_VOID_ROOM, "realms/void");
     global_settings::Instance().SetSetting( DEFAULT_DAEMON_PATH, "daemon");
     global_settings::Instance().SetSetting( DEFAULT_COMMANDS_PATH, "cmds");
+    global_settings::Instance().SetSetting( DEFAULT_CREATOR_COMMANDS_PATH, "cmds/creator");
+    global_settings::Instance().SetSetting( DEFAULT_ARCH_COMMANDS_PATH, "cmds/creator/arch");
     global_settings::Instance().SetSetting( DEFAULT_COMMAND_PROC, "daemon/command_proc");
     global_settings::Instance().SetSetting( DEFAULT_LOGON_PROC, "daemon/logon_proc");
     global_settings::Instance().SetSetting( DEFAULT_LIBS_PATH, "lib");
@@ -265,14 +252,17 @@ int main(int argc, char **argv)
        
    }
 
-    game_manager gm;
-    gm.start();
     
     boost::asio::io_service io_service;
     boost::shared_ptr< boost::asio::io_service::strand > strand(
 		new boost::asio::io_service::strand( io_service )
 	);
+	
+	entity_manager::Instance().bind_io(&io_service);
     
+    game_manager gm;
+    gm.start();
+	
     septem application(
         io_service
       , std::make_shared<boost::asio::io_service::work>(std::ref(io_service))
@@ -299,7 +289,7 @@ int main(int argc, char **argv)
     
     std::thread http_thread =  std::thread(start_serv, 8090);
     
-    entity_manager::Instance().bind_io(&io_service);
+    
 
     std::string blah; // for console input
     while( true )
@@ -310,6 +300,7 @@ int main(int argc, char **argv)
         if( blah == "stop" )
         {
             gm.stop();
+            
         }
         else if( blah == "start" )
         {

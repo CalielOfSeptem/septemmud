@@ -1,0 +1,510 @@
+--[[weather daemon version:0.0.1]]-------------------------------
+--[[------------------------------------------------------
+	Copyright (C) 2018, by Caliel (kenthompson1@gmail.com)
+	All Rights Reserved.
+--]]------------------------------------------------------
+inherit daemon
+d = daemon.new('weather')
+
+--[[------------------------------------------------------
+	Todo as of 4/29
+	Implement remainder of biome weather patterns.
+--]]------------------------------------------------------
+
+
+
+--[[------------------------------------------------------
+	Constants
+--]]------------------------------------------------------
+-- weather transition constants
+weatherTransitions				=	{}
+weatherTransitions.starting		=	0
+weatherTransitions.started 		=	1
+weatherTransitions.stopping 	= 	2
+weatherTransitions.stopped		=	3
+weatherTransitions.shiftUp		= 	4
+weatherTransitions.shiftDown	=	5
+
+weatherIntensity				=	{}
+weatherIntensity.low			=	1
+weatherIntensity.medium 		=	2
+weatherIntensity.high	 		= 	3
+weatherIntensity.veryHigh		=	4
+
+-- each rain/snow transition can include multiple output lines.  The lines for some of the states relate to intensity.
+local rain_transitions = { -- Changes relative to severity...
+	[weatherTransitions.starting]=
+	{'A light rain begins to fall.', 'A steady rain begins to fall.', 'The clouds let loose a barrage of rain drops.', 'The heavens part releasing a torrent of rain.'},
+	[weatherTransitions.started]=
+	{'The rain continues to fall.', 'The rain continues to fall at a steady pace.', 'The rain continues to hammer down.', 'Sheets of rain continue to descend from the sky soaking everything.'},
+	[weatherTransitions.shiftUp]=
+	{'Rain begins to fall harder.'},
+	[weatherTransitions.shiftDown]=
+	{'The rain appears to lose intensity.'},
+	[weatherTransitions.stopping]=
+	{'The rain begins to taper off.'},
+	[weatherTransitions.stopped]=
+	{'The rain stops.'}
+}
+
+local snow_transitions = {
+	[weatherTransitions.starting]=
+	{'Snow flakes begin to gently fall.', 'Large flakes of snow begin to fall.', 'Snow flakes fall at an ever increasing rate.', 'The heavens split open releasing a blizzard of snow.' },
+	[weatherTransitions.started]=
+	{'Snow flakes continue to gently fall.', 'Large flakes of snow continue to drift down from the sky.', 'Snow continues to fall at a steady rate.', 'Snow continues to fall severly limiting visibility.' },
+	[weatherTransitions.shiftUp]=
+	{'Snow falls at an ever increasing clip.'},
+	[weatherTransitions.shiftDown]=
+	{'The snow fall appears to lessen in intensity.'},
+	[weatherTransitions.stopping]=
+	{'The snow begins to taper off.'},
+	[weatherTransitions.stopped]=
+	{'The snow stops falling.'}
+}
+
+local temp_strings = {
+	[temperature.deathlyCold]=
+	{'deathly cold'},
+	[temperature.frozen]=
+	{'very cold'},
+	[temperature.cold]=
+	{'cold'},
+	[temperature.chilly]=
+	{'chilly'},
+	[temperature.room]=
+	{'comfortable'},
+	[temperature.warm]=
+	{'warm'},
+	[temperature.hot]=
+	{'hot'},
+	[temperature.sweltering]=
+	{'sweltering'},
+	[temperature.hell]=
+	{'extremely hot'}
+}
+
+function d:get_temp_string(temp)
+	return temp_strings[temp]
+end
+
+local biome_state = {} -- to hold our various state values
+biome_state.isRaining 			= false
+biome_state.isSnowing 			= false
+biome_state.rainSnowTimer		= 0 -- used to establish an on/off time for the weather effect.  
+biome_state.chanceOfRain		= 1 -- essentially on/off for rain effects and sets occurrence rate
+biome_state.chanceOfSnow		= 1 -- essentially on/off for rain effects and sets occurrence rate
+biome_state.currentTemp 		= -1 -- undefined to start
+biome_state.rainSnowIntensity 	= -1 -- 1 to 4, 1 being light and 4 being all-hell broke loose
+biome_state.nextUpdate			= -1 -- used to decide when the next temp change should occur
+biome_state.name				= "unknown" -- just for debug purposes
+biome_state.biomeType			= 0
+biome_state.maxWeatherDuration  = 10 -- based on cycles
+biome_state.debug				= false
+room_list = {}
+
+-- this is actually totally unnecessary...
+function d:register_room(room)
+	--print('registered room')
+	-- if the room isn't outdoors then just return..
+
+	--print(#room_list)
+	
+	-- remove dead room objects..
+	local i=1
+	while i <= #room_list do
+		if room_list[i]:IsAlive() == false then
+			table.remove(room_list, i)
+		else
+			i = i + 1
+		end
+	end
+	
+	-- get the room entity, check if its outdoors.
+	re = room_cast(room:GetEntity())
+	if( re:IsOutdoor() == false ) then
+		return
+	end
+	
+	-- add the entity to the room list
+	room_list[#room_list+1] = room
+	
+	-- for i=1, #room_list do
+	--	if( room_list[i] ~= nil ) then
+			--print(room_list[i]:IsAlive())
+	--	end
+	-- end
+end
+
+-- functions to support generic weather-related events
+
+-- send messages all rooms of this biome type
+function biome_state:send_to_rooms( s )
+	p_list = get_players_by_biome( self.biomeType )
+	for i=1, #p_list do
+		p_list[i]:SendToPlayer(s)
+	end
+end
+
+function biome_state:send_to_rooms_debug( s )
+	--print( biome_state.debug )
+	if( biome_state.debug ~= true ) then
+		return
+	end
+	p_list = get_players_by_biome_debug( self.biomeType )
+	--print( 'ROOM LIST: ' .. #p_list ) 
+	for i=1, #p_list do
+		--print(p_list[i])
+		p_list[i]:SendToPlayer(s)
+	end
+end
+
+-- forces weather to shift to rain
+function biome_state:transition_to_rain()
+	self.isRaining = true
+	self.isSnowing = false
+	self:send_to_rooms('The falling snow shifts into a light rain.')
+end
+
+-- forces weather to shift to snow
+function biome_state:transition_to_snow()
+	self.isRaining = false
+	self.isSnowing = true
+	self:send_to_rooms('The rain gives way to large flakes of snow.')
+end
+
+-- turn on the rain
+function biome_state:start_rain()
+	self.isRaining = true
+	math.randomseed( os.time() )
+	self.rainSnowTimer = math.random(1, self.maxWeatherDuration) 
+	self.rainSnowIntensity = weatherIntensity.low
+	self:change_rain_snow_intensity()
+	self:send_to_rooms( rain_transitions[weatherTransitions.starting][self.rainSnowIntensity] )
+end
+
+-- turn on the snow
+function biome_state:start_snow()
+	self.isSnowing = true
+	math.randomseed( os.time() )
+	self.rainSnowTimer = math.random(1, self.maxWeatherDuration) 
+	self.rainSnowIntensity = weatherIntensity.low
+	self:change_rain_snow_intensity()
+	self:send_to_rooms( snow_transitions[weatherTransitions.starting][self.rainSnowIntensity] )
+end
+
+-- turning off the rain..
+function biome_state:stopping_rain()
+	self:send_to_rooms( rain_transitions[weatherTransitions.stopping][1] )
+end
+
+-- turning off the snow..
+function biome_state:stopping_snow()
+	self:send_to_rooms( snow_transitions[weatherTransitions.stopping][1] )
+end
+-- turn off the rain
+function biome_state:stop_rain()
+	self.isRaining = false
+	self:send_to_rooms( rain_transitions[weatherTransitions.stopped][1] )
+end
+
+-- turn off the snow
+function biome_state:stop_snow()
+	self.isSnowing = false
+	self:send_to_rooms( snow_transitions[weatherTransitions.stopped][1] )
+end
+
+-- messaging for rain that continues
+function biome_state:continue_rain()
+	--print( 'CONT: ' .. self.rainSnowIntensity )
+	if( biome_state:do_lightning() ~= true ) then -- do lightning, or just continue the normal rain messaging
+		self:send_to_rooms( rain_transitions[weatherTransitions.started][self.rainSnowIntensity] )
+	end
+end
+
+-- messaging for snow that continues
+function biome_state:continue_snow()
+--print( 'CONT: ' .. self.rainSnowIntensity )
+	self:send_to_rooms( snow_transitions[weatherTransitions.started][self.rainSnowIntensity] )
+end
+
+function biome_state:do_lightning()
+	local r = math.random(1, 100)
+	if( r == 1 ) then
+		self:send_to_rooms( 'Lightning flashes off in the distance and is followed by the low rumble of thunder.' )
+		return true
+	end
+	return false
+end
+
+function biome_state:change_rain_snow_intensity()
+	--math.randomseed( os.time() )
+	local r = math.random(1, 3)
+	if ( math.random( 1, r ) == 1 ) then
+		-- here we decide if the intensity should change... now, which direction...
+		local dir = math.random(1, 2) -- 50/50
+		if( dir == 1 ) then -- up
+			if( self.rainSnowIntensity == weatherIntensity.veryHigh ) then
+				-- nothing.. we are already very intense.
+				return 0
+				else
+					self.rainSnowIntensity = self.rainSnowIntensity + 1
+					--print( 'UP: ' .. self.rainSnowIntensity )
+					return weatherTransitions.shiftUp
+			end
+			else -- down
+			if( self.rainSnowIntensity == weatherIntensity.low ) then
+				-- nothing.. we are already low.
+				return 0
+				else
+					self.rainSnowIntensity = self.rainSnowIntensity - 1
+					--print( 'DOWN: ' .. self.rainSnowIntensity )
+					return weatherTransitions.shiftDown
+			end			
+		end
+	end
+	return 0 -- no change
+end
+
+
+function biome_state:rain_check()
+	math.randomseed( os.time() )
+	if ( math.random(1, biome_state.chanceOfRain) == 1 ) then
+		return true
+	else
+		return false
+	end
+end
+
+function biome_state:snow_check()
+	math.randomseed( os.time() )
+	if ( math.random(1, biome_state.chanceOfSnow) == 1 ) then
+		return true
+	else
+		return false
+	end
+end
+
+
+-- biome types for weather-related messaging and behaviors
+local biomes = {}
+
+local function shallowCopy(original)
+    local copy = {}
+    for key, value in pairs(original) do
+        copy[key] = value
+    end
+    return copy
+end
+
+--[[TEMPERATE ZONE]]-------------------------------
+--[[------------------------------------------------------
+Not too cold, not too warm, all seasons.
+--]]------------------------------------------------------
+
+local temperate_state = shallowCopy(biome_state)
+temperate_state.name = 'temperate'
+temperate_state.biomeType = biomeType.temperate
+temperate_state.chanceOfRain = 10 -- 
+temperate_state.chanceOfSnow = 10 -- 
+biomes[ #biomes + 1 ] = temperate_state
+
+function temperate_state:is_rainy_season()
+	--print (self.currentTemp)
+	--print (temperature.cold)
+	if( self.currentTemp > temperature.cold ) then
+		return true
+	end
+	return false
+end
+
+function temperate_state:is_snowy_season()
+	if( self.currentTemp <= temperature.cold ) then
+		return true
+	end
+	return false
+end
+
+
+
+function temperate_state:do_weather()
+	self:send_to_rooms_debug( 'self.rainSnowTimer == ' .. self.rainSnowTimer )
+	-- first, do a sanity check.  If its snowing, but its now sweltering.. need to stop that snow and turn to rain.
+	-- likewise, if its cold or hell hath frozen over while raining.. need to stop that rain and turn to snow
+	--print( 'SNOWY SEASON = ' .. tostring(self:is_snowy_season()) )
+	--print( 'RAINY SEASON = ' .. tostring(self:is_rainy_season()) )
+	if( self:is_rainy_season() == true and self.isSnowing ) then
+		self:transition_to_rain()
+		return
+	end
+	if( self:is_snowy_season() == true and self.isRaining ) then
+		self:transition_to_snow()
+		return
+	end
+	
+	-- RAIN: temp must somewhere between chilly and sweltering
+	-- if its already raining.. figure out if we should stop
+	-- if its not already raining... figure out if we should start
+	if( self.isRaining == true and self.rainSnowTimer == 0 ) then
+		-- determine if the timer has elapsed..
+		self:stop_rain()
+		return
+	end
+	if( self.isSnowing == true and self.rainSnowTimer == 0 ) then
+		self:stop_snow()
+		return
+	end
+	
+	-- If its not raining/snowing, maybe it should be, time to check.......
+	if( self:is_rainy_season() == true and self.isRaining ~= true ) then
+		if( self:rain_check() == true ) then
+			-- start the RAIN!!!
+			self:start_rain()
+			return
+		end
+	end
+	
+	if( self:is_snowy_season() == true and self.isSnowing ~= true) then
+		if( self:snow_check() == true ) then
+			-- start the snow!!!
+			self:start_snow()
+			return
+		end
+	end
+	
+	-- Otherwise, time to print out some messages to players are reminded that its raining/snowing
+	if( self:is_rainy_season() == true and self.isRaining == true ) then
+		self.rainSnowTimer = self.rainSnowTimer - 1 -- decrement the counter
+		if( self.rainSnowTimer == 0 ) then
+			self:stopping_rain()
+			else
+			local change = self:change_rain_snow_intensity()
+			--print(change)
+			if( change ~= 0 ) then
+				self:send_to_rooms( rain_transitions[change][1] )
+				else
+				self:continue_rain()
+			end
+		end
+	end
+	
+	if( self:is_snowy_season() == true and self.isSnowing == true) then
+		self.rainSnowTimer = self.rainSnowTimer - 1 -- decrement the counter
+		if( self.rainSnowTimer == 0 ) then
+			self:stopping_snow()
+			else
+			local change = self:change_rain_snow_intensity()
+			--print(change)
+			if( change ~= 0 ) then
+				self:send_to_rooms( snow_transitions[change][1] )
+				else
+				self:continue_snow()
+			end
+		end
+	end
+end
+
+
+function temperate_state:get_temperate_temp()
+	--print('-=-=-=-=-=-=- GETTING RANDOM SEASON .... -=-=-=-=-=-=-=-' )
+	math.randomseed( os.time() )
+	local time_daemon = get_daemon('daemon/time', 0)
+	local season = time_daemon:get_season(time_daemon:system_time().month)
+	--print('-=-=-=-=-=-=-=- SEASON = ' .. season)
+	
+	if( season == seasons.earlySpring ) then
+		if( time_daemon:is_day() ~= true ) then
+			return math.random(temperature.frozen, temperature.cold )
+		else
+			return math.random(temperature.frozen, temperature.chilly )
+		end
+	elseif( season == seasons.spring ) then
+		if( time_daemon:is_day() ~= true ) then
+			return temperature.chilly
+		else
+			return math.random(temperature.chilly, temperature.warm )
+		end
+	elseif( season == seasons.lateSpring ) then
+		if( time_daemon:is_day() ~= true ) then
+			return math.random(temperature.room, temperature.warm )
+		else
+			return math.random(temperature.room, temperature.hot )
+		end
+	elseif( season == seasons.summer ) then
+		if( time_daemon:is_day() ~= true ) then
+			return math.random(temperature.warm, temperature.hot )
+		else
+			return math.random(temperature.hot, temperature.sweltering )
+		end
+	elseif( season == seasons.lateSummer ) then
+		if( time_daemon:is_day() ~= true ) then
+			return math.random(temperature.warm, temperature.hot )
+		else
+			return math.random(temperature.chilly, temperature.sweltering )
+		end
+	elseif( season == seasons.fall ) then
+		if( time_daemon:is_day() ~= true ) then
+			return math.random(temperature.chilly, temperature.room )
+		else
+			return math.random(temperature.cold, temperature.room )
+		end
+	elseif( season == seasons.lateFall ) then
+		if( time_daemon:is_day() ~= true ) then
+			return math.random(temperature.cold, temperature.chilly )
+		else
+			return math.random(temperature.cold, temperature.chilly )
+		end
+	elseif( season == seasons.winter ) then 
+		if( time_daemon:is_day() ~= true ) then
+			return math.random(temperature.frozen, temperature.cold )
+		else
+			return math.random(temperature.frozen, temperature.cold )
+		end
+	end
+	return 'ERROR, season undefined..!!'
+end
+
+function d:set_next_update(biome) -- generic function for updating biome state
+	local time_daemon = get_daemon('daemon/time', 0)
+	if(time_daemon ~= nil ) then -- there is a chance this daemon is instantiated before the time daemon is..
+		if( biome.currentTemp == -1 or
+		biome.nextUpdate == time_daemon:system_time().hour ) then 
+			-- initial state..
+		--	print(' CALLING get_temperate_temp !!!!!!!!!!!!!!!!!! ' )
+			biome.currentTemp = biome:get_temperate_temp()
+		--	print( biome.currentTemp )
+			biome.nextUpdate = time_daemon:system_time().hour + math.random( 1, 6 )
+			if( biome.nextUpdate > 23 ) then biome.nextUpdate = 23 end
+			biome:send_to_rooms('Current hour ' .. time_daemon:system_time().hour .. ', next temp change: ' .. biome.nextUpdate )
+		end
+	end
+end
+
+function d:do_temperate_state()
+	
+	for i=1, #biomes do
+		
+		--biomes[i]:send_to_rooms_debug('d:do_temperate_state()')
+		d:set_next_update(biomes[i])
+		--print('TEMP = ' .. d:get_temp_string( biomes[i].currentTemp )[1])
+	end
+end
+
+function d:do_weather()
+	--print(#biomes)
+	for i=1, #biomes do
+		--biomes[i]:send_to_rooms_debug('d:do_weather()')
+		biomes[i]:do_weather()
+	end
+end
+
+d:AddAction( d.do_temperate_state, 15, nil )
+d:AddAction( d.do_weather, 30, nil )
+
+-- Start at the time of year, which will then set the current temperature
+-- Not sure what to do with temperature long term.. perhaps tie certain game mechanics to it.
+-- For now, weather effects are random and just based on the time of year.
+-- Messaging is essentially based on a state machine that transitions between no weather to some form of weather
+-- and then back again.  
+
+--function d:
+-- END TEMPERATE ZONE --

@@ -1,0 +1,19 @@
+inherit room
+r1 = room.new(roomTypes.outdoor)
+r1:SetTitle('Lang\'s Warf, West Dock')
+r1:SetDescription("You stand on the west dock.")
+--r1:SetBiomeType(biomeType.temperate)
+
+r2 = room.new(roomTypes.outdoor)
+r2:SetTitle('Lang\'s Warf, Ramp')
+r2:SetDescription("You stand on the ramp.")
+
+
+r1:AddExit( direction.east, r2, true)
+local door = r1:AddDoor( 'an oaken door', 'workspaces/caliel/workroom:id=0', 1, false, false ) -- path, opened?, locked?
+
+r2:AddExit( direction.west, r1, true)
+
+r1:AddExit( direction.north, 'workspaces/caliel/workroom:id=0', true)
+
+r2:AddExit( direction.north, 'workspaces/caliel/workroom:id=0', true)

@@ -1,0 +1,11 @@
+{
+    "cwd": "workspaces/grady",
+    "gender": "unknown",
+    "inventory": {
+        "vAZ8fAP19rkMwK6": "workspaces/caliel/entities/backpack"
+    },
+    "leftHand": 0,
+    "rightHand": 0,
+    "roomID": 0,
+    "roomPath": "workspaces/caliel/workroom"
+}

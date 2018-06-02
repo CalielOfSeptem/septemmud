@@ -1,17 +1,18 @@
+#include "stdafx.h"
 #include "server/context_impl.hpp"
 #include "server/connectionsm.hpp"
 
 //#include "paradice/character.hpp"
 #include "server/client.hpp"
 //#include "hugin/user_interface.hpp"
-#include <boost/asio/strand.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/filesystem.hpp>
-#include <algorithm>
-#include <fstream>
-#include <string>
-#include <vector>
+//#include <boost/asio/strand.hpp>
+//#include <boost/archive/xml_iarchive.hpp>
+//#include <boost/archive/xml_oarchive.hpp>
+//#include <boost/filesystem.hpp>
+//#include <algorithm>
+//#include <fstream>
+//#include <string>
+//#include <vector>
 
 
 namespace fs = boost::filesystem;

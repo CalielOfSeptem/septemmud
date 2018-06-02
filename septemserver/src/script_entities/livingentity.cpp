@@ -1,9 +1,19 @@
+#include "stdafx.h"
 #include "script_entities/livingentity.h"
+
+
+#include "script_entities/itemobj.h"
+
+#include "script_entities/playerobj.h"
+#include "script_entities/roomobj.h"
+#include "script_entities/itemobj.h"
 #include "entity_manager.h"
 
 roomobj* living_entity::GetRoom()
 {
-    assert(GetEnvironment() != NULL);
+    //assert(GetEnvironment() != NULL);
+	//if( GetEnvironment() == NULL )
+	//	return NULL;
     return dynamic_cast<roomobj*>(GetEnvironment());
 }
 
@@ -225,23 +235,85 @@ InventorySlotError living_entity::SafeAddItemToInventory(itemobj* io)
 void living_entity::unload_inventory_from_game()
 {
     // std::vector<itemobj*> items = this->GetItems();
-    for(auto i : this->GetInventory()) {
-        recursive_unload(i);
-    }
-    recursive_unload( dynamic_cast<script_entity*>(&m_RightHand) );
-    recursive_unload( dynamic_cast<script_entity*>(&m_LeftHand) );
+   // for(auto i : this->GetInventory()) {
+   //     recursive_unload(i);
+   // }
+   container_base::_unload_inventory_();
+   //m_RightHand._unload_inventory_();
+   //m_LeftHand._unload_inventory_();
+    recursive_unload(dynamic_cast<script_entity*>(&m_RightHand));
+    recursive_unload(dynamic_cast<script_entity*>(&m_LeftHand));
 }
 
-void living_entity::recursive_unload(script_entity* se)
+
+
+void living_entity::load_default_command_directories()
 {
-    if(container_base* cb = dynamic_cast<container_base*>(se)) {
-        //cb->RemoveEntityFromInventory(se);
-        auto inv = cb->GetInventory();
-        for ( auto i : inv )
-        {
-            recursive_unload(i);
-        }
-    }
-    std::string s = se->GetVirtualScriptPath();
-    entity_manager::Instance().destroy_item(s);
+    std::string command_path = global_settings::Instance().GetSetting(DEFAULT_COMMANDS_PATH);
+    m_command_directories.push_back(command_path);
+}
+
+living_entity::living_entity()
+{
+    m_RightHand.m_livingEntity = this;
+    m_LeftHand.m_livingEntity = this;
+    load_default_command_directories();
+    // env = NULL;
+}
+
+living_entity::living_entity(sol::this_state ts, sol::this_environment te, EntityType et, std::string name)
+    : script_entity(ts, te, et, name)
+{
+    m_RightHand.m_livingEntity = this;
+    m_LeftHand.m_livingEntity = this;
+    load_default_command_directories();
+    //  env = NULL;
+}
+
+script_entity* living_entity::GetOwner()
+{
+    return this;
+}
+
+EntityGender living_entity::get_gender()
+{
+    return m_gender;
+}
+
+void living_entity::set_gender(EntityGender g)
+{
+    m_gender = g;
+}
+
+EntityBodyPosition living_entity::get_body_position()
+{
+    return m_bodyPosition;
+}
+
+void living_entity::set_body_position(EntityBodyPosition g)
+{
+    m_bodyPosition = g;
+}
+
+void living_entity::SendToEntity(const std::string& msg)
+{
+}
+
+handobj* living_entity::GetRightHand()
+{
+    return &m_RightHand;
+}
+
+handobj* living_entity::GetLeftHand()
+{
+    return &m_LeftHand;
+}
+
+void living_entity::on_environment_change(EnvironmentChangeEvent evt, script_entity* env)
+{
+	script_entity::on_environment_change(evt, env);
+}
+
+void living_entity::debug(const std::string& msg)
+{
 }

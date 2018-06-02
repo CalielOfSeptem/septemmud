@@ -1,5 +1,5 @@
 inherit room
-r1 = room.new()
+r1 = room.new(roomTypes.indoor)
 
 r1:SetTitle('<player>\'s Workroom')
 r1:SetDescription("")

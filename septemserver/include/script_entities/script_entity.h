@@ -26,17 +26,14 @@
 #define SCRIPT_ENTITY_H_
 
 
-#include <unordered_map>
-#define SOL_CHECK_ARGUMENTS
-#include <sol.hpp>
-#include <cassert>
-#include <iostream>
 #include "loghelper.h"
-#include "script_entities/actionobj.h"
+#include <boost/signals2.hpp>
 
-enum class EntityType { UNKNOWN, ROOM, ITEM, NPC, PLAYER, COMMAND, DAEMON, LIB, HAND };
-enum class EnvironmentChangeEvent { ADDED, REMOVED };
-enum class LogLevel { INFO, DEBUG, ERROR, CRITICAL };
+class get_uid;
+struct extcommandobj;
+struct actionobj;
+
+
  
 struct _sol_userdata_
 {
@@ -47,79 +44,32 @@ struct _sol_userdata_
     sol::userdata selfobj;
 };
 
+
 struct script_entity {
     
-        script_entity(EntityType myType, std::string name) : 
-            m_type(myType)
-            , environment_(NULL)
-            , name(name)
-        {
-
-        }
+        script_entity(EntityType myType, std::string name);
         
         script_entity(sol::this_state ts, sol::this_environment te, EntityType myType, std::string name);
         
-        script_entity() :
-            m_type(EntityType::UNKNOWN)
-            , environment_(NULL)
-            , name("")
-        {
-            
-        }
+        script_entity();
         
         ~script_entity();
 
-        sol::object get_property_lua(const char* name, sol::this_state s)
-        {
-                return props[name];
-        }
+        sol::object get_property_lua(const char* name, sol::this_state s);
 
-        void set_property_lua(const char* name, sol::stack_object object)
-        {
-                props[name] = object.as<sol::object>();
-        }
+        void set_property_lua(const char* name, sol::stack_object object);
         
-        void clear_props() 
-        { 
-            m_userdata.reset();
-            props.clear(); 
-        }
+        void clear_props();
         
         
-        script_entity* GetEnvironment()
-        {
-            return environment_; //.value();
-        }
+        script_entity* GetEnvironment();
 
-        virtual void SetEnvironment(script_entity* be)
-        {
-            environment_ = be;
-        }
+        virtual void SetEnvironment(script_entity* be);
         
         
-        virtual EntityType& GetType()
-        {
-            return m_type;
-        }
+        virtual EntityType& GetType();
         
-        std::string GetEntityTypeString()
-        {
-            switch(m_type) {
-            case EntityType::UNKNOWN:
-                return "unknown";
-            case EntityType::ROOM:
-                return "room";
-            case EntityType::ITEM:
-                return "item";
-            case EntityType::NPC:
-                return "npc";
-            case EntityType::PLAYER:
-                return "player";
-            default:
-                return "unknown";
-                break;
-            }
-        }
+        std::string GetEntityTypeString();
         
         std::string GetVirtualScriptPath() { return virtual_script_path; }
         void SetVirtualScriptPath(std::string& path) ;
@@ -127,10 +77,7 @@ struct script_entity {
         std::string GetPhysicalScriptPath() { return physical_script_path; }
         void SetPhysicalScriptPath(std::string& path) ;
         
-        std::string GetInstancePath()
-        {
-            return virtual_script_path + ":id=" + std::to_string(instanceID);
-        }
+        std::string GetInstancePath();
         
         unsigned int instanceID = 0;
         
@@ -140,101 +87,53 @@ struct script_entity {
         
         virtual void debug(const std::string& msg);
 
-        virtual const std::string& GetName()
-        {
-            return name;
-        }
+        virtual const std::string& GetName();
         
-        virtual void SetName(const std::string& name)
-        {
-            this->name = name;
-        }
+        virtual void SetName(const std::string& name);
         
-        const std::string& GetLook()
-        {
-            return look;
-        }
+        const std::string& GetLook();
         
-        void SetLook(const std::string& look)
-        {
-            this->look = look;
-        }
+        void SetLook(const std::string& look);
         
-        const bool get_destroy()
-        {
-            return m_destroy;
-        }
+        const bool get_destroy();
         
-        void set_destroy(bool destroy)
-        {
-            m_destroy = destroy;
-            if( destroy )
-                clear_props();
-        }
+        void set_destroy(bool destroy);
         
-        virtual std::string get_uid()
-        {
-            return uid;
-        }
+        virtual std::string get_uid();
          
-        virtual void set_uid(std::string id)
-        {
-            uid = id;
-        }
+        virtual void set_uid(std::string id);
         
-        std::string get_entityStorageLocation()
-        {
-            return entity_storage_location;
-        }
+        std::string get_entityStorageLocation();
         
-        void set_entityStorageLocation(std::string& str)
-        {
-            entity_storage_location = str;
-        }
+        void set_entityStorageLocation(std::string& str);
         
         
+        virtual bool do_save();
         
-        virtual bool do_save()
-        {
-            return true;
-        }
+        virtual void on_environment_change(EnvironmentChangeEvent evt, script_entity * env);
         
-        virtual void on_environment_change(EnvironmentChangeEvent evt, script_entity * env)
-        {
-            
-        }
+        virtual bool do_load();
         
-        virtual bool do_load()
-        {
-            return true;
-        }
+        virtual bool do_json_load( std::string& j );
         
-        virtual bool do_json_load( std::string& j )
-        {
-            return true;
-        }
+        actionobj * AddAction( sol::this_state ts, sol::protected_function func, sol::object interval, sol::object userData = sol::nil);
         
-        actionobj * AddAction(sol::protected_function func, unsigned int interval, sol::object userData = sol::nil)
-        {
-            actions.push_back(std::shared_ptr<actionobj>( new actionobj(func, interval, userData) ) );
-            return actions[actions.size()-1].get();
-        }
+        void RemoveAction(actionobj * a);
+        
+        std::vector<std::shared_ptr<actionobj>>& GetActions();
+        
+        std::vector<std::shared_ptr<extcommandobj>>& GetCommands();
         
         
-        std::vector<std::shared_ptr<actionobj>>& GetActions()
-        {
-            return actions;
-        }
+        void DoActions();
         
-        void DoActions()
-        {
-            for( auto r : GetActions() )
-            {
-                r->DoAction();
-            }
-        }
         
-
+        extcommandobj * AddCommand(sol::this_state ts, sol::protected_function func, const sol::as_table_t<std::vector<std::string> >& aliases, sol::object userData = sol::nil);
+        
+		void invoke_on_load();
+		void invoke_on_destroy();
+		
+		boost::signals2::signal<void()> on_destroy;
 private:
         std::string entity_storage_location; // used for persistence
         my_sink m_entityLog;
@@ -244,6 +143,8 @@ private:
         std::string virtual_script_path;
         bool m_destroy = false;
         
+		void invoke_on_environment_change();
+		
   
 protected:
         std::map<std::string, std::string> userProps;
@@ -253,6 +154,7 @@ protected:
         std::string name;
         std::string uid;
         std::vector<std::shared_ptr<actionobj>> actions;
+        std::vector<std::shared_ptr<extcommandobj>> commands;
 };
 
 

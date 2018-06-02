@@ -24,11 +24,9 @@
 // ==========================================================================
 #ifndef GLOBAL_SETTINGS_H_
 #define GLOBAL_SETTINGS_H_
+
 #include "json.hpp"
-
-
 using json = nlohmann::json;
-
 class global_settings
 {
     

@@ -54,7 +54,11 @@ function c:ExecuteCommand ( o, cmd )
 			path = do_translate_path( cmd, player_cast(player) )
 
 			if( path:len() > 0 ) then
-				clone_item_to_hand( path, player:RightHand() )
+				if( clone_item_to_hand( path, player:RightHand() ) == nil ) then
+					o:SendToEntity('Error cloning item.')
+					return true
+				end
+				
 				--o:SendToEntity('You clone a ' .. cmd .. ' into your right hand.')
 				local r_hand = player:RightHand():GetItem()
 				o:SendToEntity('You clone ' .. r_hand:GetName() .. ' into your right hand.')

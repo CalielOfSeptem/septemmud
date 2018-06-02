@@ -24,6 +24,7 @@
 //             OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 //             SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ==========================================================================
+#include "stdafx.h"
 #include "server/connection.hpp"
 #include "net/socket.hpp"
 #include <telnetpp/telnetpp.hpp>
@@ -36,11 +37,11 @@
 #include <telnetpp/options/naws/client.hpp>
 #include <telnetpp/options/suppress_ga/server.hpp>
 #include <telnetpp/options/terminal_type/client.hpp>
-#include <boost/asio/deadline_timer.hpp>
-#include <boost/asio/placeholders.hpp>
-#include <deque>
-#include <string>
-#include <utility>
+
+//#include <boost/asio/placeholders.hpp>
+//#include <deque>
+//#include <string>
+//#include <utility>
 #include "account.h"
 
 using namespace std;
@@ -133,6 +134,9 @@ struct connection::impl
     {
         schedule_next_read();
     }
+	
+	unsigned int get_console_height() { return console_height; };
+	unsigned int get_console_width() { return console_width; };
     
     
     // ======================================================================
@@ -229,6 +233,8 @@ struct connection::impl
     void on_window_size_changed(boost::uint16_t width, boost::uint16_t height)
     {
 		//puts("Window resize!");
+		console_width = width;
+		console_height = height;
         if (on_window_size_changed_)
         {
             on_window_size_changed_(width, height);
@@ -285,6 +291,9 @@ struct connection::impl
     std::string                                          terminal_type_;
     std::vector<std::function<void (std::string)>>       terminal_type_requests_;
     std::string input_buffer_;
+	
+	unsigned int console_height;
+	unsigned int console_width;
     
     
 };
@@ -364,6 +373,8 @@ void connection::disconnect()
 
     if (pimpl_->socket_ != nullptr)
     {
+		//boost::system::error_code unused_error_code;
+       // socket_->close(unused_error_code);
         pimpl_->socket_->close();
         pimpl_->socket_.reset();
     }
@@ -376,6 +387,15 @@ void connection::async_get_terminal_type(
     std::function<void (std::string const &)> const &callback)
 {
     pimpl_->terminal_type_requests_.push_back(callback);
+}
+
+unsigned int connection::get_console_height()
+{
+	return pimpl_->get_console_height();
+}
+unsigned int connection::get_console_width()
+{
+	return pimpl_->get_console_width();
 }
 
 //}

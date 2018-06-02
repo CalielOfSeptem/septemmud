@@ -25,156 +25,73 @@
 #ifndef PLAYER_OBJ_H_
 #define PLAYER_OBJ_H_
  
-#include <memory>
+
 #include "script_entities/livingentity.h"
 #include "script_entities/container_base.h"
-#include <stdio.h>
-#include "json.hpp"
 #include "account.h"
-#include "server/client.hpp"
-#include "boost/date_time/posix_time/posix_time.hpp"
+
+struct client;
+
+
 namespace pt = boost::posix_time;
 
 
 struct playerobj : living_entity 
 {
-    playerobj()
-    {
-    
-    }
+    playerobj();
     playerobj(sol::this_state ts, sol::this_environment te, std::string name);
      
-    virtual void debug(const std::string& msg) override
-    {
-        if( this->isCreator() )
-            SendToEntity(msg);
-    }
+    ~playerobj();
     
+    virtual void debug(const std::string& msg) override;
+    
+    void SendToEntity(const std::string& msg) override;
      
-     void SendToEntity(const std::string& msg)  override
-     {
-        //if( GetName() == "caliel" )
-        //    std::cout << msg << std::endl;
-        if( this->onOutput )
-            this->onOutput(msg);
-        living_entity::SendToEntity(msg);
-     }
+    void SendToEnvironment(const std::string& msg) override;
      
-     void SendToEnvironment(const std::string& msg) override
-     {
-         // TODO: implement this
-         living_entity::SendToEnvironment(msg);
-     }
+    bool isCreator();
      
-     bool isCreator()
-     {
-         if( _ac._accountType == AccountType::CREATOR || _ac._accountType == AccountType::ARCH )
-         {
-             return true;
-         
-         }
-         else
-             return false;
-             
-     }
+    bool isArch();     
      
+    std::string& GetPlayerName();
      
-     
-     std::string& GetPlayerName()
-     {
-         return name;
-     }
-     
-     void set_playerName( const std::string& aname )
-     {
-         name = aname;
-         //_ac._playername = name;
-     }
+    void set_playerName( const std::string& aname );
      
     bool verify_password( const std::string& aname, const std::string& maybe_password );
      
-    virtual void on_environment_change(EnvironmentChangeEvent evt, script_entity * env) override
-    {
-        if( evt == EnvironmentChangeEvent::ADDED )
-        {
-            this->do_save();
-        }
-    }
+    virtual void on_environment_change(EnvironmentChangeEvent evt, script_entity * env) override;
      
      
-    AccountType get_accountType()
-    {
-        return _ac._accountType;
-    }
+    AccountType get_accountType();
     
-    void set_accountType(AccountType atype)
-    {
-        _ac._accountType = atype;
-    }
+    void set_accountType(AccountType atype);
     
-    std::string get_workspacePath()
-    {
-        return _ac._workspacePath;
-    }
+    std::string get_workspacePath();
     
-    bool get_loggedIn()
-    {
-        return blogged_in;
-    }
+    bool get_loggedIn();
 
-    void set_loggedIn(bool b)
-    {
-        blogged_in = b;
-    }
+    void set_loggedIn(bool b);
     
     
-    boost::posix_time::ptime get_referenceTickCount()
-    {
-        return tickReference;
-    }
+    boost::posix_time::ptime get_referenceTickCount();
     
         
-    boost::posix_time::ptime set_referenceTickCount()
-    {
-        tickReference = boost::posix_time::second_clock::local_time();
-    }
+    void set_referenceTickCount();
     
-    void incrementCmdCount()
-    {
-        commandCount++;
-    }
+    void incrementCmdCount();
     
-    void resetCmdCount()
-    {
-        commandCount = 0;
-    }
+    void resetCmdCount();
     
-    unsigned long get_commandCount()
-    {
-        return commandCount;
-    }
+    unsigned long get_commandCount();
     
-    unsigned long get_maxCmdCount()
-    {
-        return maxCmdCnt;
-    }
+    unsigned long get_maxCmdCount();
     
-    void set_client(client* c)
-    {
-        client_ = c;
-    }
+    void set_client(client* c);
     
-    client* get_client()
-    {
-        return client_;
-    }
+    client* get_client();
     
     
-    void disconnect_client()
-    {
-        if( client_ != NULL )
-            client_->disconnect();
-    }
+    void disconnect_client();
     
     
     

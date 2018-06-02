@@ -1,10 +1,12 @@
---[[tp version:0.0.1]]-------------------------------
+--[[tp version:0.0.2]]-------------------------------
 --[[------------------------------------------------------
 	Tp causes a target player to teleport to the location of the originating creator
 	
 	Copyright (C) 2018, by Caliel (kenthompson1@gmail.com)
 	All Rights Reserved.
-	
+	## 0.0.2 - 2018-02-11
+	### output fixes
+	- Added output to indicate to caller if the TP command worked
 	## 0.0.1 - 2018-02-10
 	###
 	- Initial release
@@ -35,7 +37,10 @@ function c:ExecuteCommand ( o, cmd )
 		end
 		--print( myTable[2] )	
 		if( do_tp ( myTable[2], t, player_cast(o) ) ) then
+			o:SendToEntity('OK')
 			t:DoCommand('look')
+		else
+			o:SendToEntity('Unable to teleport player.')
 		end
 	end
 	return true

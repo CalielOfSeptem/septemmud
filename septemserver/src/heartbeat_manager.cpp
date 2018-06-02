@@ -1,15 +1,18 @@
+#include "stdafx.h"
 #include "heartbeat_manager.h"
 #include "entity_wrapper.h"
 #include "entity_manager.h"
 #include "script_entities/roomobj.h"
-#include <boost/algorithm/string.hpp>
-#include "security_context.hpp"
 
+#include "security_context.hpp"
+heartbeat_manager::heartbeat_manager()
+{
+}
 void heartbeat_manager::do_heartbeats()
 {
     for(auto& kv : bindings) {
         try {
-            
+
             // the bound script path
             sol::optional<std::string> spath = kv.second.script_path; // lua_state["_INTERNAL_SCRIPT_PATH_"];
             // the entity type that registered for HBs
@@ -21,31 +24,32 @@ void heartbeat_manager::do_heartbeats()
                 roomobj* re = entity_manager::Instance().GetRoomByScriptPath(spath.value(), 0);
                 se = re;
             }
-            
-            if( se == NULL )
-            {
+
+            if(se == NULL) {
                 auto log = spd::get("main");
                 std::stringstream ss;
-                ss << "Error. Heartbeats are limited to room entities only at this time. Path = " << spath.value() << " type = " << sent.value();
-                log->debug( ss.str() );
+                ss << "Error. Heartbeats are limited to room entities only at this time. Path = " << spath.value()
+                   << " type = " << sent.value();
+                log->debug(ss.str());
                 break;
             }
             security_context::Instance().SetCurrentEntity(se);
             entity_manager::Instance().register_hook(se); // register the debug hook to detect infinite loop
-            
+
             auto result = kv.second.pf();
             if(!result.valid()) {
                 sol::error err = result;
-                
+
                 auto log = spd::get("main");
                 std::stringstream ss;
-                ss << "Error attempting to perform hearbeat: " << err.what() << ", Path = " << spath.value() << " type = " << sent.value();
-                log->debug( ss.str() );
+                ss << "Error attempting to perform hearbeat: " << err.what() << ", Path = " << spath.value()
+                   << " type = " << sent.value();
+                log->debug(ss.str());
                 se->debug(ss.str());
-                //std::cout << err.what() << std::endl;
+                // std::cout << err.what() << std::endl;
             }
-            
-            entity_manager::Instance().register_hook(NULL); 
+
+            entity_manager::Instance().register_hook(NULL);
             /*
 
             kv.second.lua_state.set_function("debug_hook", [&kv](sol::object o) -> void {
@@ -90,11 +94,11 @@ void heartbeat_manager::do_heartbeats()
             kv.second.lua_state.script("debug.sethook ()");
             */
         } catch(std::exception& ex) {
-            //std::cout << ex.what();
+            // std::cout << ex.what();
             auto log = spd::get("main");
             std::stringstream ss;
             ss << "Error attempting to perform heartbeats: " << ex.what();
-            log->debug( ss.str() );
+            log->debug(ss.str());
         }
     }
 }
@@ -160,7 +164,7 @@ unsigned int heartbeat_manager::register_heartbeat_func_on(sol::this_state ts, s
 {
     lua_State* L = ts;
     lua_stacktrace_ex(L);
-    
+
     // return 1;
     sol::type t = f.get_type();
     unsigned int ret = -1;
@@ -185,4 +189,52 @@ unsigned int heartbeat_manager::register_heartbeat_func_on(sol::this_state ts, s
         break;
     }
     return ret;
+}
+
+unsigned int heartbeat_manager::register_heartbeat_func(sol::state_view lua_state, sol::protected_function pf)
+{
+    sol::environment target_env(sol::env_key, pf);
+    sol::optional<std::string> script_path = target_env["_INTERNAL_SCRIPT_PATH_"];
+    // sol::optional<std::string> script_path = target_env["_INTERNAL_PHYSICAL_SCRIPT_PATH_"];
+    sol::optional<std::string> e_type = target_env["_INTERNAL_ENTITY_TYPE_"];
+
+    if(script_path) {
+        std::cout << script_path.value() << std::endl;
+        if(script_path.value().empty())
+            return -1; // yeah.. don't go trying to use an empty value
+                       // std::cout << script_path.value();
+        bindings.insert({ ++bindingId, state_wrapper(lua_state, pf, script_path.value(), e_type.value()) });
+    } else {
+        return -1;
+    }
+
+    return bindingId;
+}
+
+
+
+bool heartbeat_manager::deregister_heartbeat_func(int func_id)
+{
+    if(bindings.erase(func_id) == 1)
+        return true;
+    else
+        return false;
+}
+
+bool heartbeat_manager::deregister_all_heartbeat_funcs()
+{
+    bindings.clear();
+    return true;
+}
+
+bool heartbeat_manager::clear_heartbeat_funcs(std::string script_path)
+{
+    for(auto it = begin(bindings); it != end(bindings);) {
+        if(it->second.script_path.compare(script_path) == 0) {
+
+            it = bindings.erase(it); // previously this was something like bindings.erase(it++);
+        } else
+            ++it;
+    }
+    return true;
 }

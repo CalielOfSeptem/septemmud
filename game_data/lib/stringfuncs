@@ -176,3 +176,47 @@ function string:split( inSplitPattern, outResults )
    return outResults
 end
 
+local words = {"one ", "two ", "three ", "four ", "five ", "six ", "seven ", "eight ", "nine "}
+local levels = {"thousand ", "million ", "billion ", "trillion ", "quadrillion ", "quintillion ", "sextillion ", "septillion ", "octillion ", [0] = ""}
+local iwords = {"ten ", "twenty ", "thirty ", "forty ", "fifty ", "sixty ", "seventy ", "eighty ", "ninety "}
+local twords = {"eleven ", "twelve ", "thirteen ", "fourteen ", "fifteen ", "sixteen ", "seventeen ", "eighteen ", "nineteen "}
+ 
+function digits(n)
+  local i, ret = -1
+  return function()
+    i, ret = i + 1, n % 10
+	if n > 0 then
+      n = math.floor(n / 10)
+	  return i, ret
+	end
+  end
+end
+
+function getname(pos, dig) --stateful, but effective.
+  level = level or pos % 3 == 0
+  if(dig == 0) then return "" end
+  local name = (pos % 3 == 1 and iwords[dig] or words[dig]) .. (pos % 3 == 2 and "hundred " or "")
+  if(level) then name, level = name .. levels[math.floor(pos / 3)], false end
+  return name
+end
+
+		--local val = 10
+	--local vword = ""
+	--local val, vword = io.read() + 0, ""
+ 
+	--for i, v in digits(val) do
+	--	vword = getname(i, v) .. vword
+	--end
+	
+	--if #vword == 0 then o_orig:SendToEntity("zero") else o_orig:SendToEntity(vword) end
+
+
+function ordinal_numbers(n)
+  local ordinal, digit = {"st", "nd", "rd"}, string.sub(n, -1)
+  if tonumber(digit) > 0 and tonumber(digit) <= 3 and string.sub(n,-2) ~= 11 and string.sub(n,-2) ~= 12 and string.sub(n,-2) ~= 13 then
+    return n .. ordinal[tonumber(digit)]
+  else
+    return n .. "th"
+  end
+end
+ 

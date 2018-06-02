@@ -1,0 +1,138 @@
+inherit room
+p1 = room.new(roomTypes.indoor, 1)
+--init_room(p1)
+p1:SetTitle('Caliel\'s Workroom')
+
+p1:SetDescription("Exquisitely carved shelves of mahogany run the length of a large, two-story study. \z
+					Ancient books, scrolls and oddities line the mahogany shelves. \z
+					The maw of an over-sized fireplace casts light from a crackling fire to light the room. \z
+					A carved wooden ceiling of raised septagonal prisms form a repeating \z
+					pattern overhead and seem to absorb firelight at their hollow centers and yawn soft undulating \z 
+					hues of gold, brown, and orange. \z
+					A massive oaken table with ornately carved runes stands \z
+					about the center of the study. Haphazard stacks of leather-bound \z
+					volumes extend from the oaken table and remain perilously vertical by some \z
+					unnatural force. A few gold-trimmed ancient scrolls lay outstretched \z
+					between stacks of the leather-bond volumes and remain taut by \z
+					sculpted jade figurines depicting wild beasts which anchor each end. \z
+					An oaken door leads south. \z
+					A dog-leg staircase ascends to a half-landing before turning at a right angle and continuing upwards \z
+					to lead to a second story balcony. ")
+					
+p1:AddExit( direction.south, 'workspaces/caliel/workroom:id=2', true)
+					
+function p1:timed_action()
+	--p1:add_burke()
+	--print('ACTION!')
+	--if( math.random(100) > 50 ) then
+	--	p1:SendToRoom('A book dislodges from a nearby shelf and floats to a shelf across the room before squeezing into a vacant slot between dusty volumes.')
+	--end
+end
+
+
+function p1:on_load()
+	--print('ON LOAD')
+end
+
+function p1:add_burke()
+	local path = '/workspaces/caliel/entities/burke'
+	local b = clone_npc_to_room( path, self)
+	if(  b == nil ) then
+		print('ERROR CLONING NPC\r\n')
+		--o:SendToEntity('Error cloning item.')
+		return false
+	end
+	b:DoCommand('rem back')
+	b:DoCommand('drop back')
+	b:DoCommand('open back')
+	return true
+end
+
+p1:AddAction( p1.timed_action, 1, nil )
+
+p1:AddLook( { 'table', 'oaken table', 'massive oaken table' }, 'Atop the table you see several stacks of books and scrolls.')
+
+p1:AddLook( { 'computer', 'atari', 'xbox' }, 'This game is amazing.')
+
+p1:AddLook( { 'exquisitely carved shelves', 'carved shelves', 'shelves' }, 'The shelves stand like carved sentinals and extend from floor \z
+				to ceiling.  A vast collection of ancient tomes cram each shelf and occasionally lean against dusty bookends and \z
+				other oddly-shaped objects serving as involuntary bookends.')
+
+
+--p1:AddExit( direction.north, '/realms/void', true)
+--p1:AddExit( direction.south, '/workspaces/caliel/workroom:id=1', true)
+--p1:AddExit( direction.east, 'workspaces/caliel/workroom:id=2', true)
+
+local door = p1:AddDoor( 'an oaken door', 'workspaces/caliel/workroom:id=1', 1, false, false ) -- path, opened?, locked?
+
+
+p1:Debug('Loaded room!')
+
+function p1:FooCommand(o, cmd)
+	o:SendToEntity('HAAACHOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO!')
+	for i=1,20 do p1:add_burke() end
+	
+	return true
+end
+
+p1:AddCommand( p1.FooCommand, {'sneeze'}, nil )
+p1:add_burke()
+
+local weather_daemon = get_daemon('daemon/weather', 0)
+weather_daemon:register_room(p1)
+
+
+
+function p1:hb()
+
+end
+
+function p1:clone_items()
+	clone_item( 'workspaces/caliel/entities/rock', p1 )
+	back = clone_item( 'workspaces/caliel/entities/backpack', p1 )
+	--clone_item( 'workspaces/caliel/entities/arrow', p1 )
+	for i = 1, 10 do
+		if( back ~= nil ) then
+			clone_item( 'workspaces/caliel/entities/rock', back )
+			clone_item( 'workspaces/caliel/entities/simple arrow', back )
+		end
+		
+		--
+	end
+end
+
+function p1:test_something()
+	register_heartbeat(p1.hb)
+end 
+
+p1:test_something()
+
+p2 = room.new(roomTypes.indoor, 1)
+--init_room(p2)
+p2:SetTitle('Castle Foyer')
+p2:SetDescription('A castle foyer that includes a plush red carpet and lavish draperies.')
+p2:AddExit( direction.north, 'workspaces/caliel/workroom:id=0', true)
+--p1:Debug('Loaded room!')
+local door = p2:AddDoor( 'an oaken door', 'workspaces/caliel/workroom:id=0', 1, false, false ) 
+function p2:hb()
+	--for i = 1, 100 do
+	--	clone_item( 'workspaces/caliel/entities/rock', p2 )
+	--end
+end
+
+p3 = room.new(roomTypes.outdoors)
+--init_room(p2)
+p3:SetTitle('Outside Caliel\'s Workroom')
+p3:SetDescription('You are outside.')
+p3:AddExit( direction.north, 'workspaces/caliel/workroom:id=0', true)
+
+--register_heartbeat(p2.hb)
+
+function p3:FooCommand(o, cmd)
+	o:SendToEntity('HAAACHOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO!')
+	local time_daemon = get_daemon('workspaces/caliel/daemon/weather', 0)
+	time_daemon:test()
+	return true
+end
+
+p3:AddCommand( p3.FooCommand, {'sneeze'}, nil )

@@ -24,9 +24,10 @@
 //             OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 //             SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ==========================================================================
+#include "stdafx.h"
 #include "net/socket.hpp"
-#include <boost/asio.hpp>
-#include <deque>
+//#include <boost/asio.hpp>
+//#include <deque>
 
 namespace net {
 
@@ -49,7 +50,10 @@ struct socket::impl : std::enable_shared_from_this<impl>
     void close()
     {
         boost::system::error_code unused_error_code;
+		if( !socket_ )
+			return;
         socket_->close(unused_error_code);
+
 
         // Now we need to inform all readers and writers that the socket has
         // died by informing them that no bytes have been read or written.
@@ -214,6 +218,8 @@ struct socket::impl : std::enable_shared_from_this<impl>
     // ======================================================================
     bool is_alive() const
     {
+		if( !socket_ )
+			return false;
         return socket_->is_open();
     }
 
@@ -345,10 +351,10 @@ private :
         boost::system::error_code const &error
       , size_t                           bytes_transferred)
     {
-        if (!is_alive())
-        {
-            return;
-        }
+        //if (!is_alive())
+       // {
+       //     return;
+       // }
 
         if (!error)
         {
@@ -393,7 +399,7 @@ private :
         }
         else
         {
-            close();
+           // close();
         }
     }
 

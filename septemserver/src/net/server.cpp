@@ -24,11 +24,12 @@
 //             OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 //             SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ==========================================================================
+#include "stdafx.h"
 #include "net/server.hpp"
 #include "net/socket.hpp"
-#include <boost/asio.hpp>
-#include <boost/asio/ip/tcp.hpp>
-#include <functional>
+//#include <boost/asio.hpp>
+//#include <boost/asio/ip/tcp.hpp>
+//#include <functional>
 
 namespace net {
 

@@ -1,0 +1,40 @@
+inherit npc
+i = npc.new('a busy clerk')
+
+function i:on_load()
+	backpack = clone_item_to_inventory( 'workspaces/caliel/entities/backpack', i )
+	for i=1,10 do 
+	--clone_item_to_inventory( 'workspaces/caliel/entities/rock', i )
+	
+	clone_item_to_inventory( 'workspaces/caliel/entities/rock', backpack )
+	end
+end
+function i:on_destroy()
+	i:DoCommand('say GOODBYE!!!')
+end
+function i:on_environment_change()
+	--i:SendToRoom('Ok, I\'m here now!!!')
+end
+function i:timed_action(l)
+	--i:DoCommand('open door')
+	--i:DoCommand('enter door')
+	--i:DoCommand('close door')
+	--i:DoCommand('knock door')
+--i:SendToRoom('Ok, I\'m here now!!!')
+--print('OK')
+	--print(i:SendToEnvironment)
+	--print(l)
+	--l:SendToRoom(l:GetArticle())
+	--if (i2 ~= nil ) then
+	--	unload_npc(i2)
+	--	i2 = nil
+	--end
+	--i2 = npc.new('a busier clerk')
+	--
+	--i:DoCommand('say hi')
+	
+end
+--i2 = nil
+i:AddAction( i.timed_action, 3, nil)
+	--i:SendToRoom('A book dislodges from a nearby shelf and floats to a shelf across the room before squeezing into a vacant slot between dusty volumes.')
+

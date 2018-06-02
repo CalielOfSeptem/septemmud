@@ -28,10 +28,8 @@
 #define _NET_SOCKET_HPP_
 
 #include "io/datastream.hpp"
-#include <boost/cstdint.hpp>
-#include <boost/asio/ip/tcp.hpp>
-#include <functional>
-#include <memory>
+
+#include <boost/asio/io_service.hpp>
 
 namespace net {
 

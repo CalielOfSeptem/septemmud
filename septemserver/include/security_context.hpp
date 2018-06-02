@@ -25,14 +25,10 @@
 #ifndef _SECURITY_CONTEXT_HPP_
 #define _SECURITY_CONTEXT_HPP_
 
-#include "spdlog/spdlog.h"
-#include <spdlog/sinks/stdout_sinks.h>
+#include "script_entities/script_entity.h"
+#include "script_entities/playerobj.h"
 
-namespace spd = spdlog;
-
-#include "json.hpp"
-
-using json = nlohmann::json;
+//struct playerobj;
 
 class security_context
 {
@@ -62,10 +58,27 @@ public:
         _currentEntity = ce;
     }
     
-    script_entity * GetCurrentEntity( script_entity * ce )
+    script_entity * GetCurrentEntity()
     {
         return _currentEntity;
     }
+    
+    // returns a non-null if current entity is a player
+    playerobj * GetPlayerEntity()
+    ;
+    
+    /*
+     * Returns true if the controlling entity is an arch-level player
+     */
+    bool isArch();
+    /*
+     * Returns true if the controlling entity is a creator-level player
+     */
+    bool isCreator();
+    /*
+     * Returns true if the controlling entity is a player
+     */
+    bool isPlayer();
 
 protected:
     security_context()
@@ -77,6 +90,7 @@ protected:
     {
          // Destructor code goes here.
     }
+
 
     
     

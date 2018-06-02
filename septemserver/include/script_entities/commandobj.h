@@ -24,10 +24,10 @@
 // ==========================================================================
 #ifndef COMMANDOBJ_H_
 #define COMMANDOBJ_H_
-#include "sol.hpp"
-#include <string>
-#include <vector>
+
 #include "script_entities/script_entity.h"
+
+//struct living_entity;
 
 struct commandobj : script_entity
 {
@@ -35,45 +35,29 @@ struct commandobj : script_entity
     
     commandobj(sol::this_state ts, sol::this_environment te, std::string name, int priority);
     
+ 
     ~commandobj();
     
 
-    void SetCommand(const std::string& name)
-    {
-        this->name = name;
-        
-    }
-    const std::string& GetCommand()
-    {
-        return name;
-    }
+    void SetCommand(const std::string& name);
+    const std::string& GetCommand();
     
-    void SetAliases(const sol::as_table_t<std::vector<std::string> >& aliases)
-    {
-        const auto& vex = aliases.source;
-        for(auto& s : vex) {
-            this->command_aliases.push_back(s);
-        }
-    }
-    const std::vector<std::string>& GetAliases()
-    {
-        return command_aliases;
-    }
+    void SetAliases(const sol::as_table_t<std::vector<std::string> >& aliases);
     
-    void SetPriority(int priority)
-    {
-        this->priority = priority;
-    }
+    void AddAlias(const std::string& alias);
     
-    int GetPriority() const
-    {
-        return priority;
-    }
+    const std::vector<std::string>& GetAliases();
+    
+    void SetPriority(int priority);
+    
+    int GetPriority() const;
+    
+
 
 private:
     std::vector<std::string> command_aliases;
     int priority;
-    
+
 
 };
 

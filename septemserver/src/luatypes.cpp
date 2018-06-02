@@ -1,22 +1,178 @@
+#include "stdafx.h"
 #include "luatypes.h"
 #include "script_entities/roomobj.h"
 #include "script_entities/livingentity.h"
 #include "script_entities/playerobj.h"
 #include "script_entities/daemonobj.h"
 #include "script_entities/commandobj.h"
+#include "script_entities/extcommandobj.h"
 #include "script_entities/itemobj.h"
 #include "script_entities/doorobj.h"
+#include "script_entities/actionobj.h"
+#include "script_entities/lookobj.h"
+#include "script_entities/exitobj.h"
+#include "script_entities/npcobj.h"
+#include "script_entities/entity_ptr.h"
 #include "fs/fs_manager.h"
+
+#define SOL_CHECK_ARGUMENTS 1
+#include <sol.hpp>
+
+
+int my_exception_handler(lua_State* L, sol::optional<const std::exception&> maybe_exception, sol::string_view description) {
+	// L is the lua state, which you can wrap in a state_view if necessary
+	// maybe_exception will contain exception, if it exists
+	// description will either be the what() of the exception or a description saying that we hit the general-case catch(...)
+	std::cout << "An exception occurred in a function, here's what it says ";
+	if (maybe_exception) {
+		std::cout << "(straight from the exception): ";
+		const std::exception& ex = *maybe_exception;
+		std::cout << ex.what() << std::endl;
+	}
+	else {
+		std::cout << "(from the description parameter): ";
+		std::cout.write(description.data(), description.size());
+		std::cout << std::endl;
+	}
+
+	// you must push 1 element onto the stack to be 
+	// transported through as the error object in Lua
+	// note that Lua -- and 99.5% of all Lua users and libraries -- expects a string
+	// so we push a single string (in our case, the description of the error)
+	return sol::stack::push(L, description);
+}
+
+
+
+struct a
+{
+	a(sol::this_state ts, sol::this_environment te)
+	{
+		
+	}
+	
+	
+	sol::object get_property_lua(const char* name, sol::this_state s)
+	{
+		return props[name];
+	}
+
+	void set_property_lua(const char* name, sol::stack_object object)
+	{
+		props[name] = object.as<sol::object>();
+	}
+
+	std::unordered_map<std::string, sol::object> props;
+};
+
+struct b : public a
+{
+	b(sol::this_state ts, sol::this_environment te, int ab ) : a(ts, te)	
+	{
+		std::cout << "IM ALIVE!" << std::endl;
+	}
+	
+	b(sol::this_state ts, sol::this_environment te, int ab, int bc ) : a(ts, te)
+	{
+		
+	}
+	~b()
+	{
+		std::cout << "IM MELTING.." << std::endl;
+	}
+};
+
+
+sol::state lua;
+void lua_test()
+{
+	
+	lua.open_libraries(sol::lib::base,
+				   sol::lib::os,
+				   sol::lib::string,
+				   sol::lib::math,
+				   sol::lib::table,
+				   sol::lib::package,
+				   sol::lib::debug);
+				   
+   lua.new_usertype<b>("b",
+		sol::constructors<b(sol::this_state, sol::this_environment, int),
+		b(sol::this_state, sol::this_environment, int,  int)>(),
+		  sol::meta_function::new_index,
+		  &b::set_property_lua,
+		  sol::meta_function::index,
+		  &b::get_property_lua,
+		sol::base_classes,
+		sol::bases<a>()
+		  );
+		  
+	sol::environment current_env = lua.globals();
+	
+	sol::environment tmp = sol::environment(lua, sol::create, lua.globals()); // make an env
+    current_env["TEST"] = tmp;
+	lua.script("d1 = b.new(1)", tmp); // instantite an obj..
+	lua.script("d1 = nil", tmp); // destroy or new baby
+	current_env = sol::nil; // destroy or env
+	
+	
+
+		
+}
+void lua_test2()
+{
+	sol::environment current_env = lua.globals();
+	sol::environment tmp = sol::environment(lua, sol::create, lua.globals()); // make it again
+	current_env["TEST"] = tmp;
+	lua.script("d1 = b.new(1)", tmp); // instantite an obj..
+
+	/*
+		lua.new_usertype<b>("b");
+		lua.safe_script(R"(
+		roomTypes = {}
+		roomTypes.indoor = 0
+		d1 = b.new(roomTypes.indoor)
+		print('ok')
+		)");
+	*/
+}
+
+void lua_test3()
+{
+		lua.safe_script(R"(
+		collectgarbage()
+		)");
+		sol::environment current_env = lua.globals();
+		b * b1 = current_env["TEST"]["d1"];
+		std::cout << "OK" << std::endl;
+
+}
+
+
+
 void init_lua_state(sol::state& l)
 {
+	/*
+	lua_test();
+	lua_test2();
+	while( true )
+	{
+		//lua.collect_garbage();
+		lua_test3();
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	}
+	*/
     sol::state& lua = l;
+	
     //m_state_internal.reset(new _internal_lua_);
     lua.open_libraries(sol::lib::base,
+                       sol::lib::os,
                        sol::lib::string,
                        sol::lib::math,
                        sol::lib::table,
                        sol::lib::package,
                        sol::lib::debug);
+					   
+	lua.set_exception_handler(&my_exception_handler);
 
     lua.new_usertype<script_entity>("script_entity", 
             "GetName",  &script_entity::GetName,
@@ -30,6 +186,9 @@ void init_lua_state(sol::state& l)
             "SetUID", &script_entity::set_uid,
             "Debug", &script_entity::debug,
             "AddAction", &script_entity::AddAction,
+            "AddCommand", &script_entity::AddCommand,
+            "RemoveAction", &script_entity::RemoveAction,
+            "GetCommands", &script_entity::GetCommands,
             "destroy", sol::property(&script_entity::get_destroy, &script_entity::set_destroy)
             );
 
@@ -47,7 +206,12 @@ void init_lua_state(sol::state& l)
                               "GetExit",
                               &exitobj::GetExit);
                               
-
+	lua.new_usertype<entity_ptr>("entity_ptr",
+							sol::constructors<entity_ptr(sol::this_state, script_entity*)>(),
+							"IsAlive",
+							&entity_ptr::get_alive,
+							"GetEntity",
+							&entity_ptr::get_entity);
 
     lua.new_usertype<handobj>("hand",
                             "GetInventory",
@@ -166,7 +330,9 @@ void init_lua_state(sol::state& l)
     // bool bisContainer;
     
     lua.new_usertype<roomobj>("room",
-                              sol::constructors<roomobj(sol::this_state, sol::this_environment)>(),
+                              sol::constructors<roomobj(sol::this_state, sol::this_environment),
+							  roomobj(sol::this_state, sol::this_environment, int),
+							  roomobj(sol::this_state, sol::this_environment, int, int)>(),
                               sol::meta_function::new_index,
                               &roomobj::set_property_lua,
                               sol::meta_function::index,
@@ -207,10 +373,22 @@ void init_lua_state(sol::state& l)
                               &roomobj::GetPlayers,
                               "GetItems",
                               &roomobj::GetItems,
+                              "GetNPCs",
+                              &roomobj::GetNPCs,
                               "GetLooks",
                               &roomobj::GetLooks,
                               "SendToRoom",
                               &roomobj::SendToRoom,
+                              "IsOutdoor",
+                              &roomobj::GetIsOutdoor,
+							  "GetBiomeType",
+                              &roomobj::GetBiomeType,
+							  "SetBiomeType",
+                              &roomobj::SetBiomeType,
+							  "GetRoomType",
+                              &roomobj::GetRoomType,
+							  "SetRoomType",
+                              &roomobj::SetRoomType,
                               sol::base_classes,
                               sol::bases<script_entity, container_base>());
                               
@@ -243,16 +421,30 @@ void init_lua_state(sol::state& l)
                                 &daemonobj::set_property_lua,
                                 sol::meta_function::index,
                                 &daemonobj::get_property_lua,
-                                "GetName",
-                                &daemonobj::GetName,
-                                "SetName",
-                                &daemonobj::SetName,
-                                "GetType",
-                                &script_entity::GetEntityTypeString,
-                                //  "Debug", &script_entity::debug,
                                 sol::base_classes,
                                 sol::bases<script_entity>());
 
+    lua.new_usertype<npcobj>("npc",
+                                sol::constructors<npcobj(sol::this_state, sol::this_environment, std::string)>(),
+                                sol::meta_function::new_index,
+                                &npcobj::set_property_lua,
+                                sol::meta_function::index,
+                                &npcobj::get_property_lua,
+                                "SendToEntity",
+                                &npcobj::SendToEntity,
+                                "SendToPlayer",
+                                &npcobj::SendToEntity,
+                                "GetEnvironment",
+                                &npcobj::GetEnvironment,
+                                "SetEnvironment",
+                                &npcobj::SetEnvironment,
+                                "SendToRoom",
+                                &npcobj::SendToEnvironment,
+                                "GetRoom",
+                                &npcobj::GetRoom,
+                                sol::base_classes,
+                                sol::bases<living_entity, script_entity>());
+                                
     lua.new_usertype<playerobj>("player",
                                 sol::constructors<playerobj(sol::this_state, sol::this_environment, std::string)>(),
                                 sol::meta_function::new_index,
@@ -275,8 +467,10 @@ void init_lua_state(sol::state& l)
                                 &playerobj::SendToEnvironment,
                                 "GetRoom",
                                 &playerobj::GetRoom,
-                                "GetType",
-                                &script_entity::GetEntityTypeString,
+                                "IsArch",
+                                &playerobj::isArch,
+                                "IsCreator",
+                                &playerobj::isCreator,
                                 "GetAccountType",
                                 &playerobj::get_accountType,
                                 "cwd", sol::readonly(&playerobj::cwd),
@@ -284,8 +478,6 @@ void init_lua_state(sol::state& l)
                                 // "Debug", &script_entity::debug,
                                 "GetWorkspacePath",
                                 &playerobj::get_workspacePath,
-                                "GetName",
-                                &script_entity::GetName,
                                 "DoCommand",
                                 &living_entity::DoCommand,
                                 "DoSave",
@@ -353,7 +545,8 @@ void init_lua_state(sol::state& l)
 
     lua.new_usertype<commandobj>(
         "command",
-        sol::constructors<commandobj(sol::this_state, sol::this_environment, std::string), commandobj(sol::this_state, sol::this_environment, std::string, int)>(),
+        sol::constructors<commandobj(sol::this_state, sol::this_environment, std::string), 
+            commandobj(sol::this_state, sol::this_environment, std::string, int)>(),
         sol::meta_function::new_index,
         &playerobj::set_property_lua,
         sol::meta_function::index,
@@ -370,11 +563,27 @@ void init_lua_state(sol::state& l)
         &commandobj::SetPriority,
         "GetPriority",
         &commandobj::GetPriority,
-        "GetType",
-        &script_entity::GetEntityTypeString,
         // "Debug", &script_entity::debug,
         sol::base_classes,
         sol::bases<script_entity>());
+        
+        
+        
+        
+        
+        lua.new_usertype<extcommandobj>(
+        "extcommand",
+        sol::constructors<extcommandobj(sol::state_view lua_state, sol::protected_function func, const std::string& name, sol::object userData)>(),
+        "GetCommand",
+        &extcommandobj::GetCommand,
+        "SetCommand",
+        &extcommandobj::SetCommand,
+        "GetAliases",
+        &extcommandobj::GetAliases,
+        "ExecuteCommand",
+        &extcommandobj::ExecuteFunc,
+        "SetAliases",
+        &extcommandobj::SetAliases);
         
 
 }

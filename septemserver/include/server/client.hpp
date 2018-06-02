@@ -25,9 +25,7 @@
 #ifndef _CLIENT_HPP_
 #define _CLIENT_HPP_
 
-#include <functional>
-#include <memory>
-#include <vector>
+
 
 
 class world_context;
@@ -90,7 +88,8 @@ public :
     //void on_output(std::string& s);
     
     void associate_player(const std::string& pname, bool bloggedIn=false);
-
+	unsigned int get_console_height();
+	unsigned int get_console_width();
 private :
     class impl;
     std::shared_ptr<impl> pimpl_;
