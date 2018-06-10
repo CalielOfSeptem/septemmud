@@ -159,6 +159,34 @@ std::vector<itemobj*> living_entity::GetItems()
     return t_items;
 }
 
+std::vector<itemobj*> living_entity::GetDeepItems()
+{
+    std::vector<itemobj*> t_items;
+    for(auto i : this->GetInventory()) {
+        if(auto i_maybe = dynamic_cast<itemobj*>(i)) {
+            t_items.push_back(i_maybe);
+			if( i_maybe->get_isContainer() )
+			{
+				GetItemsRecursive( i_maybe, t_items );
+			}
+        }
+    }
+    return t_items;
+}
+
+void living_entity::GetItemsRecursive(itemobj * o, std::vector<itemobj*>& t_items)
+{
+    for(auto i : o->GetInventory()) {
+        if(auto i_maybe = dynamic_cast<itemobj*>(i)) {
+            t_items.push_back(i_maybe);
+			if( i_maybe->get_isContainer() )
+			{
+				GetItemsRecursive( i_maybe, t_items );
+			}
+        }
+    }
+}
+
 std::vector<inventory_slot*> living_entity::GetInventorySlots()
 {
     std::vector<inventory_slot*> slots;

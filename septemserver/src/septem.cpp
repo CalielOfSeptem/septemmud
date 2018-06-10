@@ -142,10 +142,10 @@ private :
     // ======================================================================
     void on_connection_death(std::weak_ptr<connection> const &weak_connection)
     {
-        auto log = spd::get("main");
         std::stringstream ss;
         ss << "on_connection_death";
-        log->debug( ss.str() );
+		log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
+		
         auto connection = weak_connection.lock();
     
         if (connection != NULL)
@@ -166,10 +166,9 @@ private :
     // ======================================================================
     void on_client_death(std::weak_ptr<client> &weak_client)
     {
-        auto log = spd::get("main");
         std::stringstream ss;
         ss << "on_client_death";
-        log->debug( ss.str() );
+        log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
         
         auto cclient = weak_client.lock();
         

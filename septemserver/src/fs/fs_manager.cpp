@@ -98,10 +98,10 @@ std::vector<file_entity> fs_manager::get_dir_list(std::string& relative_path)
         catch(const std::exception &e) {
           //  string content="Could not open path "+request->path+": "+e.what();
           //  *response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
-            auto log = spd::get("main");
+
             std::stringstream ss; 
             ss << "Error when attempting to retrieve directory list: " << e.what();
-            log->debug(ss.str());
+            log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
         }
         std::sort (file_entities.begin(), file_entities.end(), myfunction); 
         return file_entities;
@@ -163,10 +163,10 @@ bool fs_manager::change_directory(std::string& relative_path, playerobj* p)
       if( p != NULL )
         p->SendToEntity(std::string("Error: ") +e.what());
         
-        auto log = spd::get("main");
+      
         std::stringstream ss; 
         ss << "Error changing directory: " << e.what();
-        log->debug(ss.str());
+        log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
         return false;
     }
     
@@ -205,10 +205,10 @@ bool fs_manager::translate_path(std::string& relative_path, std::string &reason)
       //if( p != NULL )
        // p->SendToEntity(std::string("Error: ") +e.what());
        reason = e.what();
-       auto log = spd::get("main");
+       
         std::stringstream ss; 
         ss << "Error translating path: " << e.what();
-        log->debug(ss.str());
+        log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
       return false;
     }
     
@@ -249,10 +249,10 @@ bool fs_manager::translate_path(std::string& relative_path, playerobj* p, std::s
       //if( p != NULL )
        // p->SendToEntity(std::string("Error: ") +e.what());
        reason = e.what();
-       auto log = spd::get("main");
+      
         std::stringstream ss; 
         ss << "Error translating path: " << e.what();
-        log->debug(ss.str());
+        log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
       return false;
     }
     
@@ -323,11 +323,9 @@ bool fs_manager::do_copy(std::string& patha, std::string& pathb, playerobj * p)
       //  *response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
       if( p != NULL )
         p->SendToEntity(std::string("Error: ") +e.what());
-        
-        auto log = spd::get("main");
         std::stringstream ss; 
         ss << "Error during copy: " << e.what();
-        log->debug(ss.str());
+        log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
       return false;
     }
     
@@ -369,11 +367,10 @@ bool fs_manager::do_remove(std::string& path, playerobj* p)
       //  *response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
       if( p != NULL )
         p->SendToEntity(std::string("Error: ") +e.what());
-        
-        auto log = spd::get("main");
+
         std::stringstream ss; 
         ss << "Error during remove: " << e.what();
-        log->debug(ss.str());
+        log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
       return false;
     }
     
@@ -408,10 +405,9 @@ bool fs_manager::get_player_save_dir(const std::string& pname, std::string& full
     }
     catch( std::exception& ex )
     {
-        auto log = spd::get("main");
         std::stringstream ss;
         ss << "Critical error attempting to access account path: " << ex.what();
-        log->debug( ss.str() );
+        log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
         return false;
     }
 
@@ -446,11 +442,9 @@ bool fs_manager::get_account_save_dir(const std::string& aname, std::string& ful
     }
     catch( std::exception& ex )
     {
-        // TODO: report error to log
-        auto log = spd::get("main");
         std::stringstream ss; 
         ss << "Error getting account save directory: " << ex.what();
-        log->debug(ss.str());
+        log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
         return false;
     }
 
@@ -485,11 +479,9 @@ bool fs_manager::get_workspace_dir(const std::string& aname, std::string& fullpa
     }
     catch( std::exception& ex )
     {
-        // TODO: report error to log
-        auto log = spd::get("main");
         std::stringstream ss; 
         ss << "Error getting workspace directory: " << ex.what();
-        log->debug(ss.str());
+        log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
         return false;
     }
 
@@ -609,11 +601,9 @@ bool fs_manager::do_create_new_workspace(std::string& aname, std::string& workro
     }
     catch( std::exception& ex )
     {
-        // TODO: report error to log
-        auto log = spd::get("main");
         std::stringstream ss; 
         ss << "Error getting workspace directory: " << ex.what();
-        log->debug(ss.str());
+        log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
         reason = ss.str();
         return false;
     }

@@ -34,6 +34,7 @@ function c:ExecuteCommand ( o, cmd )
 			play.tmp_new_email = nil 
 			play.tmp_new_password = nil
 			play.tmp_player_name = nil
+			play.tmp_new_gender = nil
 			
 			play:CaptureInput( account_create )
 			o:SendToEntity('Enter new player name [q=quit]:')
@@ -83,8 +84,10 @@ function account_create(o, input)
 	
 	-- store player name and ask for a password
 	play.tmp_player_name = input
-	o:SendToEntity('Enter a password: [q=quit]')
-	play:CaptureInput( confirm_password )
+	o:SendToEntity('Gender? [m/f]: [q=quit]')
+	play:CaptureInput( confirm_gender )
+	--o:SendToEntity('Enter a password: [q=quit]')
+	--play:CaptureInput( confirm_password )
 	
 	--o:SendToEntity('Enter p: ' .. input)
 end
@@ -180,6 +183,27 @@ function validemail(str)
   return true
 end
 
+function confirm_gender(o, input)
+	if( input:lower() == 'q' ) then
+		o:SendToEntity('Player creation aborted.')
+		return true
+	end
+	if( play.tmp_new_gender == nil ) then 
+		if( input:sub(1,1):lower() == 'm' ) then
+			play.tmp_new_gender = entityGender.male
+		elseif( input:sub(1,1):lower() == 'f' ) then
+			play.tmp_new_gender = entityGender.female
+		else
+			--play.tmp_new_gender == entityGender.unknown
+			o:SendToEntity('Gender? [m/f]: [q=quit]')
+			play:CaptureInput( confirm_gender )
+		end
+		
+	end
+	o:SendToEntity('Enter a password: [q=quit]')
+	play:CaptureInput( confirm_password )
+end
+
 function confirm_email(o, input)
 
 	if( input:lower() == 'q' ) then
@@ -194,7 +218,7 @@ function confirm_email(o, input)
 			play:CaptureInput( confirm_email )
 		end
 		-- its a match!
-		if( create_new_account( play.tmp_player_name:lower(), play.tmp_new_password, play.tmp_new_email:lower()) ) then
+		if( create_new_account( play.tmp_player_name:lower(), play.tmp_new_password, play.tmp_new_email:lower(), play.tmp_new_gender) ) then
 			o:SendToEntity('New player ' .. play.tmp_player_name .. ' created.')
 			else
 			o:SendToEntity('Error creating player ' .. play.tmp_player_name .. '.')

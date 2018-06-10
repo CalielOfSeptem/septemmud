@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "account.h"
 #include "fs/fs_manager.h"
-
+//#include "config.h"
 
 std::string account::get_accountStorageLocation()
 {
@@ -52,6 +52,16 @@ bool account::do_load()
         } else {
             _accountType = AccountType::UNKNOWN_TYPE;
         }
+		
+		std::string gtype = _j[global_settings::Instance().GetSetting(ACCOUNT_GENDER)];
+        if(boost::to_lower_copy(gtype) == "male") {
+			_entityGender = EntityGender::MALE;
+        } else if(boost::to_lower_copy(gtype) == "female") {
+            _entityGender = EntityGender::FEMALE;
+        }
+		else{
+            _entityGender = EntityGender::UNKNOWN;
+        }
 
         _email = _j[global_settings::Instance().GetSetting(ACCOUNT_EMAIL)];
         _lastLogon = _j[global_settings::Instance().GetSetting(ACCOUNT_LASTLOGON)];
@@ -66,10 +76,10 @@ bool account::do_load()
         }
 
     } catch(std::exception& ex) {
-        auto log = spd::get("main");
+ 
         std::stringstream ss;
         ss << "Error when attempting to load account " << _playername << ": " << ex.what();
-        log->debug(ss.str());
+        log_interface::Instance().log(LOGLEVEL::LOGLEVEL_CRITICAL, ss.str());
         return false;
     }
     return true;
@@ -115,6 +125,15 @@ bool account::do_save()
         } else {
             j[global_settings::Instance().GetSetting(ACCOUNT_TYPE)] = "unknown";
         }
+		
+		
+        if( _entityGender == EntityGender::MALE) {
+            j[global_settings::Instance().GetSetting(ACCOUNT_GENDER)] = "male";
+        } else if(_entityGender == EntityGender::FEMALE) {
+            j[global_settings::Instance().GetSetting(ACCOUNT_GENDER)] = "female";
+        } else {
+            j[global_settings::Instance().GetSetting(ACCOUNT_GENDER)] = "unknown";
+        }
 
         //assert( !_email.empty() );
         j[global_settings::Instance().GetSetting(ACCOUNT_EMAIL)] = _email;
@@ -143,10 +162,9 @@ bool account::do_save()
         o << std::setw(4) << j << std::endl;
     } catch(std::exception& ex) {
         
-        auto log = spd::get("main");
         std::stringstream ss;
         ss << "Error when attempting to save account " << _playername << ": " << ex.what();
-        log->debug(ss.str());
+        log_interface::Instance().log(LOGLEVEL::LOGLEVEL_CRITICAL, ss.str());
 
         return false;
     }

@@ -96,10 +96,13 @@ public :
 	
 	unsigned int get_console_height();
 	unsigned int get_console_width();
+	
+	std::string get_ip_address();
 
 private :
     struct impl;
     std::shared_ptr<impl> pimpl_;
+	std::string ip_address;
 };
 
 

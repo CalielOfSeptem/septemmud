@@ -25,6 +25,8 @@
 #ifndef _DB_INTERFACE_HPP_
 #define _DB_INTERFACE_HPP_
 
+enum class ConnectionEvent : int { PLAYER_LOGON=0, PLAYER_LOGOFF };
+
 class db_interface
 {
     
@@ -46,10 +48,13 @@ public:
     db_interface(db_interface&&) = delete;                  // Move construct
     db_interface& operator=(db_interface const&) = delete;  // Copy assign
     db_interface& operator=(db_interface &&) = delete;      // Move assign
+	
+	void test();
+	long int get_last_logon(std::string& player_name);
+	long int get_last_logoff(std::string& player_name);
+	void on_player_connection_event(std::string& player_name, ConnectionEvent evt, std::string& ip);
     
-  
-
-    
+	void log_event(LOGLEVEL log_level, std::string script_path, std::string msg);
 protected:
     db_interface()
     {

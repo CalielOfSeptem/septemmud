@@ -1,14 +1,11 @@
 {
-    "cwd": "realms/lere/sannesa_port/",
-    "gender": "unknown",
+    "cwd": "workspaces/recluse",
+    "gender": "female",
     "inventory": {
-        "2hfWHiEI1yFte0J": "workspaces/caliel/entities/torque",
         "wwF2qaWF6wOKfQe": "workspaces/caliel/entities/backpack"
     },
     "leftHand": 0,
-    "rightHand": {
-        "xC3jToVJ9gRm0CP": "workspaces/caliel/entities/rock"
-    },
+    "rightHand": 0,
     "roomID": 0,
-    "roomPath": "realms/lere/sannesa_port/docks"
+    "roomPath": "workspaces/caliel/biomes"
 }

@@ -52,6 +52,8 @@ public :
     /// \brief Close the socket, allowing no further transmission.
     //* =====================================================================
     void close();
+	
+	std::string get_ip_address();
 
     //* =====================================================================
     /// \brief Returns the number of objects that are available to be read.

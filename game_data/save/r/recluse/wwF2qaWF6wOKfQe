@@ -2,6 +2,7 @@
     "currentStackCount": 1,
     "defaultStackSize": 0,
     "inventory": {
+        "2hfWHiEI1yFte0J": "workspaces/caliel/entities/torque",
         "FV3F43QOb0SUTrk": "workspaces/caliel/entities/rock"
     },
     "isContainer": true,

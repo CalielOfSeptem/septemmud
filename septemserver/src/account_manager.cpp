@@ -29,7 +29,7 @@ std::string decrypt(std::string const& msg, std::string const& key)
     return encrypt(msg, key); // lol
 }
 
-bool account_manager::create_account(const std::string& player_name, const std::string& pass, const std::string& email)
+bool account_manager::create_account(const std::string& player_name, const std::string& pass, const std::string& email, int eg)
 {
     // TODO: move this logic to the account object
     if( fs_manager::Instance().get_account_exists(player_name) )
@@ -51,15 +51,27 @@ bool account_manager::create_account(const std::string& player_name, const std::
         j[global_settings::Instance().GetSetting(ACCOUNT_LASTLOGON)] = "";
         j[global_settings::Instance().GetSetting(ACCOUNT_TYPE)] = "player";
         j[global_settings::Instance().GetSetting(ACCOUNT_WORKSPACE)] = "";
+		if( static_cast<EntityGender>(eg) == EntityGender::MALE )
+		{
+			j["gender"] = "male";
+		}
+		else if( static_cast<EntityGender>(eg) == EntityGender::FEMALE )
+		{
+			j["gender"] = "female";
+		}
+		else
+		{
+			j["gender"] = "unknown";
+		}
+		
         std::ofstream o( account_path + "/account" );
         o << j.dump(4) << std::endl;
     }
     catch( std::exception & ex )
     {
-        auto log = spd::get("main");
         std::stringstream ss; 
         ss << "Error when attempting to create new account: " << ex.what();
-        log->debug(ss.str());
+        log_interface::Instance().log(LOGLEVEL::LOGLEVEL_CRITICAL, ss.str());
         return false;
     }
  //   j["uid"] = this->get_uid();

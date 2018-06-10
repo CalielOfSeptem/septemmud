@@ -26,11 +26,11 @@ void heartbeat_manager::do_heartbeats()
             }
 
             if(se == NULL) {
-                auto log = spd::get("main");
+
                 std::stringstream ss;
                 ss << "Error. Heartbeats are limited to room entities only at this time. Path = " << spath.value()
                    << " type = " << sent.value();
-                log->debug(ss.str());
+                log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
                 break;
             }
             security_context::Instance().SetCurrentEntity(se);
@@ -40,11 +40,10 @@ void heartbeat_manager::do_heartbeats()
             if(!result.valid()) {
                 sol::error err = result;
 
-                auto log = spd::get("main");
                 std::stringstream ss;
                 ss << "Error attempting to perform hearbeat: " << err.what() << ", Path = " << spath.value()
                    << " type = " << sent.value();
-                log->debug(ss.str());
+                log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
                 se->debug(ss.str());
                 // std::cout << err.what() << std::endl;
             }
@@ -95,10 +94,9 @@ void heartbeat_manager::do_heartbeats()
             */
         } catch(std::exception& ex) {
             // std::cout << ex.what();
-            auto log = spd::get("main");
             std::stringstream ss;
             ss << "Error attempting to perform heartbeats: " << ex.what();
-            log->debug(ss.str());
+            log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
         }
     }
 }

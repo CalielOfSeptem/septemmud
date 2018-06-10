@@ -5,6 +5,11 @@
       <![CDATA[00010001N0005Debug000000000000]]>
     </Plugin>
   </Plugins>
+  <VirtualDirectory Name="sqllite">
+    <File Name="sqllite/sqlite3ext.h"/>
+    <File Name="sqllite/sqlite3.h"/>
+    <File Name="sqllite/sqlite3.c"/>
+  </VirtualDirectory>
   <VirtualDirectory Name="src">
     <File Name="src/entity_wrapper.cpp"/>
     <File Name="src/global_settings.cpp"/>
@@ -48,6 +53,7 @@
     <File Name="src/account.cpp"/>
     <File Name="src/account_manager.cpp"/>
     <VirtualDirectory Name="io">
+      <File Name="src/io/log_interface.cpp"/>
       <File Name="src/io/db_interface.cpp"/>
     </VirtualDirectory>
     <File Name="src/security_context.cpp"/>
@@ -89,6 +95,7 @@
     </VirtualDirectory>
     <File Name="include/luatypes.h"/>
     <VirtualDirectory Name="io">
+      <File Name="include/io/log_interface.h"/>
       <File Name="include/io/input_datastream.hpp"/>
       <File Name="include/io/output_datastream.hpp"/>
       <File Name="include/io/datastream.hpp"/>
@@ -137,6 +144,7 @@
         <IncludePath Value="../../json/src"/>
         <IncludePath Value="../telnetpp/include"/>
         <IncludePath Value="../terminalpp/include"/>
+        <IncludePath Value="../SQLiteCpp/include"/>
         <IncludePath Value="/home/ken/git-repos/septemmud/sol2"/>
       </Compiler>
       <Linker Options="-lz;-ldl;-Wl,-export-dynamic" Required="yes">
@@ -144,6 +152,7 @@
         <LibraryPath Value="../telnetpp/Debug"/>
         <LibraryPath Value="../terminalpp/Debug"/>
         <LibraryPath Value="/usr/local/lib"/>
+        <LibraryPath Value="../SQLiteCpp/Debug"/>
         <Library Value="boost_system"/>
         <Library Value="boost_program_options"/>
         <Library Value="boost_filesystem"/>
@@ -153,6 +162,8 @@
         <Library Value="telnetpp"/>
         <Library Value="terminalpp"/>
         <Library Value="cryptopp"/>
+        <Library Value="sqlite3"/>
+        <Library Value="SQLiteCpp"/>
       </Linker>
       <ResourceCompiler Options="" Required="no"/>
       <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./Debug" Command="./$(ProjectName)" CommandArguments="-p 6666" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>

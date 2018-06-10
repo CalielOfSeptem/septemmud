@@ -73,10 +73,9 @@ script_entity::~script_entity()
 	on_destroy();
 	actions.clear();
     if(virtual_script_path.size() > 0) {
-        auto log = spd::get("main");
         std::stringstream ss;
         ss << "Destroyed object, script path= " << virtual_script_path;
-        log->info(ss.str());
+		log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
 		entity_manager::Instance().deregister_entity(this);
     }
 	
@@ -159,10 +158,9 @@ true);
 
 void script_entity::debug(const std::string& msg)
 {
-    auto log = spd::get("main");
     std::stringstream ss;
     ss << msg; //"Destroyed object, script path= " << virtual_script_path;
-    log->info(ss.str());
+    log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
     return;
     /*
     auto log = spd::get(strip_path_copy(virtual_script_path));

@@ -4,6 +4,9 @@
 #include "server/client.hpp"
 #include "entity_manager.h"
 
+
+namespace fs = boost::filesystem;
+
 using json = nlohmann::json;
 
 playerobj::playerobj(sol::this_state ts, sol::this_environment te, std::string name)
@@ -100,8 +103,11 @@ bool playerobj::do_load()
     if(!get_loggedIn()) {
         return true;
     }
+	
     if(this->get_entityStorageLocation().size() == 0)
         return false;
+
+
 
     try {
 
@@ -148,7 +154,24 @@ bool playerobj::do_load()
         }
         // if( j["cwd"] )
         this->cwd = j["cwd"];
-
+		
+		if(_ac._entityGender == EntityGender::MALE) {
+			this->set_gender(EntityGender::MALE);
+		}
+		else if(_ac._entityGender == EntityGender::FEMALE) {
+			this->set_gender(EntityGender::FEMALE);
+		}
+		else
+		{
+			this->set_gender(EntityGender::UNKNOWN);
+		}
+		
+		if( !do_inventory_validation() )
+		{
+			log_interface::Instance().log(LOGLEVEL::LOGLEVEL_ERROR, this->GetInstancePath(), "Player inventory validation failed!");
+			return false;
+		}
+		/*
         if(j["gender"] == "male") {
             this->set_gender(EntityGender::MALE);
         } else if(j["gender"] == "female") {
@@ -156,6 +179,7 @@ bool playerobj::do_load()
         } else if(j["gender"] == "unknown") {
             this->set_gender(EntityGender::UNKNOWN);
         }
+		*/
 
         this->roomPath = j["roomPath"];
         this->roomID = j["roomID"];
@@ -310,6 +334,84 @@ unsigned long playerobj::get_maxCmdCount()
 
 playerobj::playerobj()
 {
+}
+
+bool playerobj::do_inventory_validation()
+{
+    std::stringstream ss;
+    ss << "Validating player inventory: " << this->get_entityStorageLocation();
+    log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
+	std::map<std::string, std::string> temp_uids;
+    for(fs::recursive_directory_iterator end, dir(this->get_entityStorageLocation()); dir != end; ++dir) {
+        // std::cout << *dir << "\n";  // full path
+        if(fs::is_regular(dir->path())) {
+            std::string pathstr = dir->path().string();
+			
+			    try {
+					std::size_t found = pathstr.find("player_save"); // skip player_save file
+					if (found!=std::string::npos)
+						continue;
+						
+					found = pathstr.find("_orphaned"); // skip player_save file
+					if (found!=std::string::npos)
+					{
+						std::stringstream ss;
+						ss << "Orphaned item found for player " << GetPlayerName() << " itemPath= " << pathstr;
+						log_interface::Instance().log(LOGLEVEL::LOGLEVEL_ERROR, ss.str());
+						continue;
+					}
+	
+					std::ifstream i(pathstr);
+					json j;
+					i >> j;
+					std::string temp_uid = j["uid"];
+					//std::stringstream ss;
+					if( !temp_uid.empty() )
+					{
+						temp_uids[ temp_uid ] = pathstr;
+					}
+				} catch(std::exception& ex) {
+					std::stringstream ss;
+					ss << "Error loading inventory item, uid missing or file corrupt for player " << GetPlayerName() << " itemPath= " << pathstr;
+					log_interface::Instance().log(LOGLEVEL::LOGLEVEL_ERROR, ss.str());
+				}
+        }
+    }
+	
+	
+	for (auto it = temp_uids.cbegin(); it != temp_uids.cend(); )
+	{
+		bool bFound = false;
+		for( auto i : GetDeepItems() )
+		{
+			if( i->get_uid() == it->first )
+			{
+				bFound = true;
+			}
+		}
+		
+		if(bFound)
+		{
+			temp_uids.erase(it++);
+		}
+		else
+			++it;
+	}
+	
+	for( auto t : temp_uids )
+	{
+		//std::cout << t.second << std::endl;
+		fs::rename(fs::path(t.second), fs::path(t.second + "_orphaned"));
+		std::stringstream ss;
+		ss << "Detected orphaned inventory item for player " << GetPlayerName() << " itemPath= " << t.second;
+		log_interface::Instance().log(LOGLEVEL::LOGLEVEL_ERROR, ss.str());
+	}
+	
+	/*
+	 * At some point it may make sense to stop a player from logging in if equipment has become orphaned.. 
+	 * that could be very bad.
+	 */
+	return true;
 }
 
 /*

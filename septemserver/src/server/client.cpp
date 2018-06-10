@@ -210,6 +210,10 @@ class client::impl : public std::enable_shared_from_this<client::impl>
         connection_->write(data);
     }
     
+	std::string get_ip_address()
+	{
+		return connection_->get_ip_address();
+	}
 
     
     std::string input_buffer;
@@ -268,6 +272,8 @@ private :
         trim(cmd);
         entity_manager::Instance().do_command(this->m_player, cmd, true);
     }
+	
+
     
     
 
@@ -386,4 +392,9 @@ unsigned int client::get_console_height()
 unsigned int client::get_console_width()
 {
 	return pimpl_->get_console_width();
+}
+
+std::string client::get_ip_address()
+{
+	return pimpl_->get_ip_address();
 }

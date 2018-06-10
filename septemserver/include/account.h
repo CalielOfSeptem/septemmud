@@ -24,9 +24,9 @@
 // ==========================================================================
 #ifndef ACCOUNT_HPP
 #define ACCOUNT_HPP
+#include "script_entities/livingentity.h"
 
 enum AccountType { UNKNOWN_TYPE, PLAYER, CREATOR, ARCH };
-
 
 class account
 {
@@ -53,10 +53,12 @@ public:
     
     std::string _lastLogon;
     AccountType _accountType;
+	EntityGender _entityGender;
     nlohmann::json _j;
     
     std::string _cwd; // current directory the player is targetting
     std::string _workspacePath;  // path to the player's workspace
+	
 };
 
 #endif // ACCOUNT_HPP

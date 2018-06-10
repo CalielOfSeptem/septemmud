@@ -53,7 +53,7 @@ public:
     
     bool get_accountExists(const std::string& name);
     
-    bool create_account( const std::string& player_name, const std::string& pass, const std::string& email );
+    bool create_account( const std::string& player_name, const std::string& pass, const std::string& email,  int eg );
     
     bool load_account( const std::string& name, account & ac );
     

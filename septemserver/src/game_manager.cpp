@@ -14,8 +14,8 @@ void game_manager::init()
     using namespace boost::gregorian;
 
     std::string last_reboot = global_settings::Instance().GetSetting(DEFAULT_LAST_REBOOT);
-    auto log = spd::get("main");
-    log->debug("Begin Init");
+    log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, "Begin Init");
+    //log->debug("Begin Init");
 
     if(last_reboot.size() > 0) {
         /*
@@ -33,7 +33,7 @@ void game_manager::init()
         ss << "Last reboot = ";
         ss << last_reboot;
         // std::string date_string = to_simple_string(ptime);
-        log->debug(ss.str());
+		log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
     }
 
     ptime now = second_clock::local_time();
@@ -47,7 +47,7 @@ void game_manager::init()
 
     std::stringstream ss;
     ss << "Loading libs: " << libs_path;
-    log->debug(ss.str());
+    log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
     ss.str("");
 
     for(fs::recursive_directory_iterator end, dir(libs_path); dir != end; ++dir) {
@@ -57,7 +57,7 @@ void game_manager::init()
             if(!entity_manager::Instance().compile_script_file(pathstr, reason)) {
                 std::stringstream ss;
                 ss << "Unable to load lib [" << dir->path().string() << "], reason = " << reason;
-                log->debug(ss.str());
+                log_interface::Instance().log(LOGLEVEL::LOGLEVEL_ERROR, ss.str());
                 // LOG_ERROR << ss.str();
                 on_error(ss.str());
                 return;
@@ -93,7 +93,7 @@ void game_manager::init()
     // std::stringstream ss;
     ss.str("");
     ss << "Loading daemons..: " << daemon_path;
-    log->debug(ss.str());
+    log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
 
     // LOG_DEBUG <<
 
@@ -105,7 +105,7 @@ void game_manager::init()
                 std::stringstream ss;
                 ss << "Unable to load daemon [" << dir->path().string() << "], reason = " << reason;
                 // LOG_ERROR << ss.str();
-                log->debug(ss.str());
+                log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
                 on_error(ss.str());
                 return;
             }
@@ -117,7 +117,7 @@ void game_manager::init()
     command_path += global_settings::Instance().GetSetting(DEFAULT_COMMANDS_PATH);
     ss.str("");
     ss << "Loading commands..: " << command_path;
-    log->debug(ss.str());
+    log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
 
     for(fs::recursive_directory_iterator end, dir(command_path); dir != end; ++dir) {
         // std::cout << *dir << "\n";  // full path
@@ -127,7 +127,7 @@ void game_manager::init()
                 std::stringstream ss;
                 ss << "Unable to load command [" << dir->path().string() << "], reason = " << reason;
                 // LOG_ERROR << ss.str();
-                log->debug(ss.str());
+                log_interface::Instance().log(LOGLEVEL::LOGLEVEL_ERROR, ss.str());
                 on_error(ss.str());
                 return;
             }
@@ -137,7 +137,7 @@ void game_manager::init()
 	
 	 ss.str("");
     ss << "Loading rooms via the room cache..";
-    log->debug(ss.str());
+    log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
 
     std::vector<std::string> r_cache;
     std::string r_cache_reason;
@@ -153,7 +153,7 @@ void game_manager::init()
             std::string r_t = game_data_path + r;
             ss.str("");
             ss << "Loading room: " << r_t;
-            log->debug(ss.str());
+            log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, r_t, ss.str());
             if(void_script_path == r_t) {
                 bVoidLoaded = true;
             }
@@ -161,7 +161,7 @@ void game_manager::init()
             if(!entity_manager::Instance().compile_script_file(r_t, reason)) {
                 std::stringstream ss;
                 ss << "Unable to load room, reason = " << reason;
-                log->debug(ss.str());
+                log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, r_t, ss.str());
                 if(void_script_path == r_t) {
                     on_error(ss.str());
                 }
@@ -174,13 +174,13 @@ void game_manager::init()
         // std::stringstream ss;
         ss.str("");
         ss << "Loading void room: " << void_script_path;
-        log->debug(ss.str());
+        log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
 
         if(!entity_manager::Instance().compile_script_file(void_script_path, reason)) {
             std::stringstream ss;
             ss << "Unable to load void room, reason = " << reason;
             // LOG_ERROR << ss.str();
-            log->debug(ss.str());
+            log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
             on_error(ss.str());
             return;
         }
@@ -193,8 +193,7 @@ bool game_manager::process_player_cmd(playerobj* p, std::string& cmd)
 {
 
     if(m_state != gameState::RUNNING) {
-        auto log = spd::get("main");
-        log->debug("State != RUNNING, unable to process command");
+		log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, "State != RUNNING, unable to process command");
         return false;
     }
 
@@ -232,8 +231,7 @@ bool game_manager::process_player_cmd(playerobj* p, std::string& cmd)
     if(entity_manager::Instance().do_command(p, cmd)) {
         entity_manager::Instance().garbage_collect();
     } else {
-        auto log = spd::get("main");
-        log->debug("Unable to execute command.");
+		log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, "Unable to execute command.");
     }
 
     return true;
@@ -268,9 +266,6 @@ void game_manager::do_heartbeats()
 
 bool game_manager::SetState(gameState new_state)
 {
-    auto log = spd::get(
-        "main"); //>info("loggers can be retrieved from a global registry using the spdlog::get(logger_name) function");
-
     if(new_state == gameState::INITIALIZING) {
         if(m_state != gameState::STOPPED || m_state == gameState::INITIALIZING) {
             // do nothing if we aren't stopped, and
@@ -278,7 +273,7 @@ bool game_manager::SetState(gameState new_state)
             return false;
         } else {
             m_state = new_state;
-            log->debug("Game state changed to INITIALIZING");
+			log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, "Game state changed to INITIALIZING.");
             init();
             return true;
         }
@@ -289,7 +284,8 @@ bool game_manager::SetState(gameState new_state)
             return false;
         } else {
             m_state = new_state;
-            log->debug("Game state changed to STOPPING");
+            //log->debug("Game state changed to STOPPING");
+			log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, "Game state changed to STOPPING.");
             do_stop();
             return true;
         }
@@ -299,7 +295,7 @@ bool game_manager::SetState(gameState new_state)
             // also do nothing if the state is already stopping
             return false;
         } else {
-            log->debug("Game state changed to RUNNING");
+			log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, "Game state changed to RUNNING.");
             m_state = new_state;
             return true;
         }
@@ -310,12 +306,12 @@ bool game_manager::SetState(gameState new_state)
             return false;
         } else {
             m_state = new_state;
-            log->debug("Game state changed to STOPPED");
+			log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, "Game state changed to STOPPED");
             return true;
         }
     } else if(new_state == gameState::ERROR) {
 
-        log->debug("Game state changed to ERROR");
+		log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, "Game state changed to ERROR");
         m_state = new_state;
         do_stop();
 

@@ -65,9 +65,11 @@ struct living_entity : public script_entity, public container_base
     virtual script_entity * GetOwner() override;
     
     std::vector< itemobj *> GetItems();
+	std::vector< itemobj *> GetDeepItems();
+	void GetItemsRecursive(itemobj * o, std::vector< itemobj *>& t_items);
+	
     handobj m_RightHand;
     handobj m_LeftHand;
-    
     
     EntityGender get_gender();
     

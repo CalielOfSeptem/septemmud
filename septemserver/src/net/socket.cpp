@@ -43,6 +43,18 @@ struct socket::impl : std::enable_shared_from_this<impl>
         : socket_(socket)
     {
     }
+	
+	std::string get_ip_address()
+	{
+		std::string s = "";
+		if( is_alive() )
+		{
+			return socket_->remote_endpoint().address().to_string();
+			
+		}
+		else 
+			return s;
+	}
 
     // ======================================================================
     // CLOSE
@@ -504,3 +516,7 @@ void socket::on_death(std::function<void ()> const &callback)
 
 }
 
+std::string net::socket::get_ip_address()
+{
+	return pimpl_->get_ip_address();
+}

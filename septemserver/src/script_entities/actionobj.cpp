@@ -14,10 +14,10 @@ void actionobj::DoAction()
         if(!result.valid()) {
             sol::error err = result;
 			// TODO: locate room or creator owner of this obj to send the message too
-			auto log = spd::get("main");
+			
 			std::stringstream ss;
 			ss << "Error executing action: " << err.what();
-			log->debug(ss.str());
+			log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
         }
     }
 }

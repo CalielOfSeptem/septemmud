@@ -194,6 +194,7 @@ int main(int argc, char **argv)
     global_settings::Instance().SetSetting( ACCOUNT_TYPE, "account_type");
     global_settings::Instance().SetSetting( ACCOUNT_LASTLOGON, "last_logon");
     global_settings::Instance().SetSetting( ACCOUNT_EMAIL, "email");
+	global_settings::Instance().SetSetting( ACCOUNT_GENDER, "gender" );
 
     
     auto log = spd::get("main");
@@ -289,7 +290,18 @@ int main(int argc, char **argv)
     
     std::thread http_thread =  std::thread(start_serv, 8090);
     
-    
+	// test database..
+	//db_interface::Instance().test();
+	std::string pname = "caliel";
+    long l = db_interface::Instance().get_last_logon(pname);
+	std::time_t temp = l;
+	
+	//std::time_t now = std::time(NULL);
+	std::tm * ptm = std::localtime(&temp);
+	char buffer[32];
+	// Format: Mo, 15.06.2009 20:20:00
+	std::strftime(buffer, 32, "%a, %d.%m.%Y %H:%M:%S", ptm);  
+	std::cout << buffer << std::endl;
 
     std::string blah; // for console input
     while( true )

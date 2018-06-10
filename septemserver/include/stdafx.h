@@ -71,5 +71,7 @@
 #include "global_settings.h"
 #include "config.h"
 
-namespace spd = spdlog;
+#include "io/log_interface.h"
 using json = nlohmann::json;
+namespace spd = spdlog;
+

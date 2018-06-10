@@ -3,6 +3,7 @@
         "realms/lere/sannesa_port/docks",
         "realms/void",
         "workspaces/caliel/biomes",
-        "workspaces/caliel/workroom"
+        "workspaces/caliel/workroom",
+        "workspaces/emris/workroom"
     ]
 }

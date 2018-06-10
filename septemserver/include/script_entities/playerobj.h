@@ -115,6 +115,8 @@ private:
     unsigned long commandCount;
     unsigned long maxCmdCnt;
     client * client_;
+	
+	bool do_inventory_validation();
 };
  
 #endif

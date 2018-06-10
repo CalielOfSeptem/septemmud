@@ -138,6 +138,7 @@ struct connection::impl
 	unsigned int get_console_height() { return console_height; };
 	unsigned int get_console_width() { return console_width; };
     
+	std::string get_ip_address() { return socket_->get_ip_address(); };
     
     // ======================================================================
     // WRITE
@@ -396,6 +397,14 @@ unsigned int connection::get_console_height()
 unsigned int connection::get_console_width()
 {
 	return pimpl_->get_console_width();
+}
+std::string connection::get_ip_address()
+{
+	if( ip_address.empty() )
+	{
+		ip_address = pimpl_->get_ip_address();
+	}
+	return ip_address;
 }
 
 //}

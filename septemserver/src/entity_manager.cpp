@@ -2,6 +2,7 @@
 #include <algorithm>
 
 #include "entity_manager.h"
+#include "io/db_interface.h"
 //#include <boost/filesystem/operations.hpp>
 //#include <boost/filesystem/path.hpp>
 //#include <boost/filesystem/fstream.hpp>
@@ -178,11 +179,10 @@ bool entity_manager::compile_entity(std::string& relative_script_path,
         _init_entity_env(relative_script_path, etype, to_load);
         b = lua_safe_script(script_text, to_load, reason);
         if(!b) {
-            auto log = spd::get("main");
             std::stringstream ss;
             ss << "Error compiling script <<  " << relative_script_path
                << ", reason = " << reason; // Destroyed object, script path= " << virtual_script_path;
-            log->error(ss.str());
+            log_interface::Instance().log(LOGLEVEL::LOGLEVEL_ERROR, ss.str());
             if(auto p = security_context::Instance().GetPlayerEntity()) {
                 if(p->isCreator()) {
                     p->SendToEntity(ss.str());
@@ -646,10 +646,10 @@ npcobj* entity_manager::clone_npc(std::string& relative_script_path, roomobj* r,
 bool entity_manager::compile_script_file(std::string& file_path, std::string& reason)
 {
 	std::unique_lock<std::recursive_mutex> lock(lua_mutex_);
-    auto log = spd::get("main");
+
     std::stringstream ss;
     ss << "Compiling script: " << file_path;
-    log->debug(ss.str());
+    log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, file_path, ss.str());
 
     fs::path p(file_path);
     if(!fs::exists(p)) {
@@ -680,7 +680,6 @@ bool entity_manager::compile_script_file(std::string& file_path, std::string& re
 
 roomobj* entity_manager::get_void_room()
 {
-    auto log = spd::get("main");
     std::stringstream ss;
 
     std::string void_script_path = global_settings::Instance().GetSetting(DEFAULT_VOID_ROOM);
@@ -691,7 +690,7 @@ roomobj* entity_manager::get_void_room()
     } else {
         std::string err = "Error attempting to retrieve void path.";
         ss << err;
-        log->info(ss.str());
+        log_interface::Instance().log(LOGLEVEL::LOGLEVEL_CRITICAL, ss.str());
         // on_error(err);
     }
     return NULL;
@@ -706,10 +705,9 @@ bool entity_manager::load_player(std::string playername, bool bloggedIn)
     if(pplayer == NULL) {
         std::string reason;
         if(!compile_player(lpname, reason)) {
-            auto log = spd::get("main");
             std::stringstream ss;
             ss << "Error loading player: " << playername << ", reason=" << reason << std::endl;
-            log->debug(ss.str());
+            log_interface::Instance().log(LOGLEVEL::LOGLEVEL_CRITICAL, ss.str());
             return false;
         }
     }
@@ -735,26 +733,23 @@ bool entity_manager::load_player(std::string playername, bool bloggedIn)
     // }
 
     if(pplayer->roomPath.empty()) {
-        auto log = spd::get("main");
         std::stringstream ss;
         ss << "Moving player " << playername << " to the void.";
-        log->debug(ss.str());
+		log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
 
         // TODO: Put them into the default room.. or some place else.
         roomobj* r = this->get_void_room();
         assert(r != NULL);
         if(!move_entity(pplayer, r)) {
-            auto log = spd::get("main");
             std::stringstream ss;
             ss << "Unable to move " << playername;
-            log->debug(ss.str());
+            log_interface::Instance().log(LOGLEVEL::LOGLEVEL_CRITICAL, ss.str());
             return false;
         }
     } else {
-        auto log = spd::get("main");
         std::stringstream ss;
         ss << "Moving player " << playername << " to " << pplayer->roomPath;
-        log->debug(ss.str());
+        log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
 
         roomobj* r = GetRoomByScriptPath(pplayer->roomPath, pplayer->roomID);
         // assert(r != NULL);
@@ -762,17 +757,16 @@ bool entity_manager::load_player(std::string playername, bool bloggedIn)
             roomobj* rv = this->get_void_room();
             assert(rv != NULL);
             if(!move_entity(pplayer, rv)) {
-                auto log = spd::get("main");
+                
                 std::stringstream ss;
                 ss << "Unable to move " << playername;
-                log->debug(ss.str());
+                log_interface::Instance().log(LOGLEVEL::LOGLEVEL_ERROR, ss.str());
                 return false;
             }
         } else if(!move_entity(pplayer, r)) {
-            auto log = spd::get("main");
             std::stringstream ss;
             ss << "Unable to move " << playername;
-            log->debug(ss.str());
+            log_interface::Instance().log(LOGLEVEL::LOGLEVEL_ERROR, ss.str());
             return false;
         }
     }
@@ -975,11 +969,11 @@ void entity_manager::init_lua()
 	lua.set_function("get_player",
                      [&]() -> script_entity *  { return security_context::Instance().GetCurrentEntity(); });
 
-    lua.set_function("create_new_account", [&](std::string aname, std::string pass, std::string email) -> bool {
+    lua.set_function("create_new_account", [&](std::string aname, std::string pass, std::string email, int eg) -> bool {
         if(!security_context::Instance().isArch()) {
             return false;
         } else
-            return account_manager::Instance().create_account(aname, pass, email);
+            return account_manager::Instance().create_account(aname, pass, email, eg);
     });
     // lua.set_function( "capture_input", [&](std::string path, script_entity * e) -> itemobj * { return
     // this->clone_item(path, e); });
@@ -1355,10 +1349,9 @@ bool entity_manager::destroy_room(script_entity* ent)
 		*/
 		if( search->second.size() == 0 )
 		{
-			auto log = spd::get("main");
             std::stringstream ss;
             ss << "Destroyed environment " << script_path;
-            log->debug(ss.str());
+            log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
 			env[name] = sol::nil;
 			//m_room_objs.erase(search);
 		
@@ -1429,10 +1422,10 @@ bool entity_manager::destroy_command(script_entity* ent)
 
 		if( search->second.size() == 0 )
 		{
-			auto log = spd::get("main");
+			
             std::stringstream ss;
             ss << "Destroyed environment " << script_path;
-            log->debug(ss.str());
+            log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
 			env[name] = sol::nil;
 		}
     }
@@ -1512,10 +1505,9 @@ bool entity_manager::destroy_item(script_entity* ent)
 		*/
 		if( search->second.size() == 0 )
 		{
-			auto log = spd::get("main");
             std::stringstream ss;
             ss << "Destroyed environment " << script_path;
-            log->debug(ss.str());
+            log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
 			env[name] = sol::nil;
 		}
     }
@@ -1593,10 +1585,9 @@ bool entity_manager::destroy_npc(script_entity* ent)
 		*/
 		if( search->second.size() == 0 )
 		{
-			auto log = spd::get("main");
             std::stringstream ss;
             ss << "Destroyed environment " << script_path;
-            log->debug(ss.str());
+            log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
 			env[name] = sol::nil;
 		
 		}
@@ -1638,10 +1629,9 @@ bool entity_manager::destroy_daemon(script_entity* ent)
 
 		if( search->second.size() == 0 )
 		{
-			auto log = spd::get("main");
             std::stringstream ss;
             ss << "Destroyed environment " << script_path;
-            log->debug(ss.str());
+            log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
 			env[name] = sol::nil;
 		
 		}
@@ -1684,10 +1674,10 @@ bool entity_manager::destroy_daemon(std::string& script_path)
 
 bool entity_manager::destroy_entity(std::shared_ptr<entity_wrapper>& ew)
 {
-	auto log = spd::get("main");
 	std::stringstream ss;
 	ss << "Destroying script entity " << ew->script_ent->GetInstancePath();
-	log->debug(ss.str());
+	log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ew->script_ent->GetInstancePath(), ss.str());
+
 	ew->script_ent->invoke_on_destroy();
     ew->script_ent->clear_props(); // = NULL;
     sol::environment genv = (*m_state).globals();
@@ -1771,10 +1761,10 @@ void entity_manager::register_command(commandobj* cmd)
     std::string ptmp = GetPathFromFileLocation(cmd->GetPhysicalScriptPath());
     std::transform(verb.begin(), verb.end(), verb.begin(), ::tolower);
     m_cmds_map[ptmp][verb] = cmd;
-    auto log = spd::get("main");
+
     std::stringstream ss;
     ss << "Registered command, command = " << verb << ", script=" << cmd->GetVirtualScriptPath();
-    log->debug(ss.str());
+	log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, cmd->GetVirtualScriptPath(), ss.str());
 }
 
 void entity_manager::deregister_command(commandobj* cmd)
@@ -1784,43 +1774,12 @@ void entity_manager::deregister_command(commandobj* cmd)
 
     auto search = m_cmd_objs.find(room_path);
     if(search != m_cmd_objs.end()) {
-
         m_cmd_objs.erase(search);
-        auto log = spd::get("main");
-
         std::stringstream ss;
         ss << "De-Registered command from lookup table, command = " << room_path;
-        log->debug(ss.str());
+        log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, room_path, ss.str());
     }
-	/*
-    std::string verb = cmd->GetCommand();
-    // get the script path so we can look it up in the map..
-    std::string tpath = GetPathFromFileLocation(cmd->GetPhysicalScriptPath());
 
-    std::transform(verb.begin(), verb.end(), verb.begin(), ::tolower);
-
-    auto i = m_cmds_map.find(tpath);
-    if(i != m_cmds_map.end()) {
-        auto search = m_cmds_map[tpath].find(verb);
-        if(search != m_cmds_map[tpath].end()) {
-            m_cmds_map[tpath].erase(search);
-            auto log = spd::get("main");
-            std::stringstream ss;
-            ss << "De-Registered command, command = " << verb << ", script=" << cmd->GetVirtualScriptPath();
-            log->debug(ss.str());
-        } else {
-            auto log = spd::get("main");
-            std::stringstream ss;
-            ss << "Failed to De-Registered command, command = " << verb << ", script=" << cmd->GetVirtualScriptPath();
-            log->debug(ss.str());
-        }
-    } else {
-        auto log = spd::get("main");
-        std::stringstream ss;
-        ss << "Failed to De-Registered command, command = " << verb << ", script=" << cmd->GetVirtualScriptPath();
-        log->debug(ss.str());
-    }
-	*/
 }
 
 
@@ -1829,11 +1788,11 @@ void entity_manager::register_room(roomobj* room)
 {
     std::string room_path = room->GetInstancePath();
     m_room_lookup[room_path] = room;
-    auto log = spd::get("main");
+
 
     std::stringstream ss;
     ss << "Registered room into lookup table, room = " << room_path;
-    log->debug(ss.str());
+    log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, room_path, ss.str());
     save_room_cache(); // may need to rethink this approach
 }
 
@@ -1883,12 +1842,9 @@ void entity_manager::deregister_room(roomobj* room)
        // garbage_collect();
         //sol::state& lua = (*m_state);
         //lua.collect_garbage();
-
-        auto log = spd::get("main");
-
         std::stringstream ss;
         ss << "De-Registered room from lookup table, room = " << room_path;
-        log->debug(ss.str());
+		log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, room_path, ss.str());
         // search->second.insert(ew);
     }
 }
@@ -1898,66 +1854,49 @@ void entity_manager::register_item(itemobj* item)
 
     std::string item_path = item->GetInstancePath();
     m_item_lookup[item_path] = item;
-    auto log = spd::get("main");
 
     std::stringstream ss;
     ss << "Registered item into lookup table, item = " << item_path;
-    log->debug(ss.str());
+	log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, item_path, ss.str());
 }
 
 
 void entity_manager::deregister_item(itemobj* item)
 {
-
 	assert(item);
 	std::string item_path = item->GetInstancePath();
-	//std::stringstream ss;
-   // ss << "De-registered item from lookup table, room = " << item_path;
-   // log->debug(ss.str());
-	
-	
-	//item->set_destroy(true);
-    //std::string item_path = item->GetInstancePath();
     auto search = m_item_lookup.find(item_path);
     if(search != m_item_lookup.end()) {
         m_item_lookup.erase(search);
-        auto log = spd::get("main");
+        
         std::stringstream ss;
         ss << "De-Registered item from lookup table, item = " << item_path;
-        log->debug(ss.str());
+		log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, item_path, ss.str());
     }
 }
 
 void entity_manager::register_npc(npcobj* npc)
 {
-
-	
     std::string npc_path = npc->GetInstancePath();
     m_npc_lookup[npc_path] = npc;
-    auto log = spd::get("main");
+    
 
     std::stringstream ss;
     ss << "Registered npc into lookup table, npc = " << npc_path;
-    log->debug(ss.str());
+	log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, npc_path, ss.str());
 }
 
 void entity_manager::deregister_npc(npcobj* npc)
 {
 	assert(npc);
 	std::string npc_path = npc->GetInstancePath();
-	//std::stringstream ss;
-   // ss << "De-registered npc from lookup table, room = " << npc_path;
-   // log->debug(ss.str());
-	
-	//npc->set_destroy(true);
-    //std::string npc_path = npc->GetInstancePath();
+
     auto search = m_npc_lookup.find(npc_path);
     if(search != m_npc_lookup.end()) {
         m_npc_lookup.erase(search);
-        auto log = spd::get("main");
         std::stringstream ss;
         ss << "De-Registered npc from lookup table, npc = " << npc_path;
-        log->debug(ss.str());
+		log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, npc_path, ss.str());
     }
 }
 
@@ -1965,11 +1904,10 @@ void entity_manager::register_daemon(daemonobj* daemon)
 {
     std::string daemon_path = daemon->GetInstancePath();
     m_daemon_lookup[daemon_path] = daemon;
-    auto log = spd::get("main");
 
     std::stringstream ss;
     ss << "Registered daemon into lookup table, daemon = " << daemon_path;
-    log->debug(ss.str());
+	log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, daemon_path, ss.str());
 }
 
 void entity_manager::deregister_daemon(daemonobj* daemon)
@@ -1978,12 +1916,10 @@ void entity_manager::deregister_daemon(daemonobj* daemon)
     auto search = m_daemon_lookup.find(daemon_path);
     if(search != m_daemon_lookup.end()) {
         m_daemon_lookup.erase(search);
-        auto log = spd::get("main");
+ 
         std::stringstream ss;
         ss << "De-Registered daemon from lookup table, daemon = " << daemon_path;
-        log->debug(ss.str());
-
-        // search->second.insert(ew);
+		log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, daemon_path, ss.str());
     }
 }
 
@@ -2024,7 +1960,7 @@ void entity_manager::register_entity(script_entity* entityobj, std::string& sp, 
         entityobj->instanceID = new_id;
     }
 
-    auto log = spd::get("main");
+
     std::stringstream ss;
 
     switch(etype) {
@@ -2040,7 +1976,7 @@ void entity_manager::register_entity(script_entity* entityobj, std::string& sp, 
             get_entity_str(ew->entity_type, e_str);
 
             ss << "Registered new entity, type = " << e_str << ", Path =" << ew->script_path;
-            log->debug(ss.str());
+			log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ew->script_path, ss.str());
         }
     } break;
     case EntityType::ROOM: {
@@ -2058,7 +1994,7 @@ void entity_manager::register_entity(script_entity* entityobj, std::string& sp, 
             get_entity_str(ew->entity_type, e_str);
 
             ss << "Registered new entity, type = " << e_str << ", Path =" << ew->script_path;
-            log->debug(ss.str());
+            log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ew->script_path, ss.str());
         }
     } break;
     case EntityType::COMMAND: {
@@ -2085,7 +2021,7 @@ void entity_manager::register_entity(script_entity* entityobj, std::string& sp, 
             std::string e_str;
             get_entity_str(ew->entity_type, e_str);
             ss << "Registered new entity, type = " << e_str << ", Path =" << ew->script_path;
-            log->debug(ss.str());
+            log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ew->script_path, ss.str());
         }
     } break;
     case EntityType::NPC: {
@@ -2099,7 +2035,7 @@ void entity_manager::register_entity(script_entity* entityobj, std::string& sp, 
             std::string e_str;
             get_entity_str(ew->entity_type, e_str);
             ss << "Registered new entity, type = " << e_str << ", Path =" << ew->script_path;
-            log->debug(ss.str());
+            log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ew->script_path, ss.str());
         }
     } break;
     case EntityType::ITEM: {
@@ -2113,7 +2049,7 @@ void entity_manager::register_entity(script_entity* entityobj, std::string& sp, 
             std::string e_str;
             get_entity_str(ew->entity_type, e_str);
             ss << "Registered new entity, type = " << e_str << ", Path =" << ew->script_path;
-            log->debug(ss.str());
+            log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ew->script_path, ss.str());
         }
     } break;
     case EntityType::DAEMON: {
@@ -2129,7 +2065,7 @@ void entity_manager::register_entity(script_entity* entityobj, std::string& sp, 
             std::string e_str;
             get_entity_str(ew->entity_type, e_str);
             ss << "Registered new entity, type = " << e_str << ", Path =" << ew->script_path;
-            log->debug(ss.str());
+            log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ew->script_path, ss.str());
         }
     } break;
     default:
@@ -2964,10 +2900,9 @@ bool entity_manager::load_room_cache(std::vector<std::string>& cache, std::strin
         }
 
     } catch(std::exception& ex) {
-        auto log = spd::get("main");
         std::stringstream ss;
         ss << "Error when attempting to load account " << ex.what() << ".";
-        log->debug(ss.str());
+        log_interface::Instance().log(LOGLEVEL::LOGLEVEL_CRITICAL, ss.str());
         reason = ss.str();
         return false;
     }
@@ -3019,13 +2954,10 @@ bool entity_manager::save_room_cache()
         std::ofstream o(patha.string() + "/roomcache");
         o << std::setw(4) << j << std::endl;
     } catch(std::exception& ex) {
-
-        auto log = spd::get("main");
         std::stringstream ss;
         ss << "Error when attempting to save room cache "
            << ": " << ex.what() << ".";
-        log->debug(ss.str());
-
+        log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
         return false;
     }
 
@@ -3062,10 +2994,9 @@ void entity_manager::on_cmd(living_entity* e, std::string const& cmd)
             unsigned int id = 0;
             daemonobj* dobj = entity_manager::Instance().GetDaemonByScriptPath(logon_proc_path, id);
             if(dobj == NULL) {
-                auto log = spd::get("main");
                 std::stringstream ss;
                 ss << "Error attempting to retrieve command proc.";
-                log->debug(ss.str());
+                log_interface::Instance().log(LOGLEVEL::LOGLEVEL_CRITICAL, ss.str());
 
                 return;
             }
@@ -3093,27 +3024,30 @@ void entity_manager::on_cmd(living_entity* e, std::string const& cmd)
                         //garbage_collect();
 
                         std::stringstream ss;
-                        auto log = spd::get("main");
+                        
                         ss << "Player " << pp->GetPlayerName() << " logged in successfully!";
-                        log->debug(ss.str());
+						//ss << "Player IP " << po->get_client()->get_ip_address();
+						std::string str = po->get_client()->get_ip_address();
+						log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
+						db_interface::Instance().on_player_connection_event( po->GetPlayerName(), ConnectionEvent::PLAYER_LOGON, str );
+                        
                         // e->debug(ss.str());
                         // lock.unlock();
                         po->DoCommand(NULL, "look");
                     }
                 } else {
                     sol::error err = result;
-                    auto log = spd::get("main");
+                    
                     std::stringstream ss;
                     ss << "Error calling process_command, entity = " << e->GetName() << ", error = " << err.what();
-                    log->debug(ss.str());
+                    log_interface::Instance().log(LOGLEVEL::LOGLEVEL_ERROR, ss.str());
                     e->debug(ss.str());
                 }
                 return;
             } else {
-                auto log = spd::get("main");
                 std::stringstream ss;
                 ss << "Error attempting to retrieve command proc.";
-                log->debug(ss.str());
+                log_interface::Instance().log(LOGLEVEL::LOGLEVEL_CRITICAL, ss.str());
                 return;
             }
         }
@@ -3127,10 +3061,10 @@ void entity_manager::on_cmd(living_entity* e, std::string const& cmd)
             unsigned int id = 0;
             daemonobj* dobj = entity_manager::Instance().GetDaemonByScriptPath(command_proc_path, id);
             if(dobj == NULL) {
-                auto log = spd::get("main");
+                
                 std::stringstream ss;
                 ss << "Error attempting to retrieve command proc.";
-                log->debug(ss.str());
+                log_interface::Instance().log(LOGLEVEL::LOGLEVEL_CRITICAL, ss.str());
                 return;
             }
 
@@ -3143,10 +3077,10 @@ void entity_manager::on_cmd(living_entity* e, std::string const& cmd)
                 auto result = exec(self, e, cmd);
                 if(!result.valid()) {
                     sol::error err = result;
-                    auto log = spd::get("main");
+
                     std::stringstream ss;
                     ss << "Error calling process_command, entity = " << e->GetName() << ", error = " << err.what();
-                    log->debug(ss.str());
+                    log_interface::Instance().log(LOGLEVEL::LOGLEVEL_CRITICAL, ss.str());
                     e->debug(ss.str());
                     register_hook(NULL); // clear the hook
                 } else {
@@ -3168,19 +3102,18 @@ void entity_manager::on_cmd(living_entity* e, std::string const& cmd)
                 }
                 return;
             } else {
-                auto log = spd::get("main");
+                //auto log = spd::get("main");
                 std::stringstream ss;
                 ss << "Error attempting to retrieve command proc.";
-                log->debug(ss.str());
+                log_interface::Instance().log(LOGLEVEL::LOGLEVEL_CRITICAL, ss.str());
                 return;
             }
         }
 
     } catch(std::exception& ex) {
-        auto log = spd::get("main");
         std::stringstream ss;
         ss << "Error attempting to execute command proc " << ex.what();
-        log->debug(ss.str());
+        log_interface::Instance().log(LOGLEVEL::LOGLEVEL_CRITICAL, ss.str());
     }
 }
 
@@ -3225,24 +3158,11 @@ void entity_manager::register_hook(script_entity* hook_entity)
 
         m_state->script("debug.sethook (debug_hook, '', 100000)");
 
-        /*
-        auto result = kv.second.pf();
-        if(!result.valid()) {
-            sol::error err = result;
-            auto log = spd::get("main");
-            std::stringstream ss;
-            ss << "Error setting debug hook: " << err.what();
-            log->error( ss.str() );
-            //std::cout << err.what() << std::endl;
-        }
-        kv.second.lua_state.script("debug.sethook ()");
-        */
+
     } catch(std::exception& ex) {
-        auto log = spd::get("main");
         std::stringstream ss;
         ss << "Error setting debug hook: " << ex.what();
-        log->error(ss.str());
-        // std::cout << ex.what();
+		log_interface::Instance().log(LOGLEVEL::LOGLEVEL_CRITICAL, ss.str());
     }
 }
 
@@ -3279,10 +3199,9 @@ void entity_manager::deregister_entity(script_entity* ent, bool bGarbageCollect)
 {
 	//return;
 	std::unique_lock<std::recursive_mutex> lock(lua_mutex_);
-	auto log = spd::get("main");
 	std::stringstream ss;
 	ss << "De-registering entity: " << ent->GetInstancePath();
-	log->info(ss.str());
+	log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ent->GetInstancePath(), ss.str());
 	
 	switch(ent->GetType())
 	{
@@ -3341,7 +3260,17 @@ void entity_manager::deregister_entity(script_entity* ent, bool bGarbageCollect)
 		break;
 		case EntityType::PLAYER:
 		{
-			
+			playerobj * po = static_cast<playerobj*>(ent);
+			if( po->get_loggedIn() )
+			{
+				std::stringstream ss;
+
+				ss << "Player " << po->GetPlayerName() << " logged off!";
+				std::string str = po->get_client()->get_ip_address();
+				log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ss.str());
+				db_interface::Instance().on_player_connection_event( po->GetPlayerName(), ConnectionEvent::PLAYER_LOGOFF, str );	
+			}
+
 		}
 		break;
 		case EntityType::ROOM:
@@ -3353,10 +3282,9 @@ void entity_manager::deregister_entity(script_entity* ent, bool bGarbageCollect)
 		break;
 		case EntityType::UNKNOWN:
 		{
-			auto log = spd::get("main");
             std::stringstream ss;
             ss << "Error scheduling deletion of object, type is unknown. " << ent->GetInstancePath();
-            log->error(ss.str());
+            log_interface::Instance().log(LOGLEVEL::LOGLEVEL_CRITICAL, ent->GetInstancePath(), ss.str());
 		}
 		break;
 	}
