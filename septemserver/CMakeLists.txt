@@ -5,6 +5,7 @@ find_package(Boost 1.61.0 REQUIRED COMPONENTS
 				date_time filesystem system program_options)
 find_package(Lua)
 find_package(spdlog)
+find_package(openssl)
 
 set(JSON_HEADER_DIR ../json/src)
 set(SCRIPT_ENTITIES src/script_entities)
