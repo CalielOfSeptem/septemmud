@@ -177,6 +177,8 @@ void init_lua_state(sol::state& l)
     lua.new_usertype<script_entity>("script_entity", 
             "GetName",  &script_entity::GetName,
             "SetName", &script_entity::SetName,
+            "GetLook",  &script_entity::GetLook,
+            "SetLook", &script_entity::SetLook,
             "GetPhysicalScriptPath", &script_entity::GetPhysicalScriptPath,
             "GetVirtualScriptPath", &script_entity::GetVirtualScriptPath,
             "Reset",  &script_entity::clear_props,

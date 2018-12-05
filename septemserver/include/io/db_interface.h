@@ -25,14 +25,16 @@
 #ifndef _DB_INTERFACE_HPP_
 #define _DB_INTERFACE_HPP_
 
-enum class ConnectionEvent : int { PLAYER_LOGON=0, PLAYER_LOGOFF };
+enum class ConnectionEvent : int {
+    PLAYER_LOGON = 0, PLAYER_LOGOFF
+};
 
-class db_interface
-{
-    
+enum class RoomState : int { RS_DISABLED = 0, RS_ERROR, RS_LIVE }; // see sqldb definitions
+
+class db_interface {
 public:
-    static db_interface & Instance()
-    {
+
+    static db_interface & Instance() {
         // Since it's a static variable, if the class has already been created,
         // It won't be created again.
         // And it **is** thread-safe in C++11.
@@ -44,33 +46,40 @@ public:
     }
 
     // delete copy and move constructors and assign operators
-    db_interface(db_interface const&) = delete;             // Copy construct
-    db_interface(db_interface&&) = delete;                  // Move construct
-    db_interface& operator=(db_interface const&) = delete;  // Copy assign
-    db_interface& operator=(db_interface &&) = delete;      // Move assign
-	
-	void test();
-	long int get_last_logon(std::string& player_name);
-	long int get_last_logoff(std::string& player_name);
-	void on_player_connection_event(std::string& player_name, ConnectionEvent evt, std::string& ip);
-    
-	void log_event(LOGLEVEL log_level, std::string script_path, std::string msg);
+    db_interface(db_interface const&) = delete; // Copy construct
+    db_interface(db_interface&&) = delete; // Move construct
+    db_interface& operator=(db_interface const&) = delete; // Copy assign
+    db_interface& operator=(db_interface &&) = delete; // Move assign
+
+    void test();
+    long int get_last_logon(std::string& player_name);
+    long int get_last_logoff(std::string& player_name);
+    void on_player_connection_event(std::string& player_name, ConnectionEvent evt, std::string& ip);
+
+    //std::vector<std::string> get_cached_rooms();
+    //bool save_cached_rooms(const std::vector<std::string>& rooms);
+    bool add_or_update_room_in_cache(const std::string& room_path, RoomState rs, bool update);
+    void update_room_cache(const std::string& room_path, RoomState rs);
+    bool room_exists_in_cache( const std::string& room_path );
+
+	bool save_global_setting(const std::string& key, std::string& val);
+
+    void log_event(LOGLEVEL log_level, std::string script_path, std::string msg);
 protected:
-    db_interface()
-    {
-      
+
+    db_interface() {
+
     }
 
-    ~db_interface()
-    {
-         // Destructor code goes here.
-    }    
-    
+    ~db_interface() {
+        // Destructor code goes here.
+    }
+
     //void fs_manager::copyDirectoryRecursively(const boost::filesystem::path& sourceDir, const boost::filesystem::path& destinationDir);
-    
+
 private:
-   
-    
+
+
 };
 
 

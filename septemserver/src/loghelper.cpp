@@ -7,6 +7,7 @@
 #include "script_entities/playerobj.h"
 #include "script_entities/roomobj.h"
 #include "script_entities/script_entity.h"
+/*
 void my_sink::SendToEntity(const spd::details::log_msg& msg, script_entity* se)
 {
 
@@ -36,6 +37,8 @@ void my_sink::SendToEntity(const spd::details::log_msg& msg, script_entity* se)
         }
     }
 }
+*/
+/*
 
 void my_sink::log(const spd::details::log_msg& msg)
 {
@@ -59,3 +62,4 @@ void my_sink::flush()
 {
     // std::cout << std::flush;
 }
+*/

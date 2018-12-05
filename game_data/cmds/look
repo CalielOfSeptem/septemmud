@@ -31,25 +31,12 @@ end
 function c:CheckHands( o, item_to_find )
 	local item = c:FindItemInHand( o:LeftHand(), item_to_find )
 	if( item ~= nil ) then
-		--if( item:GetIsContainer() ) then
-			--self:ShowInventory( item, o )
-		----else
-			-- TODO: just show the item, its not a container.
-		--end
-		--print('FOUND IT IN THE LEFT HAND')
-		--o:SendToEntity('FOUND IT IN THE LEFT HAND')
 		return item
 	end
 	
 	item = c:FindItemInHand( o:RightHand(), item_to_find )
 	if( item ~= nil ) then
-		--if( item:GetIsContainer() ) then
-			--self:ShowInventory( item, o )
-		--else
-			-- TODO: just show the item, its not a container.
-		--end
-		--print('FOUND IT IN THE RIGHT HAND')
-		--o:SendToEntity('FOUND IT IN THE RIGHT HAND')
+
 		return item
 	end
 	return nil
@@ -404,17 +391,14 @@ function c:ExecuteCommand ( o, cmd )
 				fitem = self:FindItemInLooks( o, item_to_examine )
 			end
 			
-			--if( fitem == nil ) then
-			--	fitem = self:CheckHands( o, item_to_examine )
-			--end
-			
 			if( fitem == nil ) then
 				fitem = self:FindItemInInv( o, item_to_examine )
 			end
 			
 			if( fitem ) then
-				--print('FOUND IT!')
-				o:SendToEntity( fitem:GetDescription() )
+				if( fitem:GetLook() ~= nil ) then
+					o:SendToEntity( fitem:GetLook() )
+				end
 				return true
 			end
 			o:SendToEntity('Look at what?')
@@ -427,11 +411,7 @@ function c:ExecuteCommand ( o, cmd )
 		
 		if env ~= nil then
 			s = FormatRoom(env, o)
-			--p:SendToEntity('[' .. env:GetTitle() .. ']')
-			--p:SendToEntity('\r\n')
-			--print('in here..')
 			o:SendToEntity(s)
-			--print('in here')
 		end	
 	end
 	return true

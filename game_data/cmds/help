@@ -13,13 +13,10 @@ inherit command
 c = command.new('help')
 
 function c:ExecuteCommand ( o_orig, cmd )
-
 	s_type = o_orig:GetType()
-
 	if (s_type:lower() ~= "player" and s_type:lower() ~= "npc") then
 		return true;
 	end
-	--o_orig = living_cast(o_orig)
 	display_multipage('testing multipage', 1, o_orig)
 	return false
 end

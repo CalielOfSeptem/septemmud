@@ -2,6 +2,20 @@ inherit room
 r1 = room.new(roomTypes.outdoor)
 r1:SetTitle('Lang\'s Warf, West Dock')
 r1:SetDescription("You stand on the west dock.")
+
+function r1:add_tulip()
+	local path = '/workspaces/caliel/entities/tulip'
+	local b = clone_npc_to_room( path, self)
+	if(  b == nil ) then
+		print('ERROR CLONING NPC\r\n')
+		--o:SendToEntity('Error cloning item.')
+		return false
+	end
+	return true
+end
+
+r1:add_tulip()
+
 --r1:SetBiomeType(biomeType.temperate)
 
 r2 = room.new(roomTypes.outdoor)

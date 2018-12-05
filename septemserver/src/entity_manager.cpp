@@ -1787,13 +1787,14 @@ void entity_manager::deregister_command(commandobj* cmd)
 void entity_manager::register_room(roomobj* room)
 {
     std::string room_path = room->GetInstancePath();
+
     m_room_lookup[room_path] = room;
-
-
     std::stringstream ss;
     ss << "Registered room into lookup table, room = " << room_path;
+    
     log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, room_path, ss.str());
-    save_room_cache(); // may need to rethink this approach
+    
+    //save_room_cache(); // may need to rethink this approach
 }
 
 void entity_manager::deregister_room(roomobj* room)
@@ -1994,6 +1995,7 @@ void entity_manager::register_entity(script_entity* entityobj, std::string& sp, 
             get_entity_str(ew->entity_type, e_str);
 
             ss << "Registered new entity, type = " << e_str << ", Path =" << ew->script_path;
+            db_interface::Instance().update_room_cache(ew->script_path, RoomState::RS_LIVE);
             log_interface::Instance().log(LOGLEVEL::LOGLEVEL_DEBUG, ew->script_path, ss.str());
         }
     } break;

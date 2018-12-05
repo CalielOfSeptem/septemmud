@@ -21,10 +21,11 @@
 #include <cassert>
 #include <functional>
 
-#include "spdlog/spdlog.h"
+#include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_sinks.h>
 #include <spdlog/sinks/sink.h>
-
+#include "spdlog/sinks/daily_file_sink.h"
+#include "spdlog/sinks/base_sink.h"
 
 #include <boost/asio.hpp>
 #include <boost/asio/strand.hpp>
@@ -63,9 +64,11 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
+#include <string_view>
+
 #include "luatypes.h"
 #include "string_utils.h"
-#include "json.hpp"
+#include "nlohmann/json.hpp"
 #include "entity_constants.h"
 #include "heartbeat_manager.h"
 #include "global_settings.h"

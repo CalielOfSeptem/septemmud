@@ -28,7 +28,8 @@
 
 #include "loghelper.h"
 #include <boost/signals2.hpp>
-
+using my_sink_mt = my_sink<std::mutex>;
+using my_sink_st = my_sink<spdlog::details::null_mutex>;
 class get_uid;
 struct extcommandobj;
 struct actionobj;
@@ -136,7 +137,8 @@ struct script_entity {
 		boost::signals2::signal<void()> on_destroy;
 private:
         std::string entity_storage_location; // used for persistence
-        my_sink m_entityLog;
+        my_sink_mt m_entityLog;//  = my_sink<std::mutex>;
+        //using my_sink_mt = my_sink<std::mutex>;
         std::unordered_map<std::string, sol::object> props;
         
         script_entity* environment_;

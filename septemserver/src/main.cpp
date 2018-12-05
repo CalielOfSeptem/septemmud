@@ -9,7 +9,7 @@
 
 #include "server/connectionsm.hpp"
 #include "server/httpserv.h"
-
+#include <dlfcn.h>
 namespace ba = boost::asio;
 namespace po = boost::program_options;
 
@@ -54,7 +54,7 @@ void TimerHandler(
 
 int main(int argc, char **argv)
 {
-    
+	std::cout << "Starting Up.." << std::endl;
     boost::property_tree::ptree pt;
 
     std::string working_directory = boost::filesystem::current_path().string();
@@ -168,6 +168,9 @@ int main(int argc, char **argv)
         maybe_data_path += "game_data/";
         game_data_path =  maybe_data_path;
     }
+
+	db_interface::Instance().save_global_setting(DEFAULT_GAME_DATA_PATH, game_data_path);
+
     global_settings::Instance().SetSetting( DEFAULT_GAME_DATA_PATH, game_data_path);
     global_settings::Instance().SetSetting( BASE_PLAYER_ENTITY_PATH, "entities/player");
     global_settings::Instance().SetSetting( DEFAULT_VOID_ROOM, "realms/void");
@@ -233,11 +236,23 @@ int main(int argc, char **argv)
 
             std::vector<spdlog::sink_ptr> sinks;
             //PD rotating file sink only takes 4 arguments.
-            auto rotating = std::make_shared<spdlog::sinks::rotating_file_sink_mt> (entityLog, "log", 1024*1024, 5);
-            auto stdout_sink = spdlog::sinks::stdout_sink_mt::instance();
-
-            sinks.push_back(stdout_sink);
-            sinks.push_back(rotating);
+          //  std::string logger_name = "file_logger";
+          //  spd::filename_t basename, ext;
+           // basename = logger_name;
+            //std::tie(basename, ext) = details::file_helper::split_by_extenstion(filename);
+            //w.write(SPDLOG_FILENAME_T("{}{}.{}{}"), basename, customize_part, index, ext);
+            //spd::rotating_logger_mt("file_logger", "logs/mylogfile", 1048576 * 5, 3);
+            //auto rotating = std::make_shared<spd::rotating_logger_mt> ("file_logger", entityLog, 1048576 * 5, 5);
+            
+            sinks.push_back(std::make_shared<spdlog::sinks::stdout_sink_st>());
+            sinks.push_back(std::make_shared<spdlog::sinks::daily_file_sink_st>("logfile", 23, 59));
+            //std::string std_name = "std_logger";
+            //auto stdout_sink = std::make_shared<spdlog::stdout_logger_mt>(std_name);
+            //auto console = spdlog::stdout_logger_mt("some_unique_name");
+            //sinks.push_back(std::make_shared<spdlog::sinks::daily_file_sink_st>("logfile", 23, 59));
+            //auto file_logger = spd::rotating_logger_mt("file_logger", "logs/mylogfile", 1048576 * 5, 3);
+            //sinks.push_back(stdout_sink);
+            //sinks.push_back(rotating);
             
             auto combined_logger = std::make_shared<spdlog::logger>("main", begin(sinks), end(sinks));
             spdlog::register_logger(combined_logger);

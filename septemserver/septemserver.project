@@ -134,21 +134,22 @@
       </Linker>
       <ResourceCompiler Options=""/>
     </GlobalSettings>
-    <Configuration Name="Debug" CompilerType="GCC" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
-      <Compiler Options="-g;-O0;-std=c++14;-Wall;-ftemplate-depth=10000;-ftemplate-backtrace-limit=0;-pipe" C_Options="-g;-O0;-Wall" Assembler="" Required="yes" PreCompiledHeader="./include/stdafx.h" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="1">
+    <Configuration Name="Debug" CompilerType="gnu g++" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-g;-O0;-std=c++14;-Wall;-ftemplate-depth=10000;-ftemplate-backtrace-limit=0;-pipe;-no-pie" C_Options="-g;-O0;-Wall" Assembler="" Required="yes" PreCompiledHeader="./include/stdafx.h" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="1">
         <IncludePath Value="."/>
         <IncludePath Value="include/"/>
         <IncludePath Value="../sol2"/>
         <IncludePath Value="../plog/include"/>
-        <IncludePath Value="/home/ken/lua-5.3.4/src"/>
+        <IncludePath Value="/home/ken/lua-5.3.5/src"/>
         <IncludePath Value="../../json/src"/>
         <IncludePath Value="../telnetpp/include"/>
         <IncludePath Value="../terminalpp/include"/>
         <IncludePath Value="../SQLiteCpp/include"/>
         <IncludePath Value="/home/ken/git-repos/septemmud/sol2"/>
+        <IncludePath Value="../../../spdlog/include"/>
       </Compiler>
-      <Linker Options="-lz;-ldl;-Wl,-export-dynamic" Required="yes">
-        <LibraryPath Value="/home/ken/lua-5.3.4/src"/>
+      <Linker Options="-lz;-ldl;-Wl,-E;-no-pie" Required="yes">
+        <LibraryPath Value="/home/ken/lua-5.3.5/src"/>
         <LibraryPath Value="../telnetpp/Debug"/>
         <LibraryPath Value="../terminalpp/Debug"/>
         <LibraryPath Value="/usr/local/lib"/>
@@ -172,7 +173,9 @@
         <![CDATA[]]>
       </Environment>
       <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
-        <DebuggerSearchPaths/>
+        <DebuggerSearchPaths>/usr/local
+/usr/local/lib
+/home/ken/git-repos/luarocks-3.0.4/lua_modules/share/lua/5.3</DebuggerSearchPaths>
         <PostConnectCommands/>
         <StartupCommands/>
       </Debugger>

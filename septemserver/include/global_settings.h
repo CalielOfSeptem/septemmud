@@ -25,7 +25,7 @@
 #ifndef GLOBAL_SETTINGS_H_
 #define GLOBAL_SETTINGS_H_
 
-#include "json.hpp"
+#include "nlohmann/json.hpp"
 using json = nlohmann::json;
 class global_settings
 {
@@ -50,18 +50,18 @@ public:
     global_settings& operator=(global_settings &&) = delete;      // Move assign
     
     
-    std::string GetSetting( const std::string setting )
+    std::string GetSetting( const std::string& setting )
     {
-        std::string tempstring;
+        std::string tmp = "";
         try
         {
-            tempstring = _json[setting];
+            tmp = _json[setting];
         }
-        catch( std::exception &ex )
+        catch( std::exception & ex )
         {
-            
+           
         }
-        return tempstring;
+        return tmp;
     }
     
     void SetSetting( const std::string& key, const std::string& value )

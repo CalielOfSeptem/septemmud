@@ -21,6 +21,8 @@ bool account::do_compare(std::string pass)
     return false;
 }
 
+
+
 bool account::do_load()
 {
     try {
@@ -62,7 +64,7 @@ bool account::do_load()
 		else{
             _entityGender = EntityGender::UNKNOWN;
         }
-
+        //_email = "";
         _email = _j[global_settings::Instance().GetSetting(ACCOUNT_EMAIL)];
         _lastLogon = _j[global_settings::Instance().GetSetting(ACCOUNT_LASTLOGON)];
         _secure_password = _j[global_settings::Instance().GetSetting(ACCOUNT_PASSWORD)];

@@ -1,14 +1,14 @@
 #include "stdafx.h"
 #include "server/httpserv.h"
-#include "../../../Simple-Web-Server/server_http.hpp"
-#include "../../../Simple-Web-Server/client_http.hpp"
+#include "server_http.hpp"
+#include "client_http.hpp"
 
 
 #include "entity_manager.h"
 
 //#include <boost/algorithm/string/replace.hpp>
 
-#include "json.hpp"
+
 //Added for the json-example
 #define BOOST_SPIRIT_THREADSAFE
 //#include <boost/property_tree/ptree.hpp>

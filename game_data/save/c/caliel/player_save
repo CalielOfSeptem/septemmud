@@ -1,11 +1,13 @@
 {
-    "cwd": "workspaces/caliel/entities/",
+    "cwd": "workspaces/caliel/",
     "gender": "male",
     "inventory": {
-        "lVu3JSDrzCNyI10": "workspaces/caliel/entities/backpack"
+        "B5TDaWiNRP67gGm": "workspaces/caliel/entities/backpack"
     },
-    "leftHand": 0,
+    "leftHand": {
+        "khJsvT46jJCXT7m": "workspaces/caliel/entities/simple leather helm"
+    },
     "rightHand": 0,
     "roomID": 0,
-    "roomPath": "realms/lere/sannesa_port/docks"
+    "roomPath": "workspaces/caliel/workroom"
 }

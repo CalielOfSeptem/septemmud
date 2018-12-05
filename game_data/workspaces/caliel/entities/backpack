@@ -4,23 +4,17 @@ i = item.new('a backpack', itemType.default)
 
 i:SetInventorySlot( inventorySlot.back )
 
-i.Look = 'an ordinary backpack'
+i:SetLook('an ordinary backpack with straps to be worn about the shoulders.')
 
 i.weight = 1
 i.size = itemSize.medium
---i.isWearable = true
---i.SetDefaultStackSize = 0
 i.isContainer = true
 i.isCloseable = true
 i.isOpen = false
---print('...')
---local b = i:SaveProperty('test', 1)
---print(b)
+
 function i:hb()
-	--p1:clone_items()
 	i:SaveProperty('test', 'HI')
 	local c = i:GetProperty('test')
-	--print(c)
 end
 
 

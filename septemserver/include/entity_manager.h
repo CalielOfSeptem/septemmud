@@ -47,7 +47,7 @@
 #include "account_manager.h"
 #include "account.h"
 #include "fs/fs_manager.h"
-/*
+/* 
 struct script_entity;
 struct living_entity;
 struct playerobj;
